@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@momentum/alpaca": "workspace:*",
+    "@momentum/config": "workspace:*",
     "@momentum/db": "workspace:*",
     "@momentum/domain": "workspace:*"
   }

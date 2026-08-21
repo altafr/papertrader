@@ -1,15 +1,18 @@
-import { ALPACA_ADAPTER_STATUS } from "@momentum/alpaca";
-import { DATABASE_ADAPTER_STATUS } from "@momentum/db";
-import { FOUNDATION_STATUS, type WorkerHealth } from "@momentum/domain";
+import { createServer } from "node:http";
 
-export function getWorkerHealth(now = new Date()): WorkerHealth {
-  return {
-    alpaca: ALPACA_ADAPTER_STATUS,
-    asOf: now.toISOString(),
-    database: DATABASE_ADAPTER_STATUS,
-    service: "worker",
-    status: FOUNDATION_STATUS.health,
-  };
-}
+import { getServerPort } from "@momentum/config";
 
-process.stdout.write(`${JSON.stringify(getWorkerHealth())}\n`);
+import { getWorkerHealth } from "./app.js";
+
+const server = createServer((request, response) => {
+  if (request.method === "GET" && request.url === "/health") {
+    response.writeHead(200, { "content-type": "application/json" });
+    response.end(JSON.stringify(getWorkerHealth()));
+    return;
+  }
+
+  response.writeHead(404, { "content-type": "application/json" });
+  response.end(JSON.stringify({ error: "not_found" }));
+});
+
+server.listen(getServerPort(), "0.0.0.0");
