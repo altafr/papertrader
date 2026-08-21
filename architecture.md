@@ -121,10 +121,15 @@ No general-purpose LLM receives unrestricted order-submission capability.
 
 Document these variable names without recording their values:
 
+- `APP_ENVIRONMENT` — must be `production-paper` for the hosted paper deployment.
+- `TRADING_MODE` — must be `paper`; live mode is unavailable in Version 1.
+- `BROKER_CONNECTION_ENABLED` — defaults to `false`; explicit `true` is not permitted until the read-only broker adapter gate is passed.
 - `ALPACA_API_KEY` — paper account key ID in Version 1.
 - `ALPACA_SECRET_KEY` — paper account secret in Version 1.
 - `ALPACA_PAPER_TRADE` — must default to `true`; absence must never imply live mode.
 - `ALPACA_TOOLSETS` — restrict MCP capabilities to the minimum required toolsets.
+
+The paper trading base URL is fixed in server configuration to `https://paper-api.alpaca.markets`; it is not a browser- or operator-selectable live endpoint.
 
 ### MCP Usage
 

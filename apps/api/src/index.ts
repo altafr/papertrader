@@ -1,6 +1,6 @@
 import { createServer } from "node:http";
 
-import { getServerPort } from "@momentum/config";
+import { getPaperOnlyRuntimeConfig, getServerPort } from "@momentum/config";
 
 import { getApiHealth } from "./app.js";
 
@@ -15,4 +15,5 @@ const server = createServer((request, response) => {
   response.end(JSON.stringify({ error: "not_found" }));
 });
 
+getPaperOnlyRuntimeConfig();
 server.listen(getServerPort(), "0.0.0.0");

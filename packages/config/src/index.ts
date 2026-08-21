@@ -1,5 +1,14 @@
 const DEFAULT_API_PORT = 3001;
 
+export const PAPER_TRADING_API_BASE_URL = "https://paper-api.alpaca.markets";
+
+export type PaperOnlyRuntimeConfig = {
+  brokerConnectionEnabled: boolean;
+  paperTrade: true;
+  tradingMode: "paper";
+  tradingApiBaseUrl: typeof PAPER_TRADING_API_BASE_URL;
+};
+
 export function getServerPort(environment = process.env): number {
   const rawPort = environment.PORT;
 
@@ -14,4 +23,57 @@ export function getServerPort(environment = process.env): number {
   }
 
   return parsedPort;
+}
+
+function parseBooleanFlag(name: string, value: string | undefined, defaultValue: boolean): boolean {
+  if (value === undefined) {
+    return defaultValue;
+  }
+
+  if (value === "true") {
+    return true;
+  }
+
+  if (value === "false") {
+    return false;
+  }
+
+  throw new Error(`${name} must be exactly true or false.`);
+}
+
+/**
+ * Validates the deployment safety envelope without returning or logging secrets.
+ * Broker access remains opt-in until a later read-only implementation unit.
+ */
+export function getPaperOnlyRuntimeConfig(environment = process.env): PaperOnlyRuntimeConfig {
+  const tradingMode = environment.TRADING_MODE ?? "paper";
+  if (tradingMode !== "paper") {
+    throw new Error("TRADING_MODE must be paper; live mode is unavailable.");
+  }
+
+  const paperTrade = parseBooleanFlag("ALPACA_PAPER_TRADE", environment.ALPACA_PAPER_TRADE, true);
+  if (!paperTrade) {
+    throw new Error("ALPACA_PAPER_TRADE must be true for this deployment.");
+  }
+
+  const brokerConnectionEnabled = parseBooleanFlag(
+    "BROKER_CONNECTION_ENABLED",
+    environment.BROKER_CONNECTION_ENABLED,
+    false,
+  );
+
+  if (brokerConnectionEnabled) {
+    if (!environment.ALPACA_API_KEY?.trim() || !environment.ALPACA_SECRET_KEY?.trim()) {
+      throw new Error(
+        "BROKER_CONNECTION_ENABLED=true requires both paper Alpaca credentials in server secret storage.",
+      );
+    }
+  }
+
+  return {
+    brokerConnectionEnabled,
+    paperTrade: true,
+    tradingMode: "paper",
+    tradingApiBaseUrl: PAPER_TRADING_API_BASE_URL,
+  };
 }
