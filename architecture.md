@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Proposed for Next.js/Vercel and Railway implementation.
+- **Stage:** Hosted foundation established; Phase 0.3 technical stack selected for later implementation.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -14,10 +14,13 @@
 | Web application | Strict TypeScript Next.js application hosted on Vercel | Authenticated dashboard and controls; no direct broker authority |
 | Styling/components | Accessible React component system selected during setup | Responsive operational UI |
 | Database | Railway PostgreSQL | Canonical application state, constraints, transactions, audit data, and reconciled read models |
-| Authentication | Next.js/Railway-compatible authentication provider [select provider] | Single-operator identity; Railway API verifies every authenticated command |
+| Authentication | Clerk (`@clerk/nextjs` plus Railway-side token verification) | Single-operator identity; Railway API verifies every authenticated command and enforces the operator allowlist |
 | Server secrets | Railway service variables; Vercel holds only frontend/auth values it requires | Alpaca credentials remain exclusively in Railway backend/worker services |
 | Server API | TypeScript API service on Railway | Authenticated commands, protected Alpaca REST access, dashboard read endpoints, and health |
-| Durable orchestration | Railway persistent worker plus a PostgreSQL-backed durable job queue; Railway cron only for bounded triggers | Daily schedules, retries, timeouts, workflows, reconciliation, and recovery |
+| PostgreSQL access | Drizzle ORM and Drizzle Kit over `node-postgres` | Typed queries, reviewed SQL migrations, PostgreSQL-native constraints, and explicit transactions |
+| Durable orchestration | Railway persistent worker plus `pg-boss`; Railway cron only for bounded triggers | Daily schedules, retries, timeouts, workflows, reconciliation, and recovery |
+| Runtime contracts | Zod | Validate environment, HTTP, database-boundary, queue, and external-provider payloads before domain use |
+| Financial arithmetic | `decimal.js` with explicitly configured precision and rounding | Decimal-safe money, price, quantity, P/L, exposure, fee, and risk calculations |
 | Live market worker | Railway persistent worker; Hostinger VPS or Render worker remain alternatives | Long-lived Alpaca market/trade WebSockets, supervised reconnect, gap detection, and transactional writes to PostgreSQL |
 | Trading integration | Alpaca Trading API | Account, orders, positions, portfolio and activity |
 | Market data | Alpaca Market Data REST/WebSocket APIs | Historical and real-time stocks/crypto data |
@@ -34,6 +37,32 @@ Do not run the continuous trading loop in the browser or Vercel functions. Verce
 - **Existing Hostinger VPS:** Remains a possible later migration target, but the operator would own OS/container patching, firewalling, TLS, monitoring, restart supervision, secret handling, database operations, and recovery testing.
 
 Railway cron may trigger bounded daily work, but a PostgreSQL-backed durable queue and persistent worker own stateful workflows, retries, dead-letter handling, and recovery. Server-side jobs run every calendar day independently of Vercel/dashboard availability. Disable serverless sleep/scale-to-zero for the API and stream worker.
+
+### Phase 0.3 Technical Selections
+
+| Concern | Selection | Why it fits | Principal tradeoff / alternative considered |
+| --- | --- | --- | --- |
+| Single-operator authentication | Clerk | First-party Next.js support, backend token verification, and re-verification flows fit a Vercel UI with a separately deployed Railway API. | Adds a managed-vendor dependency. Better Auth would reduce that dependency but would make this project responsible for auth endpoints, session persistence, upgrades, and more of the authentication security surface. |
+| PostgreSQL access and migrations | Drizzle ORM, Drizzle Kit, and `node-postgres` | Keeps schema and queries in strict TypeScript while retaining visible, reviewable SQL and direct use of PostgreSQL constraints and transactions. | Prisma has a broader generated-client workflow, but adds code generation and another schema abstraction where this system benefits from close SQL review. |
+| Durable job queue | `pg-boss` | Uses the existing Railway PostgreSQL service and supports persistent workers, retries, backoff, scheduling, heartbeats, and dead-letter queues without adding Redis. | Queue state shares the database failure domain and consumes database capacity; queue health and retention therefore require separate monitoring and limits. |
+| Runtime validation | Zod | TypeScript-first schemas can reject malformed configuration, commands, jobs, and provider payloads at trust boundaries. | Validation has runtime cost; validate at boundaries and avoid repeatedly parsing already trusted domain objects. |
+| Decimal arithmetic | `decimal.js` | Arbitrary precision plus explicit precision and rounding avoids binary floating-point calculations for financial values. | Values need deliberate serialization; PostgreSQL `numeric` values and API/job payloads remain decimal strings rather than JavaScript numbers. |
+
+These selections are architectural decisions, not installed dependencies. Phase 0.3 adds no authentication route, database schema, queue, broker connection, credential, or trading behavior. Dependency versions will be pinned only when each component is implemented and reviewed.
+
+Implementation constraints:
+
+- Clerk protects the dashboard, but the Railway API remains the authorization boundary. It must verify signature, issuer, audience/authorized party, expiry, and the exact allowlisted Clerk operator user ID on every non-health request.
+- Public sign-up, possession of a valid non-operator Clerk account, or a frontend route guard must never grant application authority. Sensitive commands additionally require server-verified recent re-authentication and an audit record.
+- Only server-side services receive private authentication configuration. Browser code may receive only Clerk values explicitly designated as publishable.
+- Drizzle migrations are committed, reviewed as SQL, and applied through a controlled migration step. Production schema changes must not be inferred or pushed automatically at application startup.
+- Raw SQL remains permitted for PostgreSQL constraints, locking, roles, append-only enforcement, and other safety invariants that cannot be expressed faithfully through the ORM.
+- `pg-boss` owns operational queue tables, not canonical trading state. Jobs carry immutable record identifiers, handlers remain idempotent despite retries or crashes, and no queue job can bypass mode, freshness, risk, or execution-time checks.
+- Queue schema upgrades use a pinned, reviewed procedure. Backlog, failed/dead-letter jobs, heartbeat age, retries, retention, and PostgreSQL load become monitored operational signals.
+- Zod schemas live at trust boundaries and produce redacted failures; they must not log secrets or accept a structurally valid payload as proof of authorization.
+- Financial values enter `decimal.js` from canonical decimal strings, use domain-specific cloned constructors with explicit precision and rounding, persist as PostgreSQL `numeric`, and serialize as strings. Conversion through JavaScript `number` is forbidden for authoritative calculations.
+
+Primary references reviewed for this selection: [Clerk Next.js](https://clerk.com/docs/nextjs/getting-started/quickstart), [Clerk backend token verification](https://clerk.com/docs/reference/backend/verify-token), [Clerk re-verification](https://clerk.com/docs/guides/secure/reverification), [Drizzle PostgreSQL](https://orm.drizzle.team/docs/get-started-postgresql), [Drizzle migrations](https://orm.drizzle.team/docs/drizzle-kit-generate), [`pg-boss`](https://github.com/timgit/pg-boss), [Zod](https://zod.dev/), and [`decimal.js`](https://mikemcl.github.io/decimal.js/).
 
 ## Runtime Components
 

@@ -3,9 +3,9 @@
 ## Snapshot
 
 - **Phase:** Phase 0 — foundation and setup.
-- **Status:** Phase 0.2 hosted foundation merged and verified from protected `main`.
+- **Status:** Phase 0.3 technical selections recorded; no dependencies or runtime behavior added.
 - **Current operating mode:** Paper only; order submission not yet enabled.
-- **Current goal:** Begin Phase 0.3 technical selections without adding broker access.
+- **Current goal:** Prepare Phase 0.4 security and paper-account setup without exposing credentials.
 - **Last updated:** 2026-08-22.
 
 ## Delivery Roadmap
@@ -33,10 +33,10 @@
 
 #### 0.3 Technical selections
 
-- [ ] Select and record the Next.js/Railway-compatible single-operator authentication provider.
-- [ ] Select and record the PostgreSQL migration/ORM library.
-- [ ] Select and record the PostgreSQL-backed durable job-queue library.
-- [ ] Select and record the runtime schema-validation and decimal-arithmetic libraries.
+- [x] Select and record Clerk as the Next.js/Railway-compatible single-operator authentication provider.
+- [x] Select and record Drizzle ORM, Drizzle Kit, and `node-postgres` for PostgreSQL access and migrations.
+- [x] Select and record `pg-boss` as the PostgreSQL-backed durable job queue.
+- [x] Select and record Zod and `decimal.js` for runtime validation and decimal arithmetic.
 
 #### 0.4 Security and paper-account setup
 
@@ -151,18 +151,24 @@
 - **Persistence boundary:** The worker now stays online only to serve `/health`; it reports database and Alpaca adapters as `not_configured`.
 - **Deployment source:** Railway API and worker both track `main`; their post-merge deployments completed successfully.
 
-## Next Build Unit — Phase 0.3
+## Completed Decision Unit — Phase 0.3
 
 - **User story:** As the operator, I have explicit, recorded technical choices for authentication, PostgreSQL access/migrations, durable jobs, runtime validation, and decimal-safe finance calculations.
-- **In scope:** Compare candidates against the existing Next.js/Vercel and Railway/PostgreSQL architecture, record decisions and tradeoffs, and add no broker access.
-- **Out of scope:** Implementing authentication, database schema, queues, Alpaca connectivity, strategies, risk, or order behavior.
+- **Selected stack:** Clerk; Drizzle ORM/Drizzle Kit with `node-postgres`; `pg-boss`; Zod; and `decimal.js`.
+- **Recorded safeguards:** Railway API authorization boundary, exact single-operator allowlist, server-verified re-authentication for sensitive commands, reviewed SQL migrations, idempotent durable jobs, redacted validation errors, and string-based decimal serialization.
+- **External effects:** None. No package, authentication route, database schema, queue, credential, Alpaca request, or trading behavior was added.
+
+## Next Build Unit — Phase 0.4
+
+- **User story:** As the operator, I have a paper-only Alpaca account fixed to the USD 1,000 baseline, with credentials isolated to Railway and absent everywhere else.
+- **In scope:** Reset/confirm the paper-account baseline, add credentials through Railway service variables without displaying them, require `ALPACA_PAPER_TRADE=true`, document variable names only, and perform a credential-leak audit.
+- **Out of scope:** Authentication implementation, database domain schema, queue implementation, broker trading calls, strategies, risk decisions, or order behavior.
+- **Operator dependency:** Account reset and secret entry require the operator's authenticated Alpaca/Railway sessions; secret values must never be pasted into chat, source, logs, or documentation.
 
 ## Open Questions
 
 | Priority | Question | Impact | Owner |
 | --- | --- | --- | --- |
-| P1 | Which Next.js/Railway-compatible authentication provider will protect the single-operator application? | Identity, authorization, re-authentication | Operator |
-| P1 | Which PostgreSQL migration/ORM and durable job-queue libraries will be used? | Schema evolution, transactions, retries, and recovery | Operator |
 | P1 | Which Alpaca market-data subscription/feed will be used? | Coverage, latency, entitlements, and tests | Operator |
 | P1 | What exact cancel/liquidate action should the global emergency stop perform by default? | Loss containment and operational safety | Operator |
 | P2 | Which alert channels should receive critical incidents? | Response time | Operator |
@@ -185,16 +191,21 @@
 | 2026-08-21 | Railway PostgreSQL is the Version 1 system of record. | PostgreSQL supplies transactional constraints, reconciliation queries, backups, and direct integration with the Railway API/worker stack. |
 | 2026-08-21 | Railway hosts the API, durable job processor, and always-on WebSocket worker. | Consolidating the backend reduces integrations while retaining persistent server processes. |
 | 2026-08-21 | Use a pnpm strict TypeScript workspace with separate web, API, worker, and shared packages. | Enforce deployment and permission boundaries before adding integrations. |
+| 2026-08-22 | Clerk is the single-operator authentication provider; the Railway API independently verifies tokens and the exact operator allowlist. | Its Next.js, backend verification, and re-verification support fit the split Vercel/Railway deployment while keeping authorization server-side. |
+| 2026-08-22 | Use Drizzle ORM and Drizzle Kit over `node-postgres`. | Preserve strict TypeScript ergonomics while keeping SQL migrations, PostgreSQL constraints, locking, and transactions visible and reviewable. |
+| 2026-08-22 | Use `pg-boss` for durable jobs on Railway PostgreSQL. | Avoid another stateful service while providing persistent scheduling, retries, backoff, heartbeats, and dead-letter handling. |
+| 2026-08-22 | Use Zod for runtime trust-boundary validation. | Reject malformed configuration, HTTP commands, queue payloads, and provider responses before domain use. |
+| 2026-08-22 | Use `decimal.js` for authoritative financial arithmetic and serialize decimal values as strings. | Make precision and rounding explicit and prevent binary floating-point values from entering persisted financial calculations. |
 
 ## Verification Status
 
 | Check | Result | Notes |
 | --- | --- | --- |
-| Context consistency | Pass | Six controlling files re-read before Phase 0.1 implementation |
-| Typecheck | Pass | `pnpm typecheck`; 7 workspace projects passed |
-| Lint | Pass | `pnpm lint`; zero warnings |
-| Tests | Pass | `pnpm test`; 3 files and 4 tests passed |
-| Build | Pass | `pnpm build`; shared packages, API, worker, and Next.js production build passed |
+| Context consistency | Pass | Six controlling files re-read before Phase 0.1 and Phase 0.3 changes; no conflict found |
+| Typecheck | Pass | Phase 0.3 re-run: `pnpm typecheck`; 7 workspace projects passed |
+| Lint | Pass | Phase 0.3 re-run: `pnpm lint`; zero warnings |
+| Tests | Pass | Phase 0.3 re-run: `pnpm test`; 3 files and 4 tests passed |
+| Build | Pass | Phase 0.3 re-run: `pnpm build`; shared packages, API, worker, and Next.js production build passed |
 | Runtime smoke | Pass | Web returned HTTP 200; API `/health` returned healthy; worker reported integrations not configured |
 | Remote source | Pass | PR `#1` squash-merged as `9f692ff`; protected `main` is the deployment source |
 | Vercel production | Pass | Post-merge `papertrader-web` production deployment Ready |
@@ -202,6 +213,7 @@
 | Railway services | Pass | Post-merge API `85180d9b`, worker `818a30ed`, and PostgreSQL deployments report `SUCCESS` in `us-west2` |
 | Railway API health | Pass | `https://api-production-e0a6.up.railway.app/health` returned HTTP 200 and healthy JSON |
 | Railway private boundary | Pass | PostgreSQL and worker have no public domain; only API public networking was created |
+| Phase 0.3 selection review | Pass | Compared current primary documentation and recorded choices, alternatives, boundaries, and implementation constraints; no dependencies installed |
 | Alpaca paper connection | Not run | Credentials/backend not configured |
 | Browser/preview | Partial | Production page HTTP check passed; visual/responsive review deferred beyond source scaffold |
 | Security review | Partial | No credential files, Alpaca client, database connection, or order code added; full review remains required |
@@ -220,10 +232,10 @@
 
 ## Session Handoff
 
-- **What exists:** Verified Phase 0.2 source, Vercel, Railway API/worker, and private PostgreSQL foundation with no broker access.
-- **Where to resume:** Begin Phase 0.3 by selecting authentication, PostgreSQL migration/ORM, durable queue, runtime validation, and decimal-arithmetic libraries.
+- **What exists:** Verified Phase 0.2 hosted foundation plus recorded Phase 0.3 selections for Clerk, Drizzle/`node-postgres`, `pg-boss`, Zod, and `decimal.js`, with no broker access.
+- **Where to resume:** Begin Phase 0.4 by safely confirming/resetting the Alpaca paper-account baseline and configuring Railway-only paper credentials without exposing their values.
 - **Important context:** Keep Alpaca paper mode and read-only behavior during Phase 1.
-- **Recommended next prompt:** Start Phase 0.3 technical selections.
+- **Recommended next prompt:** Start Phase 0.4 security and paper-account setup.
 
 ## Change Log
 
@@ -274,3 +286,11 @@
 - Reviewed and squash-merged PR `#1` to protected `main` after local and hosted checks passed.
 - Repointed Railway API and worker Git sources to `main` and verified both post-merge deployments.
 - Verified the post-merge Vercel production deployment, Railway private networking, and the public API health response.
+
+### 2026-08-22 — Phase 0.3 technical selections complete
+
+- Selected Clerk for single-operator identity with Railway-side token verification, operator allowlisting, and re-authentication requirements.
+- Selected Drizzle ORM/Drizzle Kit with `node-postgres` for reviewed PostgreSQL migrations, typed access, constraints, and transactions.
+- Selected `pg-boss` for PostgreSQL-backed durable jobs while retaining idempotent handlers and deterministic trading gates.
+- Selected Zod for runtime boundary validation and `decimal.js` for explicitly rounded, string-serialized financial arithmetic.
+- Recorded tradeoffs and implementation constraints without installing dependencies or adding authentication, schema, queue, Alpaca, credential, or trading behavior.
