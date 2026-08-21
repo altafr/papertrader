@@ -3,9 +3,9 @@
 ## Snapshot
 
 - **Phase:** Phase 0 — foundation and setup.
-- **Status:** Phase 0.3 technical selections recorded; no dependencies or runtime behavior added.
+- **Status:** Phase 0.4 safety envelope implemented; Alpaca account and Railway secret entry remain operator-pending.
 - **Current operating mode:** Paper only; order submission not yet enabled.
-- **Current goal:** Prepare Phase 0.4 security and paper-account setup without exposing credentials.
+- **Current goal:** Complete the operator-only paper-account reset and Railway sealed-variable setup without exposing credentials.
 - **Last updated:** 2026-08-22.
 
 ## Delivery Roadmap
@@ -42,7 +42,8 @@
 
 - [ ] Create or reset the Alpaca paper account to the `USD 1,000` baseline.
 - [ ] Add paper credentials only to Railway service variables and require `ALPACA_PAPER_TRADE=true`.
-- [ ] Add placeholders/documentation—not values—for required environment variables.
+- [x] Add placeholders/documentation—not values—for required environment variables.
+- [x] Add fail-closed runtime validation for paper mode, broker opt-in, and required credentials.
 - [ ] Verify Vercel, browser bundles, source control, logs, and PostgreSQL contain no Alpaca credentials.
 
 #### 0.5 Operational decisions
@@ -158,10 +159,11 @@
 - **Recorded safeguards:** Railway API authorization boundary, exact single-operator allowlist, server-verified re-authentication for sensitive commands, reviewed SQL migrations, idempotent durable jobs, redacted validation errors, and string-based decimal serialization.
 - **External effects:** None. No package, authentication route, database schema, queue, credential, Alpaca request, or trading behavior was added.
 
-## Next Build Unit — Phase 0.4
+## Active Build Unit — Phase 0.4
 
 - **User story:** As the operator, I have a paper-only Alpaca account fixed to the USD 1,000 baseline, with credentials isolated to Railway and absent everywhere else.
-- **In scope:** Reset/confirm the paper-account baseline, add credentials through Railway service variables without displaying them, require `ALPACA_PAPER_TRADE=true`, document variable names only, and perform a credential-leak audit.
+- **Implemented in this unit:** Added `.env.example` safe defaults, server-side paper-only runtime validation, startup fail-closed checks in the API and worker, tests, and operator setup instructions.
+- **Still in scope:** Reset/confirm the paper-account baseline, add credentials through Railway service variables without displaying them, and perform a credential-leak audit across deployed surfaces.
 - **Out of scope:** Authentication implementation, database domain schema, queue implementation, broker trading calls, strategies, risk decisions, or order behavior.
 - **Operator dependency:** Account reset and secret entry require the operator's authenticated Alpaca/Railway sessions; secret values must never be pasted into chat, source, logs, or documentation.
 
@@ -202,10 +204,10 @@
 | Check | Result | Notes |
 | --- | --- | --- |
 | Context consistency | Pass | Six controlling files re-read before Phase 0.1 and Phase 0.3 changes; no conflict found |
-| Typecheck | Pass | Phase 0.3 re-run: `pnpm typecheck`; 7 workspace projects passed |
-| Lint | Pass | Phase 0.3 re-run: `pnpm lint`; zero warnings |
-| Tests | Pass | Phase 0.3 re-run: `pnpm test`; 3 files and 4 tests passed |
-| Build | Pass | Phase 0.3 re-run: `pnpm build`; shared packages, API, worker, and Next.js production build passed |
+| Typecheck | Pass | Phase 0.4 re-run after shared-package build: `pnpm typecheck`; 7 workspace projects passed |
+| Lint | Pass | Phase 0.4 re-run: `pnpm lint`; zero warnings |
+| Tests | Pass | Phase 0.4 re-run: `pnpm test`; 3 files and 8 tests passed |
+| Build | Pass | Phase 0.4 re-run: `pnpm build`; shared packages, API, worker, and Next.js production build passed |
 | Runtime smoke | Pass | Web returned HTTP 200; API `/health` returned healthy; worker reported integrations not configured |
 | Remote source | Pass | PR `#1` squash-merged as `9f692ff`; protected `main` is the deployment source |
 | Vercel production | Pass | Post-merge `papertrader-web` production deployment Ready |
@@ -214,6 +216,7 @@
 | Railway API health | Pass | `https://api-production-e0a6.up.railway.app/health` returned HTTP 200 and healthy JSON |
 | Railway private boundary | Pass | PostgreSQL and worker have no public domain; only API public networking was created |
 | Phase 0.3 selection review | Pass | Compared current primary documentation and recorded choices, alternatives, boundaries, and implementation constraints; no dependencies installed |
+| Phase 0.4 runtime guard | Pass | Paper-only mode, explicit broker opt-in, paper endpoint, and credential presence are validated without returning or logging secret values |
 | Alpaca paper connection | Not run | Credentials/backend not configured |
 | Browser/preview | Partial | Production page HTTP check passed; visual/responsive review deferred beyond source scaffold |
 | Security review | Partial | No credential files, Alpaca client, database connection, or order code added; full review remains required |
@@ -232,10 +235,10 @@
 
 ## Session Handoff
 
-- **What exists:** Verified Phase 0.2 hosted foundation plus recorded Phase 0.3 selections for Clerk, Drizzle/`node-postgres`, `pg-boss`, Zod, and `decimal.js`, with no broker access.
-- **Where to resume:** Begin Phase 0.4 by safely confirming/resetting the Alpaca paper-account baseline and configuring Railway-only paper credentials without exposing their values.
+- **What exists:** Verified hosted foundation, Phase 0.3 selections, and Phase 0.4 fail-closed paper-only configuration guardrails. No broker access is enabled.
+- **Where to resume:** Complete the operator-only Alpaca paper-account reset and Railway sealed-variable entry, then run the credential-leak audit without sharing secret values.
 - **Important context:** Keep Alpaca paper mode and read-only behavior during Phase 1.
-- **Recommended next prompt:** Start Phase 0.4 security and paper-account setup.
+- **Recommended next prompt:** Continue Phase 0.4 with the Alpaca and Railway dashboard steps.
 
 ## Change Log
 
@@ -294,3 +297,10 @@
 - Selected `pg-boss` for PostgreSQL-backed durable jobs while retaining idempotent handlers and deterministic trading gates.
 - Selected Zod for runtime boundary validation and `decimal.js` for explicitly rounded, string-serialized financial arithmetic.
 - Recorded tradeoffs and implementation constraints without installing dependencies or adding authentication, schema, queue, Alpaca, credential, or trading behavior.
+
+### 2026-08-22 — Phase 0.4 safety envelope started
+
+- Added `.env.example` with safe paper-only defaults and variable names without credential values.
+- Added a server-side configuration guard that defaults to paper mode, rejects live mode, fixes the paper API endpoint, requires explicit broker opt-in, and requires both credentials before opt-in.
+- Applied the guard at API and worker startup and added tests covering defaults, live-mode rejection, missing credentials, and secret non-return.
+- Added operator instructions for creating/resetting the USD 1,000 paper account and sealing Railway variables; account reset and secret entry remain pending operator action.
