@@ -1,0 +1,30 @@
+{
+  "name": "momentum-autopilot",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Paper-only momentum trading operations platform.",
+  "packageManager": "pnpm@11.22.0",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "scripts": {
+    "build": "pnpm -r --if-present build",
+    "dev:api": "pnpm --filter @momentum/api dev",
+    "dev:web": "pnpm --filter @momentum/web dev",
+    "dev:worker": "pnpm --filter @momentum/worker dev",
+    "lint": "eslint apps packages --max-warnings=0",
+    "test": "vitest run",
+    "typecheck": "pnpm -r --if-present typecheck"
+  },
+  "devDependencies": {
+    "@eslint/js": "9.39.5",
+    "@types/node": "26.2.0",
+    "eslint": "9.39.5",
+    "globals": "17.11.0",
+    "tsx": "4.23.12",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.67.0",
+    "vitest": "4.1.11"
+  }
+}

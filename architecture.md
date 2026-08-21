@@ -1,0 +1,239 @@
+# Architecture Context
+
+## Status
+
+- **Stage:** Proposed for Next.js/Vercel and Railway implementation.
+- **Initial environment:** Alpaca paper trading only.
+- **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
+- **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
+
+## Platform Architecture
+
+| Layer | Technology/choice | Responsibility |
+| --- | --- | --- |
+| Web application | Strict TypeScript Next.js application hosted on Vercel | Authenticated dashboard and controls; no direct broker authority |
+| Styling/components | Accessible React component system selected during setup | Responsive operational UI |
+| Database | Railway PostgreSQL | Canonical application state, constraints, transactions, audit data, and reconciled read models |
+| Authentication | Next.js/Railway-compatible authentication provider [select provider] | Single-operator identity; Railway API verifies every authenticated command |
+| Server secrets | Railway service variables; Vercel holds only frontend/auth values it requires | Alpaca credentials remain exclusively in Railway backend/worker services |
+| Server API | TypeScript API service on Railway | Authenticated commands, protected Alpaca REST access, dashboard read endpoints, and health |
+| Durable orchestration | Railway persistent worker plus a PostgreSQL-backed durable job queue; Railway cron only for bounded triggers | Daily schedules, retries, timeouts, workflows, reconciliation, and recovery |
+| Live market worker | Railway persistent worker; Hostinger VPS or Render worker remain alternatives | Long-lived Alpaca market/trade WebSockets, supervised reconnect, gap detection, and transactional writes to PostgreSQL |
+| Trading integration | Alpaca Trading API | Account, orders, positions, portfolio and activity |
+| Market data | Alpaca Market Data REST/WebSocket APIs | Historical and real-time stocks/crypto data |
+| MCP | Alpaca MCP server in an authorized MCP client | Research/operator tooling; not assumed available to published runtime |
+| Notifications | [Select provider] | Critical operational and risk alerts |
+
+Do not run the continuous trading loop in the browser or Vercel functions. Vercel hosts the dashboard; Railway hosts broker access, durable jobs, and the supervised continuous worker.
+
+### Deployment Recommendation
+
+- **Selected frontend host: Vercel.** Use a conventional Next.js TypeScript application for the authenticated operational dashboard. It communicates only with the authenticated Railway API and never receives Alpaca credentials or order authority.
+- **Selected database/backend host: Railway.** Provision Railway PostgreSQL and separate persistent API and worker services. Keep database networking private within the Railway project; expose only the authenticated API.
+- **Sites:** Technically capable of hosting an authenticated external-data dashboard, but not selected because Next.js on Vercel gives this long-lived operational application a more conventional source, preview, deployment, and maintenance path.
+- **Existing Hostinger VPS:** Remains a possible later migration target, but the operator would own OS/container patching, firewalling, TLS, monitoring, restart supervision, secret handling, database operations, and recovery testing.
+
+Railway cron may trigger bounded daily work, but a PostgreSQL-backed durable queue and persistent worker own stateful workflows, retries, dead-letter handling, and recovery. Server-side jobs run every calendar day independently of Vercel/dashboard availability. Disable serverless sleep/scale-to-zero for the API and stream worker.
+
+## Runtime Components
+
+1. **Railway API gateway:** Verifies operator identity, serves read models, validates commands, and persists canonical state transactionally in PostgreSQL.
+2. **Railway scheduler/orchestrator:** Starts daily preparation, evaluation, reconciliation, and health workflows through a PostgreSQL-backed durable job queue.
+3. **Market-data adapter:** Normalizes Alpaca stock/crypto bars, quotes, trades, snapshots, calendars, and news into internal contracts.
+4. **Stream supervisor:** Maintains WebSocket connections, detects gaps, reconnects with backoff, and triggers REST backfill before declaring data fresh.
+5. **Research agents:** Produce structured research artifacts and watchlist rankings. They have read-only data access.
+6. **Strategy engine:** Runs versioned deterministic plug-ins and emits immutable signal candidates.
+7. **Trade-intent service:** Converts candidates to normalized proposed trades, freezes inputs, and assigns expiry.
+8. **Risk engine:** Applies code-defined policies and emits pass/fail plus rule-level reasons. It cannot be overridden by a strategy agent.
+9. **Execution service:** Submits/cancels/replaces orders with unique client order IDs, bounded retries, and broker-response persistence.
+10. **Reconciliation service:** Treats Alpaca as broker truth, resolves event gaps, and detects internal/broker discrepancies.
+11. **Performance service:** Calculates ledger-based P/L, equity, exposure, drawdown, slippage, and strategy attribution.
+12. **Alert service:** Delivers stale-data, rejected-order, disconnect, discrepancy, loss-limit, and kill-switch alerts.
+
+Paper Autopilot requires no per-order operator confirmation. Submission still requires an unexpired deterministic risk approval and all execution-time mode, freshness, kill-switch, and account-state checks.
+
+## Source Layout
+
+Use a single strict TypeScript workspace with these boundaries:
+
+- `apps/web` — Next.js dashboard deployed to Vercel; no Alpaca credentials, database connection, scheduling, or broker mutation code.
+- `apps/api` — authenticated Railway HTTP API for dashboard reads and operator commands.
+- `apps/worker` — Railway durable jobs, reconciliation, scheduling, and later Alpaca WebSocket supervision/execution.
+- `packages/domain` — versioned domain contracts and state machines with no infrastructure dependencies.
+- `packages/db` — PostgreSQL schema, migrations, repositories, constraints, and transaction helpers.
+- `packages/alpaca` — server-only Alpaca adapters, normalization, and runtime validation.
+- `packages/config` — typed environment contracts with explicit browser/server separation.
+
+The first implementation unit creates only this compiling boundary structure. It must not add Alpaca credentials, broker calls, trading capability, or hosted resources.
+
+## Agent Permission Matrix
+
+| Agent | Market data | Research write | Config write | Risk approve | Order submit |
+| --- | --- | --- | --- | --- | --- |
+| Orchestrator | Read | No | No | No | No |
+| Stock/Crypto research | Read | Own artifacts | No | No | No |
+| Macro advisory | Read/news | Own artifacts | No | No | No |
+| Strategy engine | Read frozen inputs | Signals only | No | No | No |
+| Risk explainer | Read | Explanation only | No | No | No |
+| Deterministic risk engine | Read canonical state | Decision record | Policy read-only | Yes | No |
+| Execution service | Required snapshot | Execution events | No | Validates approval | Yes |
+| Reconciliation | Broker read | Canonical events | No | No | Cancel only by policy |
+
+No general-purpose LLM receives unrestricted order-submission capability.
+
+## Alpaca Integration
+
+### Environments
+
+- `ALPACA_PAPER_TRADE=true` is required for Version 1.
+- Use paper API keys in a server secret store; do not paste them into chat or source code.
+- Live keys must use separate secrets and a separate deployment/environment.
+- Live mode must not be selectable merely by changing a browser value or database row.
+
+Document these variable names without recording their values:
+
+- `ALPACA_API_KEY` — paper account key ID in Version 1.
+- `ALPACA_SECRET_KEY` — paper account secret in Version 1.
+- `ALPACA_PAPER_TRADE` — must default to `true`; absence must never imply live mode.
+- `ALPACA_TOOLSETS` — restrict MCP capabilities to the minimum required toolsets.
+
+### MCP Usage
+
+- Enable only required Alpaca MCP toolsets; begin with read-only `account,assets,stock-data,crypto-data,news,watchlists`.
+- Keep the MCP `trading` toolset disabled during read-only and recommendation phases.
+- Use MCP to aid research, account inspection, watchlists, and operator diagnostics in compatible clients.
+- Do not assume a development-client MCP connector exists in the deployed app. Runtime automation calls Alpaca APIs from protected Railway infrastructure.
+
+### REST and Streams
+
+- REST handles account snapshots, assets, calendars/clock, historical bars, orders, positions, activities, and reconciliation.
+- Market-data WebSockets feed real-time stock/crypto updates.
+- Trading WebSockets feed order and account updates.
+- Persist Alpaca request IDs when available for support and incident traceability.
+- Respect subscription entitlements, symbol availability, connection limits, and rate limits.
+
+## State Machines
+
+### Trade Intent
+
+`candidate → expired | risk_rejected | approved → submission_pending → submitted → acknowledged → partially_filled → filled | cancelled | rejected | expired → reconciled`
+
+- Every transition is append-only and timestamped.
+- Invalid transitions fail closed.
+- An expired or risk-rejected intent cannot be submitted.
+- Submission requires matching strategy version, risk-policy version, operating mode, and unexpired approval.
+
+### System
+
+`starting → healthy | degraded → paused → stopping → stopped`
+
+- Any stale critical dependency can move the system to `degraded` or `paused`.
+- A global kill switch overrides all strategy and scheduler states.
+
+## Core Data Model
+
+| Entity | Purpose | Key fields |
+| --- | --- | --- |
+| `system_config` | Current mode and operational config | mode, version, updated_by, effective_at |
+| `risk_policies` | Versioned deterministic limits | version, status, thresholds_json, checksum |
+| `strategies` | Plug-in identity and lifecycle | key, version, asset_class, stage, enabled |
+| `strategy_parameters` | Versioned bounded parameters | strategy_version, values_json, effective_at |
+| `strategy_runs` | Reproducible evaluations | strategy_version, input_snapshot_id, started_at, status |
+| `market_snapshots` | Frozen inputs used by decisions | symbols, timestamps, source, freshness, payload/ref |
+| `research_artifacts` | Agent outputs | agent_type, schema_version, evidence, created_at |
+| `signals` | Normalized strategy candidates | symbol, side, score, rationale, valid_until |
+| `trade_intents` | Immutable proposed trades | signal_id, quantity/notional, order_type, exit_plan |
+| `risk_decisions` | Rule-by-rule pass/fail | intent_id, policy_version, account_snapshot_id, reasons |
+| `orders` | Canonical submitted orders | client_order_id, alpaca_order_id, intent_id, status |
+| `order_events` | Broker lifecycle events | order_id, event_type, broker_timestamp, raw_ref |
+| `fills` | Execution records | order_id, quantity, price, fee, timestamp |
+| `positions` | Reconciled current positions | symbol, asset_class, quantity, avg_price, strategy_key |
+| `account_snapshots` | Broker/account truth over time | equity, cash, buying_power, timestamp |
+| `performance_snapshots` | Derived dashboard metrics | pnl, exposure, drawdown, attribution, timestamp |
+| `agent_runs` | Agent/job health and outputs | agent, job_id, status, latency, error_code |
+| `commands` | Operator control requests | type, payload, requested_by, status |
+| `audit_events` | Immutable security/decision trail | actor, action, entity, before_ref, after_ref, timestamp |
+| `alerts` | Operational and risk incidents | severity, code, state, acknowledged_by |
+
+High-volume raw ticks/bars may live in time-series/object storage; keep indexed decision snapshots and references in the primary database.
+
+In Version 1, Railway PostgreSQL is the primary database. Large raw tick/bar payloads should not be copied indiscriminately into hot transactional tables; retain normalized bars, decision snapshots, checksums, and references required for replay and audit, with object storage or a specialized time-series store added if volume requires it.
+
+## Risk Evaluation Order
+
+1. Mode and global/strategy/asset kill switches.
+2. Account status and trading eligibility.
+3. Market/session eligibility and asset tradability.
+4. Market/account/position data freshness and stream-gap status.
+5. Signal expiry, strategy enabled stage, and strategy allocation.
+6. Duplicate/cooldown/open-order conflict checks.
+7. Daily loss, drawdown, gross exposure, crypto exposure, position count, and trade-count limits.
+8. Symbol concentration and correlated-exposure limits when configured.
+9. Liquidity, spread, volatility, notional, minimum increment, and estimated slippage.
+10. Exit plan and order-type validity.
+
+Position sizing must also reject any intent whose estimated loss at the planned stop, including estimated fees and slippage, exceeds the lower of `0.25%` of current equity and `USD 100`. The initial paper-account equity baseline is `USD 1,000` and must be reconciled before Paper Autopilot can start.
+
+Any failure rejects the intent. Missing data is a failure, not a pass.
+
+## Idempotency and Concurrency
+
+- Derive `client_order_id` from environment, strategy run, intent, and attempt; enforce uniqueness with a PostgreSQL unique constraint.
+- Acquire an intent-level lock/lease in a PostgreSQL transaction before submission.
+- Persist submission intent before the broker call and persist response/request ID immediately after.
+- On timeout or ambiguous response, query Alpaca by client order ID before retrying.
+- Serialize conflicting operations per account and symbol when necessary.
+- Deduplicate stream and webhook events by broker event identity plus payload checksum.
+
+## Performance Accounting
+
+- Alpaca account/position/order state is broker truth; internal state is a reconciled projection.
+- Use decimal-safe arithmetic or integer minor units where applicable; never use binary floating point for persisted money calculations.
+- Keep realized P/L, unrealized P/L, fees, slippage, deposits/withdrawals, and mark source distinct.
+- Store timestamps in UTC and label display timezone.
+- Performance views state whether values are broker-provided, calculated, delayed, or estimated.
+
+## Security and Access
+
+- Single operator authentication is required for all non-health routes.
+- Re-authentication is required for mode changes, risk-limit loosening, live credential activation, flattening, and resume after kill.
+- Server-side authorization protects every command and configuration change.
+- Encrypt secrets using platform secret storage and redact sensitive headers/payloads from logs.
+- Audit all logins, mode/risk/strategy changes, order commands, emergency actions, and secret-configuration status changes.
+- Apply least privilege to MCP toolsets and runtime service credentials.
+- Give the API and worker separate least-privilege PostgreSQL roles where practical; neither service may use a database superuser for normal runtime work.
+
+## Reliability
+
+- Durable jobs use bounded retries, exponential backoff, idempotency keys, and dead-letter handling.
+- Stream reconnect requires gap detection and REST backfill before signals resume.
+- Scheduled health and broker reconciliation continue even if no market signal exists.
+- Alert delivery failures do not suppress the underlying risk or system state.
+- Recovery after restart begins paused until account, positions, open orders, configuration, and freshness are reconciled.
+- Enable Railway scheduled volume backups and point-in-time recovery, create off-platform logical PostgreSQL dumps, and test restoration. Source code, service variables, and queue/runbook recovery require separate procedures.
+
+## Architectural Invariants
+
+1. Version 1 cannot call Alpaca live trading endpoints.
+2. Browser code never receives Alpaca credentials or direct order authority.
+3. AI/strategy output cannot bypass deterministic risk approval.
+4. Every broker write is idempotent and fully auditable.
+5. Broker state is reconciled before the system resumes after an outage.
+6. Missing, delayed, inconsistent, or stale critical data stops new entries.
+7. Risk-limit breaches stop new entries immediately; exit/cancel behavior follows the configured emergency policy.
+8. No strategy changes its own code, parameters, stage, or allocation.
+9. Dashboard P/L never substitutes for broker reconciliation or the accounting ledger.
+10. Always-on work runs on Railway server infrastructure, not in a browser, Sites/Vercel frontend function, or chat session.
+
+## Live-Readiness Gates
+
+Live modes remain unavailable until all are documented as passed:
+
+- Minimum 30 consecutive calendar days stable paper operation.
+- Restart, retry, duplicate submission, stream-gap, stale-data, rate-limit, partial-fill, rejected-order, and kill-switch tests pass.
+- Strategy evaluation includes realistic fees/slippage and adequate sample size across regimes.
+- Risk thresholds and emergency behavior receive explicit operator approval.
+- Alerts have at least two tested delivery paths for critical incidents.
+- Secrets, access control, audit logging, dependency review, backup, and recovery checks pass.
+- Paper/live environment isolation is verified.
+- A limited-capital live rollout and rollback plan is approved.

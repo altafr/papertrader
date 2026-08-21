@@ -1,0 +1,17 @@
+{
+  "name": "@momentum/worker",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "dev": "tsx watch src/index.ts",
+    "start": "node dist/index.js",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@momentum/alpaca": "workspace:*",
+    "@momentum/db": "workspace:*",
+    "@momentum/domain": "workspace:*"
+  }
+}

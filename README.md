@@ -1,0 +1,63 @@
+# Momentum Autopilot — Project Context Pack
+
+This folder contains the project context for a continuously running, multi-agent trading application with a Next.js dashboard on Vercel and a Railway backend connected to Alpaca.
+
+## Product intent
+
+Momentum Autopilot researches US stocks and supported crypto assets, prepares a daily plan, monitors live markets, ranks opportunities, submits risk-approved orders, reconciles fills, and displays live performance. It begins in paper trading and can move to live trading only after explicit readiness gates are passed.
+
+## Files
+
+1. `project-overview.md` — product, users, flows, requirements, scope, and release criteria.
+2. `architecture.md` — agents, services, data model, Alpaca integration, security, and invariants.
+3. `ui-context.md` — trading dashboard, control surfaces, states, and design system.
+4. `code-standards.md` — implementation rules for financial calculations, agents, APIs, and tests.
+5. `ai-workflow-rules.md` — how development agents should build and verify the system safely.
+6. `progress-tracker.md` — delivery phases, decisions, blockers, and verification state.
+7. `AGENTS.md` — root-level instructions telling development agents how to use the context pack.
+
+## Important integration distinction
+
+- The Alpaca MCP server can support research and operator workflows in a compatible MCP client.
+- A development-client MCP connection supplies context while building; it is not automatically part of the published app runtime.
+- The deployed trading engine must use Alpaca's authenticated Trading and Market Data APIs from server-side infrastructure. Live streams use Alpaca WebSockets.
+- Alpaca credentials must exist only in Railway service secret variables. Never paste keys into chat or commit them.
+
+## Build order
+
+1. Create the strict TypeScript Next.js project for Vercel and keep these files at the repository root.
+2. Provision the Railway API, persistent worker, and PostgreSQL services; select a compatible authentication provider.
+3. Add **paper trading** Alpaca keys only to Railway service secret variables.
+4. Build the read-only dashboard and persisted audit log.
+5. Add historical replay and strategy evaluation.
+6. Add paper order submission behind the deterministic risk engine.
+7. Add durable schedules and live stream workers.
+8. Complete the live-readiness checklist before adding live credentials.
+
+## Local workspace
+
+- `apps/web` — Next.js dashboard for Vercel.
+- `apps/api` — authenticated API boundary for Railway.
+- `apps/worker` — durable job and stream-worker boundary for Railway.
+- `packages/domain` — infrastructure-independent contracts.
+- `packages/db` — PostgreSQL boundary; intentionally not configured in Phase 0.1.
+- `packages/alpaca` — server-only broker boundary; intentionally not configured in Phase 0.1.
+- `packages/config` — typed server configuration helpers.
+
+Use `pnpm typecheck`, `pnpm lint`, `pnpm test`, and `pnpm build` for the local verification loop. Phase 0.1 contains no credentials, broker request, database connection, or order behavior.
+
+The server must run daily preparation, health, reconciliation, and evaluation independently of an open browser. Paper Autopilot does not require per-order human confirmation, but every order still requires deterministic risk approval. The initial paper baseline is `USD 1,000`; estimated loss at the planned stop is limited to the lower of `0.25%` of equity and `USD 100`.
+
+Railway PostgreSQL is the selected system of record. Railway also hosts the authenticated API, PostgreSQL-backed durable jobs, and persistent Alpaca market/trading WebSocket worker. Vercel hosts only the dashboard and contains no Alpaca credentials or direct order authority.
+
+For the Alpaca MCP connection, configure `ALPACA_API_KEY`, `ALPACA_SECRET_KEY`, `ALPACA_PAPER_TRADE=true`, and a least-privilege `ALPACA_TOOLSETS` list in the MCP client's environment/secret configuration. Do not place their values in these files.
+
+## First implementation prompt
+
+```text
+Read AGENTS.md and all six project context files. Build only Phase 0.1 from progress-tracker.md: initialize Git and scaffold the strict TypeScript workspace with separate web, API, worker, domain, database, Alpaca-adapter, and configuration boundaries. Do not provision hosted resources, add credentials, call Alpaca, create order behavior, or begin Phase 1. Run the local quality checks and update progress-tracker.md with exact results.
+```
+
+## Disclaimer
+
+This is a software specification, not investment advice or a claim of profitability. Momentum strategies can lose money. Paper results do not predict live results, and live execution must remain bounded by documented risk controls.
