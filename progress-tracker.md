@@ -3,10 +3,10 @@
 ## Snapshot
 
 - **Phase:** Phase 0 — foundation and setup.
-- **Status:** Phase 0.1 source foundation verified; Phase 0.2 hosted foundation not started.
+- **Status:** Phase 0.2 hosted foundation verified on the draft pull-request branch; review and merge remain.
 - **Current operating mode:** Paper only; order submission not yet enabled.
-- **Current goal:** Connect the source repository, then create the Vercel and Railway hosted foundation without enabling broker access.
-- **Last updated:** 2026-08-21.
+- **Current goal:** Review and merge Phase 0.2, repoint Railway from the feature branch to protected `main`, then begin Phase 0.3 technical selections.
+- **Last updated:** 2026-08-22.
 
 ## Delivery Roadmap
 
@@ -24,12 +24,12 @@
 
 #### 0.2 Hosted foundation
 
-- [ ] Create/connect the remote source repository.
-- [ ] Push the baseline and protect the remote `main` branch.
-- [ ] Create the Vercel project for `apps/web` with preview and production environments.
-- [ ] Create one Railway project with separate `api`, `worker`, and PostgreSQL services.
-- [ ] Keep PostgreSQL private to Railway services; expose only the authenticated API.
-- [ ] Configure development, preview, and production-paper environments without any live-trading configuration.
+- [x] Create/connect the remote source repository.
+- [x] Push the baseline and protect the remote `main` branch.
+- [x] Create the Vercel project for `apps/web` with preview and production environments.
+- [x] Create one Railway project with separate `api`, `worker`, and PostgreSQL services.
+- [x] Keep PostgreSQL private to Railway services; expose only the API health surface pending Phase 1 authentication.
+- [x] Configure local development, Vercel preview/production, and Railway production-paper variables without any live-trading configuration.
 
 #### 0.3 Technical selections
 
@@ -135,11 +135,27 @@
   - [x] Worker reports both database and Alpaca as `not_configured` and exits.
   - [x] Typecheck, lint, unit tests, and production builds pass.
 
-## Next Build Unit — Phase 0.2
+## Phase 0.2 Review Handoff
 
 - **User story:** As the operator, I have an isolated Vercel frontend and Railway API/worker/PostgreSQL foundation connected to version-controlled deployments, with no broker access.
 - **In scope:** Remote repository, protected `main`, Vercel project, Railway API/worker/PostgreSQL services, private networking, and environment separation.
 - **Out of scope:** Authentication implementation, Alpaca credentials or calls, database domain schema, market streams, agents, strategies, risk, and order behavior.
+
+## Completed Hosted Unit — Phase 0.2
+
+- **Source control:** Baseline pushed to `altafr/papertrader`; remote `main` requires pull requests, enforces administrator protection and conversation resolution, and rejects force-pushes and deletion.
+- **Delivery branch:** `chore/phase-0-2-hosting`; draft pull request `#1` remains open for review and merge.
+- **Vercel:** `papertrader-web` is connected to the GitHub repository with `apps/web` as root, shared workspace sources enabled, and dependency-aware builds. Production and preview deployments are Ready; deployment protection remains enabled.
+- **Railway:** Project `papertrader` contains healthy `api`, `worker`, and PostgreSQL services. The API alone has a public domain; worker and PostgreSQL have none.
+- **Environment safety:** API and worker use `APP_ENVIRONMENT=production-paper`, `TRADING_MODE=paper`, and `BROKER_CONNECTION_ENABLED=false`. No Alpaca variable, credential, client, request, or order path exists.
+- **Persistence boundary:** The worker now stays online only to serve `/health`; it reports database and Alpaca adapters as `not_configured`.
+- **Merge handoff:** After pull request `#1` is merged, change both Railway Git sources from `chore/phase-0-2-hosting` to `main` and verify one clean deployment before Phase 0.3.
+
+## Next Build Unit — Phase 0.3
+
+- **User story:** As the operator, I have explicit, recorded technical choices for authentication, PostgreSQL access/migrations, durable jobs, runtime validation, and decimal-safe finance calculations.
+- **In scope:** Compare candidates against the existing Next.js/Vercel and Railway/PostgreSQL architecture, record decisions and tradeoffs, and add no broker access.
+- **Out of scope:** Implementing authentication, database schema, queues, Alpaca connectivity, strategies, risk, or order behavior.
 
 ## Open Questions
 
@@ -177,9 +193,15 @@
 | Context consistency | Pass | Six controlling files re-read before Phase 0.1 implementation |
 | Typecheck | Pass | `pnpm typecheck`; 7 workspace projects passed |
 | Lint | Pass | `pnpm lint`; zero warnings |
-| Tests | Pass | `pnpm test`; 2 files and 3 tests passed |
+| Tests | Pass | `pnpm test`; 3 files and 4 tests passed |
 | Build | Pass | `pnpm build`; shared packages, API, worker, and Next.js production build passed |
 | Runtime smoke | Pass | Web returned HTTP 200; API `/health` returned healthy; worker reported integrations not configured |
+| Remote source | Pass | `altafr/papertrader` baseline pushed; protected `main`; draft PR `#1` contains Phase 0.2 changes |
+| Vercel production | Pass | `papertrader-web` production deployment Ready |
+| Vercel preview | Pass | Preview deployment `dpl_CJ52EHx8fvznZGX6tDbreHhfN35F` Ready; access remains protected by Vercel |
+| Railway services | Pass | API, worker, and PostgreSQL deployments all report `SUCCESS` in `us-west2` |
+| Railway API health | Pass | `https://api-production-e0a6.up.railway.app/health` returned HTTP 200 and healthy JSON |
+| Railway private boundary | Pass | PostgreSQL and worker have no public domain; only API public networking was created |
 | Alpaca paper connection | Not run | Credentials/backend not configured |
 | Browser/preview | Partial | Production page HTTP check passed; visual/responsive review deferred beyond source scaffold |
 | Security review | Partial | No credential files, Alpaca client, database connection, or order code added; full review remains required |
@@ -198,10 +220,10 @@
 
 ## Session Handoff
 
-- **What exists:** Verified Phase 0.1 pnpm workspace with separate web, API, worker, and shared package boundaries.
-- **Where to resume:** Start Phase 0.2 by creating the remote repository and hosted Vercel/Railway foundation; do not add broker access.
+- **What exists:** Verified Phase 0.2 source, Vercel, Railway API/worker, and private PostgreSQL foundation with no broker access.
+- **Where to resume:** Review and merge draft PR `#1`, repoint Railway API/worker Git sources to `main`, verify deployments, then begin Phase 0.3 selections.
 - **Important context:** Keep Alpaca paper mode and read-only behavior during Phase 1.
-- **Recommended next prompt:** Use the first implementation prompt in `README.md`.
+- **Recommended next prompt:** Review and merge Phase 0.2, then start Phase 0.3 technical selections.
 
 ## Change Log
 
@@ -238,3 +260,11 @@
 - Added a truthful Paper/Read-only/No broker connection foundation page and minimal API/worker health contracts.
 - Verified typecheck, lint, 3 unit tests, all production builds, and web/API/worker runtime smoke checks.
 - Added no secrets, hosted resources, database connection, Alpaca request, or order capability.
+
+### 2026-08-22 — Phase 0.2 hosted foundation ready for review
+
+- Connected and pushed `altafr/papertrader`, protected `main`, and opened draft PR `#1`.
+- Created the Vercel `papertrader-web` project with dependency-aware monorepo builds and verified production and preview deployments.
+- Created the Railway `papertrader` project with separate healthy API, worker, and PostgreSQL services.
+- Exposed only the API, kept worker/PostgreSQL private, and configured paper-only non-secret environment gates.
+- Added Railway config-as-code and a persistent worker health endpoint while leaving database and Alpaca adapters unconfigured.
