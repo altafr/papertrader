@@ -3,9 +3,9 @@
 ## Snapshot
 
 - **Phase:** Phase 0 — foundation and setup.
-- **Status:** Phase 0.2 hosted foundation verified on the draft pull-request branch; review and merge remain.
+- **Status:** Phase 0.2 hosted foundation merged and verified from protected `main`.
 - **Current operating mode:** Paper only; order submission not yet enabled.
-- **Current goal:** Review and merge Phase 0.2, repoint Railway from the feature branch to protected `main`, then begin Phase 0.3 technical selections.
+- **Current goal:** Begin Phase 0.3 technical selections without adding broker access.
 - **Last updated:** 2026-08-22.
 
 ## Delivery Roadmap
@@ -144,12 +144,12 @@
 ## Completed Hosted Unit — Phase 0.2
 
 - **Source control:** Baseline pushed to `altafr/papertrader`; remote `main` requires pull requests, enforces administrator protection and conversation resolution, and rejects force-pushes and deletion.
-- **Delivery branch:** `chore/phase-0-2-hosting`; draft pull request `#1` remains open for review and merge.
+- **Source delivery:** Pull request `#1` was squash-merged to protected `main` as commit `9f692ff` after local and hosted checks passed.
 - **Vercel:** `papertrader-web` is connected to the GitHub repository with `apps/web` as root, shared workspace sources enabled, and dependency-aware builds. Production and preview deployments are Ready; deployment protection remains enabled.
 - **Railway:** Project `papertrader` contains healthy `api`, `worker`, and PostgreSQL services. The API alone has a public domain; worker and PostgreSQL have none.
 - **Environment safety:** API and worker use `APP_ENVIRONMENT=production-paper`, `TRADING_MODE=paper`, and `BROKER_CONNECTION_ENABLED=false`. No Alpaca variable, credential, client, request, or order path exists.
 - **Persistence boundary:** The worker now stays online only to serve `/health`; it reports database and Alpaca adapters as `not_configured`.
-- **Merge handoff:** After pull request `#1` is merged, change both Railway Git sources from `chore/phase-0-2-hosting` to `main` and verify one clean deployment before Phase 0.3.
+- **Deployment source:** Railway API and worker both track `main`; their post-merge deployments completed successfully.
 
 ## Next Build Unit — Phase 0.3
 
@@ -196,10 +196,10 @@
 | Tests | Pass | `pnpm test`; 3 files and 4 tests passed |
 | Build | Pass | `pnpm build`; shared packages, API, worker, and Next.js production build passed |
 | Runtime smoke | Pass | Web returned HTTP 200; API `/health` returned healthy; worker reported integrations not configured |
-| Remote source | Pass | `altafr/papertrader` baseline pushed; protected `main`; draft PR `#1` contains Phase 0.2 changes |
-| Vercel production | Pass | `papertrader-web` production deployment Ready |
+| Remote source | Pass | PR `#1` squash-merged as `9f692ff`; protected `main` is the deployment source |
+| Vercel production | Pass | Post-merge `papertrader-web` production deployment Ready |
 | Vercel preview | Pass | Preview deployment `dpl_CJ52EHx8fvznZGX6tDbreHhfN35F` Ready; access remains protected by Vercel |
-| Railway services | Pass | API, worker, and PostgreSQL deployments all report `SUCCESS` in `us-west2` |
+| Railway services | Pass | Post-merge API `85180d9b`, worker `818a30ed`, and PostgreSQL deployments report `SUCCESS` in `us-west2` |
 | Railway API health | Pass | `https://api-production-e0a6.up.railway.app/health` returned HTTP 200 and healthy JSON |
 | Railway private boundary | Pass | PostgreSQL and worker have no public domain; only API public networking was created |
 | Alpaca paper connection | Not run | Credentials/backend not configured |
@@ -221,9 +221,9 @@
 ## Session Handoff
 
 - **What exists:** Verified Phase 0.2 source, Vercel, Railway API/worker, and private PostgreSQL foundation with no broker access.
-- **Where to resume:** Review and merge draft PR `#1`, repoint Railway API/worker Git sources to `main`, verify deployments, then begin Phase 0.3 selections.
+- **Where to resume:** Begin Phase 0.3 by selecting authentication, PostgreSQL migration/ORM, durable queue, runtime validation, and decimal-arithmetic libraries.
 - **Important context:** Keep Alpaca paper mode and read-only behavior during Phase 1.
-- **Recommended next prompt:** Review and merge Phase 0.2, then start Phase 0.3 technical selections.
+- **Recommended next prompt:** Start Phase 0.3 technical selections.
 
 ## Change Log
 
@@ -268,3 +268,9 @@
 - Created the Railway `papertrader` project with separate healthy API, worker, and PostgreSQL services.
 - Exposed only the API, kept worker/PostgreSQL private, and configured paper-only non-secret environment gates.
 - Added Railway config-as-code and a persistent worker health endpoint while leaving database and Alpaca adapters unconfigured.
+
+### 2026-08-22 — Phase 0.2 merged and verified
+
+- Reviewed and squash-merged PR `#1` to protected `main` after local and hosted checks passed.
+- Repointed Railway API and worker Git sources to `main` and verified both post-merge deployments.
+- Verified the post-merge Vercel production deployment, Railway private networking, and the public API health response.
