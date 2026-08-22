@@ -2,8 +2,8 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.15 — paper-only CI verification added.
-- **Status:** The repository now enforces the local lint/test/typecheck/build loop in GitHub Actions without broker, database, Clerk, or deployment secrets; durable scheduler and Paper Autopilot remain disabled.
+- **Phase:** Phase 6.16 — Railway database connectivity verified.
+- **Status:** Railway API and Worker both have a populated PostgreSQL connection, and the deployed Worker completed a read-only queue query successfully; durable scheduler and Paper Autopilot remain disabled.
 - **Current operating mode:** Paper only; order submission not yet enabled.
 - **Current goal:** Run the separately approved one-run paper reconciliation using the reviewed runbook, then verify its result in the authenticated dashboard.
 - **Last updated:** 2026-08-23.
@@ -576,6 +576,14 @@
 - **Verification:** The same four commands pass locally; workflow syntax and referenced scripts match the repository manifests.
 - **Next smallest unit:** Obtain explicit operator approval, run the one-run paper reconciliation, and record redacted hosted evidence.
 
+## Completed Operations Unit — Phase 6.16
+
+- **User story:** As the operator, I can verify that Railway's PostgreSQL connection is configured on both backend services and usable without exposing the connection string.
+- **Verified:** Railway CLI variable inspection found non-empty `DATABASE_URL` values on `api` and `worker`, with the PostgreSQL service's own `DATABASE_URL` also present. Values were classified without printing their contents.
+- **Connectivity evidence:** The deployed Worker ran the guarded, read-only `durable-status` command successfully and returned both work and dead-letter queues as present with zero queued, active, and failed jobs.
+- **Safety boundary:** No variable, deployment, migration, broker flag, scheduler flag, Paper Autopilot flag, or order behavior was changed. The check did not print credentials or account values.
+- **Next smallest unit:** Obtain explicit operator approval, run the one-run paper reconciliation, and record redacted hosted evidence.
+
 ## Decisions Made
 
 | Date | Decision | Reason |
@@ -668,6 +676,7 @@
 | Phase 6.13 dashboard operations health surface | Pass | Authenticated dashboard displays strict operations-health state with unavailable/degraded handling; 102 tests, typecheck, lint, and production build pass; Vercel preview reports `Ready` and is deployment-protected; no browser authority or persistent gate change added |
 | Phase 6.14 hosted reconciliation runbook | Pass | Added and linked the guarded Railway runbook with command-scoped gates, expected evidence, persistent-variable checks, and failure handling; no hosted state changed |
 | Phase 6.15 paper-only CI verification | Pass | GitHub Actions workflow added for locked install, lint, tests, typecheck, and build with read-only repository permissions and no runtime secrets; local equivalent checks pass |
+| Phase 6.16 Railway database connectivity | Pass | CLI confirmed non-empty `DATABASE_URL` on API and Worker; deployed Worker `durable-status` read-only query succeeded with both queues present and zero queued/active/failed jobs; no secrets printed |
 | Browser/preview | Partial | Production page HTTP check passed; visual/responsive review deferred beyond source scaffold |
 | Security review | Partial | No credential files, Alpaca client, database connection, or order code added; full review remains required |
 

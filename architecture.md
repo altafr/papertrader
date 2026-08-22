@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.14 hosted reconciliation runbook documented; durable scheduler and Paper Autopilot activation remain separate gated steps.
+- **Stage:** Phase 6.16 Railway database connectivity verified; durable scheduler and Paper Autopilot activation remain separate gated steps.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -327,6 +327,12 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 
 - GitHub Actions runs the locked lint, test, typecheck, and production-build loop for pull requests and pushes to `main`.
 - CI has read-only repository permissions and no access to Railway, PostgreSQL, Alpaca, Clerk, Vercel, or deployment secrets.
+
+### Phase 6.16 Railway Database Connectivity Verification
+
+- Railway's `Postgres` service exposes `DATABASE_URL`, and the API and Worker services have non-empty service-side database values.
+- The deployed Worker completed the guarded read-only `durable-status` query, confirming both `pg-boss` work and dead-letter queues are present with zero queued, active, and failed jobs.
+- The verification did not print the connection string, change variables, enable broker access, start the scheduler, submit orders, or enable Paper Autopilot.
 
 ### Phase 6.13 Dashboard Operations Health Surface
 
