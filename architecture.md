@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 1.5 dashboard read-only surfaces implemented; controlled migration and hosted reconciliation remain next.
+- **Stage:** Phase 1.6 controlled reconciliation command implemented; Railway migration and first operator-run reconciliation remain next.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -100,6 +100,13 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - The dashboard renders paper/read-only status, account equity/cash/buying power/status, capture age, positions, orders, and activities.
 - Missing API configuration, authentication tokens, migration data, or connectivity produce explicit unavailable states. No frontend fallback grants access or invents financial values.
 - The dashboard remains display-only. Controls, order submission, strategy actions, and risk changes are not part of this unit.
+
+### Phase 1.6 Controlled Paper Reconciliation
+
+- `apps/worker` provides a one-shot `reconcile` command that reads the paper account bundle and calls the transactional repository; it is not part of the always-on health process.
+- The command requires `RECONCILE_ONCE=true`, the existing paper-only runtime guard, explicit broker opt-in, `DATABASE_URL`, and Railway server-side credentials. It closes the database pool after completion.
+- Success logs contain only a generic completion message; failures contain no provider response, credential, SQL, or account value. The command performs no order mutation.
+- Railway must apply `packages/db/migrations/0001_account_read_models.sql` through a controlled migration step before this command is run.
 
 ## Runtime Components
 

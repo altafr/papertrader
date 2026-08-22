@@ -3,9 +3,9 @@
 ## Snapshot
 
 - **Phase:** Phase 1 — trusted read-only foundation.
-- **Status:** Phase 1.5 dashboard read-only surfaces implemented; controlled migration and hosted reconciliation remain next.
+- **Status:** Phase 1.6 controlled reconciliation command implemented; Railway migration and first operator-run reconciliation remain next.
 - **Current operating mode:** Paper only; order submission not yet enabled.
-- **Current goal:** Apply the reviewed migration, run one controlled paper reconciliation, and connect dashboard read models.
+- **Current goal:** Apply the reviewed migration and run the guarded one-shot paper reconciliation in Railway.
 - **Last updated:** 2026-08-22.
 
 ## Delivery Roadmap
@@ -199,6 +199,14 @@
 - **Deployment dependency:** The Railway migration and one controlled paper reconciliation remain operator/deployment actions. Until then, the endpoint correctly returns a fail-closed unavailable state.
 - **Next smallest unit:** Apply the migration, run one paper reconciliation, verify `/v1/read-model` against persisted data, and wire dashboard read-only account/positions/orders surfaces.
 
+## Completed Build Unit — Phase 1.6
+
+- **User story:** As the operator, I can run one explicitly guarded server-side reconciliation that reads paper Alpaca state and persists it transactionally, without enabling any order behavior.
+- **Implemented:** Added `apps/worker`'s `reconcile` command and reusable reconciliation mapping. It requires `RECONCILE_ONCE=true`, the paper-only runtime guard, explicit broker opt-in, Railway credentials, and `DATABASE_URL`; it closes the PostgreSQL pool and emits only generic success/failure messages.
+- **Safety boundary:** The command is one-shot and separate from worker health. It cannot run by default, cannot use a live endpoint, cannot submit/cancel orders, and does not log account values or provider errors.
+- **Deployment dependency:** Railway CLI is not installed in this workspace, so no hosted migration or reconciliation was attempted. Apply the reviewed migration first, then run the guarded command from the Railway worker service.
+- **Next smallest unit:** Execute the controlled Railway migration and one reconciliation, then verify `/v1/read-model` and the hosted dashboard with real persisted paper data.
+
 ## Completed Build Unit — Phase 1.5
 
 - **User story:** As the operator, I can see the paper/read-only account state, freshness, positions, orders, and activities in the authenticated dashboard without granting the browser broker or database authority.
@@ -267,6 +275,7 @@
 | Phase 1.3 reconciliation bundle | Pass | Expanded adapter tests cover account/position/order/activity normalization; typecheck, lint, build, and 14 tests pass; no hosted migration or broker request performed |
 | Phase 1.4 persisted read-model API | Pass | Repository/API compile; full lint, build, typecheck, and 14 tests pass; local API returns 503 `auth_not_configured` before any database access |
 | Phase 1.5 dashboard read-only surfaces | Pass | Dashboard server component and unavailable states build successfully; full lint, build, typecheck, and 14 tests pass; no broker/database browser path added |
+| Phase 1.6 controlled reconciliation command | Pass | Guarded command builds; full lint, build, typecheck, and 14 tests pass; `RECONCILE_ONCE=false` exits before database/broker access without secret output |
 | Browser/preview | Partial | Production page HTTP check passed; visual/responsive review deferred beyond source scaffold |
 | Security review | Partial | No credential files, Alpaca client, database connection, or order code added; full review remains required |
 
@@ -284,8 +293,8 @@
 
 ## Session Handoff
 
-- **What exists:** Verified hosted foundation, Phase 0.3 selections, Phase 0.4 fail-closed guardrails, operator-confirmed paper setup, Phase 1.1 auth shell, Phase 1.3 reconciliation bundle, Phase 1.4 persisted read-model API, and Phase 1.5 dashboard read-only surfaces. No hosted migration has been applied and no broker request has been run.
-- **Where to resume:** Apply the reviewed migration through Railway's controlled process, perform one paper reconciliation, verify `/v1/read-model` and dashboard data, then add reconciliation health and scheduled refresh.
+- **What exists:** Verified hosted foundation, Phase 0.3 selections, Phase 0.4 fail-closed guardrails, operator-confirmed paper setup, Phase 1.1 auth shell, Phase 1.3 reconciliation bundle, Phase 1.4 persisted read-model API, Phase 1.5 dashboard surfaces, and Phase 1.6 guarded reconciliation command. No hosted migration has been applied and no broker request has been run.
+- **Where to resume:** Apply the reviewed migration through Railway's controlled process, run one guarded paper reconciliation, verify `/v1/read-model` and dashboard data, then add reconciliation health and scheduled refresh.
 - **Important context:** Keep Alpaca paper mode and read-only behavior during Phase 1.
 - **Recommended next prompt:** Continue Phase 1 with the PostgreSQL schema and read-only account adapter.
 
