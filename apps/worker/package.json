@@ -6,6 +6,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "dev": "tsx watch src/index.ts",
+    "reconcile": "tsx src/reconcile-command.ts",
     "start": "node dist/index.js",
     "typecheck": "tsc --noEmit"
   },

@@ -73,6 +73,8 @@ After reconciliation, authenticated `GET /v1/read-model` reads only the persiste
 
 The authenticated dashboard reads that endpoint server-side and displays paper/read-only status, account values, freshness, positions, orders, and activities. It shows an explicit unavailable state until Clerk, the API URL, the migration, and a first reconciliation are ready.
 
+After applying the migration in Railway, run the worker's guarded one-shot reconciliation with `RECONCILE_ONCE=true pnpm --filter @momentum/worker reconcile`. The command also requires the existing paper-only variables, `BROKER_CONNECTION_ENABLED=true`, Railway `DATABASE_URL`, and server-side paper credentials. It is intentionally not part of worker startup or health checks.
+
 ## First implementation prompt
 
 ```text
