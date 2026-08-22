@@ -51,6 +51,17 @@ const activityPayloadSchema = z.array(
     transaction_time: z.string().datetime().nullable().optional(),
   }),
 );
+const assetPayloadSchema = z.array(
+  z.object({
+    id: z.string().min(1),
+    class: z.string().min(1),
+    exchange: z.string().min(1),
+    symbol: z.string().min(1),
+    name: z.string().min(1),
+    status: z.string().min(1),
+    tradable: z.boolean(),
+  }),
+);
 
 export interface PaperAccountSnapshot {
   readonly accountId: string;
@@ -101,6 +112,20 @@ export interface PaperAccountState {
   readonly capturedAt: string;
   readonly orders: readonly PaperOrder[];
   readonly positions: readonly PaperPosition[];
+}
+
+export interface PaperAsset {
+  readonly assetClass: string;
+  readonly assetId: string;
+  readonly exchange: string;
+  readonly name: string;
+  readonly status: string;
+  readonly symbol: string;
+  readonly tradable: boolean;
+}
+
+export interface PaperAssetReader {
+  readEligibleAssets(): Promise<readonly PaperAsset[]>;
 }
 
 export interface AlpacaAccountReader {
@@ -205,6 +230,46 @@ export function createPaperAccountReader(options: AlpacaAccountReaderOptions): A
           unrealizedPl: position.unrealized_pl,
         })),
       } satisfies PaperAccountState;
+    },
+  };
+}
+
+export function createPaperAssetReader(options: AlpacaAccountReaderOptions): PaperAssetReader {
+  const apiKey = options.apiKey.trim();
+  const secretKey = options.secretKey.trim();
+  if (!apiKey || !secretKey) {
+    throw new Error("Paper Alpaca credentials are required server-side.");
+  }
+  const baseUrl = options.baseUrl ?? PAPER_TRADING_API_BASE_URL;
+  if (baseUrl !== PAPER_TRADING_API_BASE_URL) {
+    throw new Error("The asset reader only permits the Alpaca paper endpoint.");
+  }
+  const fetchImpl = options.fetchImpl ?? fetch;
+  return {
+    async readEligibleAssets() {
+      const response = await fetchImpl(`${baseUrl}/v2/assets?status=active&tradable=true`, {
+        headers: {
+          "APCA-API-KEY-ID": apiKey,
+          "APCA-API-SECRET-KEY": secretKey,
+          accept: "application/json",
+        },
+        method: "GET",
+      });
+      if (!response.ok) {
+        throw new Error(`Alpaca asset read failed with HTTP ${response.status}.`);
+      }
+      const assets = assetPayloadSchema.parse(await response.json());
+      return assets
+        .filter((asset) => asset.class === "us_equity" || asset.class === "crypto")
+        .map((asset) => ({
+          assetClass: asset.class,
+          assetId: asset.id,
+          exchange: asset.exchange,
+          name: asset.name,
+          status: asset.status,
+          symbol: asset.symbol,
+          tradable: asset.tradable,
+        } satisfies PaperAsset));
     },
   };
 }

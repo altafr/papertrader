@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 1.6 controlled reconciliation command implemented; Railway migration and first operator-run reconciliation remain next.
+- **Stage:** Phase 2.1 asset discovery implemented; Railway migration and first operator-run reconciliation remain operational dependencies.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -107,6 +107,13 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - The command requires `RECONCILE_ONCE=true`, the existing paper-only runtime guard, explicit broker opt-in, `DATABASE_URL`, and Railway server-side credentials. It closes the database pool after completion.
 - Success logs contain only a generic completion message; failures contain no provider response, credential, SQL, or account value. The command performs no order mutation.
 - Railway must apply `packages/db/migrations/0001_account_read_models.sql` through a controlled migration step before this command is run.
+
+### Phase 2.1 Asset Discovery and Eligibility
+
+- `packages/alpaca` validates Alpaca's paper `/v2/assets?status=active&tradable=true` response, filters the universe to `us_equity` and `crypto`, and normalizes asset identifiers, symbols, names, exchanges, status, and tradability.
+- `apps/api` exposes authenticated `GET /v1/assets`, guarded by paper-only runtime configuration and explicit broker opt-in. It is a read-only discovery surface and does not grant order authority.
+- Initial filtering intentionally stops at active, tradable asset class. Liquidity, spread, volatility, and research-universe thresholds remain operator decisions for the strategy/data phases.
+- This unit adds no historical market-data, stream, strategy, risk, or order calls; no hosted broker request was performed.
 
 ## Runtime Components
 

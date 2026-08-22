@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { createPaperAccountReader } from "./index.js";
+import { createPaperAccountReader, createPaperAssetReader } from "./index.js";
 
 describe("paper account reader", () => {
   it("reads and normalizes account values without an order interface", async () => {
@@ -108,5 +108,48 @@ describe("paper account reader", () => {
     expect(state.positions[0]?.quantity).toBe("2");
     expect(state.orders[0]?.alpacaOrderId).toBe("order-1");
     expect(state.activities[0]?.activityId).toBe("activity-1");
+  });
+
+  it("filters the asset universe to active tradable stocks and crypto", async () => {
+    const reader = createPaperAssetReader({
+      apiKey: "paper-key",
+      fetchImpl: async () =>
+        new Response(
+          JSON.stringify([
+            {
+              class: "us_equity",
+              exchange: "NASDAQ",
+              id: "asset-1",
+              name: "Test Equity",
+              status: "active",
+              symbol: "TEST",
+              tradable: true,
+            },
+            {
+              class: "option",
+              exchange: "OPRA",
+              id: "asset-2",
+              name: "Excluded Option",
+              status: "active",
+              symbol: "TEST2401C",
+              tradable: true,
+            },
+          ]),
+          { status: 200 },
+        ),
+      secretKey: "paper-secret",
+    });
+
+    await expect(reader.readEligibleAssets()).resolves.toEqual([
+      {
+        assetClass: "us_equity",
+        assetId: "asset-1",
+        exchange: "NASDAQ",
+        name: "Test Equity",
+        status: "active",
+        symbol: "TEST",
+        tradable: true,
+      },
+    ]);
   });
 });

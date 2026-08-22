@@ -2,7 +2,7 @@ import { createServer, type IncomingMessage } from "node:http";
 
 import { createClerkClient } from "@clerk/backend";
 
-import { createPaperAccountReader } from "@momentum/alpaca";
+import { createPaperAccountReader, createPaperAssetReader } from "@momentum/alpaca";
 import { createAccountStateRepository, createDatabase } from "@momentum/db";
 import {
   getClerkRuntimeConfig,
@@ -98,6 +98,22 @@ async function readPersistedModel(request: IncomingMessage) {
   return { body: { model }, status: 200 } as const;
 }
 
+async function readEligibleAssets(request: IncomingMessage) {
+  const authentication = await authenticateOperator(request);
+  if (authentication.status !== 200) {
+    return authentication;
+  }
+  const runtime = getPaperOnlyRuntimeConfig();
+  if (!runtime.brokerConnectionEnabled) {
+    return { body: { error: "broker_not_configured" }, status: 503 } as const;
+  }
+  const reader = createPaperAssetReader({
+    apiKey: process.env.ALPACA_API_KEY ?? "",
+    secretKey: process.env.ALPACA_SECRET_KEY ?? "",
+  });
+  return { body: { assets: await reader.readEligibleAssets() }, status: 200 } as const;
+}
+
 const server = createServer((request, response) => {
   if (request.method === "GET" && request.url === "/health") {
     response.writeHead(200, { "content-type": "application/json" });
@@ -140,6 +156,19 @@ const server = createServer((request, response) => {
       .catch(() => {
         response.writeHead(503, { "content-type": "application/json" });
         response.end(JSON.stringify({ error: "database_unavailable" }));
+      });
+    return;
+  }
+
+  if (request.method === "GET" && request.url === "/v1/assets") {
+    readEligibleAssets(request)
+      .then(({ body, status }) => {
+        response.writeHead(status, { "content-type": "application/json" });
+        response.end(JSON.stringify(body));
+      })
+      .catch(() => {
+        response.writeHead(502, { "content-type": "application/json" });
+        response.end(JSON.stringify({ error: "broker_unavailable" }));
       });
     return;
   }
