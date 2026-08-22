@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 3.9 shadow observation records and persistence boundary implemented; Railway migration and first operator-run reconciliation remain operational dependencies.
+- **Stage:** Phase 3.10 finalized-bar shadow evaluator implemented; Railway migration and first operator-run reconciliation remain operational dependencies.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -203,6 +203,12 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - Added separate immutable PostgreSQL signal and one-time outcome tables. The repository inserts the signal once and records at most one outcome in a transaction; the original proposal is never updated or overwritten.
 - Expired, invalidated, stop, target, and time-stop outcomes are explicit. Missing observations, duplicate IDs, duplicate outcomes, invalid prices, and out-of-order timestamps fail closed.
 - No shadow promotion command, live market evaluator, paper order, broker request, or automatic lifecycle transition was added in this unit.
+
+### Phase 3.10 Finalized-Bar Shadow Evaluator
+
+- Added a pure evaluator that consumes finalized bars after the signal timestamp and closes an open observation on the first deterministic outcome.
+- Outcome precedence is explicit: ambiguous stop-and-target bars become `invalidated`; otherwise stop, target, time-stop, then expiry are applied. Bars at/before the signal, other symbols, and bars after closure cannot influence the result.
+- The evaluator returns hypothetical observation outcomes only. It has no sizing, risk approval, broker, order, database, or lifecycle-promotion authority.
 
 ## Runtime Components
 

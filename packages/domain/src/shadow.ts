@@ -61,9 +61,12 @@ export function createShadowObservation<Parameters extends object>(input: {
   if (!input.observationId.trim()) throw new Error("Shadow observation ID is required.");
   if (Number.isNaN(Date.parse(input.createdAt)) || Number.isNaN(Date.parse(input.candidate.signalTime))) throw new Error("Shadow observation timestamps must be valid.");
   if (Date.parse(input.createdAt) < Date.parse(input.candidate.signalTime)) throw new Error("Observation creation cannot precede the signal time.");
-  decimal(input.candidate.proposedEntryPrice, "proposed entry price");
+  const entry = decimal(input.candidate.proposedEntryPrice, "proposed entry price");
+  if (entry.isZero()) throw new Error("Proposed entry price must be greater than zero.");
   decimal(input.candidate.plannedStopPrice, "planned stop price");
   if (input.candidate.plannedExitPrice) decimal(input.candidate.plannedExitPrice, "planned exit price");
+  if (Number.isNaN(Date.parse(input.candidate.expiresAt)) || (input.candidate.timeStopAt && Number.isNaN(Date.parse(input.candidate.timeStopAt)))) throw new Error("Shadow expiry timestamps must be valid.");
+  if (Date.parse(input.candidate.expiresAt) <= Date.parse(input.candidate.signalTime)) throw new Error("Shadow expiry must be after the signal time.");
   return Object.freeze({
     assetClass: input.candidate.assetClass, expiresAt: input.candidate.expiresAt, observationId: input.observationId,
     ...(input.candidate.plannedExitPrice ? { plannedExitPrice: input.candidate.plannedExitPrice } : {}),

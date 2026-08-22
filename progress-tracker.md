@@ -3,9 +3,9 @@
 ## Snapshot
 
 - **Phase:** Phase 3 — strategy and replay foundation.
-- **Status:** Phase 3.9 shadow observation records and persistence boundary implemented; Railway migration and first operator-run reconciliation remain operational dependencies.
+- **Status:** Phase 3.10 finalized-bar shadow evaluator implemented; Railway migration and first operator-run reconciliation remain operational dependencies.
 - **Current operating mode:** Paper only; order submission not yet enabled.
-- **Current goal:** Add a controlled shadow evaluator and promotion evidence without enabling paper execution.
+- **Current goal:** Add a shadow observation runner and monitoring evidence without enabling paper execution.
 - **Last updated:** 2026-08-22.
 
 ## Delivery Roadmap
@@ -91,6 +91,7 @@
 - [x] Add reviewed PostgreSQL lifecycle-event schema and repository.
 - [x] Add authenticated disabled → replay approval command.
 - [x] Define shadow observation records and one-time outcomes.
+- [x] Add finalized-bar shadow evaluator with deterministic outcome precedence.
 - [ ] Add remaining strategy lifecycle gates: replay → shadow → paper → eligible live.
 
 ### Phase 4 — Research Agents and Daily Preparation
@@ -342,6 +343,14 @@
 - **Deployment dependency:** The migration remains a controlled Railway action; no hosted migration, live market evaluator, or broker request was performed.
 - **Next smallest unit:** Build a server-side shadow evaluator that consumes finalized market bars and closes observations deterministically, with no order path.
 
+## Completed Build Unit — Phase 3.10
+
+- **User story:** As a researcher, I can close shadow observations from finalized bars using reproducible stop/target/time-stop/expiry rules without look-ahead or order behavior.
+- **Implemented:** Added pure single-bar and sequence evaluators. They ignore bars at/before the signal or for other symbols, stop after the first outcome, and mark simultaneous stop/target hits invalidated.
+- **Safety boundary:** Evaluation produces hypothetical outcomes only; no broker, database write, risk approval, sizing, paper order, or lifecycle promotion is reachable from the evaluator.
+- **Deployment dependency:** A server-side runner and controlled shadow-stage promotion are still required; no hosted migration or broker request was performed.
+- **Next smallest unit:** Add a durable shadow-evaluation runner that reads finalized bars and writes one-time outcomes through the repository, retaining freshness and restart boundaries.
+
 ## Decisions Made
 
 | Date | Decision | Reason |
@@ -407,6 +416,7 @@
 | Phase 3.7 lifecycle-event PostgreSQL persistence | Pass | Full lint, build, typecheck, and 45 tests pass; migration/schema constraints and repository revision/stage checks are covered with no hosted migration |
 | Phase 3.8 authenticated disabled-to-replay command | Pass | Full lint, build, typecheck, and 48 tests pass; structured validation, operator matching, server-side evidence checks, redacted response contract, and no-stage/order boundaries are covered |
 | Phase 3.9 shadow observation records | Pass | Full lint, build, typecheck, and 51 tests pass; shadow-stage gating, decimal outcome closure, duplicate/timing failures, migrations, and one-time repository outcomes are covered |
+| Phase 3.10 finalized-bar shadow evaluator | Pass | Full lint, build, typecheck, and 54 tests pass; stop/target precedence, ambiguity invalidation, time-stop/expiry, look-ahead prevention, and first-outcome termination are covered |
 | Browser/preview | Partial | Production page HTTP check passed; visual/responsive review deferred beyond source scaffold |
 | Security review | Partial | No credential files, Alpaca client, database connection, or order code added; full review remains required |
 
@@ -424,10 +434,10 @@
 
 ## Session Handoff
 
-- **What exists:** Verified hosted foundation, Phase 0.3 selections, Phase 0.4 fail-closed guardrails, operator-confirmed paper setup, Phase 1 read-only account/dashboard foundation, guarded reconciliation command, Phase 2.1–2.2 authenticated asset/market-data reads, Phase 2.3 stream/backfill boundary, Phase 2.4 dashboard views, Phase 2.5 protected reconciliation verification, Phase 3.1 disabled strategy contract, Phase 3.2 decimal-safe metrics, Phase 3.3 point-in-time replay, Phase 3.4 disabled momentum plug-ins, Phase 3.5 regime evidence, Phase 3.6 in-process lifecycle gate, Phase 3.7 reviewed lifecycle-event persistence, Phase 3.8 authenticated replay approval command, and Phase 3.9 shadow observation persistence. No hosted migration has been applied and no broker request has been run.
-- **Where to resume:** Build the server-side shadow evaluator that consumes finalized bars and closes observations deterministically; keep all paper order behavior disabled. Separately, apply the reviewed migrations through Railway's controlled process, run one guarded paper reconciliation, and verify `/v1/read-model`, `/v1/reconciliation-status`, and dashboard data against Alpaca.
+- **What exists:** Verified hosted foundation, Phase 0.3 selections, Phase 0.4 fail-closed guardrails, operator-confirmed paper setup, Phase 1 read-only account/dashboard foundation, guarded reconciliation command, Phase 2.1–2.2 authenticated asset/market-data reads, Phase 2.3 stream/backfill boundary, Phase 2.4 dashboard views, Phase 2.5 protected reconciliation verification, Phase 3.1 disabled strategy contract, Phase 3.2 decimal-safe metrics, Phase 3.3 point-in-time replay, Phase 3.4 disabled momentum plug-ins, Phase 3.5 regime evidence, Phase 3.6 in-process lifecycle gate, Phase 3.7 reviewed lifecycle-event persistence, Phase 3.8 authenticated replay approval command, Phase 3.9 shadow observation persistence, and Phase 3.10 finalized-bar evaluation. No hosted migration has been applied and no broker request has been run.
+- **Where to resume:** Add a durable shadow-evaluation runner that reads finalized bars and writes one-time outcomes through the repository, retaining freshness and restart boundaries. Keep all paper order behavior disabled. Separately, apply the reviewed migrations through Railway's controlled process, run one guarded paper reconciliation, and verify `/v1/read-model`, `/v1/reconciliation-status`, and dashboard data against Alpaca.
 - **Important context:** Keep Alpaca paper mode and read-only behavior during Phase 2.
-- **Recommended next prompt:** Continue Phase 3.10 with the finalized-bar shadow evaluator; keep paper order behavior off.
+- **Recommended next prompt:** Continue Phase 3.11 with the durable shadow-evaluation runner; keep paper order behavior off.
 
 ## Change Log
 
@@ -588,3 +598,8 @@
 
 - Added shadow-only proposal/outcome contracts, immutable in-process storage, migration `0003_shadow_observations.sql`, Drizzle schema, and one-time outcome repository.
 - Verified full lint, build, typecheck, and 51 tests; no hosted migration, shadow evaluator, broker request, credential access, paper order, or lifecycle promotion was added.
+
+### 2026-08-22 — Phase 3.10 finalized-bar shadow evaluator complete
+
+- Added deterministic finalized-bar evaluation with explicit ambiguity invalidation, stop/target/time-stop/expiry precedence, look-ahead prevention, and first-outcome termination.
+- Verified full lint, build, typecheck, and 54 tests; no hosted migration, durable runner, broker request, credential access, paper order, or lifecycle promotion was added.
