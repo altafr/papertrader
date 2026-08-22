@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 5.1 immutable paper signals and deterministic risk checks implemented; Railway migration and first operator-run reconciliation remain operational dependencies.
+- **Stage:** Phase 5.2 immutable trade intents and execution-time risk approvals implemented; Railway migration and first operator-run reconciliation remain operational dependencies.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -257,6 +257,12 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - Added immutable paper signal snapshots and a deterministic paper-risk assessment covering the USD 1,000 baseline verification, stale account/market data, kill switch, rolling entry count, open-position count, asset-class position caps, gross exposure, and the lower-of-0.25%-equity/USD-100 planned-loss rule.
 - Risk output contains explicit rule-level reasons and decimal-string loss values. It has no broker, order, or approval side effects and cannot be overridden by an agent.
 - Paper order submission remains disabled until the intent, idempotent execution, reconciliation, and mode gates are implemented and verified.
+
+### Phase 5.2 Immutable Trade Intents and Execution-Time Approvals
+
+- Added immutable paper trade intents with validated positive quantity, non-negative cost estimates, signal expiry, and stable intent identifiers.
+- Added execution-time risk approval that re-evaluates current account/market state, kill-switch state, exposure, limits, and expiry; each intent receives at most one stored approval record.
+- Approval is a deterministic authorization record only. It cannot submit, retry, cancel, or modify a broker order, and it remains paper-only.
 
 ## Runtime Components
 
