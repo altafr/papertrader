@@ -548,6 +548,7 @@
 - **Safety boundary:** The command refuses to run if persistent `DURABLE_SCHEDULER_ENABLED=true` or `PAPER_AUTOPILOT_ENABLED=true`; it does not create a recurring schedule, submit orders, or alter persistent Railway variables.
 - **Verification:** `pnpm test` passes 101 tests; typecheck, lint, and production build pass. Missing handler/broker gates fail closed with a non-zero exit and no secret output.
 - **Deployment dependency:** A hosted run requires explicit operator approval for temporary command-scoped `BROKER_CONNECTION_ENABLED=true` and `DAILY_PREPARATION_HANDLER_ENABLED=true`; persistent scheduler and Paper Autopilot flags remain disabled.
+- **Hosted deployment:** Worker deployment `9faf1392-c6ed-4735-a8ee-5ed59708feb4` reached `SUCCESS`; Railway SSH readiness reports `status=disabled` with paper mode/database/credentials configured and all activation flags disabled. The one-run command itself has not been executed.
 - **Next smallest unit:** Execute the one-run command in Railway, verify the persisted snapshot and queue counts, then restore the command-scoped environment automatically on process exit.
 
 ## Decisions Made
@@ -638,7 +639,7 @@
 | Phase 6.9 controlled paper reconciliation | Pass | Railway one-shot reconciliation completed; 1 account snapshot, 1 position, and 1 order persisted; work/dead-letter queues remain present with zero queued, active, and failed jobs; no persistent broker or autopilot enablement |
 | Phase 6.10 operator health surface | Pass | Authenticated `/v1/operations-health` added with deterministic freshness classification and non-secret activation-gate reporting; local checks pass and Railway deployment `ad38f77b-4c12-45c8-83db-e2bbde091399` is `SUCCESS`; protected route returns 401 without a session; no persistent scheduler or autopilot enablement |
 | Phase 6.11 scheduler readiness command | Pass | Guarded read-only `durable-readiness` reports disabled/blocked/ready states with safe reason codes; 100 tests, typecheck, lint, and build pass; Railway worker deployment `9bb31a13-e3d4-4a15-a6a0-63997e07b11d` is `SUCCESS` and hosted readiness reports disabled; no broker, scheduler, or order action performed |
-| Phase 6.12 one-run scheduler reconciliation boundary | Pass | Guarded `durable-one-run` provisions existing queues and consumes one read-only job only with explicit command-scoped gates; 101 tests, typecheck, lint, and build pass; hosted execution awaits explicit temporary broker/handler opt-in |
+| Phase 6.12 one-run scheduler reconciliation boundary | Pass | Guarded `durable-one-run` provisions existing queues and consumes one read-only job only with explicit command-scoped gates; 101 tests, typecheck, lint, and build pass; worker deployment `9faf1392-c6ed-4735-a8ee-5ed59708feb4` is `SUCCESS`; hosted execution awaits explicit temporary broker/handler opt-in |
 | Browser/preview | Partial | Production page HTTP check passed; visual/responsive review deferred beyond source scaffold |
 | Security review | Partial | No credential files, Alpaca client, database connection, or order code added; full review remains required |
 
