@@ -45,6 +45,10 @@ function nonNegative(value: DecimalString, name: string): DecimalValue {
   return parsed;
 }
 
+export function addDecimalStrings(left: DecimalString, right: DecimalString): DecimalString {
+  return output(decimal(left).plus(decimal(right)));
+}
+
 export interface PerformancePoint {
   readonly capturedAt: string;
   readonly equity: DecimalString;
@@ -125,6 +129,38 @@ export interface TradeRiskResult {
   readonly maximumRiskByEquity: DecimalString;
   readonly maximumRiskAbsolute: DecimalString;
   readonly passes: boolean;
+}
+
+export interface RoundTripPnlInput {
+  readonly entryPrice: DecimalString;
+  readonly estimatedFees: DecimalString;
+  readonly notional: DecimalString;
+  readonly exitPrice: DecimalString;
+  readonly slippageBps: DecimalString;
+}
+
+export interface RoundTripPnlResult {
+  readonly fees: DecimalString;
+  readonly grossPnl: DecimalString;
+  readonly netPnl: DecimalString;
+  readonly slippage: DecimalString;
+}
+
+export function calculateRoundTripPnl(input: RoundTripPnlInput): RoundTripPnlResult {
+  const entry = nonNegative(input.entryPrice, "entry price");
+  const exit = nonNegative(input.exitPrice, "exit price");
+  const notional = nonNegative(input.notional, "notional");
+  const fees = nonNegative(input.estimatedFees, "estimated fees");
+  const slippageBps = nonNegative(input.slippageBps, "slippage basis points");
+  if (entry.isZero()) throw new Error("entry price must be greater than zero.");
+  const grossPnl = notional.times(exit.minus(entry)).div(entry);
+  const slippage = notional.times(slippageBps).div(10_000).times(2);
+  return {
+    fees: output(fees),
+    grossPnl: output(grossPnl),
+    netPnl: output(grossPnl.minus(fees).minus(slippage)),
+    slippage: output(slippage),
+  };
 }
 
 export function calculateTradeRisk(input: TradeRiskInput): TradeRiskResult {

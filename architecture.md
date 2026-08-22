@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 3.2 decimal-safe performance and risk metrics implemented; Railway migration and first operator-run reconciliation remain operational dependencies.
+- **Stage:** Phase 3.3 point-in-time historical replay implemented; Railway migration and first operator-run reconciliation remain operational dependencies.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -156,6 +156,13 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - Performance metrics include total P/L, return percentage, peak-to-trough drawdown amount, and drawdown percentage over ordered equity points. Exposure sums absolute position market values and reports gross exposure percentage.
 - Planned trade risk includes stop distance, quantity, estimated fees, and estimated slippage. It rejects risk above the lower of `0.25%` of current equity and `USD 100`, matching the initial USD 1,000 paper policy.
 - These functions do not approve or submit orders, persist results, enable strategies, or access broker/database state. They fail on invalid or negative financial inputs.
+
+### Phase 3.3 Point-in-Time Historical Replay
+
+- `packages/domain` provides a deterministic replay harness that sorts finalized bars, gives each strategy only bars at or before its evaluation timestamp, and uses the next bar's open as the simulated entry.
+- Replay requires a disabled or replay-stage strategy, validates its parameters, skips candidates without explicit exit/notional data, and applies configured per-trade fees plus two-sided slippage in basis points through decimal-safe functions.
+- Results include simulated trades, skipped-signal count, evaluated-bar count, and performance metrics. Replay has no broker, database, credential, order, or paper-account side effect.
+- Replay output is research evidence only; it is not a live or paper performance claim and cannot advance a strategy lifecycle by itself.
 
 ## Runtime Components
 
