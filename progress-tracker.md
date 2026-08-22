@@ -3,9 +3,9 @@
 ## Snapshot
 
 - **Phase:** Phase 2 — market data and dashboard.
-- **Status:** Phase 2.2 protected historical bars/snapshots implemented; Railway migration and first operator-run reconciliation remain operational dependencies.
+- **Status:** Phase 2.3 supervised market-stream boundary implemented; Railway migration and first operator-run reconciliation remain operational dependencies.
 - **Current operating mode:** Paper only; order submission not yet enabled.
-- **Current goal:** Add supervised market/trading WebSocket ingestion with gap detection and REST backfill; keep feed selection open until the operator decides.
+- **Current goal:** Build the read-only Overview, Positions, Orders & fills, Performance, and Alerts dashboard views using explicit freshness and unavailable states.
 - **Last updated:** 2026-08-22.
 
 ## Delivery Roadmap
@@ -76,7 +76,7 @@
 
 - [x] Add stock/crypto asset discovery and eligibility filters.
 - [x] Add historical bars/snapshots through protected server calls.
-- [ ] Add supervised market/trading WebSocket worker with backfill.
+- [x] Add supervised market/trading WebSocket worker with backfill.
 - [ ] Build Overview, Positions, Orders & fills, Performance, and Alerts views.
 - [ ] Reconcile dashboard/account data against Alpaca.
 
@@ -241,6 +241,14 @@
 - **Deployment dependency:** No hosted broker request was performed. Railway migration and guarded account reconciliation remain separate operational prerequisites.
 - **Next smallest unit:** Add supervised market/trading WebSocket ingestion, sequence-gap detection, and REST backfill before any strategy consumes streaming data.
 
+## Completed Build Unit — Phase 2.3
+
+- **User story:** As the operator, I can run a server-side paper market stream with explicit configuration, bounded reconnects, freshness state, gap detection, and REST backfill before data resumes.
+- **Implemented:** Added validated stream-message normalization and a supervisor that authenticates/subscribes, tracks bar timestamps, detects gaps, requests REST backfill, and marks reconnects degraded. Added the worker runtime runner with WebSocket transport wiring and opt-in configuration.
+- **Safety boundary:** `MARKET_STREAM_ENABLED` defaults off; enabling it requires paper runtime, explicit broker opt-in, server credentials, a bounded symbol list, timeframe, and stock feed. No live endpoint, raw-data persistence, strategy, risk, or order behavior was added.
+- **Deployment dependency:** No hosted stream was enabled or connected. Railway migration and guarded account reconciliation remain separate operational prerequisites; the market-data feed choice remains an operator decision.
+- **Next smallest unit:** Build read-only dashboard views for overview, positions, orders/fills, performance, and alerts with freshness/degraded states.
+
 ## Decisions Made
 
 | Date | Decision | Reason |
@@ -294,6 +302,7 @@
 | Phase 1.6 controlled reconciliation command | Pass | Guarded command builds; full lint, build, typecheck, and 14 tests pass; `RECONCILE_ONCE=false` exits before database/broker access without secret output |
 | Phase 2.1 asset discovery | Pass | Full lint, build, typecheck, and 15 tests pass; mocked adapter filters active tradable assets to US equities/crypto; no hosted broker request performed |
 | Phase 2.2 historical market data | Pass | Full lint, build, typecheck, and 17 tests pass; mocked adapter normalizes stock bars/snapshots and rejects non-market-data endpoint; no hosted broker request performed |
+| Phase 2.3 supervised market stream | Pass | Full lint, build, typecheck, and 20 tests pass; stream supervisor covers authentication/subscription, gap backfill, malformed payloads, and reconnect degradation; stream remains disabled and no hosted broker request performed |
 | Browser/preview | Partial | Production page HTTP check passed; visual/responsive review deferred beyond source scaffold |
 | Security review | Partial | No credential files, Alpaca client, database connection, or order code added; full review remains required |
 
@@ -311,10 +320,10 @@
 
 ## Session Handoff
 
-- **What exists:** Verified hosted foundation, Phase 0.3 selections, Phase 0.4 fail-closed guardrails, operator-confirmed paper setup, Phase 1 read-only account/dashboard foundation, guarded reconciliation command, and Phase 2.1–2.2 authenticated asset and market-data reads. No hosted migration has been applied and no broker request has been run.
-- **Where to resume:** Add supervised market/trading WebSocket ingestion, sequence-gap detection, and REST backfill. Separately, apply the reviewed migration through Railway's controlled process, run one guarded paper reconciliation, and verify `/v1/read-model` and dashboard data.
+- **What exists:** Verified hosted foundation, Phase 0.3 selections, Phase 0.4 fail-closed guardrails, operator-confirmed paper setup, Phase 1 read-only account/dashboard foundation, guarded reconciliation command, Phase 2.1–2.2 authenticated asset/market-data reads, and the Phase 2.3 supervised stream/backfill boundary. No hosted migration has been applied and no broker request has been run.
+- **Where to resume:** Build read-only Overview, Positions, Orders & fills, Performance, and Alerts dashboard views with freshness/degraded states. Separately, apply the reviewed migration through Railway's controlled process, run one guarded paper reconciliation, and verify `/v1/read-model` and dashboard data.
 - **Important context:** Keep Alpaca paper mode and read-only behavior during Phase 2.
-- **Recommended next prompt:** Continue Phase 2 with supervised WebSocket ingestion, gap detection, and REST backfill; then record the feed decision.
+- **Recommended next prompt:** Continue Phase 2 with read-only dashboard views and explicit market-data freshness/degraded states.
 
 ## Change Log
 
@@ -406,3 +415,9 @@
 - Added a validated, server-only Alpaca market-data adapter for bounded historical stock/crypto bars and snapshots.
 - Added authenticated `GET /v1/market-data/bars` and `GET /v1/market-data/snapshots` routes with paper-only and explicit broker opt-in guards.
 - Verified full lint, build, typecheck, and 17 tests; no hosted broker request, raw market-data persistence, WebSocket, strategy, risk, or order behavior was added.
+
+### 2026-08-22 — Phase 2.3 supervised market stream boundary complete
+
+- Added validated Alpaca bar-stream message handling, subscription/authentication state, timestamp-gap detection, reconnect degradation, and REST backfill requests.
+- Added an opt-in Railway worker WebSocket runner with bounded symbol/timeframe configuration and paper-only guards; stream execution remains disabled by default.
+- Verified full lint, build, typecheck, and 20 tests; no hosted stream was enabled and no broker request was performed.
