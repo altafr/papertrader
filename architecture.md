@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 3.4 disabled momentum research plug-ins implemented; Railway migration and first operator-run reconciliation remain operational dependencies.
+- **Stage:** Phase 3.5 regime-based replay evidence implemented; Railway migration and first operator-run reconciliation remain operational dependencies.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -170,6 +170,12 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - Each plug-in validates bounded lookbacks and decimal parameters, evaluates only the supplied fresh bars, emits long-only proposal candidates with explicit entry/stop/target/time-stop fields, and has no sizing, risk approval, persistence, broker, or order authority.
 - Failure regimes are fail-closed: insufficient history produces no candidate; negative/invalid parameters are rejected; breakout requires both a range break and relative-volume confirmation; trend continuation requires aligned fast and slow returns.
 - These candidates remain research artifacts until replay evidence, shadow monitoring, operator-approved parameters, and the sequential lifecycle gates are completed.
+
+### Phase 3.5 Regime-Based Replay Evidence
+
+- Replay accepts an explicit research-only default notional when a strategy intentionally supplies no sizing authority; this makes simulated P/L reproducible without moving sizing into a strategy plug-in.
+- Added named bull, bear, and choppy regime evidence orchestration plus a non-mutating assessment that reports sample-size, positive-regime, and drawdown-policy failures.
+- Evidence assessment always remains non-promotable: it cannot advance a strategy stage, alter parameters, approve risk, persist a signal, contact Alpaca, or submit an order. Manual review and paper-forward evidence remain mandatory.
 
 ## Runtime Components
 

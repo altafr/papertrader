@@ -38,3 +38,4 @@ export * from "./strategy.js";
 export * from "./metrics.js";
 export * from "./replay.js";
 export * from "./strategies.js";
+export * from "./research.js";

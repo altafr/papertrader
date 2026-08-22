@@ -86,6 +86,12 @@ describe("historical replay", () => {
       "Only disabled or replay-stage strategies",
     );
   });
+
+  it("uses an explicit research notional without granting a strategy sizing authority", () => {
+    const result = runHistoricalReplay({ ...baseReplay(), defaultNotional: "100", strategy });
+    expect(result.trades).toHaveLength(1);
+    expect(result.skippedSignals).toBe(1);
+  });
 });
 
 function baseReplay() {

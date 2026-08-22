@@ -8,6 +8,8 @@ export interface ReplayOptions<Parameters extends object> {
   readonly parameters: Parameters;
   readonly slippageBps: DecimalString;
   readonly strategy: StrategyPlugin<Parameters>;
+  /** Research-only notional used when a proposal intentionally has no sizing authority. */
+  readonly defaultNotional?: DecimalString;
 }
 
 export interface ReplayTrade {
@@ -65,7 +67,7 @@ export function runHistoricalReplay<Parameters extends object>(options: ReplayOp
     const candidates = options.strategy.evaluate(context, parameters);
     for (const candidate of candidates) {
       const nextBar = nextBarForSymbol(bars, index, candidate.symbol);
-      if (!nextBar || !candidate.plannedExitPrice || !candidate.recommendedNotional) {
+      if (!nextBar || !candidate.plannedExitPrice || (!candidate.recommendedNotional && !options.defaultNotional)) {
         skippedSignals += 1;
         continue;
       }
@@ -74,7 +76,7 @@ export function runHistoricalReplay<Parameters extends object>(options: ReplayOp
         entryPrice,
         estimatedFees: options.estimatedFeesPerTrade,
         exitPrice: candidate.plannedExitPrice,
-        notional: candidate.recommendedNotional,
+        notional: candidate.recommendedNotional ?? options.defaultNotional!,
         slippageBps: options.slippageBps,
       });
       equity = addDecimalStrings(equity, pnl.netPnl);

@@ -3,9 +3,9 @@
 ## Snapshot
 
 - **Phase:** Phase 3 — strategy and replay foundation.
-- **Status:** Phase 3.4 disabled momentum research plug-ins implemented; Railway migration and first operator-run reconciliation remain operational dependencies.
+- **Status:** Phase 3.5 regime-based replay evidence implemented; Railway migration and first operator-run reconciliation remain operational dependencies.
 - **Current operating mode:** Paper only; order submission not yet enabled.
-- **Current goal:** Implement the three initial momentum strategy candidates as disabled research plug-ins with tests and known failure regimes.
+- **Current goal:** Define evidence-backed lifecycle promotion gates while keeping every strategy disabled.
 - **Last updated:** 2026-08-22.
 
 ## Delivery Roadmap
@@ -86,6 +86,7 @@
 - [x] Implement decimal-safe performance and risk metrics.
 - [x] Build historical replay with point-in-time inputs, fees, and slippage.
 - [x] Implement three initial momentum research strategies.
+- [x] Add regime-based replay evidence and non-promoting assessment.
 - [ ] Add strategy lifecycle: disabled → replay → shadow → paper → eligible live.
 
 ### Phase 4 — Research Agents and Daily Preparation
@@ -297,6 +298,14 @@
 - **Deployment dependency:** No production evaluation, hosted migration, broker request, or paper order behavior was added.
 - **Next smallest unit:** Exercise each plug-in through historical replay across representative market regimes, then document lifecycle promotion evidence before any shadow or paper stage.
 
+## Completed Build Unit — Phase 3.5
+
+- **User story:** As a researcher, I can run each disabled momentum candidate across named bull, bear, and choppy regimes with reproducible costs and a documented evidence assessment.
+- **Implemented:** Added an explicit research-only default notional to historical replay, regime replay orchestration, and a non-mutating assessment for minimum trade sample, positive-regime coverage, and maximum drawdown policy checks.
+- **Safety boundary:** Evidence never promotes a strategy or changes its stage; strategies remain disabled and cannot access broker, database, credentials, risk approval, or order methods. Sizing is supplied by the replay caller, not the strategy.
+- **Deployment dependency:** No production replay, hosted migration, broker request, persistence, or paper order behavior was added.
+- **Next smallest unit:** Define and implement the lifecycle state machine's auditable promotion records, starting with disabled → replay and preserving operator approval boundaries.
+
 ## Decisions Made
 
 | Date | Decision | Reason |
@@ -357,6 +366,7 @@
 | Phase 3.2 decimal-safe metrics | Pass | Full lint, build, typecheck, and 31 tests pass; P/L, drawdown, exposure, risk-cap, precision, and invalid-input tests pass; no strategy enabled or broker request performed |
 | Phase 3.3 historical replay | Pass | Full lint, build, typecheck, and 33 tests pass; point-in-time context, next-bar entry, fees/slippage, incomplete-signal skip, lifecycle gate, and no-side-effect tests pass |
 | Phase 3.4 momentum research plug-ins | Pass | Full lint, build, typecheck, and 37 tests pass; registry/stage, ranking, breakout-volume, trend-alignment, insufficient-history, and parameter-boundary tests pass; all plug-ins remain disabled |
+| Phase 3.5 regime replay evidence | Pass | Full lint, build, typecheck, and 40 tests pass; all three plug-ins run across named regimes with explicit research notional, and assessments remain non-promoting with sample/drawdown reasons |
 | Browser/preview | Partial | Production page HTTP check passed; visual/responsive review deferred beyond source scaffold |
 | Security review | Partial | No credential files, Alpaca client, database connection, or order code added; full review remains required |
 
@@ -374,10 +384,10 @@
 
 ## Session Handoff
 
-- **What exists:** Verified hosted foundation, Phase 0.3 selections, Phase 0.4 fail-closed guardrails, operator-confirmed paper setup, Phase 1 read-only account/dashboard foundation, guarded reconciliation command, Phase 2.1–2.2 authenticated asset/market-data reads, Phase 2.3 stream/backfill boundary, Phase 2.4 dashboard views, Phase 2.5 protected reconciliation verification, Phase 3.1 disabled strategy contract, Phase 3.2 decimal-safe metrics, Phase 3.3 point-in-time replay, and Phase 3.4 disabled momentum plug-ins. No hosted migration has been applied and no broker request has been run.
-- **Where to resume:** Exercise the three disabled momentum plug-ins through historical replay across representative regimes and document lifecycle promotion evidence. Separately, apply the reviewed migration through Railway's controlled process, run one guarded paper reconciliation, and verify `/v1/read-model`, `/v1/reconciliation-status`, and dashboard data against Alpaca.
+- **What exists:** Verified hosted foundation, Phase 0.3 selections, Phase 0.4 fail-closed guardrails, operator-confirmed paper setup, Phase 1 read-only account/dashboard foundation, guarded reconciliation command, Phase 2.1–2.2 authenticated asset/market-data reads, Phase 2.3 stream/backfill boundary, Phase 2.4 dashboard views, Phase 2.5 protected reconciliation verification, Phase 3.1 disabled strategy contract, Phase 3.2 decimal-safe metrics, Phase 3.3 point-in-time replay, Phase 3.4 disabled momentum plug-ins, and Phase 3.5 regime evidence. No hosted migration has been applied and no broker request has been run.
+- **Where to resume:** Define auditable lifecycle promotion records, starting with disabled → replay, while preserving operator approval boundaries. Separately, apply the reviewed migration through Railway's controlled process, run one guarded paper reconciliation, and verify `/v1/read-model`, `/v1/reconciliation-status`, and dashboard data against Alpaca.
 - **Important context:** Keep Alpaca paper mode and read-only behavior during Phase 2.
-- **Recommended next prompt:** Continue Phase 3.5 with regime-based replay/evidence for the disabled momentum candidates; keep paper order behavior off.
+- **Recommended next prompt:** Continue Phase 3.6 with the auditable strategy lifecycle record and disabled → replay gate; keep paper order behavior off.
 
 ## Change Log
 
@@ -511,3 +521,9 @@
 - Added disabled `cross-sectional-momentum`, `volume-confirmed-breakout`, and `intraday-trend-continuation` plug-ins under `packages/domain`.
 - Added bounded parameter validation, deterministic point-in-time evaluation, explicit proposal stop/target/time-stop fields, and failure-regime tests.
 - Verified full lint, build, typecheck, and 37 tests; no strategy stage promotion, broker request, persistence, credential access, or order behavior was added.
+
+### 2026-08-22 — Phase 3.5 regime-based replay evidence complete
+
+- Added research-only default notional support to replay so strategies without sizing authority can still be evaluated reproducibly.
+- Added named bull/bear/choppy regime orchestration and non-promoting sample, coverage, and drawdown assessments for all three disabled momentum candidates.
+- Verified full lint, build, typecheck, and 40 tests; no strategy promotion, broker request, persistence, credential access, or order behavior was added.
