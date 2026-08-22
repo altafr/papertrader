@@ -311,6 +311,12 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - The trigger uses a deterministic UTC job ID; repeated invocation for the same day reports `queued: false` rather than creating duplicate work.
 - It only enqueues the existing read-only reconciliation job and has no direct broker or order authority.
 
+### Phase 6.8 Guarded Application Schema Migration
+
+- Added a one-shot application migration runner with an explicit ledger and per-file transactions, separate from `pg-boss`'s own schema migration.
+- The runner applies only the reviewed files under `packages/db/migrations`, skips recorded versions, and rolls back a failed file before exiting.
+- It is paper-only and has no broker, scheduler, or order authority.
+
 ## Runtime Components
 
 1. **Railway API gateway:** Verifies operator identity, serves read models, validates commands, and persists canonical state transactionally in PostgreSQL.

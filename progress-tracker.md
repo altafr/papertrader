@@ -506,6 +506,14 @@
 - **Remaining operator gate:** `BROKER_CONNECTION_ENABLED=true` must be explicitly approved before the worker may call the Alpaca paper read API. The worker now fails closed if durable reconciliation is enabled without that opt-in.
 - **Next smallest unit:** After approval, enable broker connection and the verified handler, restart the worker, enqueue one run-once job, and verify the persisted read model.
 
+## Completed Build Unit — Phase 6.8
+
+- **User story:** As the operator, I can initialize the application schema in Railway transactionally before any reconciliation worker uses it.
+- **Implemented:** Added `pnpm --filter @momentum/worker database-migrate`, a guarded migration runner with ordered reviewed SQL files, a `schema_migrations` ledger, per-migration transactions, and fail-closed rollback behavior.
+- **Safety boundary:** The command requires `DATABASE_MIGRATE=true`, paper-only runtime, and `DATABASE_URL`; it performs no Alpaca call, order submission, scheduler start, or live-mode action.
+- **Deployment dependency:** Run it inside the deployed Railway worker after the `pg-boss` migration and before enabling broker reconciliation.
+- **Next smallest unit:** Apply the application migrations, confirm all required tables, then enable the paper broker read gate for one controlled reconciliation.
+
 ## Decisions Made
 
 | Date | Decision | Reason |
@@ -590,6 +598,7 @@
 | Phase 6.5 hosted durable queue verification tooling | Pass | Full build, typecheck, lint, and 93 tests pass; guarded status command, queue presence/count inspection, missing-queue failure state, and no-broker/no-scheduler boundaries are covered |
 | Phase 6.6 idempotent hosted run-once trigger | Pass | Full build, typecheck, lint, and 94 tests pass; deterministic UTC job IDs, duplicate suppression, explicit guard, and enqueue-only boundaries are covered |
 | Phase 6.7 Railway queue migration and deployment verification | Partial | Railway worker deployment reached SUCCESS; `DATABASE_URL` reference is present; guarded migration completed; both queues are present with zero counts; broker opt-in and first paper reconciliation remain intentionally unperformed |
+| Phase 6.8 guarded application schema migration | Pass | Local build/typecheck/lint/tests cover the new command boundary; ordered migration ledger and transaction rollback are implemented; hosted application migrations remain pending until the deployed command is run |
 | Browser/preview | Partial | Production page HTTP check passed; visual/responsive review deferred beyond source scaffold |
 | Security review | Partial | No credential files, Alpaca client, database connection, or order code added; full review remains required |
 
