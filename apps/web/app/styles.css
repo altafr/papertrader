@@ -210,6 +210,30 @@ h2 {
   text-align: right;
 }
 
+.data-list {
+  border-top: 1px solid var(--border);
+  display: grid;
+}
+
+.data-row {
+  align-items: center;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+  padding: 0.85rem 0;
+}
+
+.data-row:last-child {
+  border-bottom: 0;
+}
+
+.data-row span {
+  color: var(--muted);
+  font-size: 0.85rem;
+  text-align: right;
+}
+
 @media (max-width: 720px) {
   .status-bar {
     align-items: flex-start;

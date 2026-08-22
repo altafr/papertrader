@@ -71,6 +71,8 @@ The account response now includes normalized account, positions, orders, and acc
 
 After reconciliation, authenticated `GET /v1/read-model` reads only the persisted latest snapshot and returns positions, orders, activities, capture time, and freshness age. It returns `503 db_not_configured` without `DATABASE_URL` and never runs migrations automatically.
 
+The authenticated dashboard reads that endpoint server-side and displays paper/read-only status, account values, freshness, positions, orders, and activities. It shows an explicit unavailable state until Clerk, the API URL, the migration, and a first reconciliation are ready.
+
 ## First implementation prompt
 
 ```text
