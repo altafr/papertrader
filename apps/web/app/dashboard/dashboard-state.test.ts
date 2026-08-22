@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { formatUtc, getFreshnessLabel, getFreshnessState } from "./dashboard-state";
+import { formatUtc, getFreshnessLabel, getFreshnessState, parseOperationsHealth } from "./dashboard-state";
 
 describe("dashboard state", () => {
   it("classifies persisted data by freshness", () => {
@@ -14,5 +14,19 @@ describe("dashboard state", () => {
   it("formats UTC capture timestamps without inventing local time", () => {
     expect(formatUtc("2026-08-22T01:02:03.000Z")).toBe("2026-08-22 01:02:03 UTC");
     expect(formatUtc("not-a-date")).toBe("Unavailable");
+  });
+
+  it("accepts only the redacted operations-health contract", () => {
+    const health = parseOperationsHealth({
+      reconciliation: { ageSeconds: 30, capturedAt: "2026-08-23T00:00:00.000Z", status: "fresh" },
+      runtime: {
+        brokerConnectionEnabled: false,
+        dailyPreparationHandlerEnabled: false,
+        paperAutopilotEnabled: false,
+        scheduler: { enabled: false, status: "disabled" },
+      },
+    });
+    expect(health?.runtime.scheduler.status).toBe("disabled");
+    expect(parseOperationsHealth({ reconciliation: { status: "fresh" }, runtime: {} })).toBeUndefined();
   });
 });

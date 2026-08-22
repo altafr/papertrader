@@ -1,7 +1,7 @@
 import { UserButton } from "@clerk/nextjs";
 import { auth } from "@clerk/nextjs/server";
 
-import { formatUtc, getFreshnessLabel, getFreshnessState } from "./dashboard-state";
+import { formatUtc, getFreshnessLabel, getFreshnessState, parseOperationsHealth, type OperationsHealth } from "./dashboard-state";
 
 type ReadModel = {
   activities: Array<Record<string, unknown>>;
@@ -62,6 +62,20 @@ async function loadReadModel(getToken: () => Promise<string | null>) {
   }
 }
 
+async function loadOperationsHealth(getToken: () => Promise<string | null>) {
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+  if (!apiBaseUrl) return undefined;
+  const token = await getToken();
+  if (!token) return undefined;
+  try {
+    const response = await fetch(`${apiBaseUrl}/v1/operations-health`, { cache: "no-store", headers: { authorization: `Bearer ${token}` } });
+    if (!response.ok) return undefined;
+    return parseOperationsHealth(await response.json());
+  } catch {
+    return undefined;
+  }
+}
+
 function value(row: Record<string, unknown>, key: string) {
   const result = row[key];
   return typeof result === "string" || typeof result === "number" ? String(result) : "—";
@@ -70,6 +84,24 @@ function value(row: Record<string, unknown>, key: string) {
 function StatusBadge({ state }: { readonly state: "degraded" | "delayed" | "fresh" | "stale" }) {
   const label = state === "fresh" ? "Healthy" : state === "delayed" ? "Delayed" : state === "stale" ? "Stale" : "Degraded";
   return <span className={`state-badge ${state}`}>{label}</span>;
+}
+
+function OperationsHealthCard({ health }: { readonly health: OperationsHealth | undefined }) {
+  if (!health) return <article className="card full-width degraded-card"><p className="label">Operations health</p><h2>Unavailable</h2><p>The authenticated operations-health endpoint could not be read.</p></article>;
+  const schedulerLabel = health.runtime.scheduler.status === "ready" ? "Ready" : health.runtime.scheduler.status === "blocked" ? "Blocked" : "Disabled";
+  const reconciliationLabel = health.reconciliation.status === "fresh" ? "Fresh" : health.reconciliation.status === "delayed" ? "Delayed" : health.reconciliation.status === "stale" ? "Stale" : "Unavailable";
+  return (
+    <article className="card full-width operations-health-card" aria-label="Operations health">
+      <div className="card-heading"><div><p className="label">Operations health</p><h2>Server-side safeguards</h2></div><span className={`state-badge ${health.reconciliation.status === "fresh" ? "fresh" : "degraded"}`}>{reconciliationLabel}</span></div>
+      <div className="operations-health-grid">
+        <div><span className="label">Reconciliation</span><strong>{health.reconciliation.ageSeconds === undefined ? "Unavailable" : `${health.reconciliation.ageSeconds}s old`}</strong></div>
+        <div><span className="label">Scheduler</span><strong>{schedulerLabel}</strong></div>
+        <div><span className="label">Broker read gate</span><strong>{health.runtime.brokerConnectionEnabled ? "Enabled" : "Disabled"}</strong></div>
+        <div><span className="label">Paper Autopilot</span><strong>{health.runtime.paperAutopilotEnabled ? "Enabled" : "Disabled"}</strong></div>
+      </div>
+      <p className="provenance">The dashboard can observe these gates but cannot change them. Continuous scheduling and Paper Autopilot remain disabled unless explicitly activated.</p>
+    </article>
+  );
 }
 
 export default async function DashboardPage() {
@@ -82,6 +114,7 @@ export default async function DashboardPage() {
   }
 
   const result = await loadReadModel(getToken);
+  const operationsHealth = await loadOperationsHealth(getToken);
   const freshness = result.kind === "ready" ? getFreshnessState(result.model.freshness.ageSeconds) : "stale";
   const freshnessLabel = getFreshnessLabel(freshness);
 
@@ -122,6 +155,7 @@ export default async function DashboardPage() {
 
       {result.kind === "unavailable" ? (
         <section className="grid" aria-label="Dashboard unavailable state">
+          <OperationsHealthCard health={operationsHealth} />
           <article className="card full-width alert-card degraded-card">
             <p className="label">Read model unavailable</p>
             <h2>Waiting for the first safe reconciliation.</h2>
@@ -133,6 +167,7 @@ export default async function DashboardPage() {
         </section>
       ) : (
         <section className="grid" aria-label="Paper account dashboard">
+          <OperationsHealthCard health={operationsHealth} />
           <article className="card primary-card" id="overview">
             <div className="card-heading"><div><p className="label">Account equity</p><h2>{value(result.model.snapshot, "currency")} {value(result.model.snapshot, "equity")}</h2></div><StatusBadge state={freshness} /></div>
             <dl className="facts">

@@ -1,5 +1,49 @@
 export type FreshnessState = "delayed" | "fresh" | "stale";
 
+export type OperationsHealth = {
+  readonly reconciliation: {
+    readonly ageSeconds?: number;
+    readonly capturedAt?: string;
+    readonly status: "delayed" | "fresh" | "stale" | "unavailable";
+  };
+  readonly runtime: {
+    readonly brokerConnectionEnabled: boolean;
+    readonly dailyPreparationHandlerEnabled: boolean;
+    readonly paperAutopilotEnabled: boolean;
+    readonly scheduler: { readonly enabled: boolean; readonly status: "blocked" | "disabled" | "ready" };
+  };
+};
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+export function parseOperationsHealth(value: unknown): OperationsHealth | undefined {
+  if (!isRecord(value) || !isRecord(value.reconciliation) || !isRecord(value.runtime)) return undefined;
+  const reconciliation = value.reconciliation;
+  const runtime = value.runtime;
+  if (!isRecord(runtime.scheduler)) return undefined;
+  const scheduler = runtime.scheduler;
+  if (!(["delayed", "fresh", "stale", "unavailable"] as const).includes(reconciliation.status as OperationsHealth["reconciliation"]["status"])) return undefined;
+  if (!(["blocked", "disabled", "ready"] as const).includes(scheduler.status as OperationsHealth["runtime"]["scheduler"]["status"])) return undefined;
+  if (typeof scheduler.enabled !== "boolean" || typeof runtime.brokerConnectionEnabled !== "boolean" || typeof runtime.dailyPreparationHandlerEnabled !== "boolean" || typeof runtime.paperAutopilotEnabled !== "boolean") return undefined;
+  if (reconciliation.ageSeconds !== undefined && typeof reconciliation.ageSeconds !== "number") return undefined;
+  if (reconciliation.capturedAt !== undefined && typeof reconciliation.capturedAt !== "string") return undefined;
+  return {
+    reconciliation: {
+      ...(reconciliation.ageSeconds !== undefined ? { ageSeconds: reconciliation.ageSeconds } : {}),
+      ...(reconciliation.capturedAt !== undefined ? { capturedAt: reconciliation.capturedAt } : {}),
+      status: reconciliation.status as OperationsHealth["reconciliation"]["status"],
+    },
+    runtime: {
+      brokerConnectionEnabled: runtime.brokerConnectionEnabled,
+      dailyPreparationHandlerEnabled: runtime.dailyPreparationHandlerEnabled,
+      paperAutopilotEnabled: runtime.paperAutopilotEnabled,
+      scheduler: { enabled: scheduler.enabled, status: scheduler.status as OperationsHealth["runtime"]["scheduler"]["status"] },
+    },
+  };
+}
+
 export function getFreshnessState(ageSeconds: number): FreshnessState {
   if (!Number.isFinite(ageSeconds) || ageSeconds < 0) return "stale";
   if (ageSeconds <= 300) return "fresh";

@@ -2,10 +2,10 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.11 — scheduler readiness boundary hosted verification complete.
-- **Status:** The Railway API and worker deployments are successful; operations health and guarded scheduler readiness are verified while durable scheduler and Paper Autopilot remain disabled.
+- **Phase:** Phase 6.13 — dashboard operations health surface implemented.
+- **Status:** The authenticated dashboard now displays persisted reconciliation freshness and server-side activation gates; durable scheduler and Paper Autopilot remain disabled.
 - **Current operating mode:** Paper only; order submission not yet enabled.
-- **Current goal:** Run one separately approved hosted scheduler reconciliation, then verify queue completion and persisted freshness without enabling continuous scheduling.
+- **Current goal:** Verify the dashboard health surface in a hosted preview, then run the separately approved one-run paper reconciliation.
 - **Last updated:** 2026-08-23.
 
 ## Delivery Roadmap
@@ -551,6 +551,14 @@
 - **Hosted deployment:** Worker deployment `9faf1392-c6ed-4735-a8ee-5ed59708feb4` reached `SUCCESS`; Railway SSH readiness reports `status=disabled` with paper mode/database/credentials configured and all activation flags disabled. The one-run command itself has not been executed.
 - **Next smallest unit:** Execute the one-run command in Railway, verify the persisted snapshot and queue counts, then restore the command-scoped environment automatically on process exit.
 
+## Completed Build Unit — Phase 6.13
+
+- **User story:** As the operator, I can see reconciliation freshness and scheduler/broker/Paper Autopilot gates directly in the authenticated dashboard.
+- **Implemented:** Added strict parsing for the operations-health response and a responsive dashboard card that shows reconciliation age, scheduler state, broker-read gate, and Paper Autopilot state. Unavailable health remains visibly degraded; no fallback financial values are invented.
+- **Safety boundary:** The dashboard only reads the authenticated API. It cannot change flags, start queues, access PostgreSQL, access Alpaca credentials, or submit orders.
+- **Verification:** `pnpm test` passes 102 tests; typecheck, lint, and production build pass.
+- **Next smallest unit:** Verify the dashboard preview and then execute the separately approved one-run paper reconciliation.
+
 ## Decisions Made
 
 | Date | Decision | Reason |
@@ -640,6 +648,7 @@
 | Phase 6.10 operator health surface | Pass | Authenticated `/v1/operations-health` added with deterministic freshness classification and non-secret activation-gate reporting; local checks pass and Railway deployment `ad38f77b-4c12-45c8-83db-e2bbde091399` is `SUCCESS`; protected route returns 401 without a session; no persistent scheduler or autopilot enablement |
 | Phase 6.11 scheduler readiness command | Pass | Guarded read-only `durable-readiness` reports disabled/blocked/ready states with safe reason codes; 100 tests, typecheck, lint, and build pass; Railway worker deployment `9bb31a13-e3d4-4a15-a6a0-63997e07b11d` is `SUCCESS` and hosted readiness reports disabled; no broker, scheduler, or order action performed |
 | Phase 6.12 one-run scheduler reconciliation boundary | Pass | Guarded `durable-one-run` provisions existing queues and consumes one read-only job only with explicit command-scoped gates; 101 tests, typecheck, lint, and build pass; worker deployment `9faf1392-c6ed-4735-a8ee-5ed59708feb4` is `SUCCESS`; hosted execution awaits explicit temporary broker/handler opt-in |
+| Phase 6.13 dashboard operations health surface | Pass | Authenticated dashboard displays strict operations-health state with unavailable/degraded handling; 102 tests, typecheck, lint, and production build pass; no browser authority or persistent gate change added |
 | Browser/preview | Partial | Production page HTTP check passed; visual/responsive review deferred beyond source scaffold |
 | Security review | Partial | No credential files, Alpaca client, database connection, or order code added; full review remains required |
 
@@ -660,7 +669,7 @@
 - **What exists:** Verified hosted foundation, Phase 0.3 selections, Phase 0.4 fail-closed guardrails, operator-confirmed paper setup, Phase 1 read-only account/dashboard foundation, guarded reconciliation command, Phase 2.1–2.2 authenticated asset/market-data reads, Phase 2.3 stream/backfill boundary, Phase 2.4 dashboard views, Phase 2.5 protected reconciliation verification, Phase 3.1 disabled strategy contract, Phase 3.2 decimal-safe metrics, Phase 3.3 point-in-time replay, Phase 3.4 disabled momentum plug-ins, Phase 3.5 regime evidence, Phase 3.6 in-process lifecycle gate, Phase 3.7 reviewed lifecycle-event persistence, Phase 3.8 authenticated replay approval command, Phase 3.9 shadow observation persistence, Phase 3.10 finalized-bar evaluation, Phase 3.11 restart-safe shadow runner, Phase 3.12 opt-in worker boundary, Phase 3.13 wired shadow worker/scheduler, Phase 3.14 controlled shadow evidence/replay-to-shadow gate, Phase 3.15 authenticated replay-to-shadow command, Phase 3.16 shadow-to-paper readiness gate, Phase 3.17 authenticated shadow-to-paper command, Phase 5.1 immutable paper signals/deterministic risk checks, Phase 5.2 immutable trade intents/execution-time risk approvals, Phase 5.3 idempotent paper-order submission boundary, Phase 5.4 transactional paper-order persistence/reconciliation records, Phase 6.1 paper execution wiring/Autopilot gate, Phase 6.2 controlled paper recovery/partial-fill reconciliation, and Phase 6.3 durable daily scheduling/recovery boundary. No hosted migration has been applied and no broker request has been run.
 - **Where to resume:** Build the deterministic paper risk/execution boundary, then apply the reviewed migrations through Railway's controlled process, run one guarded paper reconciliation, and verify `/v1/read-model`, `/v1/reconciliation-status`, and dashboard data against Alpaca.
 - **Important context:** Keep Alpaca paper mode and read-only behavior during Phase 2.
-- **Recommended next prompt:** Approve and run Phase 6.12 once in Railway with temporary paper broker/handler flags; keep continuous scheduler, Paper Autopilot, and live capability disabled.
+- **Recommended next prompt:** Verify the Phase 6.13 dashboard preview, then approve and run Phase 6.12 once in Railway with temporary paper broker/handler flags; keep continuous scheduler, Paper Autopilot, and live capability disabled.
 
 ## Change Log
 

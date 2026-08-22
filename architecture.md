@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.11 scheduler readiness boundary hosted verification complete; durable scheduler and Paper Autopilot activation remain separate gated steps.
+- **Stage:** Phase 6.13 dashboard operations health surface implemented; durable scheduler and Paper Autopilot activation remain separate gated steps.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -322,6 +322,11 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - Added `durable-one-run`, which provisions the existing `pg-boss` queues, registers a temporary worker, enqueues one immediate daily-preparation payload, waits for one read-only paper reconciliation, and shuts down.
 - The command requires command-scoped broker and handler gates and refuses persistent scheduler or Paper Autopilot enablement. It never creates a recurring schedule or an order path.
 - Hosted execution remains a separately approved operator action because it performs one Alpaca paper read and one PostgreSQL reconciliation write.
+
+### Phase 6.13 Dashboard Operations Health Surface
+
+- The authenticated dashboard consumes only the redacted `/v1/operations-health` response and displays reconciliation freshness plus scheduler, broker-read, and Paper Autopilot gates.
+- Invalid or unavailable health data is shown as unavailable/degraded; the dashboard never fabricates account or performance values and has no control authority.
 
 ### Phase 6.8 Guarded Application Schema Migration
 

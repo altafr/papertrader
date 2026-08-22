@@ -237,6 +237,35 @@ h2 {
   background: linear-gradient(145deg, rgb(65 48 24 / 42%), rgb(16 26 36 / 92%));
 }
 
+.operations-health-card {
+  border-color: rgb(79 142 247 / 42%);
+}
+
+.operations-health-grid {
+  display: grid;
+  gap: 0.8rem;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin: 1.2rem 0;
+}
+
+.operations-health-grid > div {
+  background: rgb(8 15 23 / 34%);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  display: grid;
+  gap: 0.35rem;
+  padding: 0.85rem;
+}
+
+.operations-health-grid .label {
+  font-size: 0.65rem;
+  margin: 0;
+}
+
+.operations-health-grid strong {
+  font-size: 0.95rem;
+}
+
 .unavailable-value {
   color: var(--muted);
   font-weight: 500;
@@ -380,6 +409,10 @@ tbody th {
 }
 
 @media (max-width: 720px) {
+  .operations-health-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .status-bar {
     align-items: flex-start;
     gap: 1rem;
