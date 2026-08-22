@@ -61,6 +61,42 @@ export function createAccountStateRepository(db: Database) {
       return row;
     },
 
+    async getLatestReadModel(accountId?: string) {
+      const [snapshot] = accountId
+        ? await db
+            .select()
+            .from(accountSnapshots)
+            .where(eq(accountSnapshots.accountId, accountId))
+            .orderBy(desc(accountSnapshots.capturedAt))
+            .limit(1)
+        : await db.select().from(accountSnapshots).orderBy(desc(accountSnapshots.capturedAt)).limit(1);
+      if (!snapshot?.id) {
+        return undefined;
+      }
+      const resolvedAccountId = snapshot.accountId;
+      const [snapshotPositions, snapshotOrders, snapshotActivities] = await Promise.all([
+        db.select().from(positions).where(eq(positions.accountSnapshotId, snapshot.id)),
+        db.select().from(orders).where(eq(orders.accountId, resolvedAccountId)).orderBy(desc(orders.updatedAt)),
+        db
+          .select()
+          .from(activities)
+          .where(eq(activities.accountId, resolvedAccountId))
+          .orderBy(desc(activities.transactionTime)),
+      ]);
+      const capturedAt = snapshot.capturedAt;
+      return {
+        activities: snapshotActivities,
+        capturedAt,
+        freshness: {
+          ageSeconds: Math.max(0, Math.floor((Date.now() - capturedAt.getTime()) / 1000)),
+          capturedAt,
+        },
+        orders: snapshotOrders,
+        positions: snapshotPositions,
+        snapshot,
+      };
+    },
+
     async save(snapshot: PersistedAccountSnapshot) {
       const [row] = await db.insert(accountSnapshots).values(snapshot).returning();
       return row;

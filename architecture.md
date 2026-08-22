@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 1.3 read-only reconciliation bundle implemented; controlled migration and hosted dashboard wiring remain next.
+- **Stage:** Phase 1.4 persisted read-model API implemented; controlled migration and hosted reconciliation remain next.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -86,6 +86,13 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - `packages/db` adds append-only account activity storage, broker-order read-model storage with status refresh, and a transaction that writes one account snapshot, its positions, and the latest broker reads together.
 - `apps/api` returns the expanded bundle from authenticated `GET /v1/account`; auth, paper-mode, explicit broker opt-in, and provider-error boundaries remain unchanged.
 - The migration remains a controlled operator/deployment step. No hosted database write or Alpaca request is claimed until Railway applies the migration and the operator enables the existing paper-only broker flag.
+
+### Phase 1.4 Persisted Read-Model API
+
+- `packages/db` exposes a latest read-model query that joins the most recent account snapshot to its positions and the account's current broker-order/activity read models, with UTC capture time and computed age in seconds.
+- `apps/api` exposes authenticated `GET /v1/read-model`. It returns `503 db_not_configured` without `DATABASE_URL`, `404 read_model_not_available` before a reconciliation exists, and a redacted `503 database_unavailable` for database/schema failures.
+- The API creates the PostgreSQL pool lazily on the first authenticated read-model request; it never runs migrations at startup and does not expose database connection details.
+- This unit does not claim that Railway has applied the migration or that a broker reconciliation has run. The dashboard can consume the endpoint only after those operational prerequisites are completed.
 
 ## Runtime Components
 

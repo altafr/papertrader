@@ -69,6 +69,8 @@ The reviewed migration is `packages/db/migrations/0001_account_read_models.sql`.
 
 The account response now includes normalized account, positions, orders, and account-activity data. The database reconciliation repository writes the account snapshot and positions in one transaction, refreshes broker order status idempotently, and inserts activities append-only. No reconciliation is run automatically until the migration and explicit operator enablement are complete.
 
+After reconciliation, authenticated `GET /v1/read-model` reads only the persisted latest snapshot and returns positions, orders, activities, capture time, and freshness age. It returns `503 db_not_configured` without `DATABASE_URL` and never runs migrations automatically.
+
 ## First implementation prompt
 
 ```text
