@@ -105,6 +105,30 @@ export const strategyPaperEvidence = pgTable(
   ],
 );
 
+export const paperOrderSubmissions = pgTable(
+  "paper_order_submissions",
+  {
+    alpacaOrderId: text("alpaca_order_id"),
+    approvalId: text("approval_id").notNull(),
+    assetClass: text("asset_class").notNull(),
+    clientOrderId: text("client_order_id").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    filledQuantity: numeric("filled_quantity", { precision: 20, scale: 8 }),
+    intentId: text("intent_id").primaryKey(),
+    quantity: numeric("quantity", { precision: 20, scale: 8 }).notNull(),
+    status: text("status").notNull(),
+    submittedAt: timestamp("submitted_at", { withTimezone: true }),
+    symbol: text("symbol").notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }),
+  },
+  (table) => [
+    unique("paper_order_submissions_client_order_unique").on(table.clientOrderId),
+    index("paper_order_submissions_status_updated_idx").on(table.status, table.updatedAt),
+    check("paper_order_submissions_non_empty_text", sql`length(${table.intentId}) > 0 AND length(${table.approvalId}) > 0 AND length(${table.clientOrderId}) > 0 AND length(${table.symbol}) > 0`),
+    check("paper_order_submissions_quantity_positive", sql`${table.quantity} > 0`),
+  ],
+);
+
 export const shadowObservations = pgTable(
   "shadow_observations",
   {

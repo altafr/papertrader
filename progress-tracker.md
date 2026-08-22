@@ -3,9 +3,9 @@
 ## Snapshot
 
 - **Phase:** Phase 3 — strategy and replay foundation.
-- **Status:** Phase 5.3 idempotent paper-order submission boundary implemented; Railway migration and first operator-run reconciliation remain operational dependencies.
+- **Status:** Phase 5.4 transactional paper-order persistence and reconciliation records implemented; Railway migration and first operator-run reconciliation remain operational dependencies.
 - **Current operating mode:** Paper only; order submission not yet enabled.
-- **Current goal:** Add paper-order persistence/reconciliation and mode gates without enabling live capability.
+- **Current goal:** Complete the paper execution/reconciliation workflow and mode gates without enabling live capability.
 - **Last updated:** 2026-08-22.
 
 ## Delivery Roadmap
@@ -114,7 +114,8 @@
 - [x] Implement immutable signals and deterministic paper risk checks.
 - [x] Add immutable trade intents and execution-time risk approvals.
 - [x] Add idempotent paper execution service.
-- [ ] Persist submissions and reconcile broker truth before enabling Paper Autopilot.
+- [x] Persist submissions and reconcile broker truth records.
+- [ ] Wire execution, persistence, reconciliation, and Paper Autopilot mode gates end to end.
 - [ ] Add order/trade stream handling and full reconciliation.
 - [ ] Test rejected orders, partial fills, timeouts, duplicates, and restarts.
 
@@ -439,6 +440,14 @@
 - **Deployment dependency:** Broker opt-in and paper credentials remain server-side; order submission is not wired into the worker/API flow until persistence and reconciliation are complete.
 - **Next smallest unit:** Persist order submissions and reconcile broker truth transactionally before exposing any Paper Autopilot mode.
 
+## Completed Build Unit — Phase 5.4
+
+- **User story:** As the paper execution service, I can persist each approved intent once and reconcile broker status/fills without losing the audit trail or allowing a different intent to reuse its client order ID.
+- **Implemented:** Added `paper_order_submissions`, migration `0007_paper_order_submissions.sql`, unique intent/client-ID constraints, transactional record/reconcile repository methods, and tests for duplicate-safe recording and broker updates.
+- **Safety boundary:** Persistence has no order authority and reconciliation does not approve or submit orders. Paper Autopilot remains disabled; no live endpoint or credential path was added.
+- **Deployment dependency:** Apply migration `0007` through Railway's controlled process before wiring the adapter to worker/API execution.
+- **Next smallest unit:** Wire approved paper submission, persistence, and account/order reconciliation behind an explicit Paper Autopilot mode gate.
+
 ## Decisions Made
 
 | Date | Decision | Reason |
@@ -515,6 +524,7 @@
 | Phase 5.1 immutable paper signals and deterministic risk checks | Pass | Full lint, build, typecheck, and 75 tests pass; immutable signal timestamps, baseline/freshness/kill-switch checks, exposure and count caps, and decimal planned-loss enforcement are covered |
 | Phase 5.2 immutable trade intents and execution-time risk approvals | Pass | Full lint, build, typecheck, and 78 tests pass; intent immutability, expiry validation, current-state reassessment, versioned approvals, and one-approval-per-intent behavior are covered |
 | Phase 5.3 idempotent paper-order submission boundary | Pass | Full lint, build, typecheck, and 81 tests pass; paper endpoint pinning, approval/opt-in gates, client-ID lookup-before-post, retry normalization, and rejected-order boundaries are covered |
+| Phase 5.4 transactional paper-order persistence and reconciliation records | Pass | Full lint, build, typecheck, and 82 tests pass; migration/schema constraints, one-time intent recording, client-ID reuse rejection, broker status/fill reconciliation, and missing-submission failures are covered |
 | Browser/preview | Partial | Production page HTTP check passed; visual/responsive review deferred beyond source scaffold |
 | Security review | Partial | No credential files, Alpaca client, database connection, or order code added; full review remains required |
 
@@ -532,10 +542,10 @@
 
 ## Session Handoff
 
-- **What exists:** Verified hosted foundation, Phase 0.3 selections, Phase 0.4 fail-closed guardrails, operator-confirmed paper setup, Phase 1 read-only account/dashboard foundation, guarded reconciliation command, Phase 2.1–2.2 authenticated asset/market-data reads, Phase 2.3 stream/backfill boundary, Phase 2.4 dashboard views, Phase 2.5 protected reconciliation verification, Phase 3.1 disabled strategy contract, Phase 3.2 decimal-safe metrics, Phase 3.3 point-in-time replay, Phase 3.4 disabled momentum plug-ins, Phase 3.5 regime evidence, Phase 3.6 in-process lifecycle gate, Phase 3.7 reviewed lifecycle-event persistence, Phase 3.8 authenticated replay approval command, Phase 3.9 shadow observation persistence, Phase 3.10 finalized-bar evaluation, Phase 3.11 restart-safe shadow runner, Phase 3.12 opt-in worker boundary, Phase 3.13 wired shadow worker/scheduler, Phase 3.14 controlled shadow evidence/replay-to-shadow gate, Phase 3.15 authenticated replay-to-shadow command, Phase 3.16 shadow-to-paper readiness gate, Phase 3.17 authenticated shadow-to-paper command, Phase 5.1 immutable paper signals/deterministic risk checks, Phase 5.2 immutable trade intents/execution-time risk approvals, and Phase 5.3 idempotent paper-order submission boundary. No hosted migration has been applied and no broker request has been run.
+- **What exists:** Verified hosted foundation, Phase 0.3 selections, Phase 0.4 fail-closed guardrails, operator-confirmed paper setup, Phase 1 read-only account/dashboard foundation, guarded reconciliation command, Phase 2.1–2.2 authenticated asset/market-data reads, Phase 2.3 stream/backfill boundary, Phase 2.4 dashboard views, Phase 2.5 protected reconciliation verification, Phase 3.1 disabled strategy contract, Phase 3.2 decimal-safe metrics, Phase 3.3 point-in-time replay, Phase 3.4 disabled momentum plug-ins, Phase 3.5 regime evidence, Phase 3.6 in-process lifecycle gate, Phase 3.7 reviewed lifecycle-event persistence, Phase 3.8 authenticated replay approval command, Phase 3.9 shadow observation persistence, Phase 3.10 finalized-bar evaluation, Phase 3.11 restart-safe shadow runner, Phase 3.12 opt-in worker boundary, Phase 3.13 wired shadow worker/scheduler, Phase 3.14 controlled shadow evidence/replay-to-shadow gate, Phase 3.15 authenticated replay-to-shadow command, Phase 3.16 shadow-to-paper readiness gate, Phase 3.17 authenticated shadow-to-paper command, Phase 5.1 immutable paper signals/deterministic risk checks, Phase 5.2 immutable trade intents/execution-time risk approvals, Phase 5.3 idempotent paper-order submission boundary, and Phase 5.4 transactional paper-order persistence/reconciliation records. No hosted migration has been applied and no broker request has been run.
 - **Where to resume:** Build the deterministic paper risk/execution boundary, then apply the reviewed migrations through Railway's controlled process, run one guarded paper reconciliation, and verify `/v1/read-model`, `/v1/reconciliation-status`, and dashboard data against Alpaca.
 - **Important context:** Keep Alpaca paper mode and read-only behavior during Phase 2.
-- **Recommended next prompt:** Continue Phase 5.4 with transactional order persistence and broker reconciliation; keep Paper Autopilot disabled until verified.
+- **Recommended next prompt:** Continue Phase 6.1 with end-to-end paper execution wiring and explicit Paper Autopilot mode gates; keep live capability disabled.
 
 ## Change Log
 
@@ -755,3 +765,8 @@
 
 - Added a server-only Alpaca paper-order adapter with client-order-ID lookup-before-post, approved-intent and broker-opt-in gates, paper endpoint pinning, and normalized responses.
 - Verified full lint, build, typecheck, and 81 tests; the adapter remains unwired until order persistence and reconciliation are complete.
+
+### 2026-08-22 — Phase 5.4 transactional paper-order persistence and reconciliation records complete
+
+- Added migration `0007_paper_order_submissions.sql`, schema constraints, and transactional repository operations for one-time intent recording and broker status/fill updates.
+- Verified full lint, build, typecheck, and 82 tests; no hosted migration, broker request, credential access, or Paper Autopilot mode was enabled.

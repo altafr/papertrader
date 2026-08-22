@@ -1,7 +1,21 @@
 import { and, asc, desc, eq } from "drizzle-orm";
 
 import type { Database } from "./client.js";
-import { accountSnapshots, activities, orders, positions, shadowObservationOutcomes, shadowObservations, strategyLifecycleEvents, strategyPaperEvidence } from "./schema.js";
+import { accountSnapshots, activities, orders, paperOrderSubmissions, positions, shadowObservationOutcomes, shadowObservations, strategyLifecycleEvents, strategyPaperEvidence } from "./schema.js";
+
+export interface PersistedPaperOrderSubmission {
+  readonly alpacaOrderId?: string;
+  readonly approvalId: string;
+  readonly assetClass: string;
+  readonly clientOrderId: string;
+  readonly filledQuantity?: string;
+  readonly intentId: string;
+  readonly quantity: string;
+  readonly status: string;
+  readonly submittedAt?: Date;
+  readonly symbol: string;
+  readonly updatedAt?: Date;
+}
 
 export interface PersistedPaperPromotionEvidence {
   readonly capturedAt: Date;
@@ -297,6 +311,57 @@ export function createShadowObservationRepository(db: Database) {
         if (outcome) closed.push({ observation, outcome });
       }
       return closed;
+    },
+  };
+}
+
+export function createPaperOrderRepository(db: Database) {
+  return {
+    async recordSubmission(submission: PersistedPaperOrderSubmission) {
+      return db.transaction(async (transaction) => {
+        const [existingIntent] = await transaction.select().from(paperOrderSubmissions).where(eq(paperOrderSubmissions.intentId, submission.intentId)).limit(1);
+        if (existingIntent) return existingIntent;
+        const [existingClient] = await transaction.select().from(paperOrderSubmissions).where(eq(paperOrderSubmissions.clientOrderId, submission.clientOrderId)).limit(1);
+        if (existingClient && existingClient.intentId !== submission.intentId) throw new Error("Client order ID is already bound to another intent.");
+        const [row] = await transaction.insert(paperOrderSubmissions).values({
+          approvalId: submission.approvalId,
+          assetClass: submission.assetClass,
+          clientOrderId: submission.clientOrderId,
+          intentId: submission.intentId,
+          quantity: submission.quantity,
+          status: submission.status,
+          symbol: submission.symbol,
+          ...(submission.alpacaOrderId ? { alpacaOrderId: submission.alpacaOrderId } : {}),
+          ...(submission.filledQuantity ? { filledQuantity: submission.filledQuantity } : {}),
+          ...(submission.submittedAt ? { submittedAt: submission.submittedAt } : {}),
+          ...(submission.updatedAt ? { updatedAt: submission.updatedAt } : {}),
+        }).returning();
+        return row;
+      });
+    },
+
+    async reconcile(input: { readonly alpacaOrderId: string; readonly filledQuantity?: string; readonly status: string; readonly submittedAt?: Date; readonly intentId: string; readonly updatedAt?: Date }) {
+      return db.transaction(async (transaction) => {
+        const [existing] = await transaction.select().from(paperOrderSubmissions).where(eq(paperOrderSubmissions.intentId, input.intentId)).limit(1);
+        if (!existing) throw new Error("Paper order submission was not found.");
+        const [row] = await transaction.update(paperOrderSubmissions).set({
+          alpacaOrderId: input.alpacaOrderId, status: input.status,
+          ...(input.filledQuantity !== undefined ? { filledQuantity: input.filledQuantity } : {}),
+          ...(input.submittedAt !== undefined ? { submittedAt: input.submittedAt } : {}),
+          ...(input.updatedAt !== undefined ? { updatedAt: input.updatedAt } : {}),
+        }).where(eq(paperOrderSubmissions.intentId, input.intentId)).returning();
+        return row;
+      });
+    },
+
+    async getByClientOrderId(clientOrderId: string) {
+      const [row] = await db.select().from(paperOrderSubmissions).where(eq(paperOrderSubmissions.clientOrderId, clientOrderId)).limit(1);
+      return row;
+    },
+
+    async getByIntentId(intentId: string) {
+      const [row] = await db.select().from(paperOrderSubmissions).where(eq(paperOrderSubmissions.intentId, intentId)).limit(1);
+      return row;
     },
   };
 }

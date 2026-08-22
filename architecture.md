@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 5.3 idempotent paper-order submission boundary implemented; Railway migration and first operator-run reconciliation remain operational dependencies.
+- **Stage:** Phase 5.4 transactional paper-order persistence and reconciliation records implemented; Railway migration and first operator-run reconciliation remain operational dependencies.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -269,6 +269,12 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - Added a server-only Alpaca paper-order adapter that rejects disabled broker access, rejected approvals, invalid intent-derived client IDs, and malformed limit orders.
 - Submission first looks up the client order ID and returns the existing normalized order on retry; it posts only after a `404`, preserving idempotency across restarts and network retries.
 - The adapter is hard-pinned to `https://paper-api.alpaca.markets`, never exposes credentials, and supports only buy orders. It does not cancel, replace, liquidate, or access live endpoints.
+
+### Phase 5.4 Transactional Order Persistence and Reconciliation Records
+
+- Added `paper_order_submissions` with unique intent and client-order identifiers, approval linkage, submission status, broker ID, fill quantity, and timestamps; migration `0007_paper_order_submissions.sql` adds the reviewed constraints and index.
+- Added transactional repository operations that record an intent once, reject client-ID reuse across intents, and update broker truth only for an existing submission.
+- This persistence boundary does not enable Paper Autopilot; broker truth must still be reconciled and execution-time gates must remain satisfied.
 
 ## Runtime Components
 

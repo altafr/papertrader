@@ -1,5 +1,5 @@
 export { createDatabase, type Database } from "./client.js";
-export { createAccountStateRepository, createShadowObservationRepository, createStrategyLifecycleRepository, type PersistedAccountSnapshot, type PersistedPaperPromotionEvidence, type PersistedShadowObservation, type PersistedShadowObservationOutcome, type PersistedStrategyLifecycleEvent } from "./repository.js";
+export { createAccountStateRepository, createPaperOrderRepository, createShadowObservationRepository, createStrategyLifecycleRepository, type PersistedAccountSnapshot, type PersistedPaperOrderSubmission, type PersistedPaperPromotionEvidence, type PersistedShadowObservation, type PersistedShadowObservationOutcome, type PersistedStrategyLifecycleEvent } from "./repository.js";
 export {
   accountSnapshots,
   accountSnapshotsRelations,
@@ -7,6 +7,7 @@ export {
   orders,
   positions,
   positionsRelations,
+  paperOrderSubmissions,
   strategyLifecycleEvents,
   shadowObservationOutcomes,
   shadowObservations,
