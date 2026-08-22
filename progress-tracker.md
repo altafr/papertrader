@@ -2,8 +2,8 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.10 — operator health surface hosted verification complete.
-- **Status:** The Railway API deployment is successful and the protected operations-health route is reachable; durable scheduler and Paper Autopilot remain disabled.
+- **Phase:** Phase 6.11 — scheduler readiness boundary hosted verification complete.
+- **Status:** The Railway API and worker deployments are successful; operations health and guarded scheduler readiness are verified while durable scheduler and Paper Autopilot remain disabled.
 - **Current operating mode:** Paper only; order submission not yet enabled.
 - **Current goal:** Add the next deterministic scheduler activation/readiness check while keeping all persistent activation flags disabled.
 - **Last updated:** 2026-08-23.
@@ -538,6 +538,7 @@
 - **Implemented:** Added `pnpm --filter @momentum/worker durable-readiness`, guarded by `DURABLE_QUEUE_READINESS=true`. It reports `disabled`, `blocked`, or `ready`, exposes only boolean gate checks and safe reason codes, and exits non-zero when an explicitly enabled scheduler is blocked.
 - **Safety boundary:** The command is read-only and does not connect to PostgreSQL, inspect queue state, call Alpaca, start `pg-boss`, submit orders, or enable any environment variable. Paper mode and credentials are represented only as booleans.
 - **Verification:** `pnpm test` passes 100 tests; typecheck, lint, and production build pass. Default invocation reports `disabled`; an explicitly enabled but incomplete environment reports `blocked` and exits 1.
+- **Hosted verification:** Worker deployment `9bb31a13-e3d4-4a15-a6a0-63997e07b11d` reached `SUCCESS`; guarded Railway SSH readiness reported `status=disabled`, `databaseConfigured=true`, `paperCredentialsConfigured=true`, `paperMode=true`, and all activation flags false/disabled. No broker call or scheduler start occurred.
 - **Next smallest unit:** Deploy the worker command and run the guarded readiness check in Railway; keep persistent scheduler, broker, handler, and Paper Autopilot flags disabled.
 
 ## Decisions Made
@@ -627,7 +628,7 @@
 | Phase 6.8 guarded application schema migration | Pass | Full build, typecheck, lint, and 94 tests pass; Railway deployment succeeded, migrations 0001–0007 were applied, and required read-model/order tables are present |
 | Phase 6.9 controlled paper reconciliation | Pass | Railway one-shot reconciliation completed; 1 account snapshot, 1 position, and 1 order persisted; work/dead-letter queues remain present with zero queued, active, and failed jobs; no persistent broker or autopilot enablement |
 | Phase 6.10 operator health surface | Pass | Authenticated `/v1/operations-health` added with deterministic freshness classification and non-secret activation-gate reporting; local checks pass and Railway deployment `ad38f77b-4c12-45c8-83db-e2bbde091399` is `SUCCESS`; protected route returns 401 without a session; no persistent scheduler or autopilot enablement |
-| Phase 6.11 scheduler readiness command | Pass | Guarded read-only `durable-readiness` reports disabled/blocked/ready states with safe reason codes; 100 tests, typecheck, lint, and build pass; no database, broker, scheduler, or order action performed |
+| Phase 6.11 scheduler readiness command | Pass | Guarded read-only `durable-readiness` reports disabled/blocked/ready states with safe reason codes; 100 tests, typecheck, lint, and build pass; Railway worker deployment `9bb31a13-e3d4-4a15-a6a0-63997e07b11d` is `SUCCESS` and hosted readiness reports disabled; no broker, scheduler, or order action performed |
 | Browser/preview | Partial | Production page HTTP check passed; visual/responsive review deferred beyond source scaffold |
 | Security review | Partial | No credential files, Alpaca client, database connection, or order code added; full review remains required |
 
@@ -648,7 +649,7 @@
 - **What exists:** Verified hosted foundation, Phase 0.3 selections, Phase 0.4 fail-closed guardrails, operator-confirmed paper setup, Phase 1 read-only account/dashboard foundation, guarded reconciliation command, Phase 2.1–2.2 authenticated asset/market-data reads, Phase 2.3 stream/backfill boundary, Phase 2.4 dashboard views, Phase 2.5 protected reconciliation verification, Phase 3.1 disabled strategy contract, Phase 3.2 decimal-safe metrics, Phase 3.3 point-in-time replay, Phase 3.4 disabled momentum plug-ins, Phase 3.5 regime evidence, Phase 3.6 in-process lifecycle gate, Phase 3.7 reviewed lifecycle-event persistence, Phase 3.8 authenticated replay approval command, Phase 3.9 shadow observation persistence, Phase 3.10 finalized-bar evaluation, Phase 3.11 restart-safe shadow runner, Phase 3.12 opt-in worker boundary, Phase 3.13 wired shadow worker/scheduler, Phase 3.14 controlled shadow evidence/replay-to-shadow gate, Phase 3.15 authenticated replay-to-shadow command, Phase 3.16 shadow-to-paper readiness gate, Phase 3.17 authenticated shadow-to-paper command, Phase 5.1 immutable paper signals/deterministic risk checks, Phase 5.2 immutable trade intents/execution-time risk approvals, Phase 5.3 idempotent paper-order submission boundary, Phase 5.4 transactional paper-order persistence/reconciliation records, Phase 6.1 paper execution wiring/Autopilot gate, Phase 6.2 controlled paper recovery/partial-fill reconciliation, and Phase 6.3 durable daily scheduling/recovery boundary. No hosted migration has been applied and no broker request has been run.
 - **Where to resume:** Build the deterministic paper risk/execution boundary, then apply the reviewed migrations through Railway's controlled process, run one guarded paper reconciliation, and verify `/v1/read-model`, `/v1/reconciliation-status`, and dashboard data against Alpaca.
 - **Important context:** Keep Alpaca paper mode and read-only behavior during Phase 2.
-- **Recommended next prompt:** Continue Phase 6.11 with deterministic scheduler activation/readiness checks; keep scheduler, Paper Autopilot, and live capability disabled unless separately approved.
+- **Recommended next prompt:** Continue Phase 6.12 with a separately approved, one-run hosted scheduler activation test; keep Paper Autopilot and live capability disabled.
 
 ## Change Log
 
