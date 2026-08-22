@@ -2,10 +2,10 @@
 
 ## Snapshot
 
-- **Phase:** Phase 1 — trusted read-only foundation.
-- **Status:** Phase 1.6 controlled reconciliation command implemented; Railway migration and first operator-run reconciliation remain next.
+- **Phase:** Phase 2 — market data and dashboard.
+- **Status:** Phase 2.1 asset discovery implemented; Railway migration and first operator-run reconciliation remain operational dependencies.
 - **Current operating mode:** Paper only; order submission not yet enabled.
-- **Current goal:** Apply the reviewed migration and run the guarded one-shot paper reconciliation in Railway.
+- **Current goal:** Add protected historical bars/snapshots through Alpaca read calls; keep market-data feed selection open until the operator decides.
 - **Last updated:** 2026-08-22.
 
 ## Delivery Roadmap
@@ -74,7 +74,7 @@
 
 ### Phase 2 — Market Data and Dashboard
 
-- [ ] Add stock/crypto asset discovery and eligibility filters.
+- [x] Add stock/crypto asset discovery and eligibility filters.
 - [ ] Add historical bars/snapshots through protected server calls.
 - [ ] Add supervised market/trading WebSocket worker with backfill.
 - [ ] Build Overview, Positions, Orders & fills, Performance, and Alerts views.
@@ -225,6 +225,14 @@
 | P2 | What stock and crypto universe/liquidity thresholds should be used for initial research? | Strategy capacity and data usage | Operator |
 | P2 | Which macro/news sources supplement Alpaca news, if any? | Advisory coverage and external cost | Operator |
 
+## Completed Build Unit — Phase 2.1
+
+- **User story:** As the operator, I can retrieve the active, tradable stock and crypto universe through an authenticated server boundary for later market-data and research work.
+- **Implemented:** Added a server-only Alpaca asset reader and authenticated `GET /v1/assets`; responses are validated, normalized, and limited to `us_equity` and `crypto` assets.
+- **Safety boundary:** The route is paper-only, requires explicit broker opt-in and operator authentication, and has no order, strategy, risk, or browser credential behavior. Active/tradable class filtering is not a liquidity or strategy approval.
+- **Deployment dependency:** No hosted broker request was performed. Railway migration and the guarded reconciliation remain separate operational prerequisites.
+- **Next smallest unit:** Add protected historical bars/snapshots through Alpaca read calls, after the operator records the market-data subscription/feed decision.
+
 ## Decisions Made
 
 | Date | Decision | Reason |
@@ -276,6 +284,7 @@
 | Phase 1.4 persisted read-model API | Pass | Repository/API compile; full lint, build, typecheck, and 14 tests pass; local API returns 503 `auth_not_configured` before any database access |
 | Phase 1.5 dashboard read-only surfaces | Pass | Dashboard server component and unavailable states build successfully; full lint, build, typecheck, and 14 tests pass; no broker/database browser path added |
 | Phase 1.6 controlled reconciliation command | Pass | Guarded command builds; full lint, build, typecheck, and 14 tests pass; `RECONCILE_ONCE=false` exits before database/broker access without secret output |
+| Phase 2.1 asset discovery | Pass | Full lint, build, typecheck, and 15 tests pass; mocked adapter filters active tradable assets to US equities/crypto; no hosted broker request performed |
 | Browser/preview | Partial | Production page HTTP check passed; visual/responsive review deferred beyond source scaffold |
 | Security review | Partial | No credential files, Alpaca client, database connection, or order code added; full review remains required |
 
@@ -293,10 +302,10 @@
 
 ## Session Handoff
 
-- **What exists:** Verified hosted foundation, Phase 0.3 selections, Phase 0.4 fail-closed guardrails, operator-confirmed paper setup, Phase 1.1 auth shell, Phase 1.3 reconciliation bundle, Phase 1.4 persisted read-model API, Phase 1.5 dashboard surfaces, and Phase 1.6 guarded reconciliation command. No hosted migration has been applied and no broker request has been run.
-- **Where to resume:** Apply the reviewed migration through Railway's controlled process, run one guarded paper reconciliation, verify `/v1/read-model` and dashboard data, then add reconciliation health and scheduled refresh.
-- **Important context:** Keep Alpaca paper mode and read-only behavior during Phase 1.
-- **Recommended next prompt:** Continue Phase 1 with the PostgreSQL schema and read-only account adapter.
+- **What exists:** Verified hosted foundation, Phase 0.3 selections, Phase 0.4 fail-closed guardrails, operator-confirmed paper setup, Phase 1 read-only account/dashboard foundation, guarded reconciliation command, and Phase 2.1 authenticated asset discovery. No hosted migration has been applied and no broker request has been run.
+- **Where to resume:** Add protected historical bars/snapshots through Alpaca read calls. Separately, apply the reviewed migration through Railway's controlled process, run one guarded paper reconciliation, and verify `/v1/read-model` and dashboard data.
+- **Important context:** Keep Alpaca paper mode and read-only behavior during Phase 2.
+- **Recommended next prompt:** Continue Phase 2 with historical bars/snapshots and explicit market-data subscription/feed selection.
 
 ## Change Log
 
@@ -376,3 +385,9 @@
 - Added Clerk variable names and deployment-boundary instructions without recording values.
 - Verified 11 tests, lint, typecheck, and production builds; no Alpaca request, database schema, order behavior, or broker authority was added.
 - Verified the merged Railway deployment exposes the new `/v1/session` fail-closed response and that Vercel protected routes return `503 auth_not_configured` until Clerk variables are configured.
+
+### 2026-08-22 — Phase 2.1 asset discovery complete
+
+- Added a validated server-only Alpaca paper asset reader for active, tradable US equities and crypto.
+- Added authenticated API route `GET /v1/assets`, with explicit broker opt-in and paper-only guards.
+- Verified full lint, build, typecheck, and 15 tests; no hosted migration, broker request, strategy, risk, or order behavior was added.
