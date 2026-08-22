@@ -470,7 +470,7 @@
 
 - **User story:** As the server runtime, I can retain a UTC daily-preparation job across restarts, retry bounded failures, route exhausted jobs to a dead-letter queue, and expose last/next-run health without requiring the dashboard.
 - **Implemented:** Added the pinned `pg-boss` dependency, durable daily queue/dead-letter configuration, UTC schedule, bounded exponential retry settings, worker health state, startup/database gates, and focused scheduler tests.
-- **Safety boundary:** `DURABLE_SCHEDULER_ENABLED` defaults to false; enabling it requires PostgreSQL and an explicit handler flag, and the current handler performs only read-only paper-account reconciliation. The queue cannot bypass deterministic paper risk or execution gates.
+- **Safety boundary:** `DURABLE_SCHEDULER_ENABLED` defaults to false; enabling it requires PostgreSQL, explicit handler approval, and `BROKER_CONNECTION_ENABLED=true`. The current handler performs only read-only paper-account reconciliation; the queue cannot bypass deterministic paper risk or execution gates.
 - **Deployment dependency:** Railway must retain `DATABASE_URL`, apply the reviewed queue migration procedure through `pg-boss`, and keep the flag disabled until the handler and operator-run paper checks are complete.
 - **Next smallest unit:** Enable the queue only after the Railway migration/configuration review, then run controlled hosted paper verification and restart tests.
 

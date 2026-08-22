@@ -50,6 +50,7 @@ if (streamEnabled === "true") {
 if (durableConfiguration.enabled) {
   if (!process.env.DATABASE_URL?.trim()) throw new Error("DURABLE_SCHEDULER_ENABLED=true requires DATABASE_URL.");
   if (process.env.DAILY_PREPARATION_HANDLER_ENABLED !== "true") throw new Error("DURABLE_SCHEDULER_ENABLED=true requires the verified daily preparation handler.");
+  if (process.env.BROKER_CONNECTION_ENABLED !== "true") throw new Error("DURABLE_SCHEDULER_ENABLED=true requires BROKER_CONNECTION_ENABLED=true for reconciliation.");
   const durableScheduler = createDurableScheduler({
     config: durableConfiguration,
     connectionString: process.env.DATABASE_URL,
