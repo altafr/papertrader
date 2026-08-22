@@ -3,9 +3,9 @@
 ## Snapshot
 
 - **Phase:** Phase 0 — foundation and setup.
-- **Status:** Phase 0.4 safety envelope implemented; Alpaca account and Railway secret entry remain operator-pending.
+- **Status:** Phase 0.4 operator setup reported complete; broker remains disabled pending the read-only adapter.
 - **Current operating mode:** Paper only; order submission not yet enabled.
-- **Current goal:** Complete the operator-only paper-account reset and Railway sealed-variable setup without exposing credentials.
+- **Current goal:** Complete the remaining Phase 0 verification, then begin the authenticated read-only paper-account adapter.
 - **Last updated:** 2026-08-22.
 
 ## Delivery Roadmap
@@ -40,8 +40,8 @@
 
 #### 0.4 Security and paper-account setup
 
-- [ ] Create or reset the Alpaca paper account to the `USD 1,000` baseline.
-- [ ] Add paper credentials only to Railway service variables and require `ALPACA_PAPER_TRADE=true`.
+- [x] Create or reset the Alpaca paper account to the `USD 1,000` baseline (operator-confirmed; value not inspected).
+- [x] Add paper credentials only to Railway service variables and require `ALPACA_PAPER_TRADE=true` (operator-confirmed; secret values not inspected).
 - [x] Add placeholders/documentation—not values—for required environment variables.
 - [x] Add fail-closed runtime validation for paper mode, broker opt-in, and required credentials.
 - [ ] Verify Vercel, browser bundles, source control, logs, and PostgreSQL contain no Alpaca credentials.
@@ -163,7 +163,7 @@
 
 - **User story:** As the operator, I have a paper-only Alpaca account fixed to the USD 1,000 baseline, with credentials isolated to Railway and absent everywhere else.
 - **Implemented in this unit:** Added `.env.example` safe defaults, server-side paper-only runtime validation, startup fail-closed checks in the API and worker, tests, and operator setup instructions.
-- **Still in scope:** Reset/confirm the paper-account baseline, add credentials through Railway service variables without displaying them, and perform a credential-leak audit across deployed surfaces.
+- **Still in scope:** Complete the deployed-surface credential audit; the account reset and Railway variable entry were operator-confirmed without exposing their values.
 - **Out of scope:** Authentication implementation, database domain schema, queue implementation, broker trading calls, strategies, risk decisions, or order behavior.
 - **Operator dependency:** Account reset and secret entry require the operator's authenticated Alpaca/Railway sessions; secret values must never be pasted into chat, source, logs, or documentation.
 
@@ -217,7 +217,11 @@
 | Railway private boundary | Pass | PostgreSQL and worker have no public domain; only API public networking was created |
 | Phase 0.3 selection review | Pass | Compared current primary documentation and recorded choices, alternatives, boundaries, and implementation constraints; no dependencies installed |
 | Phase 0.4 runtime guard | Pass | Paper-only mode, explicit broker opt-in, paper endpoint, and credential presence are validated without returning or logging secret values |
-| Alpaca paper connection | Not run | Credentials/backend not configured |
+| Operator paper setup | Reported complete | Operator confirmed USD 1,000 paper-account setup and Railway variable entry; secret values were not inspected |
+| Source credential scan | Pass | No credential-shaped value found in workspace or source-controlled files |
+| Railway API health after merge | Pass | `https://api-production-e0a6.up.railway.app/health` returned healthy JSON; this endpoint does not inspect broker credentials |
+| Vercel response after merge | Pass | Production dashboard returned HTTP 200; no secret values were inspected |
+| Alpaca paper connection | Not run | Broker connection remains disabled until the read-only adapter is implemented |
 | Browser/preview | Partial | Production page HTTP check passed; visual/responsive review deferred beyond source scaffold |
 | Security review | Partial | No credential files, Alpaca client, database connection, or order code added; full review remains required |
 
@@ -235,10 +239,10 @@
 
 ## Session Handoff
 
-- **What exists:** Verified hosted foundation, Phase 0.3 selections, and Phase 0.4 fail-closed paper-only configuration guardrails. No broker access is enabled.
-- **Where to resume:** Complete the operator-only Alpaca paper-account reset and Railway sealed-variable entry, then run the credential-leak audit without sharing secret values.
+- **What exists:** Verified hosted foundation, Phase 0.3 selections, Phase 0.4 fail-closed guardrails, and operator-confirmed paper-account/Railway setup. No broker access is enabled.
+- **Where to resume:** Complete the remaining Railway logs/PostgreSQL credential audit, then begin the authenticated read-only paper-account adapter.
 - **Important context:** Keep Alpaca paper mode and read-only behavior during Phase 1.
-- **Recommended next prompt:** Continue Phase 0.4 with the Alpaca and Railway dashboard steps.
+- **Recommended next prompt:** Begin Phase 1 read-only paper-account integration after the remaining secret-surface audit.
 
 ## Change Log
 
@@ -304,3 +308,9 @@
 - Added a server-side configuration guard that defaults to paper mode, rejects live mode, fixes the paper API endpoint, requires explicit broker opt-in, and requires both credentials before opt-in.
 - Applied the guard at API and worker startup and added tests covering defaults, live-mode rejection, missing credentials, and secret non-return.
 - Added operator instructions for creating/resetting the USD 1,000 paper account and sealing Railway variables; account reset and secret entry remain pending operator action.
+
+### 2026-08-22 — Phase 0.4 operator setup confirmed
+
+- Operator confirmed the Alpaca paper-account setup and Railway variable entry; no credential values were requested or inspected.
+- Re-ran source credential scans, Railway API health, and Vercel production HTTP checks successfully.
+- Kept broker connection disabled because the read-only Alpaca adapter is not implemented yet; Railway logs and PostgreSQL contents remain outside the independently verifiable surface in this session.
