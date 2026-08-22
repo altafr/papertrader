@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 3.11 restart-safe shadow evaluation runner implemented; Railway migration and first operator-run reconciliation remain operational dependencies.
+- **Stage:** Phase 3.12 opt-in shadow worker boundary and health record implemented; Railway migration and first operator-run reconciliation remain operational dependencies.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -215,6 +215,12 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - Added a deterministic batch runner with injected finalized-bar source and persistence interfaces. It processes observations in stable ID order, closes only newly discovered outcomes, leaves unresolved observations open, and skips records already closed in PostgreSQL.
 - Provider and persistence failures are converted to redacted observation-level failure codes so a durable worker can retry without exposing external error details.
 - The runner is side-effect limited to the injected outcome repository. It does not fetch credentials, call Alpaca, submit orders, approve risk, or advance lifecycle stages.
+
+### Phase 3.12 Opt-In Shadow Worker Boundary
+
+- Added worker configuration for `SHADOW_EVALUATION_ENABLED`, bounded `SHADOW_EVALUATION_INTERVAL_SECONDS`, source readiness, and explicit `SHADOW_EVALUATION_ONCE` one-shot invocation.
+- Worker health now reports shadow evaluation readiness without exposing secrets. Shadow evaluation remains disabled by default; enabling it without a finalized-bar source fails closed at startup.
+- Added the `shadow-evaluate` command boundary. It is intentionally not wired to a production bar adapter or repository yet and exits safely rather than claiming a run occurred.
 
 ## Runtime Components
 

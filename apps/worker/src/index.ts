@@ -4,6 +4,7 @@ import { getPaperOnlyRuntimeConfig, getServerPort } from "@momentum/config";
 
 import { getWorkerHealth } from "./app.js";
 import { startPaperMarketStream } from "./market-stream-runner.js";
+import { getShadowEvaluationConfig } from "./shadow-evaluation.js";
 
 const streamEnabled = process.env.MARKET_STREAM_ENABLED;
 if (streamEnabled !== undefined && streamEnabled !== "true" && streamEnabled !== "false") {
@@ -22,6 +23,7 @@ const server = createServer((request, response) => {
 });
 
 getPaperOnlyRuntimeConfig();
+getShadowEvaluationConfig();
 if (streamEnabled === "true") {
   if (process.env.BROKER_CONNECTION_ENABLED !== "true") {
     throw new Error("MARKET_STREAM_ENABLED=true requires BROKER_CONNECTION_ENABLED=true.");
