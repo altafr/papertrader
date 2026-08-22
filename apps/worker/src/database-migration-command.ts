@@ -12,7 +12,21 @@ getPaperOnlyRuntimeConfig();
 const databaseUrl = process.env.DATABASE_URL;
 if (!databaseUrl?.trim()) throw new Error("DATABASE_URL is required for application migrations.");
 
-const migrationDirectory = join(process.cwd(), "packages", "db", "migrations");
+const migrationDirectoryCandidates = [
+  join(process.cwd(), "packages", "db", "migrations"),
+  join(process.cwd(), "..", "..", "packages", "db", "migrations"),
+];
+let migrationDirectory: string | undefined;
+for (const candidate of migrationDirectoryCandidates) {
+  try {
+    await readdir(candidate);
+    migrationDirectory = candidate;
+    break;
+  } catch {
+    // Try the next known workspace layout.
+  }
+}
+if (!migrationDirectory) throw new Error("Reviewed application migrations were not found in the workspace.");
 const migrationFiles = (await readdir(migrationDirectory)).filter((file) => /^\d{4}_.+\.sql$/.test(file)).sort();
 if (migrationFiles.length === 0) throw new Error("No reviewed application migrations were found.");
 
