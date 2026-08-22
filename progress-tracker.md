@@ -3,7 +3,7 @@
 ## Snapshot
 
 - **Phase:** Phase 3 — strategy and replay foundation.
-- **Status:** Phase 3.17 authenticated shadow-to-paper promotion command implemented; Railway migration and first operator-run reconciliation remain operational dependencies.
+- **Status:** Phase 5.1 immutable paper signals and deterministic risk checks implemented; Railway migration and first operator-run reconciliation remain operational dependencies.
 - **Current operating mode:** Paper only; order submission not yet enabled.
 - **Current goal:** Begin paper execution foundations only after the deterministic risk, mode, freshness, kill-switch, and reconciliation controls are implemented.
 - **Last updated:** 2026-08-22.
@@ -111,7 +111,8 @@
 ### Phase 5 — Risk and Paper Execution
 
 - [ ] Implement immutable signals and trade intents.
-- [ ] Implement versioned deterministic risk engine and paper defaults.
+- [x] Implement immutable signals and deterministic paper risk checks.
+- [ ] Add versioned trade intents and execution-time risk approvals.
 - [ ] Add idempotent paper execution service.
 - [ ] Add order/trade stream handling and full reconciliation.
 - [ ] Test rejected orders, partial fills, timeouts, duplicates, and restarts.
@@ -413,6 +414,14 @@
 - **Deployment dependency:** Apply migrations `0005` and `0006` through Railway's controlled process and populate evidence through a reviewed server-side process; no hosted migration or broker request was performed.
 - **Next smallest unit:** Build the deterministic paper risk/execution boundary without adding live capability.
 
+## Completed Build Unit — Phase 5.1
+
+- **User story:** As the paper execution boundary, I can accept only immutable, versioned signals and reject proposals that violate deterministic account, freshness, exposure, position-count, entry-count, kill-switch, or planned-loss rules.
+- **Implemented:** Added immutable paper signals, policy defaults, decimal-safe risk assessment, explicit rule-level reasons, and tests for the USD 1,000 baseline and lower-of-0.25%-equity/USD-100 risk cap.
+- **Safety boundary:** The risk assessment has no broker or order authority. It never submits, approves exceptions, changes limits, or enables live trading.
+- **Deployment dependency:** No hosted migration, broker request, credential access, or paper order behavior was added.
+- **Next smallest unit:** Add immutable trade-intent records and execution-time risk approvals with idempotency keys.
+
 ## Decisions Made
 
 | Date | Decision | Reason |
@@ -486,6 +495,7 @@
 | Phase 3.15 authenticated replay-to-shadow command | Pass | Full lint, build, typecheck, and 66 tests pass; operator authentication, persisted-outcome loading, server-side assessment, replay-stage prerequisite, revision-two append, and redacted responses are covered |
 | Phase 3.16 shadow-to-paper readiness gate | Pass | Full lint, build, typecheck, and 70 tests pass; paper-forward policy checks, exact-version evidence, approval enforcement, lifecycle transition, and migration/repository boundaries are covered |
 | Phase 3.17 authenticated shadow-to-paper command | Pass | Full lint, build, typecheck, and 72 tests pass; persisted evidence loading, latest-shadow prerequisite, server-side reassessment, operator approval, revision append, and redacted response boundaries are covered |
+| Phase 5.1 immutable paper signals and deterministic risk checks | Pass | Full lint, build, typecheck, and 75 tests pass; immutable signal timestamps, baseline/freshness/kill-switch checks, exposure and count caps, and decimal planned-loss enforcement are covered |
 | Browser/preview | Partial | Production page HTTP check passed; visual/responsive review deferred beyond source scaffold |
 | Security review | Partial | No credential files, Alpaca client, database connection, or order code added; full review remains required |
 
@@ -503,10 +513,10 @@
 
 ## Session Handoff
 
-- **What exists:** Verified hosted foundation, Phase 0.3 selections, Phase 0.4 fail-closed guardrails, operator-confirmed paper setup, Phase 1 read-only account/dashboard foundation, guarded reconciliation command, Phase 2.1–2.2 authenticated asset/market-data reads, Phase 2.3 stream/backfill boundary, Phase 2.4 dashboard views, Phase 2.5 protected reconciliation verification, Phase 3.1 disabled strategy contract, Phase 3.2 decimal-safe metrics, Phase 3.3 point-in-time replay, Phase 3.4 disabled momentum plug-ins, Phase 3.5 regime evidence, Phase 3.6 in-process lifecycle gate, Phase 3.7 reviewed lifecycle-event persistence, Phase 3.8 authenticated replay approval command, Phase 3.9 shadow observation persistence, Phase 3.10 finalized-bar evaluation, Phase 3.11 restart-safe shadow runner, Phase 3.12 opt-in worker boundary, Phase 3.13 wired shadow worker/scheduler, Phase 3.14 controlled shadow evidence/replay-to-shadow gate, Phase 3.15 authenticated replay-to-shadow command, Phase 3.16 shadow-to-paper readiness gate, and Phase 3.17 authenticated shadow-to-paper command. No hosted migration has been applied and no broker request has been run.
+- **What exists:** Verified hosted foundation, Phase 0.3 selections, Phase 0.4 fail-closed guardrails, operator-confirmed paper setup, Phase 1 read-only account/dashboard foundation, guarded reconciliation command, Phase 2.1–2.2 authenticated asset/market-data reads, Phase 2.3 stream/backfill boundary, Phase 2.4 dashboard views, Phase 2.5 protected reconciliation verification, Phase 3.1 disabled strategy contract, Phase 3.2 decimal-safe metrics, Phase 3.3 point-in-time replay, Phase 3.4 disabled momentum plug-ins, Phase 3.5 regime evidence, Phase 3.6 in-process lifecycle gate, Phase 3.7 reviewed lifecycle-event persistence, Phase 3.8 authenticated replay approval command, Phase 3.9 shadow observation persistence, Phase 3.10 finalized-bar evaluation, Phase 3.11 restart-safe shadow runner, Phase 3.12 opt-in worker boundary, Phase 3.13 wired shadow worker/scheduler, Phase 3.14 controlled shadow evidence/replay-to-shadow gate, Phase 3.15 authenticated replay-to-shadow command, Phase 3.16 shadow-to-paper readiness gate, Phase 3.17 authenticated shadow-to-paper command, and Phase 5.1 immutable paper signals/deterministic risk checks. No hosted migration has been applied and no broker request has been run.
 - **Where to resume:** Build the deterministic paper risk/execution boundary, then apply the reviewed migrations through Railway's controlled process, run one guarded paper reconciliation, and verify `/v1/read-model`, `/v1/reconciliation-status`, and dashboard data against Alpaca.
 - **Important context:** Keep Alpaca paper mode and read-only behavior during Phase 2.
-- **Recommended next prompt:** Continue Phase 5.1 with immutable signals and deterministic paper risk checks; keep paper order behavior off until execution gates are verified.
+- **Recommended next prompt:** Continue Phase 5.2 with immutable trade intents and execution-time risk approvals; keep paper order behavior off until idempotent execution/reconciliation gates are verified.
 
 ## Change Log
 
@@ -710,3 +720,8 @@
 - Added persisted paper-forward evidence storage, migration `0006_strategy_paper_evidence.sql`, and the authenticated `POST /v1/strategies/lifecycle/paper` command.
 - The command verifies the latest shadow stage, loads exact-version evidence, recomputes readiness, requires operator approval, and appends the next lifecycle revision without submitting orders.
 - Verified full lint, build, typecheck, and 72 tests; no hosted migration, broker request, credential access, or paper order behavior was added.
+
+### 2026-08-22 — Phase 5.1 immutable paper signals and deterministic risk checks complete
+
+- Added immutable paper signal snapshots and decimal-safe risk checks for baseline verification, freshness, kill switch, entry/open-position counts, asset-class caps, gross exposure, and planned-stop loss limits.
+- Verified full lint, build, typecheck, and 75 tests; no broker request, credential access, paper order, or live capability was added.

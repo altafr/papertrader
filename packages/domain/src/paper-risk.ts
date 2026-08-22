@@ -1,0 +1,117 @@
+import * as DecimalModule from "decimal.js";
+
+import { calculateTradeRisk, type DecimalString, type TradeRiskResult } from "./metrics.js";
+import type { StrategySignalCandidate } from "./strategy.js";
+
+interface DecimalValue {
+  abs(): DecimalValue;
+  div(value: DecimalValue | string): DecimalValue;
+  greaterThan(value: DecimalValue | string): boolean;
+  isNegative(): boolean;
+  lessThan(value: DecimalValue | string): boolean;
+  plus(value: DecimalValue | string): DecimalValue;
+  times(value: DecimalValue | string): DecimalValue;
+  toDecimalPlaces(decimalPlaces: number): DecimalValue;
+  toFixed(decimalPlaces?: number): string;
+}
+interface DecimalConstructor { new (value: string): DecimalValue; }
+const Decimal = (DecimalModule as unknown as { readonly default: DecimalConstructor }).default;
+
+export interface ImmutablePaperSignal {
+  readonly candidate: StrategySignalCandidate;
+  readonly createdAt: string;
+  readonly signalId: string;
+}
+
+export interface PaperRiskPosition {
+  readonly assetClass: "crypto" | "us_equity";
+  readonly marketValue: DecimalString;
+}
+
+export interface PaperRiskState {
+  readonly accountBaselineVerified: boolean;
+  readonly accountFresh: boolean;
+  readonly dataFresh: boolean;
+  readonly killSwitchActive: boolean;
+  readonly openPositions: readonly PaperRiskPosition[];
+  readonly submittedEntriesLast24Hours: number;
+}
+
+export interface PaperRiskPolicy {
+  readonly initialEquityBaseline: DecimalString;
+  readonly maxCryptoPositionPercent: DecimalString;
+  readonly maxGrossExposurePercent: DecimalString;
+  readonly maxOpenPositions: number;
+  readonly maxSubmittedEntriesLast24Hours: number;
+  readonly maxStockPositionPercent: DecimalString;
+}
+
+export const DEFAULT_PAPER_RISK_POLICY: PaperRiskPolicy = {
+  initialEquityBaseline: "1000",
+  maxCryptoPositionPercent: "3",
+  maxGrossExposurePercent: "50",
+  maxOpenPositions: 10,
+  maxSubmittedEntriesLast24Hours: 20,
+  maxStockPositionPercent: "5",
+};
+
+export interface PaperRiskAssessment {
+  readonly estimatedLoss: DecimalString;
+  readonly estimatedLossPercent: DecimalString;
+  readonly passes: boolean;
+  readonly reasons: readonly string[];
+  readonly risk: TradeRiskResult;
+}
+
+function decimal(value: string, name: string): DecimalValue {
+  try {
+    const parsed = new Decimal(value);
+    if (parsed.isNegative()) throw new Error(`${name} must not be negative.`);
+    return parsed;
+  } catch {
+    throw new Error(`${name} must be a non-negative decimal string.`);
+  }
+}
+
+export function createImmutablePaperSignal(input: { readonly candidate: StrategySignalCandidate; readonly createdAt: string; readonly signalId: string; }): ImmutablePaperSignal {
+  if (!input.signalId.trim()) throw new Error("Paper signal ID is required.");
+  if (!input.createdAt || Number.isNaN(Date.parse(input.createdAt)) || Number.isNaN(Date.parse(input.candidate.signalTime))) throw new Error("Paper signal timestamps must be valid.");
+  if (Date.parse(input.createdAt) < Date.parse(input.candidate.signalTime)) throw new Error("Paper signal creation cannot precede the signal time.");
+  if (input.candidate.side !== "long") throw new Error("Only long paper signals are supported.");
+  return Object.freeze({ candidate: Object.freeze({ ...input.candidate }), createdAt: input.createdAt, signalId: input.signalId });
+}
+
+export function assessPaperRisk(input: {
+  readonly estimatedFees: DecimalString;
+  readonly estimatedSlippage: DecimalString;
+  readonly equity: DecimalString;
+  readonly policy?: PaperRiskPolicy;
+  readonly quantity: DecimalString;
+  readonly signal: ImmutablePaperSignal;
+  readonly state: PaperRiskState;
+}): PaperRiskAssessment {
+  const policy = input.policy ?? DEFAULT_PAPER_RISK_POLICY;
+  const equity = decimal(input.equity, "equity");
+  const quantity = decimal(input.quantity, "quantity");
+  if (equity.isNegative() || quantity.isNegative()) throw new Error("Risk values must be non-negative.");
+  const candidate = input.signal.candidate;
+  const entry = decimal(candidate.proposedEntryPrice, "entry price");
+  if (entry.isNegative() || entry.toFixed() === "0") throw new Error("entry price must be greater than zero.");
+  const risk = calculateTradeRisk({ entryPrice: candidate.proposedEntryPrice, equity: input.equity, estimatedFees: input.estimatedFees, estimatedSlippage: input.estimatedSlippage, quantity: input.quantity, stopPrice: candidate.plannedStopPrice });
+  const reasons: string[] = [];
+  if (!input.state.accountBaselineVerified) reasons.push("Starting paper-equity baseline has not been verified.");
+  if (!input.state.accountFresh) reasons.push("Account state is stale.");
+  if (!input.state.dataFresh) reasons.push("Market data is stale.");
+  if (input.state.killSwitchActive) reasons.push("Global kill switch is active.");
+  if (input.state.submittedEntriesLast24Hours >= policy.maxSubmittedEntriesLast24Hours) reasons.push("Rolling 24-hour entry limit has been reached.");
+  if (input.state.openPositions.length >= policy.maxOpenPositions) reasons.push("Maximum open-position limit has been reached.");
+  if (!risk.passes) reasons.push("Estimated planned-stop loss exceeds the deterministic per-trade risk limit.");
+  const notional = entry.times(quantity);
+  const maxPositionPercent = candidate.assetClass === "crypto" ? policy.maxCryptoPositionPercent : policy.maxStockPositionPercent;
+  if (notional.greaterThan(equity.times(maxPositionPercent).div("100"))) {
+    reasons.push("Proposed position exceeds the asset-class position cap.");
+  }
+  const grossExposure = input.state.openPositions.reduce((total, position) => total.plus(decimal(position.marketValue, "position market value").abs()), new Decimal("0")).plus(notional);
+  if (grossExposure.greaterThan(equity.times(policy.maxGrossExposurePercent).div("100"))) reasons.push("Proposed position exceeds the gross-exposure cap.");
+  return { estimatedLoss: risk.estimatedLoss, estimatedLossPercent: risk.estimatedLossPercent, passes: reasons.length === 0, reasons, risk };
+}

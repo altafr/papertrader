@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 3.17 authenticated shadow-to-paper promotion command implemented; Railway migration and first operator-run reconciliation remain operational dependencies.
+- **Stage:** Phase 5.1 immutable paper signals and deterministic risk checks implemented; Railway migration and first operator-run reconciliation remain operational dependencies.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -251,6 +251,12 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - Added the `strategy_paper_evidence` PostgreSQL read model and migration `0006_strategy_paper_evidence.sql`; the command reads the latest evidence for the exact strategy version rather than accepting evidence from the client.
 - Added protected `POST /v1/strategies/lifecycle/paper`, which verifies the latest shadow stage, recomputes the default paper-forward policy, requires operator approval, and appends the next lifecycle revision.
 - Responses are redacted to identifiers and counts. The command does not submit paper orders or bypass deterministic risk, freshness, kill-switch, or reconciliation controls.
+
+### Phase 5.1 Immutable Paper Signals and Deterministic Risk Checks
+
+- Added immutable paper signal snapshots and a deterministic paper-risk assessment covering the USD 1,000 baseline verification, stale account/market data, kill switch, rolling entry count, open-position count, asset-class position caps, gross exposure, and the lower-of-0.25%-equity/USD-100 planned-loss rule.
+- Risk output contains explicit rule-level reasons and decimal-string loss values. It has no broker, order, or approval side effects and cannot be overridden by an agent.
+- Paper order submission remains disabled until the intent, idempotent execution, reconciliation, and mode gates are implemented and verified.
 
 ## Runtime Components
 
