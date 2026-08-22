@@ -3,9 +3,9 @@
 ## Snapshot
 
 - **Phase:** Phase 2 — market data and dashboard.
-- **Status:** Phase 2.3 supervised market-stream boundary implemented; Railway migration and first operator-run reconciliation remain operational dependencies.
+- **Status:** Phase 2.4 read-only dashboard views implemented; Railway migration and first operator-run reconciliation remain operational dependencies.
 - **Current operating mode:** Paper only; order submission not yet enabled.
-- **Current goal:** Build the read-only Overview, Positions, Orders & fills, Performance, and Alerts dashboard views using explicit freshness and unavailable states.
+- **Current goal:** Reconcile dashboard/account data against Alpaca after the controlled Railway migration and first paper reconciliation; retain read-only behavior.
 - **Last updated:** 2026-08-22.
 
 ## Delivery Roadmap
@@ -77,7 +77,7 @@
 - [x] Add stock/crypto asset discovery and eligibility filters.
 - [x] Add historical bars/snapshots through protected server calls.
 - [x] Add supervised market/trading WebSocket worker with backfill.
-- [ ] Build Overview, Positions, Orders & fills, Performance, and Alerts views.
+- [x] Build Overview, Positions, Orders & fills, Performance, and Alerts views.
 - [ ] Reconcile dashboard/account data against Alpaca.
 
 ### Phase 3 — Strategy and Replay Foundation
@@ -249,6 +249,14 @@
 - **Deployment dependency:** No hosted stream was enabled or connected. Railway migration and guarded account reconciliation remain separate operational prerequisites; the market-data feed choice remains an operator decision.
 - **Next smallest unit:** Build read-only dashboard views for overview, positions, orders/fills, performance, and alerts with freshness/degraded states.
 
+## Completed Build Unit — Phase 2.4
+
+- **User story:** As the operator, I can inspect reconciled paper account state through an authenticated, read-only dashboard with clear data provenance and freshness/degraded states.
+- **Implemented:** Expanded the dashboard with overview/account metrics, positions table, orders & fills, recent activity, performance and alerts placeholders, section navigation, responsive table treatment, and explicit fresh/delayed/stale/unavailable states.
+- **Safety boundary:** The browser still calls only the authenticated Railway API. Performance and alert values are never inferred; disconnected streams and missing read models are visibly labeled. No controls, order authority, database access, or broker credentials were added.
+- **Deployment dependency:** Dashboard values remain unavailable until Clerk/API configuration, the reviewed Railway migration, and a controlled paper reconciliation are completed. No hosted broker request was performed.
+- **Next smallest unit:** Apply the migration and run one guarded paper reconciliation, then verify dashboard/account data against Alpaca before adding performance persistence or alert actions.
+
 ## Decisions Made
 
 | Date | Decision | Reason |
@@ -303,6 +311,7 @@
 | Phase 2.1 asset discovery | Pass | Full lint, build, typecheck, and 15 tests pass; mocked adapter filters active tradable assets to US equities/crypto; no hosted broker request performed |
 | Phase 2.2 historical market data | Pass | Full lint, build, typecheck, and 17 tests pass; mocked adapter normalizes stock bars/snapshots and rejects non-market-data endpoint; no hosted broker request performed |
 | Phase 2.3 supervised market stream | Pass | Full lint, build, typecheck, and 20 tests pass; stream supervisor covers authentication/subscription, gap backfill, malformed payloads, and reconnect degradation; stream remains disabled and no hosted broker request performed |
+| Phase 2.4 dashboard views | Pass | Full lint, build, typecheck, and 22 tests pass; dashboard build includes overview, positions, orders/activity, freshness states, and explicit unavailable performance/alerts; no broker request performed |
 | Browser/preview | Partial | Production page HTTP check passed; visual/responsive review deferred beyond source scaffold |
 | Security review | Partial | No credential files, Alpaca client, database connection, or order code added; full review remains required |
 
@@ -320,10 +329,10 @@
 
 ## Session Handoff
 
-- **What exists:** Verified hosted foundation, Phase 0.3 selections, Phase 0.4 fail-closed guardrails, operator-confirmed paper setup, Phase 1 read-only account/dashboard foundation, guarded reconciliation command, Phase 2.1–2.2 authenticated asset/market-data reads, and the Phase 2.3 supervised stream/backfill boundary. No hosted migration has been applied and no broker request has been run.
-- **Where to resume:** Build read-only Overview, Positions, Orders & fills, Performance, and Alerts dashboard views with freshness/degraded states. Separately, apply the reviewed migration through Railway's controlled process, run one guarded paper reconciliation, and verify `/v1/read-model` and dashboard data.
+- **What exists:** Verified hosted foundation, Phase 0.3 selections, Phase 0.4 fail-closed guardrails, operator-confirmed paper setup, Phase 1 read-only account/dashboard foundation, guarded reconciliation command, Phase 2.1–2.2 authenticated asset/market-data reads, Phase 2.3 stream/backfill boundary, and Phase 2.4 dashboard views. No hosted migration has been applied and no broker request has been run.
+- **Where to resume:** Apply the reviewed migration through Railway's controlled process, run one guarded paper reconciliation, and verify `/v1/read-model` and dashboard data against Alpaca. Then add performance persistence and alert service surfaces.
 - **Important context:** Keep Alpaca paper mode and read-only behavior during Phase 2.
-- **Recommended next prompt:** Continue Phase 2 with read-only dashboard views and explicit market-data freshness/degraded states.
+- **Recommended next prompt:** Continue Phase 2 with the controlled Railway migration, first reconciliation, and dashboard-versus-Alpaca verification.
 
 ## Change Log
 
@@ -421,3 +430,9 @@
 - Added validated Alpaca bar-stream message handling, subscription/authentication state, timestamp-gap detection, reconnect degradation, and REST backfill requests.
 - Added an opt-in Railway worker WebSocket runner with bounded symbol/timeframe configuration and paper-only guards; stream execution remains disabled by default.
 - Verified full lint, build, typecheck, and 20 tests; no hosted stream was enabled and no broker request was performed.
+
+### 2026-08-22 — Phase 2.4 read-only dashboard views complete
+
+- Expanded the authenticated dashboard with account overview, positions, orders/fills, activity, performance, and alerts sections.
+- Added explicit fresh/delayed/stale classification, UTC provenance, responsive position tables, and unavailable/degraded states without fabricated financial values.
+- Verified full lint, build, typecheck, and 22 tests; no hosted migration, broker request, control action, or order capability was added.

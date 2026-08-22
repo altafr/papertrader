@@ -75,6 +75,8 @@ The authenticated dashboard reads that endpoint server-side and displays paper/r
 
 The authenticated server API also exposes `GET /v1/assets` when paper broker access is explicitly enabled. It returns only active, tradable US equities and crypto assets from Alpaca. This is discovery data, not a strategy watchlist, liquidity approval, or order authority.
 
+The dashboard now renders the persisted account, positions, orders/fills, and activity read model with explicit fresh/delayed/stale states. Performance curves, alert feeds, and market/trade stream status remain visibly unavailable until those persisted services are implemented; the dashboard does not infer or fabricate them.
+
 Protected market-data reads are available through `GET /v1/market-data/bars?asset_class=us_equity&symbols=AAPL,MSFT&timeframe=1Day&limit=100` and `GET /v1/market-data/snapshots?asset_class=crypto&symbols=BTC/USD,ETH/USD`. Both require the same authenticated operator session and explicit paper broker opt-in, validate requests server-side, and return normalized data without granting strategy or order authority.
 
 After applying the migration in Railway, run the worker's guarded one-shot reconciliation with `RECONCILE_ONCE=true pnpm --filter @momentum/worker reconcile`. The command also requires the existing paper-only variables, `BROKER_CONNECTION_ENABLED=true`, Railway `DATABASE_URL`, and server-side paper credentials. It is intentionally not part of worker startup or health checks.

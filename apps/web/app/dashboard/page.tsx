@@ -1,6 +1,8 @@
 import { UserButton } from "@clerk/nextjs";
 import { auth } from "@clerk/nextjs/server";
 
+import { formatUtc, getFreshnessLabel, getFreshnessState } from "./dashboard-state";
+
 type ReadModel = {
   activities: Array<Record<string, unknown>>;
   freshness: { ageSeconds: number; capturedAt: string };
@@ -14,9 +16,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 function parseReadModel(value: unknown): ReadModel | undefined {
-  if (!isRecord(value) || !isRecord(value.model)) {
-    return undefined;
-  }
+  if (!isRecord(value) || !isRecord(value.model)) return undefined;
   const model = value.model;
   if (
     !Array.isArray(model.activities) ||
@@ -26,15 +26,10 @@ function parseReadModel(value: unknown): ReadModel | undefined {
     !isRecord(model.freshness) ||
     typeof model.freshness.ageSeconds !== "number" ||
     typeof model.freshness.capturedAt !== "string"
-  ) {
-    return undefined;
-  }
+  ) return undefined;
   return {
     activities: model.activities.filter(isRecord),
-    freshness: {
-      ageSeconds: model.freshness.ageSeconds,
-      capturedAt: model.freshness.capturedAt,
-    },
+    freshness: { ageSeconds: model.freshness.ageSeconds, capturedAt: model.freshness.capturedAt },
     orders: model.orders.filter(isRecord),
     positions: model.positions.filter(isRecord),
     snapshot: model.snapshot,
@@ -43,13 +38,9 @@ function parseReadModel(value: unknown): ReadModel | undefined {
 
 async function loadReadModel(getToken: () => Promise<string | null>) {
   const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
-  if (!apiBaseUrl) {
-    return { kind: "unavailable", message: "API URL is not configured." } as const;
-  }
+  if (!apiBaseUrl) return { kind: "unavailable", message: "API URL is not configured." } as const;
   const token = await getToken();
-  if (!token) {
-    return { kind: "unavailable", message: "Authenticated API session is unavailable." } as const;
-  }
+  if (!token) return { kind: "unavailable", message: "Authenticated API session is unavailable." } as const;
   try {
     const response = await fetch(`${apiBaseUrl}/v1/read-model`, {
       cache: "no-store",
@@ -76,101 +67,116 @@ function value(row: Record<string, unknown>, key: string) {
   return typeof result === "string" || typeof result === "number" ? String(result) : "—";
 }
 
+function StatusBadge({ state }: { readonly state: "degraded" | "delayed" | "fresh" | "stale" }) {
+  const label = state === "fresh" ? "Healthy" : state === "delayed" ? "Delayed" : state === "stale" ? "Stale" : "Degraded";
+  return <span className={`state-badge ${state}`}>{label}</span>;
+}
+
 export default async function DashboardPage() {
   const { isAuthenticated, redirectToSignIn, userId, getToken } = await auth();
-  if (!isAuthenticated) {
-    return redirectToSignIn();
-  }
+  if (!isAuthenticated) return redirectToSignIn();
 
   const operatorUserId = process.env.CLERK_OPERATOR_USER_ID;
   if (!operatorUserId || userId !== operatorUserId) {
-    return (
-      <main>
-        <h1>Access denied</h1>
-        <p>This account is not the configured single operator.</p>
-      </main>
-    );
+    return <main><h1>Access denied</h1><p>This account is not the configured single operator.</p></main>;
   }
 
   const result = await loadReadModel(getToken);
+  const freshness = result.kind === "ready" ? getFreshnessState(result.model.freshness.ageSeconds) : "stale";
+  const freshnessLabel = getFreshnessLabel(freshness);
+
   return (
     <main>
       <header className="status-bar">
         <div className="brand">Momentum Autopilot</div>
-        <div className="status-items" aria-label="Authenticated status">
+        <div className="status-items" aria-label="Authenticated system status">
           <span className="badge paper">Paper</span>
           <span className="badge neutral">Read-only</span>
+          <span className={`badge ${freshness === "fresh" ? "healthy" : "warning"}`}>{freshnessLabel}</span>
           <UserButton />
         </div>
       </header>
-      <section className="hero" aria-labelledby="dashboard-title">
-        <p className="eyebrow">Phase 1 · Trusted read-only foundation</p>
-        <h1 id="dashboard-title">Operator dashboard.</h1>
-        <p className="lede">
-          Paper mode is active. This surface reads persisted reconciliation data only; it cannot
-          submit orders or change risk controls.
-        </p>
+
+      <section className="hero dashboard-hero" aria-labelledby="dashboard-title">
+        <p className="eyebrow">Phase 2 · Market data and dashboard</p>
+        <div className="hero-heading">
+          <div>
+            <h1 id="dashboard-title">Operator dashboard.</h1>
+            <p className="lede">A paper-only view of reconciled account state and data health. No controls or order authority are available here.</p>
+          </div>
+          <div className="health-summary" aria-label="Service health summary">
+            <span className="label">System state</span>
+            <StatusBadge state={result.kind === "ready" ? freshness : "degraded"} />
+            <span className="health-detail">Market stream: not connected</span>
+          </div>
+        </div>
       </section>
+
+      <nav className="dashboard-nav" aria-label="Dashboard sections">
+        <a className="active" href="#overview">Overview</a>
+        <a href="#positions">Positions</a>
+        <a href="#orders">Orders &amp; fills</a>
+        <a href="#performance">Performance</a>
+        <a href="#alerts">Alerts</a>
+      </nav>
+
       {result.kind === "unavailable" ? (
-        <section className="grid" aria-label="Read model status">
-          <article className="card full-width">
+        <section className="grid" aria-label="Dashboard unavailable state">
+          <article className="card full-width alert-card degraded-card">
             <p className="label">Read model unavailable</p>
             <h2>Waiting for the first safe reconciliation.</h2>
             <p>{result.message}</p>
+            <p className="provenance">Account, positions, orders, and performance values are intentionally not shown without persisted broker truth.</p>
           </article>
+          <article className="card"><p className="label">Account connection</p><h2>Unavailable</h2><p>Paper broker access is not confirmed by this dashboard request.</p></article>
+          <article className="card"><p className="label">Market data</p><h2>Not connected</h2><p>Streaming and historical market data remain server-side and are not displayed until a fresh read model is available.</p></article>
         </section>
       ) : (
-        <section className="grid" aria-label="Paper account read model">
-          <article className="card primary-card">
-            <p className="label">Account snapshot</p>
-            <h2>{value(result.model.snapshot, "currency")} account</h2>
+        <section className="grid" aria-label="Paper account dashboard">
+          <article className="card primary-card" id="overview">
+            <div className="card-heading"><div><p className="label">Account equity</p><h2>{value(result.model.snapshot, "currency")} {value(result.model.snapshot, "equity")}</h2></div><StatusBadge state={freshness} /></div>
             <dl className="facts">
-              <div><dt>Equity</dt><dd>{value(result.model.snapshot, "equity")}</dd></div>
               <div><dt>Cash</dt><dd>{value(result.model.snapshot, "cash")}</dd></div>
               <div><dt>Buying power</dt><dd>{value(result.model.snapshot, "buyingPower")}</dd></div>
-              <div><dt>Status</dt><dd>{value(result.model.snapshot, "status")}</dd></div>
+              <div><dt>Account status</dt><dd>{value(result.model.snapshot, "status")}</dd></div>
+              <div><dt>Day P/L</dt><dd className="unavailable-value">Not reported</dd></div>
             </dl>
+            <p className="provenance">Source: persisted Alpaca paper reconciliation · captured {formatUtc(result.model.freshness.capturedAt)}</p>
           </article>
+
+          <article className="card freshness-card">
+            <p className="label">Data health</p>
+            <div className="card-heading"><h2>{result.model.freshness.ageSeconds}s old</h2><StatusBadge state={freshness} /></div>
+            <p>Last reconciliation: {formatUtc(result.model.freshness.capturedAt)}</p>
+            <p>Market stream: <strong>Not connected</strong></p>
+            <p>Trade stream: <strong>Not enabled</strong></p>
+          </article>
+
+          <article className="card full-width" id="positions">
+            <div className="card-heading"><div><p className="label">Positions</p><h2>{result.model.positions.length} open positions</h2></div><span className="provenance">Persisted account snapshot</span></div>
+            {result.model.positions.length === 0 ? <p className="empty-state">No open positions in the latest reconciled snapshot.</p> : (
+              <div className="responsive-table"><table><thead><tr><th>Symbol</th><th>Class</th><th>Quantity</th><th>Avg entry</th><th>Market value</th><th>Unrealized P/L</th></tr></thead><tbody>
+                {result.model.positions.map((position) => <tr key={`${value(position, "symbol")}-${value(position, "accountSnapshotId")}`}><th scope="row">{value(position, "symbol")}</th><td>{value(position, "assetClass")}</td><td>{value(position, "quantity")}</td><td>{value(position, "averageEntryPrice")}</td><td>{value(position, "marketValue")}</td><td>{value(position, "unrealizedPl")}</td></tr>)}
+              </tbody></table></div>
+            )}
+          </article>
+
+          <article className="card" id="orders">
+            <div className="card-heading"><div><p className="label">Orders &amp; fills</p><h2>{result.model.orders.length} orders</h2></div><span className="provenance">Read-only</span></div>
+            <div className="data-list">{result.model.orders.slice(0, 10).map((order) => <div className="data-row" key={value(order, "alpacaOrderId")}><strong>{value(order, "symbol")}</strong><span>{value(order, "side")} · {value(order, "status")} · filled {value(order, "filledQuantity")}</span></div>)}{result.model.orders.length === 0 && <p className="empty-state">No orders recorded.</p>}</div>
+          </article>
+
+          <article className="card" id="performance">
+            <p className="label">Performance</p><h2>Not yet available</h2><p>Performance snapshots, equity curves, drawdown, and attribution will appear after the performance ledger is implemented.</p><p className="provenance">No performance values are inferred from the account snapshot.</p>
+          </article>
+
+          <article className="card" id="alerts">
+            <p className="label">Alerts</p><h2>No alert feed yet</h2><p>Critical stale-data, discrepancy, and risk alerts will be shown here when the alert service is implemented.</p><p className="provenance">Current dashboard state: {freshness === "fresh" ? "No known alert from this read model." : "Review stale or degraded data before relying on values."}</p>
+          </article>
+
           <article className="card">
-            <p className="label">Freshness</p>
-            <h2>{result.model.freshness.ageSeconds}s old</h2>
-            <p>Captured {result.model.freshness.capturedAt}</p>
-            <p>Broker mode: paper · order authority: disabled</p>
-          </article>
-          <article className="card full-width">
-            <p className="label">Positions ({result.model.positions.length})</p>
-            <div className="data-list">
-              {result.model.positions.length === 0 ? <p>No open positions.</p> : result.model.positions.map((position) => (
-                <div className="data-row" key={`${value(position, "symbol")}-${value(position, "accountSnapshotId")}`}>
-                  <strong>{value(position, "symbol")}</strong>
-                  <span>{value(position, "quantity")} · market value {value(position, "marketValue")}</span>
-                </div>
-              ))}
-            </div>
-          </article>
-          <article className="card">
-            <p className="label">Orders ({result.model.orders.length})</p>
-            <div className="data-list">
-              {result.model.orders.slice(0, 10).map((order) => (
-                <div className="data-row" key={value(order, "alpacaOrderId")}>
-                  <strong>{value(order, "symbol")}</strong>
-                  <span>{value(order, "side")} · {value(order, "status")}</span>
-                </div>
-              ))}
-              {result.model.orders.length === 0 && <p>No orders recorded.</p>}
-            </div>
-          </article>
-          <article className="card">
-            <p className="label">Activities ({result.model.activities.length})</p>
-            <div className="data-list">
-              {result.model.activities.slice(0, 10).map((activity) => (
-                <div className="data-row" key={value(activity, "activityId")}>
-                  <strong>{value(activity, "activityType")}</strong>
-                  <span>{value(activity, "symbol")} · {value(activity, "quantity")}</span>
-                </div>
-              ))}
-              {result.model.activities.length === 0 && <p>No activities recorded.</p>}
-            </div>
+            <p className="label">Recent account activity</p><h2>{result.model.activities.length} events</h2>
+            <div className="data-list">{result.model.activities.slice(0, 8).map((activity) => <div className="data-row" key={value(activity, "activityId")}><strong>{value(activity, "activityType")}</strong><span>{value(activity, "symbol")} · {value(activity, "quantity")}</span></div>)}{result.model.activities.length === 0 && <p className="empty-state">No account activity recorded.</p>}</div>
           </article>
         </section>
       )}
