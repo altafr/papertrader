@@ -82,6 +82,29 @@ export const strategyLifecycleEvents = pgTable(
   ],
 );
 
+export const strategyPaperEvidence = pgTable(
+  "strategy_paper_evidence",
+  {
+    closedTrades: integer("closed_trades").notNull(),
+    consecutiveCalendarDays: integer("consecutive_calendar_days").notNull(),
+    capturedAt: timestamp("captured_at", { withTimezone: true }).notNull(),
+    duplicateOrderCount: integer("duplicate_order_count").notNull(),
+    evidenceId: text("evidence_id").primaryKey(),
+    maxDrawdownPercent: numeric("max_drawdown_percent", { precision: 20, scale: 8 }).notNull(),
+    positiveTrades: integer("positive_trades").notNull(),
+    riskViolationCount: integer("risk_violation_count").notNull(),
+    staleDataBreachCount: integer("stale_data_breach_count").notNull(),
+    strategyKey: text("strategy_key").notNull(),
+    strategyVersion: text("strategy_version").notNull(),
+  },
+  (table) => [
+    index("strategy_paper_evidence_strategy_captured_idx").on(table.strategyKey, table.strategyVersion, table.capturedAt),
+    check("strategy_paper_evidence_counts_non_negative", sql`${table.closedTrades} >= 0 AND ${table.positiveTrades} >= 0 AND ${table.consecutiveCalendarDays} >= 0 AND ${table.riskViolationCount} >= 0 AND ${table.staleDataBreachCount} >= 0 AND ${table.duplicateOrderCount} >= 0`),
+    check("strategy_paper_evidence_positive_within_closed", sql`${table.positiveTrades} <= ${table.closedTrades}`),
+    check("strategy_paper_evidence_drawdown_non_negative", sql`${table.maxDrawdownPercent} >= 0`),
+  ],
+);
+
 export const shadowObservations = pgTable(
   "shadow_observations",
   {

@@ -1,7 +1,21 @@
 import { and, asc, desc, eq } from "drizzle-orm";
 
 import type { Database } from "./client.js";
-import { accountSnapshots, activities, orders, positions, shadowObservationOutcomes, shadowObservations, strategyLifecycleEvents } from "./schema.js";
+import { accountSnapshots, activities, orders, positions, shadowObservationOutcomes, shadowObservations, strategyLifecycleEvents, strategyPaperEvidence } from "./schema.js";
+
+export interface PersistedPaperPromotionEvidence {
+  readonly capturedAt: Date;
+  readonly closedTrades: number;
+  readonly consecutiveCalendarDays: number;
+  readonly duplicateOrderCount: number;
+  readonly evidenceId: string;
+  readonly maxDrawdownPercent: string;
+  readonly positiveTrades: number;
+  readonly riskViolationCount: number;
+  readonly staleDataBreachCount: number;
+  readonly strategyKey: string;
+  readonly strategyVersion: string;
+}
 
 export interface PersistedShadowObservation {
   readonly assetClass: "crypto" | "us_equity";
@@ -228,6 +242,13 @@ export function createStrategyLifecycleRepository(db: Database) {
         .where(and(eq(strategyLifecycleEvents.strategyKey, strategyKey), eq(strategyLifecycleEvents.strategyVersion, strategyVersion)))
         .orderBy(desc(strategyLifecycleEvents.revision))
         .limit(1);
+      return row;
+    },
+
+    async getLatestPaperEvidence(strategyKey: string, strategyVersion: string) {
+      const [row] = await db.select().from(strategyPaperEvidence)
+        .where(and(eq(strategyPaperEvidence.strategyKey, strategyKey), eq(strategyPaperEvidence.strategyVersion, strategyVersion)))
+        .orderBy(desc(strategyPaperEvidence.capturedAt)).limit(1);
       return row;
     },
   };

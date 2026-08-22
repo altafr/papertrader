@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 3.16 deterministic shadow-to-paper readiness gate implemented; Railway migration and first operator-run reconciliation remain operational dependencies.
+- **Stage:** Phase 3.17 authenticated shadow-to-paper promotion command implemented; Railway migration and first operator-run reconciliation remain operational dependencies.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -245,6 +245,12 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - Added paper-forward evidence contracts and decimal-safe readiness assessment for consecutive calendar days, closed trades, drawdown, risk violations, stale-data breaches, and duplicate-order events.
 - Extended the append-only lifecycle gate and PostgreSQL constraint to support shadow → paper only when evidence matches the exact strategy version, deterministic checks pass, and an operator approval note is present.
 - The assessment remains non-promoting and does not submit orders; paper execution still requires the later risk, mode, freshness, kill-switch, and reconciliation gates.
+
+### Phase 3.17 Authenticated Shadow-to-Paper Command
+
+- Added the `strategy_paper_evidence` PostgreSQL read model and migration `0006_strategy_paper_evidence.sql`; the command reads the latest evidence for the exact strategy version rather than accepting evidence from the client.
+- Added protected `POST /v1/strategies/lifecycle/paper`, which verifies the latest shadow stage, recomputes the default paper-forward policy, requires operator approval, and appends the next lifecycle revision.
+- Responses are redacted to identifiers and counts. The command does not submit paper orders or bypass deterministic risk, freshness, kill-switch, or reconciliation controls.
 
 ## Runtime Components
 

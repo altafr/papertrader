@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { approveDisabledToReplay, approveReplayToShadow } from "./lifecycle-command.js";
+import { approveDisabledToReplay, approveReplayToShadow, approveShadowToPaper } from "./lifecycle-command.js";
 
 const body = (overrides: Record<string, unknown> = {}) => ({
   approval: { approvedAt: "2026-01-10T00:00:00Z", approvedBy: "operator-1", note: "Reviewed regime replay evidence." },
@@ -51,5 +51,23 @@ describe("authenticated replay-to-shadow command", () => {
     const persistence = { getLatest: async () => ({ revision: 1, toStage: "disabled" }), appendReplayToShadow: async () => { throw new Error("must not persist"); } };
     await expect(approveReplayToShadow({ actorId: "operator-1", body: shadowBody, observations, persistence })).rejects.toThrow("recorded replay stage");
     await expect(approveReplayToShadow({ actorId: "operator-1", body: shadowBody, observations: { listClosed: async () => [] }, persistence: { ...persistence, getLatest: async () => ({ revision: 1, toStage: "replay" }) } })).rejects.toThrow("automated checks");
+  });
+});
+
+describe("authenticated shadow-to-paper command", () => {
+  const request = { approval: { approvedAt: "2026-02-12T00:00:00Z", approvedBy: "operator-1", note: "Reviewed paper-forward evidence." }, reason: "Paper readiness approval.", requestedAt: "2026-02-12T00:00:00Z", strategyKey: "cross-sectional-momentum", strategyVersion: "1.0.0" };
+  const evidence = { capturedAt: new Date("2026-02-11T00:00:00Z"), closedTrades: 20, consecutiveCalendarDays: 30, duplicateOrderCount: 0, evidenceId: "evidence-1", maxDrawdownPercent: "4", positiveTrades: 12, riskViolationCount: 0, staleDataBreachCount: 0, strategyKey: request.strategyKey, strategyVersion: request.strategyVersion };
+
+  it("loads persisted paper evidence and appends the next paper-stage revision", async () => {
+    const persisted: unknown[] = [];
+    const result = await approveShadowToPaper({ actorId: "operator-1", body: request, persistence: { getLatest: async () => ({ revision: 2, toStage: "shadow" }), getLatestPaperEvidence: async () => evidence, appendShadowToPaper: async (event) => { persisted.push(event); } } });
+    expect(result).toMatchObject({ closedTrades: 20, revision: 3, stage: "paper" });
+    expect(persisted[0]).toMatchObject({ fromStage: "shadow", revision: 3, toStage: "paper" });
+  });
+
+  it("rejects missing evidence or a non-shadow latest stage", async () => {
+    const persistence = { getLatest: async () => ({ revision: 2, toStage: "replay" }), getLatestPaperEvidence: async () => undefined, appendShadowToPaper: async () => { throw new Error("must not persist"); } };
+    await expect(approveShadowToPaper({ actorId: "operator-1", body: request, persistence })).rejects.toThrow("recorded shadow stage");
+    await expect(approveShadowToPaper({ actorId: "operator-1", body: request, persistence: { ...persistence, getLatest: async () => ({ revision: 2, toStage: "shadow" }) } })).rejects.toThrow("not available");
   });
 });

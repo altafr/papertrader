@@ -3,9 +3,9 @@
 ## Snapshot
 
 - **Phase:** Phase 3 — strategy and replay foundation.
-- **Status:** Phase 3.16 deterministic shadow-to-paper readiness gate implemented; Railway migration and first operator-run reconciliation remain operational dependencies.
+- **Status:** Phase 3.17 authenticated shadow-to-paper promotion command implemented; Railway migration and first operator-run reconciliation remain operational dependencies.
 - **Current operating mode:** Paper only; order submission not yet enabled.
-- **Current goal:** Add the authenticated shadow → paper readiness command while keeping actual paper order execution behind the later risk/execution phases.
+- **Current goal:** Begin paper execution foundations only after the deterministic risk, mode, freshness, kill-switch, and reconciliation controls are implemented.
 - **Last updated:** 2026-08-22.
 
 ## Delivery Roadmap
@@ -97,7 +97,8 @@
 - [x] Wire finalized-bar source/repository and bounded recurring scheduler.
 - [x] Add authenticated replay → shadow promotion command using persisted shadow outcomes.
 - [x] Add deterministic shadow → paper readiness gate and migration.
-- [ ] Add authenticated shadow → paper command and remaining paper → eligible-live gate.
+- [x] Add authenticated shadow → paper command using persisted paper-forward evidence.
+- [ ] Add remaining paper → eligible-live gate and paper execution foundations.
 
 ### Phase 4 — Research Agents and Daily Preparation
 
@@ -404,6 +405,14 @@
 - **Deployment dependency:** Railway must apply migration `0005` through the controlled process; actual paper execution remains a later phase.
 - **Next smallest unit:** Add the authenticated shadow-to-paper command that loads persisted paper-forward evidence and appends the reviewed event.
 
+## Completed Build Unit — Phase 3.17
+
+- **User story:** As the authenticated operator, I can promote a shadow strategy to paper using persisted paper-forward evidence and a server-controlled readiness assessment.
+- **Implemented:** Added the `strategy_paper_evidence` schema/read model, migration `0006_strategy_paper_evidence.sql`, authenticated `POST /v1/strategies/lifecycle/paper`, exact-stage/version checks, deterministic reassessment, append-only revision handling, and redacted responses.
+- **Safety boundary:** The command requires paper-only runtime configuration and explicit operator approval, but does not submit orders or enable Paper Autopilot. Risk, freshness, kill-switch, and reconciliation gates remain required later.
+- **Deployment dependency:** Apply migrations `0005` and `0006` through Railway's controlled process and populate evidence through a reviewed server-side process; no hosted migration or broker request was performed.
+- **Next smallest unit:** Build the deterministic paper risk/execution boundary without adding live capability.
+
 ## Decisions Made
 
 | Date | Decision | Reason |
@@ -476,6 +485,7 @@
 | Phase 3.14 shadow evidence and replay-to-shadow gate | Pass | Full lint, build, typecheck, and 64 tests pass; closed-observation evidence, decimal assessment, stage/approval checks, and migration/repository transition boundaries are covered |
 | Phase 3.15 authenticated replay-to-shadow command | Pass | Full lint, build, typecheck, and 66 tests pass; operator authentication, persisted-outcome loading, server-side assessment, replay-stage prerequisite, revision-two append, and redacted responses are covered |
 | Phase 3.16 shadow-to-paper readiness gate | Pass | Full lint, build, typecheck, and 70 tests pass; paper-forward policy checks, exact-version evidence, approval enforcement, lifecycle transition, and migration/repository boundaries are covered |
+| Phase 3.17 authenticated shadow-to-paper command | Pass | Full lint, build, typecheck, and 72 tests pass; persisted evidence loading, latest-shadow prerequisite, server-side reassessment, operator approval, revision append, and redacted response boundaries are covered |
 | Browser/preview | Partial | Production page HTTP check passed; visual/responsive review deferred beyond source scaffold |
 | Security review | Partial | No credential files, Alpaca client, database connection, or order code added; full review remains required |
 
@@ -493,10 +503,10 @@
 
 ## Session Handoff
 
-- **What exists:** Verified hosted foundation, Phase 0.3 selections, Phase 0.4 fail-closed guardrails, operator-confirmed paper setup, Phase 1 read-only account/dashboard foundation, guarded reconciliation command, Phase 2.1–2.2 authenticated asset/market-data reads, Phase 2.3 stream/backfill boundary, Phase 2.4 dashboard views, Phase 2.5 protected reconciliation verification, Phase 3.1 disabled strategy contract, Phase 3.2 decimal-safe metrics, Phase 3.3 point-in-time replay, Phase 3.4 disabled momentum plug-ins, Phase 3.5 regime evidence, Phase 3.6 in-process lifecycle gate, Phase 3.7 reviewed lifecycle-event persistence, Phase 3.8 authenticated replay approval command, Phase 3.9 shadow observation persistence, Phase 3.10 finalized-bar evaluation, Phase 3.11 restart-safe shadow runner, Phase 3.12 opt-in worker boundary, Phase 3.13 wired shadow worker/scheduler, Phase 3.14 controlled shadow evidence/replay-to-shadow gate, Phase 3.15 authenticated replay-to-shadow command, and Phase 3.16 shadow-to-paper readiness gate. No hosted migration has been applied and no broker request has been run.
-- **Where to resume:** Add the authenticated shadow-to-paper command, then apply the reviewed migrations through Railway's controlled process, run one guarded paper reconciliation, and verify `/v1/read-model`, `/v1/reconciliation-status`, and dashboard data against Alpaca.
+- **What exists:** Verified hosted foundation, Phase 0.3 selections, Phase 0.4 fail-closed guardrails, operator-confirmed paper setup, Phase 1 read-only account/dashboard foundation, guarded reconciliation command, Phase 2.1–2.2 authenticated asset/market-data reads, Phase 2.3 stream/backfill boundary, Phase 2.4 dashboard views, Phase 2.5 protected reconciliation verification, Phase 3.1 disabled strategy contract, Phase 3.2 decimal-safe metrics, Phase 3.3 point-in-time replay, Phase 3.4 disabled momentum plug-ins, Phase 3.5 regime evidence, Phase 3.6 in-process lifecycle gate, Phase 3.7 reviewed lifecycle-event persistence, Phase 3.8 authenticated replay approval command, Phase 3.9 shadow observation persistence, Phase 3.10 finalized-bar evaluation, Phase 3.11 restart-safe shadow runner, Phase 3.12 opt-in worker boundary, Phase 3.13 wired shadow worker/scheduler, Phase 3.14 controlled shadow evidence/replay-to-shadow gate, Phase 3.15 authenticated replay-to-shadow command, Phase 3.16 shadow-to-paper readiness gate, and Phase 3.17 authenticated shadow-to-paper command. No hosted migration has been applied and no broker request has been run.
+- **Where to resume:** Build the deterministic paper risk/execution boundary, then apply the reviewed migrations through Railway's controlled process, run one guarded paper reconciliation, and verify `/v1/read-model`, `/v1/reconciliation-status`, and dashboard data against Alpaca.
 - **Important context:** Keep Alpaca paper mode and read-only behavior during Phase 2.
-- **Recommended next prompt:** Continue Phase 3.17 with the authenticated shadow-to-paper command; keep paper order behavior off until the later risk/execution phases.
+- **Recommended next prompt:** Continue Phase 5.1 with immutable signals and deterministic paper risk checks; keep paper order behavior off until execution gates are verified.
 
 ## Change Log
 
@@ -694,3 +704,9 @@
 - Added paper-forward evidence assessment with default 30-day/20-trade policy and deterministic drawdown, risk-violation, stale-data, and duplicate-order checks.
 - Extended lifecycle and PostgreSQL constraints for reviewed shadow → paper transitions with migration `0005_allow_shadow_paper_lifecycle.sql`.
 - Verified typecheck and 70 tests during implementation; full lint/build verification remains part of the final phase handoff. No hosted migration, broker request, credential access, or paper order behavior was added.
+
+### 2026-08-22 — Phase 3.17 authenticated shadow-to-paper command complete
+
+- Added persisted paper-forward evidence storage, migration `0006_strategy_paper_evidence.sql`, and the authenticated `POST /v1/strategies/lifecycle/paper` command.
+- The command verifies the latest shadow stage, loads exact-version evidence, recomputes readiness, requires operator approval, and appends the next lifecycle revision without submitting orders.
+- Verified full lint, build, typecheck, and 72 tests; no hosted migration, broker request, credential access, or paper order behavior was added.

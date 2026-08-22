@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { assessReplayPromotion, assessShadowPromotion, createStrategyLifecycleStore, INITIAL_MOMENTUM_STRATEGIES, type ReplayEvidence, type ShadowPromotionEvidence, type StrategyPlugin } from "@momentum/domain";
+import { assessPaperPromotion, assessReplayPromotion, assessShadowPromotion, createStrategyLifecycleStore, INITIAL_MOMENTUM_STRATEGIES, type PaperPromotionEvidence, type ReplayEvidence, type ShadowPromotionEvidence, type StrategyPlugin } from "@momentum/domain";
 import type { PersistedStrategyLifecycleEvent } from "@momentum/db";
 
 const decimalString = z.string().regex(/^-?(?:0|[1-9]\d*)(?:\.\d+)?$/, "must be a decimal string");
@@ -28,6 +28,12 @@ export interface ReplayToShadowPersistence {
   appendReplayToShadow(event: PersistedStrategyLifecycleEvent): Promise<unknown>;
   getLatest(strategyKey: string, strategyVersion: string): Promise<{ readonly revision: number; readonly toStage: string } | undefined>;
 }
+export interface ShadowToPaperPersistence {
+  appendShadowToPaper(event: PersistedStrategyLifecycleEvent): Promise<unknown>;
+  getLatest(strategyKey: string, strategyVersion: string): Promise<{ readonly revision: number; readonly toStage: string } | undefined>;
+  getLatestPaperEvidence(strategyKey: string, strategyVersion: string): Promise<PaperPromotionEvidenceRecord | undefined>;
+}
+export interface PaperPromotionEvidenceRecord extends PaperPromotionEvidence { readonly capturedAt: Date; readonly evidenceId: string; }
 export interface ClosedShadowObservationSource {
   listClosed(strategyKey: string, strategyVersion: string): Promise<readonly {
     readonly observation: { readonly observationId: string; readonly symbol: string };
@@ -90,4 +96,34 @@ export async function approveReplayToShadow(input: { readonly actorId: string; r
   const event: PersistedStrategyLifecycleEvent = { actorId: transition.actorId, approvedAt: new Date(transition.approval.approvedAt), approvedBy: transition.approval.approvedBy, approvalNote: transition.approval.note, evidenceKey: transition.evidenceKey, eventId: `${request.strategyKey}@${request.strategyVersion}#${nextRevision}`, fromStage: "replay", reason: transition.reason, requestedAt: new Date(transition.requestedAt), revision: nextRevision, strategyKey: transition.strategyKey, strategyVersion: transition.strategyVersion, toStage: "shadow" };
   await input.persistence.appendReplayToShadow(event);
   return { event, revision: nextRevision, sampleSize: assessment.sampleSize, stage: "shadow", strategyKey: record.strategyKey, strategyVersion: record.strategyVersion };
+}
+
+export const shadowToPaperRequestSchema = z.object({
+  approval: z.object({ approvedAt: shadowTimestamp, approvedBy: z.string().min(1), note: z.string().trim().min(1).max(2_000) }),
+  reason: z.string().trim().min(1).max(2_000), requestedAt: shadowTimestamp,
+  strategyKey: z.string().min(1), strategyVersion: z.string().regex(/^\d+\.\d+\.\d+$/),
+});
+export interface ShadowToPaperCommandResult { readonly closedTrades: number; readonly event: PersistedStrategyLifecycleEvent; readonly revision: number; readonly stage: "paper"; readonly strategyKey: string; readonly strategyVersion: string; }
+
+export async function approveShadowToPaper(input: { readonly actorId: string; readonly body: unknown; readonly persistence: ShadowToPaperPersistence }): Promise<ShadowToPaperCommandResult> {
+  const request = shadowToPaperRequestSchema.parse(input.body);
+  if (request.approval.approvedBy !== input.actorId) throw new Error("Approval must match the authenticated operator.");
+  const latest = await input.persistence.getLatest(request.strategyKey, request.strategyVersion);
+  if (!latest || latest.toStage !== "shadow") throw new Error("Strategy must have a recorded shadow stage before paper promotion.");
+  const persisted = await input.persistence.getLatestPaperEvidence(request.strategyKey, request.strategyVersion);
+  if (!persisted) throw new Error("Paper-forward evidence is not available for this strategy version.");
+  const evidence: PaperPromotionEvidence = {
+    closedTrades: persisted.closedTrades, consecutiveCalendarDays: persisted.consecutiveCalendarDays, duplicateOrderCount: persisted.duplicateOrderCount,
+    maxDrawdownPercent: persisted.maxDrawdownPercent, positiveTrades: persisted.positiveTrades, riskViolationCount: persisted.riskViolationCount,
+    staleDataBreachCount: persisted.staleDataBreachCount, strategyKey: persisted.strategyKey, strategyVersion: persisted.strategyVersion,
+  };
+  const assessment = assessPaperPromotion(evidence);
+  const strategy = { ...findStrategy(request.strategyKey, request.strategyVersion), stage: "shadow" as const };
+  const record = createStrategyLifecycleStore(strategy).transition({ actorId: input.actorId, approval: request.approval, automatedChecksPass: assessment.automatedChecksPass, paperEvidence: evidence, reason: request.reason, requestedAt: request.requestedAt, strategyKey: request.strategyKey, strategyVersion: request.strategyVersion, toStage: "paper" });
+  const transition = record.events[record.events.length - 1];
+  if (!transition?.approval || !transition.evidenceKey) throw new Error("Lifecycle transition did not produce a complete audit event.");
+  const nextRevision = latest.revision + 1;
+  const event: PersistedStrategyLifecycleEvent = { actorId: transition.actorId, approvedAt: new Date(transition.approval.approvedAt), approvedBy: transition.approval.approvedBy, approvalNote: transition.approval.note, evidenceKey: transition.evidenceKey, eventId: `${request.strategyKey}@${request.strategyVersion}#${nextRevision}`, fromStage: "shadow", reason: transition.reason, requestedAt: new Date(transition.requestedAt), revision: nextRevision, strategyKey: transition.strategyKey, strategyVersion: transition.strategyVersion, toStage: "paper" };
+  await input.persistence.appendShadowToPaper(event);
+  return { closedTrades: evidence.closedTrades, event, revision: nextRevision, stage: "paper", strategyKey: record.strategyKey, strategyVersion: record.strategyVersion };
 }
