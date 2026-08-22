@@ -3,9 +3,9 @@
 ## Snapshot
 
 - **Phase:** Phase 2 — market data and dashboard.
-- **Status:** Phase 2.1 asset discovery implemented; Railway migration and first operator-run reconciliation remain operational dependencies.
+- **Status:** Phase 2.2 protected historical bars/snapshots implemented; Railway migration and first operator-run reconciliation remain operational dependencies.
 - **Current operating mode:** Paper only; order submission not yet enabled.
-- **Current goal:** Add protected historical bars/snapshots through Alpaca read calls; keep market-data feed selection open until the operator decides.
+- **Current goal:** Add supervised market/trading WebSocket ingestion with gap detection and REST backfill; keep feed selection open until the operator decides.
 - **Last updated:** 2026-08-22.
 
 ## Delivery Roadmap
@@ -75,7 +75,7 @@
 ### Phase 2 — Market Data and Dashboard
 
 - [x] Add stock/crypto asset discovery and eligibility filters.
-- [ ] Add historical bars/snapshots through protected server calls.
+- [x] Add historical bars/snapshots through protected server calls.
 - [ ] Add supervised market/trading WebSocket worker with backfill.
 - [ ] Build Overview, Positions, Orders & fills, Performance, and Alerts views.
 - [ ] Reconcile dashboard/account data against Alpaca.
@@ -233,6 +233,14 @@
 - **Deployment dependency:** No hosted broker request was performed. Railway migration and the guarded reconciliation remain separate operational prerequisites.
 - **Next smallest unit:** Add protected historical bars/snapshots through Alpaca read calls, after the operator records the market-data subscription/feed decision.
 
+## Completed Build Unit — Phase 2.2
+
+- **User story:** As the operator, I can request validated historical bars and current broker snapshots for a bounded stock or crypto symbol list through the authenticated server API.
+- **Implemented:** Added the server-only market-data adapter and authenticated `GET /v1/market-data/bars` and `GET /v1/market-data/snapshots` routes. Alpaca payloads are validated and normalized with decimal values serialized as strings.
+- **Safety boundary:** Market-data calls are read-only, pinned to Alpaca's market-data endpoint, paper-runtime gated, broker-opt-in gated, and limited to 1–10 symbols with bounded bar limits. No raw data persistence, WebSocket, strategy, risk, or order behavior was added.
+- **Deployment dependency:** No hosted broker request was performed. Railway migration and guarded account reconciliation remain separate operational prerequisites.
+- **Next smallest unit:** Add supervised market/trading WebSocket ingestion, sequence-gap detection, and REST backfill before any strategy consumes streaming data.
+
 ## Decisions Made
 
 | Date | Decision | Reason |
@@ -285,6 +293,7 @@
 | Phase 1.5 dashboard read-only surfaces | Pass | Dashboard server component and unavailable states build successfully; full lint, build, typecheck, and 14 tests pass; no broker/database browser path added |
 | Phase 1.6 controlled reconciliation command | Pass | Guarded command builds; full lint, build, typecheck, and 14 tests pass; `RECONCILE_ONCE=false` exits before database/broker access without secret output |
 | Phase 2.1 asset discovery | Pass | Full lint, build, typecheck, and 15 tests pass; mocked adapter filters active tradable assets to US equities/crypto; no hosted broker request performed |
+| Phase 2.2 historical market data | Pass | Full lint, build, typecheck, and 17 tests pass; mocked adapter normalizes stock bars/snapshots and rejects non-market-data endpoint; no hosted broker request performed |
 | Browser/preview | Partial | Production page HTTP check passed; visual/responsive review deferred beyond source scaffold |
 | Security review | Partial | No credential files, Alpaca client, database connection, or order code added; full review remains required |
 
@@ -302,10 +311,10 @@
 
 ## Session Handoff
 
-- **What exists:** Verified hosted foundation, Phase 0.3 selections, Phase 0.4 fail-closed guardrails, operator-confirmed paper setup, Phase 1 read-only account/dashboard foundation, guarded reconciliation command, and Phase 2.1 authenticated asset discovery. No hosted migration has been applied and no broker request has been run.
-- **Where to resume:** Add protected historical bars/snapshots through Alpaca read calls. Separately, apply the reviewed migration through Railway's controlled process, run one guarded paper reconciliation, and verify `/v1/read-model` and dashboard data.
+- **What exists:** Verified hosted foundation, Phase 0.3 selections, Phase 0.4 fail-closed guardrails, operator-confirmed paper setup, Phase 1 read-only account/dashboard foundation, guarded reconciliation command, and Phase 2.1–2.2 authenticated asset and market-data reads. No hosted migration has been applied and no broker request has been run.
+- **Where to resume:** Add supervised market/trading WebSocket ingestion, sequence-gap detection, and REST backfill. Separately, apply the reviewed migration through Railway's controlled process, run one guarded paper reconciliation, and verify `/v1/read-model` and dashboard data.
 - **Important context:** Keep Alpaca paper mode and read-only behavior during Phase 2.
-- **Recommended next prompt:** Continue Phase 2 with historical bars/snapshots and explicit market-data subscription/feed selection.
+- **Recommended next prompt:** Continue Phase 2 with supervised WebSocket ingestion, gap detection, and REST backfill; then record the feed decision.
 
 ## Change Log
 
@@ -391,3 +400,9 @@
 - Added a validated server-only Alpaca paper asset reader for active, tradable US equities and crypto.
 - Added authenticated API route `GET /v1/assets`, with explicit broker opt-in and paper-only guards.
 - Verified full lint, build, typecheck, and 15 tests; no hosted migration, broker request, strategy, risk, or order behavior was added.
+
+### 2026-08-22 — Phase 2.2 protected historical market data complete
+
+- Added a validated, server-only Alpaca market-data adapter for bounded historical stock/crypto bars and snapshots.
+- Added authenticated `GET /v1/market-data/bars` and `GET /v1/market-data/snapshots` routes with paper-only and explicit broker opt-in guards.
+- Verified full lint, build, typecheck, and 17 tests; no hosted broker request, raw market-data persistence, WebSocket, strategy, risk, or order behavior was added.

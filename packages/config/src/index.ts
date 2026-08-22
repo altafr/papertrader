@@ -1,6 +1,7 @@
 const DEFAULT_API_PORT = 3001;
 
 export const PAPER_TRADING_API_BASE_URL = "https://paper-api.alpaca.markets";
+export const ALPACA_MARKET_DATA_BASE_URL = "https://data.alpaca.markets";
 
 export type PaperOnlyRuntimeConfig = {
   brokerConnectionEnabled: boolean;
