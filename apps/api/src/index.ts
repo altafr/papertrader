@@ -17,6 +17,7 @@ import {
 } from "@momentum/config";
 
 import { getApiHealth } from "./app.js";
+import { compareReconciliationAccounts } from "./reconciliation-status.js";
 
 let readModelRepository: ReturnType<typeof createAccountStateRepository> | undefined;
 
@@ -202,6 +203,55 @@ async function readMarketSnapshots(request: IncomingMessage) {
   return { body: { snapshots: await reader.readSnapshots(query) }, status: 200 } as const;
 }
 
+async function readReconciliationStatus(request: IncomingMessage) {
+  const authentication = await authenticateOperator(request);
+  if (authentication.status !== 200) return authentication;
+  if (!process.env.DATABASE_URL?.trim()) {
+    return { body: { error: "db_not_configured" }, status: 503 } as const;
+  }
+  const runtime = getPaperOnlyRuntimeConfig();
+  if (!runtime.brokerConnectionEnabled) {
+    return { body: { error: "broker_not_configured" }, status: 503 } as const;
+  }
+  if (!readModelRepository) {
+    const { db } = createDatabase();
+    readModelRepository = createAccountStateRepository(db);
+  }
+  const model = await readModelRepository.getLatestReadModel();
+  if (!model) {
+    return { body: { error: "reconciliation_not_available" }, status: 404 } as const;
+  }
+  const reader = createPaperAccountReader({
+    apiKey: process.env.ALPACA_API_KEY ?? "",
+    secretKey: process.env.ALPACA_SECRET_KEY ?? "",
+  });
+  const brokerAccount = await reader.readAccount();
+  const persistedAccount = {
+    accountId: String(model.snapshot.accountId),
+    buyingPower: String(model.snapshot.buyingPower),
+    cash: String(model.snapshot.cash),
+    currency: String(model.snapshot.currency),
+    equity: String(model.snapshot.equity),
+    status: String(model.snapshot.status),
+  } as const;
+  const comparison = compareReconciliationAccounts(persistedAccount, {
+    accountId: brokerAccount.accountId,
+    buyingPower: brokerAccount.buyingPower,
+    cash: brokerAccount.cash,
+    currency: brokerAccount.currency,
+    equity: brokerAccount.equity,
+    status: brokerAccount.status,
+  });
+  return {
+    body: {
+      brokerCheckedAt: new Date().toISOString(),
+      comparison,
+      persistedCapturedAt: model.freshness.capturedAt,
+    },
+    status: 200,
+  } as const;
+}
+
 const server = createServer((request, response) => {
   if (request.method === "GET" && request.url === "/health") {
     response.writeHead(200, { "content-type": "application/json" });
@@ -285,6 +335,19 @@ const server = createServer((request, response) => {
         const status = error instanceof InvalidMarketDataRequest ? 400 : 502;
         response.writeHead(status, { "content-type": "application/json" });
         response.end(JSON.stringify({ error: status === 400 ? "invalid_market_data_request" : "broker_unavailable" }));
+      });
+    return;
+  }
+
+  if (request.method === "GET" && request.url === "/v1/reconciliation-status") {
+    readReconciliationStatus(request)
+      .then(({ body, status }) => {
+        response.writeHead(status, { "content-type": "application/json" });
+        response.end(JSON.stringify(body));
+      })
+      .catch(() => {
+        response.writeHead(502, { "content-type": "application/json" });
+        response.end(JSON.stringify({ error: "reconciliation_unavailable" }));
       });
     return;
   }

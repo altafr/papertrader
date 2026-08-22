@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 2.4 read-only dashboard views implemented; Railway migration and first operator-run reconciliation remain operational dependencies.
+- **Stage:** Phase 2.5 protected reconciliation verification implemented; Railway migration and first operator-run reconciliation remain operational dependencies.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -135,6 +135,13 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - Freshness is classified as fresh (≤5 minutes), delayed (≤15 minutes), or stale (>15 minutes); unavailable data remains explicitly unavailable. Capture timestamps are rendered as UTC with provenance.
 - Performance and alert panels remain honest unavailable states until their persisted services exist. Market and trade streams are shown as disconnected/not enabled when no corresponding read model is present.
 - The dashboard remains display-only: no controls, order methods, database connection, Alpaca credentials, strategy approval, or risk-policy mutation was added.
+
+### Phase 2.5 Protected Reconciliation Verification
+
+- `apps/api` exposes authenticated `GET /v1/reconciliation-status` for an operator-observed comparison of the latest persisted account snapshot against a fresh Alpaca paper account read.
+- The comparison normalizes equivalent decimal representations and returns only `matched`/`mismatch`, checked field names, mismatch field names, and capture/check timestamps. It never returns broker payloads or secret material.
+- The endpoint fails closed when PostgreSQL, broker opt-in, credentials, or a persisted snapshot are unavailable. It is not called automatically by the dashboard, preventing an implicit broker request on every page load.
+- No writes, order methods, strategy/risk behavior, market-stream changes, or hosted broker request were added.
 
 ## Runtime Components
 
