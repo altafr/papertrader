@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { approveDisabledToReplay } from "./lifecycle-command.js";
+import { approveDisabledToReplay, approveReplayToShadow } from "./lifecycle-command.js";
 
 const body = (overrides: Record<string, unknown> = {}) => ({
   approval: { approvedAt: "2026-01-10T00:00:00Z", approvedBy: "operator-1", note: "Reviewed regime replay evidence." },
@@ -33,5 +33,23 @@ describe("authenticated disabled-to-replay command", () => {
     const persistence = { appendDisabledToReplay: async () => undefined };
     await expect(approveDisabledToReplay({ actorId: "operator-1", body: { ...body(), automatedChecksPass: true }, persistence })).resolves.toBeDefined();
     await expect(approveDisabledToReplay({ actorId: "operator-1", body: { ...body(), toStage: "shadow" }, persistence })).resolves.toBeDefined();
+  });
+});
+
+describe("authenticated replay-to-shadow command", () => {
+  const shadowBody = { approval: { approvedAt: "2026-01-12T00:00:00Z", approvedBy: "operator-1", note: "Reviewed shadow evidence." }, reason: "Shadow approval.", requestedAt: "2026-01-12T00:00:00Z", strategyKey: "cross-sectional-momentum", strategyVersion: "1.0.0" };
+  const observations = { listClosed: async () => Array.from({ length: 10 }, (_, index) => ({ observation: { observationId: `obs-${index}`, symbol: "AAA" }, outcome: { observedAt: new Date("2026-01-11T00:00:00Z"), reason: "target", returnPercent: "1.0" } })) };
+
+  it("loads persisted closed outcomes, recomputes checks, and appends revision two", async () => {
+    const persisted: unknown[] = [];
+    const result = await approveReplayToShadow({ actorId: "operator-1", body: shadowBody, observations, persistence: { getLatest: async () => ({ revision: 1, toStage: "replay" }), appendReplayToShadow: async (event) => { persisted.push(event); } } });
+    expect(result).toMatchObject({ revision: 2, sampleSize: 10, stage: "shadow" });
+    expect(persisted[0]).toMatchObject({ fromStage: "replay", revision: 2, toStage: "shadow" });
+  });
+
+  it("rejects when replay is not the latest stage or evidence is insufficient", async () => {
+    const persistence = { getLatest: async () => ({ revision: 1, toStage: "disabled" }), appendReplayToShadow: async () => { throw new Error("must not persist"); } };
+    await expect(approveReplayToShadow({ actorId: "operator-1", body: shadowBody, observations, persistence })).rejects.toThrow("recorded replay stage");
+    await expect(approveReplayToShadow({ actorId: "operator-1", body: shadowBody, observations: { listClosed: async () => [] }, persistence: { ...persistence, getLatest: async () => ({ revision: 1, toStage: "replay" }) } })).rejects.toThrow("automated checks");
   });
 });

@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 3.14 controlled shadow evidence and replay-to-shadow lifecycle gate implemented; Railway migration and first operator-run reconciliation remain operational dependencies.
+- **Stage:** Phase 3.15 authenticated replay-to-shadow promotion command implemented; Railway migration and first operator-run reconciliation remain operational dependencies.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -233,6 +233,12 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - Added a controlled evidence builder that accepts only closed observations from one exact strategy version, plus a decimal-safe assessment for sample size, positive outcomes, and worst loss.
 - Added the explicit replay → shadow lifecycle gate. It requires matching shadow evidence, passing automated checks, and a named operator approval with a note; the transition remains auditable and append-only.
 - Automated assessment is deliberately non-promoting: manual review remains required, and no paper order, risk approval, or live-stage transition is reachable from this gate.
+
+### Phase 3.15 Authenticated Replay-to-Shadow Command
+
+- Added `POST /v1/strategies/lifecycle/shadow`, protected by the existing Clerk operator boundary and paper-only runtime guard.
+- The command loads closed outcomes from PostgreSQL, recomputes the server-controlled shadow assessment, requires the latest persisted stage to be replay, and appends the next revision with a redacted response.
+- Client-supplied evidence and automated-check flags are not trusted; no broker request, order behavior, or automatic promotion beyond the explicitly approved shadow stage is reachable.
 
 ## Runtime Components
 

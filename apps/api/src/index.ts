@@ -10,7 +10,7 @@ import {
   type MarketAssetClass,
   type MarketBarTimeframe,
 } from "@momentum/alpaca";
-import { createAccountStateRepository, createDatabase, createStrategyLifecycleRepository } from "@momentum/db";
+import { createAccountStateRepository, createDatabase, createShadowObservationRepository, createStrategyLifecycleRepository } from "@momentum/db";
 import {
   getClerkRuntimeConfig,
   getPaperOnlyRuntimeConfig,
@@ -19,10 +19,11 @@ import {
 
 import { getApiHealth } from "./app.js";
 import { compareReconciliationAccounts } from "./reconciliation-status.js";
-import { approveDisabledToReplay } from "./lifecycle-command.js";
+import { approveDisabledToReplay, approveReplayToShadow } from "./lifecycle-command.js";
 
 let readModelRepository: ReturnType<typeof createAccountStateRepository> | undefined;
 let strategyLifecycleRepository: ReturnType<typeof createStrategyLifecycleRepository> | undefined;
+let shadowObservationRepository: ReturnType<typeof createShadowObservationRepository> | undefined;
 
 class InvalidMarketDataRequest extends Error {}
 
@@ -282,6 +283,20 @@ async function approveStrategyReplay(request: IncomingMessage) {
   return { body: { eventId: result.event.eventId, revision: result.revision, stage: result.stage, strategyKey: result.strategyKey, strategyVersion: result.strategyVersion }, status: 201 } as const;
 }
 
+async function approveStrategyShadow(request: IncomingMessage) {
+  const authentication = await authenticateOperator(request);
+  if (authentication.status !== 200) return authentication;
+  if (!process.env.DATABASE_URL?.trim()) return { body: { error: "db_not_configured" }, status: 503 } as const;
+  getPaperOnlyRuntimeConfig();
+  if (!strategyLifecycleRepository || !shadowObservationRepository) {
+    const { db } = createDatabase();
+    strategyLifecycleRepository ??= createStrategyLifecycleRepository(db);
+    shadowObservationRepository ??= createShadowObservationRepository(db);
+  }
+  const result = await approveReplayToShadow({ actorId: authentication.body.userId, body: await readJsonBody(request), observations: shadowObservationRepository, persistence: strategyLifecycleRepository });
+  return { body: { eventId: result.event.eventId, revision: result.revision, sampleSize: result.sampleSize, stage: result.stage, strategyKey: result.strategyKey, strategyVersion: result.strategyVersion }, status: 201 } as const;
+}
+
 const server = createServer((request, response) => {
   if (request.method === "GET" && request.url === "/health") {
     response.writeHead(200, { "content-type": "application/json" });
@@ -390,6 +405,20 @@ const server = createServer((request, response) => {
       })
       .catch((error: unknown) => {
         const status = error instanceof ZodError ? 400 : error instanceof SyntaxError ? 400 : 409;
+        response.writeHead(status, { "content-type": "application/json" });
+        response.end(JSON.stringify({ error: status === 400 ? "invalid_lifecycle_request" : "lifecycle_gate_rejected" }));
+      });
+    return;
+  }
+
+  if (request.method === "POST" && request.url === "/v1/strategies/lifecycle/shadow") {
+    approveStrategyShadow(request)
+      .then(({ body, status }) => {
+        response.writeHead(status, { "content-type": "application/json" });
+        response.end(JSON.stringify(body));
+      })
+      .catch((error: unknown) => {
+        const status = error instanceof ZodError || error instanceof SyntaxError ? 400 : 409;
         response.writeHead(status, { "content-type": "application/json" });
         response.end(JSON.stringify({ error: status === 400 ? "invalid_lifecycle_request" : "lifecycle_gate_rejected" }));
       });

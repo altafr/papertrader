@@ -264,5 +264,15 @@ export function createShadowObservationRepository(db: Database) {
       }
       return open;
     },
+
+    async listClosed(strategyKey: string, strategyVersion: string) {
+      const rows = await db.select().from(shadowObservations).where(and(eq(shadowObservations.strategyKey, strategyKey), eq(shadowObservations.strategyVersion, strategyVersion)));
+      const closed: { readonly observation: typeof rows[number]; readonly outcome: typeof shadowObservationOutcomes.$inferSelect }[] = [];
+      for (const observation of rows) {
+        const [outcome] = await db.select().from(shadowObservationOutcomes).where(eq(shadowObservationOutcomes.observationId, observation.observationId)).limit(1);
+        if (outcome) closed.push({ observation, outcome });
+      }
+      return closed;
+    },
   };
 }
