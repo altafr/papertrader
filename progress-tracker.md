@@ -2,10 +2,10 @@
 
 ## Snapshot
 
-- **Phase:** Phase 2 — market data and dashboard.
-- **Status:** Phase 2.5 protected reconciliation verification implemented; Railway migration and first operator-run reconciliation remain operational dependencies.
+- **Phase:** Phase 3 — strategy and replay foundation.
+- **Status:** Phase 3.1 versioned strategy plug-in contract implemented; Railway migration and first operator-run reconciliation remain operational dependencies.
 - **Current operating mode:** Paper only; order submission not yet enabled.
-- **Current goal:** Apply the reviewed Railway migration and run the first guarded paper reconciliation, then verify dashboard and broker comparison results.
+- **Current goal:** Add decimal-safe performance and risk metrics without enabling any strategy or order path.
 - **Last updated:** 2026-08-22.
 
 ## Delivery Roadmap
@@ -82,7 +82,7 @@
 
 ### Phase 3 — Strategy and Replay Foundation
 
-- [ ] Implement versioned strategy plug-in interface.
+- [x] Implement versioned strategy plug-in interface.
 - [ ] Implement decimal-safe performance and risk metrics.
 - [ ] Build historical replay with point-in-time inputs, fees, and slippage.
 - [ ] Implement three initial momentum research strategies.
@@ -265,6 +265,14 @@
 - **Deployment dependency:** No hosted migration, persisted snapshot, or broker request has been verified in this workspace. The endpoint will fail closed until Railway PostgreSQL is migrated, a guarded reconciliation has run, and broker access is explicitly enabled.
 - **Next smallest unit:** Apply the reviewed migration and run one guarded paper reconciliation, then perform the operator-observed comparison and dashboard verification.
 
+## Completed Build Unit — Phase 3.1
+
+- **User story:** As a researcher, I can define a versioned strategy plug-in with bounded parameters and deterministic, read-only signal proposals without granting it order or risk authority.
+- **Implemented:** Added the domain strategy contract, structured market/position inputs, long-only signal-candidate output, sequential lifecycle transition guard, and a disabled-only strategy registry with semantic-version and lookback validation.
+- **Safety boundary:** New strategies register disabled; evaluation is proposal-only, uses decimal strings, requires fresh Alpaca input by contract, and has no broker, database, credential, risk-approval, or order access.
+- **Deployment dependency:** No concrete strategy was enabled, no strategy evaluated in production, and no hosted migration or broker request was performed.
+- **Next smallest unit:** Add decimal-safe performance and risk metrics as pure functions, with boundary tests before any strategy is enabled.
+
 ## Decisions Made
 
 | Date | Decision | Reason |
@@ -321,6 +329,7 @@
 | Phase 2.3 supervised market stream | Pass | Full lint, build, typecheck, and 20 tests pass; stream supervisor covers authentication/subscription, gap backfill, malformed payloads, and reconnect degradation; stream remains disabled and no hosted broker request performed |
 | Phase 2.4 dashboard views | Pass | Full lint, build, typecheck, and 22 tests pass; dashboard build includes overview, positions, orders/activity, freshness states, and explicit unavailable performance/alerts; no broker request performed |
 | Phase 2.5 reconciliation verification | Pass | Full lint, build, typecheck, and 24 tests pass; decimal-equivalent account values match and mismatch results expose only field names; endpoint is broker/DB gated and no hosted request performed |
+| Phase 3.1 strategy contract | Pass | Full lint, build, typecheck, and 27 tests pass; lifecycle/registry/parameter-boundary tests pass; no strategy enabled, broker request, or order path added |
 | Browser/preview | Partial | Production page HTTP check passed; visual/responsive review deferred beyond source scaffold |
 | Security review | Partial | No credential files, Alpaca client, database connection, or order code added; full review remains required |
 
@@ -338,10 +347,10 @@
 
 ## Session Handoff
 
-- **What exists:** Verified hosted foundation, Phase 0.3 selections, Phase 0.4 fail-closed guardrails, operator-confirmed paper setup, Phase 1 read-only account/dashboard foundation, guarded reconciliation command, Phase 2.1–2.2 authenticated asset/market-data reads, Phase 2.3 stream/backfill boundary, Phase 2.4 dashboard views, and Phase 2.5 protected reconciliation verification. No hosted migration has been applied and no broker request has been run.
-- **Where to resume:** Apply the reviewed migration through Railway's controlled process, run one guarded paper reconciliation, and verify `/v1/read-model`, `/v1/reconciliation-status`, and dashboard data against Alpaca. Then add performance persistence and alert service surfaces.
+- **What exists:** Verified hosted foundation, Phase 0.3 selections, Phase 0.4 fail-closed guardrails, operator-confirmed paper setup, Phase 1 read-only account/dashboard foundation, guarded reconciliation command, Phase 2.1–2.2 authenticated asset/market-data reads, Phase 2.3 stream/backfill boundary, Phase 2.4 dashboard views, Phase 2.5 protected reconciliation verification, and Phase 3.1 disabled strategy contract. No hosted migration has been applied and no broker request has been run.
+- **Where to resume:** Add decimal-safe performance and risk metrics as pure functions. Separately, apply the reviewed migration through Railway's controlled process, run one guarded paper reconciliation, and verify `/v1/read-model`, `/v1/reconciliation-status`, and dashboard data against Alpaca.
 - **Important context:** Keep Alpaca paper mode and read-only behavior during Phase 2.
-- **Recommended next prompt:** Apply the Railway migration, run the first guarded paper reconciliation, and perform the operator-observed dashboard-versus-Alpaca verification.
+- **Recommended next prompt:** Continue Phase 3 with pure decimal-safe performance and risk metrics; keep strategies disabled.
 
 ## Change Log
 
@@ -451,3 +460,9 @@
 - Added authenticated `GET /v1/reconciliation-status` for an explicit persisted-account versus fresh paper-broker comparison.
 - Added decimal-aware comparison tests that return only status and mismatched field names, never account payload values or secrets.
 - Verified full lint, build, typecheck, and 24 tests; no hosted migration or broker request was performed.
+
+### 2026-08-22 — Phase 3.1 versioned strategy contract complete
+
+- Added the disabled-by-default, semantic-versioned strategy plug-in contract with bounded parameter validation, fresh market-input requirements, and structured proposal output.
+- Added sequential lifecycle transition guards and duplicate/invalid registration checks.
+- Verified full lint, build, typecheck, and 27 tests; no concrete strategy was enabled and no broker request or order behavior was added.

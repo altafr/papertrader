@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 2.5 protected reconciliation verification implemented; Railway migration and first operator-run reconciliation remain operational dependencies.
+- **Stage:** Phase 3.1 versioned strategy plug-in contract implemented; Railway migration and first operator-run reconciliation remain operational dependencies.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -142,6 +142,13 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - The comparison normalizes equivalent decimal representations and returns only `matched`/`mismatch`, checked field names, mismatch field names, and capture/check timestamps. It never returns broker payloads or secret material.
 - The endpoint fails closed when PostgreSQL, broker opt-in, credentials, or a persisted snapshot are unavailable. It is not called automatically by the dashboard, preventing an implicit broker request on every page load.
 - No writes, order methods, strategy/risk behavior, market-stream changes, or hosted broker request were added.
+
+### Phase 3.1 Versioned Strategy Plug-in Contract
+
+- `packages/domain` defines a versioned, typed strategy plug-in contract with owner, semantic version, asset class, required lookback, bounded parameter validation, deterministic evaluation inputs, and structured long-only signal candidates.
+- Strategy lifecycle advancement is sequential: `disabled → replay → shadow → paper → eligible_live`. New registry entries must be disabled and semantic-versioned; duplicate keys and invalid lookbacks fail closed.
+- Strategy evaluation returns proposals only. It cannot submit, cancel, replace, approve risk, change policy, or access credentials. Financial values remain decimal strings and input market data must be fresh Alpaca data.
+- This unit adds no concrete momentum strategy, signal generation in production, persistence, broker request, or order behavior.
 
 ## Runtime Components
 
