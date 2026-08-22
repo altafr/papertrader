@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { DAILY_PREPARATION_QUEUE, createDurableScheduler, getDurableSchedulerConfig, getDurableSchedulerHealth, inspectDurableQueues, provisionDurableQueues } from "./durable-scheduler.js";
+import { DAILY_PREPARATION_QUEUE, createDurableScheduler, enqueueDailyPreparation, getDailyPreparationJobId, getDurableSchedulerConfig, getDurableSchedulerHealth, inspectDurableQueues, provisionDurableQueues } from "./durable-scheduler.js";
 
 describe("durable scheduler", () => {
   it("is disabled by default and validates bounded retry configuration", () => {
@@ -68,5 +68,15 @@ describe("durable scheduler", () => {
       deadLetterQueue: { activeCount: 0, failedCount: 0, present: false, queuedCount: 0 },
       workQueue: { activeCount: 1, failedCount: 2, present: true, queuedCount: 3 },
     });
+  });
+
+  it("uses a deterministic UTC job ID so a run-once trigger is idempotent", async () => {
+    const sent: { readonly data: object | null | undefined; readonly id: string | undefined; readonly name: string }[] = [];
+    const now = new Date("2026-08-23T15:30:00.000Z");
+    const first = await enqueueDailyPreparation({ async send(name, data, options) { sent.push({ data, id: options?.id, name }); return options?.id ?? null; } }, now);
+    const second = await enqueueDailyPreparation({ async send() { return null; } }, now);
+    expect(first).toEqual({ jobId: getDailyPreparationJobId(now), queued: true });
+    expect(second).toEqual({ jobId: getDailyPreparationJobId(now), queued: false });
+    expect(sent[0]).toEqual({ data: { kind: "daily_preparation", version: 1 }, id: "manual-daily-preparation-2026-08-23", name: DAILY_PREPARATION_QUEUE });
   });
 });

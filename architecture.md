@@ -305,6 +305,12 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - Added a guarded queue-status command that checks the work and dead-letter queue presence and reports bounded queue counts without exposing database configuration.
 - The status command is separate from worker startup and broker reconciliation; it cannot place orders or enable a scheduler.
 
+### Phase 6.6 Idempotent Hosted Run-once Trigger
+
+- Added a guarded enqueue command for immediate daily reconciliation verification after a worker restart.
+- The trigger uses a deterministic UTC job ID; repeated invocation for the same day reports `queued: false` rather than creating duplicate work.
+- It only enqueues the existing read-only reconciliation job and has no direct broker or order authority.
+
 ## Runtime Components
 
 1. **Railway API gateway:** Verifies operator identity, serves read models, validates commands, and persists canonical state transactionally in PostgreSQL.

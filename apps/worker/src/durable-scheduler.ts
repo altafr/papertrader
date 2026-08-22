@@ -38,6 +38,20 @@ export interface DurableQueueInspector {
   getQueueStats(name: string, options?: { readonly force?: boolean }): Promise<readonly { readonly queuedCount: number; readonly failedCount: number; readonly activeCount: number }[]>;
 }
 
+export interface DurableQueueSender {
+  send(name: string, data?: object | null, options?: { readonly id?: string }): Promise<string | null>;
+}
+
+export function getDailyPreparationJobId(now = new Date()): string {
+  return `manual-daily-preparation-${now.toISOString().slice(0, 10)}`;
+}
+
+export async function enqueueDailyPreparation(sender: DurableQueueSender, now = new Date()): Promise<{ readonly jobId: string; readonly queued: boolean }> {
+  const jobId = getDailyPreparationJobId(now);
+  const sentId = await sender.send(DAILY_PREPARATION_QUEUE, { kind: "daily_preparation", version: 1 }, { id: jobId });
+  return { jobId, queued: sentId !== null };
+}
+
 export interface DurableQueueInspection {
   readonly deadLetterQueue: { readonly activeCount: number; readonly failedCount: number; readonly present: boolean; readonly queuedCount: number };
   readonly workQueue: { readonly activeCount: number; readonly failedCount: number; readonly present: boolean; readonly queuedCount: number };
