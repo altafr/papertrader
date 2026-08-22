@@ -33,6 +33,30 @@ export interface DurableQueueClient {
   work<T>(name: string, handler: (jobs: Job<T>[]) => Promise<unknown>): Promise<string>;
 }
 
+export interface DurableQueueInspector {
+  getQueue(name: string): Promise<{ readonly name: string } | null>;
+  getQueueStats(name: string, options?: { readonly force?: boolean }): Promise<readonly { readonly queuedCount: number; readonly failedCount: number; readonly activeCount: number }[]>;
+}
+
+export interface DurableQueueInspection {
+  readonly deadLetterQueue: { readonly activeCount: number; readonly failedCount: number; readonly present: boolean; readonly queuedCount: number };
+  readonly workQueue: { readonly activeCount: number; readonly failedCount: number; readonly present: boolean; readonly queuedCount: number };
+}
+
+async function inspectQueue(inspector: DurableQueueInspector, name: string) {
+  const [queue, stats] = await Promise.all([inspector.getQueue(name), inspector.getQueueStats(name, { force: true })]);
+  const latest = stats.at(-1);
+  return { activeCount: latest?.activeCount ?? 0, failedCount: latest?.failedCount ?? 0, present: queue !== null, queuedCount: latest?.queuedCount ?? 0 };
+}
+
+export async function inspectDurableQueues(inspector: DurableQueueInspector): Promise<DurableQueueInspection> {
+  const [workQueue, deadLetterQueue] = await Promise.all([
+    inspectQueue(inspector, DAILY_PREPARATION_QUEUE),
+    inspectQueue(inspector, DAILY_PREPARATION_DEAD_LETTER_QUEUE),
+  ]);
+  return { deadLetterQueue, workQueue };
+}
+
 type BossFactory = (connectionString: string) => DurableQueueClient;
 
 export async function provisionDurableQueues(boss: DurableQueueClient, config: DurableSchedulerConfig): Promise<void> {

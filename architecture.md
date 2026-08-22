@@ -300,6 +300,11 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - The command requires an explicit `DURABLE_QUEUE_MIGRATE=true` invocation, paper-only runtime validation, and `DATABASE_URL`; it never reads Alpaca or creates an order path.
 - Restart tests verify the worker re-registers the durable schedule after stop/start, while queue provisioning remains idempotent through `pg-boss`.
 
+### Phase 6.5 Hosted Queue Verification Boundary
+
+- Added a guarded queue-status command that checks the work and dead-letter queue presence and reports bounded queue counts without exposing database configuration.
+- The status command is separate from worker startup and broker reconciliation; it cannot place orders or enable a scheduler.
+
 ## Runtime Components
 
 1. **Railway API gateway:** Verifies operator identity, serves read models, validates commands, and persists canonical state transactionally in PostgreSQL.

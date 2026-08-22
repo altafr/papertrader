@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { DAILY_PREPARATION_QUEUE, createDurableScheduler, getDurableSchedulerConfig, getDurableSchedulerHealth, provisionDurableQueues } from "./durable-scheduler.js";
+import { DAILY_PREPARATION_QUEUE, createDurableScheduler, getDurableSchedulerConfig, getDurableSchedulerHealth, inspectDurableQueues, provisionDurableQueues } from "./durable-scheduler.js";
 
 describe("durable scheduler", () => {
   it("is disabled by default and validates bounded retry configuration", () => {
@@ -57,5 +57,16 @@ describe("durable scheduler", () => {
       async start() {}, async stop() {}, async createQueue(name) { queues.push(name); }, async schedule() {}, async work() { return "worker"; },
     }, getDurableSchedulerConfig({}));
     expect(queues).toEqual(["momentum.daily-preparation.dead-letter", "momentum.daily-preparation"]);
+  });
+
+  it("reports queue presence and current counts without exposing connection details", async () => {
+    const inspection = await inspectDurableQueues({
+      async getQueue(name) { return name === "momentum.daily-preparation" ? { name } : null; },
+      async getQueueStats(name) { return name === "momentum.daily-preparation" ? [{ activeCount: 1, failedCount: 2, queuedCount: 3 }] : []; },
+    });
+    expect(inspection).toEqual({
+      deadLetterQueue: { activeCount: 0, failedCount: 0, present: false, queuedCount: 0 },
+      workQueue: { activeCount: 1, failedCount: 2, present: true, queuedCount: 3 },
+    });
   });
 });

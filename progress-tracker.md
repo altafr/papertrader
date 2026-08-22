@@ -5,7 +5,7 @@
 - **Phase:** Phase 3 — strategy and replay foundation.
 - **Status:** Phase 6.4 controlled durable queue provisioning implemented; Railway migration, restart verification, and first operator-run reconciliation remain operational dependencies.
 - **Current operating mode:** Paper only; order submission not yet enabled.
-- **Current goal:** Run the guarded Railway queue migration, verify restart-safe reconciliation, and keep live capability disabled.
+- **Current goal:** Run the guarded Railway queue migration and status check, verify restart-safe reconciliation, and keep live capability disabled.
 - **Last updated:** 2026-08-22.
 
 ## Delivery Roadmap
@@ -482,6 +482,14 @@
 - **Deployment dependency:** Run the one-shot command from Railway's worker context after reviewing the generated `pg-boss` schema operation; keep `DURABLE_SCHEDULER_ENABLED=false` until the command and a controlled paper reconciliation are observed.
 - **Next smallest unit:** Execute the guarded Railway queue migration and one restart/reconciliation verification with the operator's approval.
 
+## Completed Build Unit — Phase 6.5
+
+- **User story:** As the operator, I can verify the hosted durable queue after migration without starting workers, exposing credentials, or placing an order.
+- **Implemented:** Added `pnpm --filter @momentum/worker durable-status`, which reports only queue presence and bounded counts for the work/dead-letter queues and exits non-zero when either queue is absent.
+- **Safety boundary:** The command requires `DURABLE_QUEUE_STATUS=true`, paper-only runtime, and `DATABASE_URL`; it starts no scheduler, calls no Alpaca endpoint, and prints no connection details.
+- **Deployment dependency:** Run `durable-migrate` first, then `durable-status` from Railway's worker context; no hosted command has been run from this workspace.
+- **Next smallest unit:** Run the two guarded Railway commands, restart the worker, and observe one controlled paper reconciliation.
+
 ## Decisions Made
 
 | Date | Decision | Reason |
@@ -563,6 +571,7 @@
 | Phase 6.2 controlled paper recovery and partial-fill reconciliation | Pass | Full lint, build, typecheck, and 88 tests pass; partial-fill preservation, client-ID/quantity validation, unknown/terminal-regression rejection, and worker failure handling are covered |
 | Phase 6.3 durable daily scheduling and recovery boundary | Pass | Full build, typecheck, lint, and 90 tests pass; UTC scheduling, bounded retry configuration, dead-letter queue setup, disabled-by-default startup, degraded handler health, and last/next-run state are covered |
 | Phase 6.4 controlled durable queue provisioning | Pass | Full build, typecheck, lint, and 92 tests pass; guarded one-shot migration, queue/dead-letter provisioning, stop/start schedule re-registration, and no-scheduler migration boundaries are covered |
+| Phase 6.5 hosted durable queue verification tooling | Pass | Full build, typecheck, lint, and 93 tests pass; guarded status command, queue presence/count inspection, missing-queue failure state, and no-broker/no-scheduler boundaries are covered |
 | Browser/preview | Partial | Production page HTTP check passed; visual/responsive review deferred beyond source scaffold |
 | Security review | Partial | No credential files, Alpaca client, database connection, or order code added; full review remains required |
 
@@ -583,7 +592,7 @@
 - **What exists:** Verified hosted foundation, Phase 0.3 selections, Phase 0.4 fail-closed guardrails, operator-confirmed paper setup, Phase 1 read-only account/dashboard foundation, guarded reconciliation command, Phase 2.1–2.2 authenticated asset/market-data reads, Phase 2.3 stream/backfill boundary, Phase 2.4 dashboard views, Phase 2.5 protected reconciliation verification, Phase 3.1 disabled strategy contract, Phase 3.2 decimal-safe metrics, Phase 3.3 point-in-time replay, Phase 3.4 disabled momentum plug-ins, Phase 3.5 regime evidence, Phase 3.6 in-process lifecycle gate, Phase 3.7 reviewed lifecycle-event persistence, Phase 3.8 authenticated replay approval command, Phase 3.9 shadow observation persistence, Phase 3.10 finalized-bar evaluation, Phase 3.11 restart-safe shadow runner, Phase 3.12 opt-in worker boundary, Phase 3.13 wired shadow worker/scheduler, Phase 3.14 controlled shadow evidence/replay-to-shadow gate, Phase 3.15 authenticated replay-to-shadow command, Phase 3.16 shadow-to-paper readiness gate, Phase 3.17 authenticated shadow-to-paper command, Phase 5.1 immutable paper signals/deterministic risk checks, Phase 5.2 immutable trade intents/execution-time risk approvals, Phase 5.3 idempotent paper-order submission boundary, Phase 5.4 transactional paper-order persistence/reconciliation records, Phase 6.1 paper execution wiring/Autopilot gate, Phase 6.2 controlled paper recovery/partial-fill reconciliation, and Phase 6.3 durable daily scheduling/recovery boundary. No hosted migration has been applied and no broker request has been run.
 - **Where to resume:** Build the deterministic paper risk/execution boundary, then apply the reviewed migrations through Railway's controlled process, run one guarded paper reconciliation, and verify `/v1/read-model`, `/v1/reconciliation-status`, and dashboard data against Alpaca.
 - **Important context:** Keep Alpaca paper mode and read-only behavior during Phase 2.
-- **Recommended next prompt:** Continue Phase 6.5 by running the guarded Railway queue migration, restart verification, and first controlled paper reconciliation; keep live capability disabled.
+- **Recommended next prompt:** Continue Phase 6.6 by running the guarded Railway migration/status commands, restart verification, and first controlled paper reconciliation; keep live capability disabled.
 
 ## Change Log
 
@@ -829,3 +838,8 @@
 
 - Added the guarded `durable-migrate` worker command, idempotent work/dead-letter queue provisioning, and restart-safe schedule registration tests.
 - Verified full build, typecheck, lint, and 92 tests; no hosted queue migration, broker request, order submission, or live capability was enabled.
+
+### 2026-08-23 — Phase 6.5 hosted durable queue verification tooling complete
+
+- Added the guarded `durable-status` command and queue inspection contract for work/dead-letter presence and bounded backlog/failure counts.
+- Verified full build, typecheck, lint, and 93 tests; no hosted queue command, broker request, order submission, or live capability was enabled.
