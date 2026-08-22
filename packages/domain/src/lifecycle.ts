@@ -1,6 +1,7 @@
 import { advanceStrategyStage, type StrategyPlugin, type StrategyStage } from "./strategy.js";
 import type { ReplayEvidence } from "./research.js";
 import type { ShadowPromotionEvidence } from "./shadow-promotion.js";
+import type { PaperPromotionEvidence } from "./paper-promotion.js";
 
 export interface StrategyLifecycleApproval {
   readonly approvedAt: string;
@@ -14,6 +15,7 @@ export interface StrategyLifecycleTransitionRequest {
   readonly automatedChecksPass?: boolean;
   readonly evidence?: ReplayEvidence;
   readonly shadowEvidence?: ShadowPromotionEvidence;
+  readonly paperEvidence?: PaperPromotionEvidence;
   readonly reason: string;
   readonly requestedAt: string;
   readonly strategyKey: string;
@@ -60,17 +62,21 @@ export function createStrategyLifecycleStore<Parameters extends object>(strategy
       const nextStage = advanceStrategyStage(record.stage, request.toStage);
       const isReplayGate = record.stage === "disabled" && nextStage === "replay";
       const isShadowGate = record.stage === "replay" && nextStage === "shadow";
-      if (!isReplayGate && !isShadowGate) throw new Error("Only disabled to replay or replay to shadow lifecycle gates are implemented.");
-      if (!request.approval || request.approval.approvedBy !== request.actorId || !request.approval.note.trim()) throw new Error(`${isReplayGate ? "Disabled to replay" : "Replay to shadow"} requires explicit operator approval with a note.`);
-      const evidenceKey = isReplayGate ? request.evidence && `${request.evidence.strategyKey}@${request.evidence.strategyVersion}` : request.shadowEvidence && `${request.shadowEvidence.strategyKey}@${request.shadowEvidence.strategyVersion}:shadow`;
+      const isPaperGate = record.stage === "shadow" && nextStage === "paper";
+      if (!isReplayGate && !isShadowGate && !isPaperGate) throw new Error("Only disabled to replay, replay to shadow, or shadow to paper lifecycle gates are implemented.");
+      if (!request.approval || request.approval.approvedBy !== request.actorId || !request.approval.note.trim()) throw new Error(`${isReplayGate ? "Disabled to replay" : isShadowGate ? "Replay to shadow" : "Shadow to paper"} requires explicit operator approval with a note.`);
+      const evidenceKey = isReplayGate ? request.evidence && `${request.evidence.strategyKey}@${request.evidence.strategyVersion}` : isShadowGate ? request.shadowEvidence && `${request.shadowEvidence.strategyKey}@${request.shadowEvidence.strategyVersion}:shadow` : request.paperEvidence && `${request.paperEvidence.strategyKey}@${request.paperEvidence.strategyVersion}:paper`;
       if (isReplayGate) {
         if (!request.evidence || request.evidence.strategyKey !== record.strategyKey || request.evidence.strategyVersion !== record.strategyVersion) throw new Error("Replay evidence must match the strategy version.");
         const hasRegimes = request.evidence.results.length >= 3 && new Set(request.evidence.results.map((result) => result.regime)).size >= 3;
         if (!hasRegimes) throw new Error("Replay evidence must cover at least three distinct regimes.");
         if (request.automatedChecksPass !== true) throw new Error("Replay evidence must pass automated checks before promotion.");
-      } else {
+      } else if (isShadowGate) {
         if (!request.shadowEvidence || request.shadowEvidence.strategyKey !== record.strategyKey || request.shadowEvidence.strategyVersion !== record.strategyVersion) throw new Error("Shadow evidence must match the strategy version.");
         if (request.automatedChecksPass !== true) throw new Error("Shadow evidence must pass automated checks before promotion.");
+      } else {
+        if (!request.paperEvidence || request.paperEvidence.strategyKey !== record.strategyKey || request.paperEvidence.strategyVersion !== record.strategyVersion) throw new Error("Paper evidence must match the strategy version.");
+        if (request.automatedChecksPass !== true) throw new Error("Paper evidence must pass automated checks before promotion.");
       }
       const event: StrategyLifecycleEvent = immutable({
         actorId: request.actorId, approval: request.approval, evidenceKey: evidenceKey!,

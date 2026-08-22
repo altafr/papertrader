@@ -47,4 +47,12 @@ describe("strategy lifecycle records", () => {
     expect(() => store.transition({ actorId: "operator-1", approval: { approvedAt: "2026-01-12T00:00:00Z", approvedBy: "operator-1", note: "Reviewed shadow evidence." }, automatedChecksPass: true, reason: "Shadow review approved.", requestedAt: "2026-01-12T00:00:00Z", shadowEvidence, strategyKey: replayStrategy.key, strategyVersion: replayStrategy.version, toStage: "shadow" })).not.toThrow();
     expect(store.get().stage).toBe("shadow");
   });
+
+  it("requires paper-forward evidence for shadow-to-paper", () => {
+    const paperStrategy = { ...crossSectionalMomentum, stage: "shadow" as const };
+    const store = createStrategyLifecycleStore(paperStrategy);
+    const paperEvidence = { closedTrades: 20, consecutiveCalendarDays: 30, duplicateOrderCount: 0, maxDrawdownPercent: "4", positiveTrades: 12, riskViolationCount: 0, staleDataBreachCount: 0, strategyKey: paperStrategy.key, strategyVersion: paperStrategy.version };
+    expect(() => store.transition({ actorId: "operator-1", approval: { approvedAt: "2026-02-12T00:00:00Z", approvedBy: "operator-1", note: "Reviewed paper-forward evidence." }, automatedChecksPass: true, paperEvidence, reason: "Paper readiness approved.", requestedAt: "2026-02-12T00:00:00Z", strategyKey: paperStrategy.key, strategyVersion: paperStrategy.version, toStage: "paper" })).not.toThrow();
+    expect(store.get().stage).toBe("paper");
+  });
 });

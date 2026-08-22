@@ -52,3 +52,4 @@ export * from "./shadow.js";
 export * from "./shadow-evaluator.js";
 export * from "./shadow-runner.js";
 export * from "./shadow-promotion.js";
+export * from "./paper-promotion.js";
