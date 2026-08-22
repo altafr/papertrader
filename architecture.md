@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 1 authenticated read-only shell implemented; broker adapter and database schema remain next.
+- **Stage:** Phase 1.2 read-only account persistence and Alpaca paper adapter implemented; dashboard read models remain next.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -71,6 +71,14 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - `apps/api` exposes `GET /v1/session` as the first protected API boundary. It verifies a Clerk session token with `authenticateRequest`, checks `CLERK_AUTHORIZED_PARTIES`, and applies the same exact operator allowlist.
 - Missing Clerk configuration fails closed for protected surfaces (`503`); invalid sessions return `401`; authenticated non-operator sessions return `403`. No Clerk secret or token is returned in any response.
 - Clerk variables are deployment configuration only. The API and worker remain paper-only, `BROKER_CONNECTION_ENABLED=false`, and no database or Alpaca adapter is invoked by this unit.
+
+### Phase 1.2 Read-Only Account Boundary
+
+- `packages/db` defines reviewed Drizzle PostgreSQL tables for account snapshots and associated positions, plus the committed SQL migration `0001_account_read_models.sql`.
+- `packages/db` creates a PostgreSQL pool only when explicitly called with `DATABASE_URL`; application startup does not infer or apply migrations.
+- `packages/alpaca` exposes only `readAccount()` and pins requests to `https://paper-api.alpaca.markets/v2/account`. Alpaca payloads are validated with Zod and financial values remain decimal strings.
+- `apps/api` exposes authenticated `GET /v1/account`. It returns `503 broker_not_configured` while broker opt-in is disabled, and never exposes credentials. Errors are normalized to avoid leaking provider details.
+- This unit adds no orders, market data, persistence startup, live endpoint, or risk bypass. The next unit should wire reconciliation persistence and dashboard read models after the migration is applied through Railway's controlled process.
 
 ## Runtime Components
 

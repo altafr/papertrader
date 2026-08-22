@@ -11,7 +11,9 @@
   },
   "dependencies": {
     "@clerk/backend": "^3.16.10",
+    "@momentum/alpaca": "workspace:*",
     "@momentum/config": "workspace:*",
+    "@momentum/db": "workspace:*",
     "@momentum/domain": "workspace:*"
   }
 }
