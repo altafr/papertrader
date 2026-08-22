@@ -29,6 +29,7 @@ export interface StrategyEvaluationContext {
 export interface StrategySignalCandidate {
   readonly assetClass: StrategyAssetClass;
   readonly expiresAt: string;
+  readonly proposedEntryPrice: string;
   readonly plannedExitPrice?: string;
   readonly plannedStopPrice: string;
   readonly rationale: string;
