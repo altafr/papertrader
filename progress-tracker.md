@@ -2,8 +2,8 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.7 — hosted queue migration and controlled paper verification.
-- **Status:** Phase 6.7 Railway queue migration and worker deployment verified; broker opt-in and first controlled paper reconciliation remain operational dependencies.
+- **Phase:** Phase 6.8 — application schema migration and controlled paper verification.
+- **Status:** Phase 6.8 application schema migration verified in Railway; broker opt-in and first controlled paper reconciliation remain operational dependencies.
 - **Current operating mode:** Paper only; order submission not yet enabled.
 - **Current goal:** Enable broker access only with explicit operator approval, then run one controlled paper reconciliation through the durable worker; keep live capability disabled.
 - **Last updated:** 2026-08-23.
@@ -513,6 +513,7 @@
 - **Safety boundary:** The command requires `DATABASE_MIGRATE=true`, paper-only runtime, and `DATABASE_URL`; it performs no Alpaca call, order submission, scheduler start, or live-mode action.
 - **Deployment dependency:** Run it inside the deployed Railway worker after the `pg-boss` migration and before enabling broker reconciliation.
 - **Next smallest unit:** Apply the application migrations, confirm all required tables, then enable the paper broker read gate for one controlled reconciliation.
+- **Hosted evidence:** Worker deployment reached `SUCCESS`; migrations `0001` through `0007` applied; `schema_migrations` contains 7 records; `account_snapshots`, `paper_order_submissions`, and `strategy_lifecycle_events` are present.
 
 ## Decisions Made
 
@@ -598,7 +599,7 @@
 | Phase 6.5 hosted durable queue verification tooling | Pass | Full build, typecheck, lint, and 93 tests pass; guarded status command, queue presence/count inspection, missing-queue failure state, and no-broker/no-scheduler boundaries are covered |
 | Phase 6.6 idempotent hosted run-once trigger | Pass | Full build, typecheck, lint, and 94 tests pass; deterministic UTC job IDs, duplicate suppression, explicit guard, and enqueue-only boundaries are covered |
 | Phase 6.7 Railway queue migration and deployment verification | Partial | Railway worker deployment reached SUCCESS; `DATABASE_URL` reference is present; guarded migration completed; both queues are present with zero counts; broker opt-in and first paper reconciliation remain intentionally unperformed |
-| Phase 6.8 guarded application schema migration | Pass | Local build/typecheck/lint/tests cover the new command boundary; ordered migration ledger and transaction rollback are implemented; hosted application migrations remain pending until the deployed command is run |
+| Phase 6.8 guarded application schema migration | Pass | Full build, typecheck, lint, and 94 tests pass; Railway deployment succeeded, migrations 0001–0007 were applied, and required read-model/order tables are present |
 | Browser/preview | Partial | Production page HTTP check passed; visual/responsive review deferred beyond source scaffold |
 | Security review | Partial | No credential files, Alpaca client, database connection, or order code added; full review remains required |
 

@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.4 controlled durable queue provisioning implemented; Railway migration, restart verification, and first operator-run reconciliation remain operational dependencies.
+- **Stage:** Phase 6.8 application schema migration verified in Railway; broker opt-in and first operator-run paper reconciliation remain operational dependencies.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
