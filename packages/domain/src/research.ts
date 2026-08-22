@@ -34,6 +34,7 @@ export interface ReplayPromotionPolicy {
 }
 
 export interface ReplayPromotionAssessment {
+  readonly automatedChecksPass: boolean;
   readonly promotable: false;
   readonly reasons: readonly string[];
 }
@@ -67,16 +68,15 @@ export function runRegimeReplay<Parameters extends object>(input: {
 }
 
 export function assessReplayPromotion(evidence: ReplayEvidence, policy: ReplayPromotionPolicy): ReplayPromotionAssessment {
-  const reasons: string[] = [];
+  const failures: string[] = [];
   const positiveRegimes = evidence.results.filter((result) => result.replay.metrics.totalPnl.startsWith("-") === false).length;
   const tradeCount = evidence.results.reduce((total, result) => total + result.replay.trades.length, 0);
   const maxDrawdown = evidence.results.reduce<DecimalValue>((maximum, result) => {
     const drawdown = new Decimal(result.replay.metrics.maxDrawdownPercent);
     return drawdown.greaterThan(maximum) ? drawdown : maximum;
   }, new Decimal("0"));
-  if (tradeCount < policy.minimumTrades) reasons.push(`minimum trade sample not met (${tradeCount} < ${policy.minimumTrades})`);
-  if (positiveRegimes < policy.minimumPositiveRegimes) reasons.push(`positive regime coverage not met (${positiveRegimes} < ${policy.minimumPositiveRegimes})`);
-  if (maxDrawdown.greaterThan(policy.maxDrawdownPercent)) reasons.push(`maximum drawdown exceeded (${maxDrawdown.toFixed(8)} > ${policy.maxDrawdownPercent})`);
-  reasons.push("manual review and paper-forward evidence are still required");
-  return { promotable: false, reasons };
+  if (tradeCount < policy.minimumTrades) failures.push(`minimum trade sample not met (${tradeCount} < ${policy.minimumTrades})`);
+  if (positiveRegimes < policy.minimumPositiveRegimes) failures.push(`positive regime coverage not met (${positiveRegimes} < ${policy.minimumPositiveRegimes})`);
+  if (maxDrawdown.greaterThan(policy.maxDrawdownPercent)) failures.push(`maximum drawdown exceeded (${maxDrawdown.toFixed(8)} > ${policy.maxDrawdownPercent})`);
+  return { automatedChecksPass: failures.length === 0, promotable: false, reasons: [...failures, "manual review and paper-forward evidence are still required"] };
 }

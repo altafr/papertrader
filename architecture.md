@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 3.5 regime-based replay evidence implemented; Railway migration and first operator-run reconciliation remain operational dependencies.
+- **Stage:** Phase 3.6 auditable disabled-to-replay lifecycle gate implemented; Railway migration and first operator-run reconciliation remain operational dependencies.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -176,6 +176,13 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - Replay accepts an explicit research-only default notional when a strategy intentionally supplies no sizing authority; this makes simulated P/L reproducible without moving sizing into a strategy plug-in.
 - Added named bull, bear, and choppy regime evidence orchestration plus a non-mutating assessment that reports sample-size, positive-regime, and drawdown-policy failures.
 - Evidence assessment always remains non-promotable: it cannot advance a strategy stage, alter parameters, approve risk, persist a signal, contact Alpaca, or submit an order. Manual review and paper-forward evidence remain mandatory.
+
+### Phase 3.6 Auditable Strategy Lifecycle Gate
+
+- Added an append-only lifecycle record with revisioned transition events, actor identity, reason, approval note, strategy key/version, and evidence reference.
+- The only implemented transition is `disabled → replay`; it requires matching three-regime evidence, passing automated evidence checks, an explicit operator approval note, and an exact current-stage match.
+- Stage jumps, missing approvals, failed checks, mismatched versions, invalid timestamps, and blank reasons fail closed. Shadow, paper, and eligible-live transitions remain unavailable until their own gates are implemented.
+- The current store is an in-process domain boundary for deterministic tests; production persistence must use the reviewed PostgreSQL audit schema before hosted promotion workflows are enabled.
 
 ## Runtime Components
 
