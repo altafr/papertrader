@@ -25,7 +25,7 @@ export interface DurableDailyJob {
   readonly version: 1;
 }
 
-interface DurableBoss {
+export interface DurableQueueClient {
   start(): Promise<unknown>;
   stop(): Promise<void>;
   createQueue(name: string, options?: QueueOptions & { readonly deadLetter?: string }): Promise<void>;
@@ -33,7 +33,21 @@ interface DurableBoss {
   work<T>(name: string, handler: (jobs: Job<T>[]) => Promise<unknown>): Promise<string>;
 }
 
-type BossFactory = (connectionString: string) => DurableBoss;
+type BossFactory = (connectionString: string) => DurableQueueClient;
+
+export async function provisionDurableQueues(boss: DurableQueueClient, config: DurableSchedulerConfig): Promise<void> {
+  const queueOptions: QueueOptions = {
+    deleteAfterSeconds: 604_800,
+    expireInSeconds: 900,
+    retryBackoff: true,
+    retryDelay: config.retryDelaySeconds,
+    retryDelayMax: 86_400,
+    retryLimit: config.retryLimit,
+    retentionSeconds: 1_209_600,
+  };
+  await boss.createQueue(DAILY_PREPARATION_DEAD_LETTER_QUEUE, { retentionSeconds: 1_209_600 });
+  await boss.createQueue(DAILY_PREPARATION_QUEUE, { ...queueOptions, deadLetter: DAILY_PREPARATION_DEAD_LETTER_QUEUE });
+}
 
 let schedulerHealth: DurableSchedulerHealth = { enabled: false, status: "disabled" };
 
@@ -74,19 +88,9 @@ export function createDurableScheduler(input: {
 }) {
   const now = input.now ?? (() => new Date());
   const createBoss = input.bossFactory ?? ((connectionString: string) => new PgBoss(connectionString));
-  let boss: DurableBoss | undefined;
+  let boss: DurableQueueClient | undefined;
   let workerId: string | undefined;
   let stopped = true;
-  const queueOptions: QueueOptions = {
-    deleteAfterSeconds: 604_800,
-    expireInSeconds: 900,
-    retryBackoff: true,
-    retryDelay: input.config.retryDelaySeconds,
-    retryDelayMax: 86_400,
-    retryLimit: input.config.retryLimit,
-    retentionSeconds: 1_209_600,
-  };
-
   return {
     async start() {
       if (!input.config.enabled || !stopped) return;
@@ -95,8 +99,7 @@ export function createDurableScheduler(input: {
       try {
         boss = createBoss(input.connectionString);
         await boss.start();
-        await boss.createQueue(DAILY_PREPARATION_DEAD_LETTER_QUEUE, { retentionSeconds: 1_209_600 });
-        await boss.createQueue(DAILY_PREPARATION_QUEUE, { ...queueOptions, deadLetter: DAILY_PREPARATION_DEAD_LETTER_QUEUE });
+        await provisionDurableQueues(boss, input.config);
         await boss.schedule(DAILY_PREPARATION_QUEUE, input.config.cron, { kind: "daily_preparation", version: 1 }, { key: "daily-preparation", tz: "UTC" });
         workerId = await boss.work<DurableDailyJob>(DAILY_PREPARATION_QUEUE, async (jobs) => {
           if (jobs.length === 0) return;

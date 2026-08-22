@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.3 durable daily scheduling and recovery boundary implemented; daily preparation handler, Railway migration, and first operator-run reconciliation remain operational dependencies.
+- **Stage:** Phase 6.4 controlled durable queue provisioning implemented; Railway migration, restart verification, and first operator-run reconciliation remain operational dependencies.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -293,6 +293,12 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - Added the selected `pg-boss` PostgreSQL queue with a UTC daily-preparation schedule, bounded exponential retries, queue retention, and a dead-letter queue.
 - Added worker health fields for durable scheduler enablement, last run, next run, and degraded state; failed handlers remain visible and are retried by the durable queue rather than by an in-memory timer.
 - The queue is explicitly disabled by default. Enabling it requires `DATABASE_URL` and an explicit handler flag; the current handler performs read-only paper-account reconciliation and never submits orders.
+
+### Phase 6.4 Controlled Durable Queue Provisioning
+
+- Added a one-shot `durable-migrate` command that starts `pg-boss`, provisions the work and dead-letter queues, and shuts down without starting scheduled workers.
+- The command requires an explicit `DURABLE_QUEUE_MIGRATE=true` invocation, paper-only runtime validation, and `DATABASE_URL`; it never reads Alpaca or creates an order path.
+- Restart tests verify the worker re-registers the durable schedule after stop/start, while queue provisioning remains idempotent through `pg-boss`.
 
 ## Runtime Components
 

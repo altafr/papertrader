@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { DAILY_PREPARATION_QUEUE, createDurableScheduler, getDurableSchedulerConfig, getDurableSchedulerHealth } from "./durable-scheduler.js";
+import { DAILY_PREPARATION_QUEUE, createDurableScheduler, getDurableSchedulerConfig, getDurableSchedulerHealth, provisionDurableQueues } from "./durable-scheduler.js";
 
 describe("durable scheduler", () => {
   it("is disabled by default and validates bounded retry configuration", () => {
@@ -31,5 +31,31 @@ describe("durable scheduler", () => {
     expect(getDurableSchedulerHealth()).toMatchObject({ status: "degraded" });
     await scheduler.stop();
     expect(calls).toContain("stop");
+  });
+
+  it("can be stopped and started again without losing the durable queue registration", async () => {
+    let starts = 0;
+    let schedules = 0;
+    const boss = {
+      async start() { starts += 1; },
+      async stop() {},
+      async createQueue() {},
+      async schedule() { schedules += 1; },
+      async work() { return "worker"; },
+    };
+    const scheduler = createDurableScheduler({ config: { cron: "0 0 * * *", enabled: true, retryDelaySeconds: 10, retryLimit: 2 }, connectionString: "postgres://redacted", bossFactory: () => boss, runDailyPreparation: async () => {} });
+    await scheduler.start();
+    await scheduler.stop();
+    await scheduler.start();
+    expect(starts).toBe(2);
+    expect(schedules).toBe(2);
+  });
+
+  it("provisions both the work and dead-letter queues", async () => {
+    const queues: string[] = [];
+    await provisionDurableQueues({
+      async start() {}, async stop() {}, async createQueue(name) { queues.push(name); }, async schedule() {}, async work() { return "worker"; },
+    }, getDurableSchedulerConfig({}));
+    expect(queues).toEqual(["momentum.daily-preparation.dead-letter", "momentum.daily-preparation"]);
   });
 });
