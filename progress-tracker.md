@@ -230,7 +230,7 @@
 | Railway API health after merge | Pass | `https://api-production-e0a6.up.railway.app/health` returned healthy JSON; this endpoint does not inspect broker credentials |
 | Vercel response after merge | Pass | Production dashboard returned HTTP 200; no secret values were inspected |
 | Alpaca paper connection | Not run | Broker connection remains disabled until the read-only adapter is implemented |
-| Phase 1.1 auth shell | Pass | Clerk dashboard/API boundaries build successfully; authenticated behavior requires hosted Clerk variables and was not exercised with live credentials |
+| Phase 1.1 auth shell | Pass | Local and hosted boundaries verified: Railway `/v1/session` returns `503 auth_not_configured` without Clerk variables, `/health` remains `200`, and Vercel `/dashboard`/`/sign-in` fail closed with `503`; authenticated behavior requires hosted Clerk variables |
 | Browser/preview | Partial | Production page HTTP check passed; visual/responsive review deferred beyond source scaffold |
 | Security review | Partial | No credential files, Alpaca client, database connection, or order code added; full review remains required |
 
@@ -330,3 +330,4 @@
 - Added Railway API `/v1/session` with Clerk backend token verification, authorized-party validation, exact operator allowlisting, and fail-closed responses when Clerk is not provisioned.
 - Added Clerk variable names and deployment-boundary instructions without recording values.
 - Verified 11 tests, lint, typecheck, and production builds; no Alpaca request, database schema, order behavior, or broker authority was added.
+- Verified the merged Railway deployment exposes the new `/v1/session` fail-closed response and that Vercel protected routes return `503 auth_not_configured` until Clerk variables are configured.
