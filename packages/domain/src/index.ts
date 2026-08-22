@@ -35,3 +35,4 @@ export const FOUNDATION_STATUS = {
 };
 
 export * from "./strategy.js";
+export * from "./metrics.js";

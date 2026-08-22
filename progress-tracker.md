@@ -3,9 +3,9 @@
 ## Snapshot
 
 - **Phase:** Phase 3 — strategy and replay foundation.
-- **Status:** Phase 3.1 versioned strategy plug-in contract implemented; Railway migration and first operator-run reconciliation remain operational dependencies.
+- **Status:** Phase 3.2 decimal-safe performance and risk metrics implemented; Railway migration and first operator-run reconciliation remain operational dependencies.
 - **Current operating mode:** Paper only; order submission not yet enabled.
-- **Current goal:** Add decimal-safe performance and risk metrics without enabling any strategy or order path.
+- **Current goal:** Build the historical replay harness with point-in-time inputs, fees, and slippage while keeping strategies disabled.
 - **Last updated:** 2026-08-22.
 
 ## Delivery Roadmap
@@ -83,7 +83,7 @@
 ### Phase 3 — Strategy and Replay Foundation
 
 - [x] Implement versioned strategy plug-in interface.
-- [ ] Implement decimal-safe performance and risk metrics.
+- [x] Implement decimal-safe performance and risk metrics.
 - [ ] Build historical replay with point-in-time inputs, fees, and slippage.
 - [ ] Implement three initial momentum research strategies.
 - [ ] Add strategy lifecycle: disabled → replay → shadow → paper → eligible live.
@@ -273,6 +273,14 @@
 - **Deployment dependency:** No concrete strategy was enabled, no strategy evaluated in production, and no hosted migration or broker request was performed.
 - **Next smallest unit:** Add decimal-safe performance and risk metrics as pure functions, with boundary tests before any strategy is enabled.
 
+## Completed Build Unit — Phase 3.2
+
+- **User story:** As a researcher, I can calculate P/L, return, drawdown, exposure, and planned trade risk with decimal-safe arithmetic before a strategy or order path is enabled.
+- **Implemented:** Added the pinned `decimal.js` dependency and pure domain functions for ordered equity performance, gross exposure, and planned-stop risk including fees and slippage. Results use fixed decimal strings.
+- **Safety boundary:** The risk metric enforces the lower of `0.25%` current equity and `USD 100`; invalid/negative inputs fail closed. Metrics do not approve orders, persist state, access broker data, or enable strategies.
+- **Deployment dependency:** No strategy was enabled, no production evaluation or broker request occurred, and the hosted migration/reconciliation remains pending.
+- **Next smallest unit:** Build point-in-time historical replay with explicit fees/slippage and no live or paper order side effects.
+
 ## Decisions Made
 
 | Date | Decision | Reason |
@@ -330,6 +338,7 @@
 | Phase 2.4 dashboard views | Pass | Full lint, build, typecheck, and 22 tests pass; dashboard build includes overview, positions, orders/activity, freshness states, and explicit unavailable performance/alerts; no broker request performed |
 | Phase 2.5 reconciliation verification | Pass | Full lint, build, typecheck, and 24 tests pass; decimal-equivalent account values match and mismatch results expose only field names; endpoint is broker/DB gated and no hosted request performed |
 | Phase 3.1 strategy contract | Pass | Full lint, build, typecheck, and 27 tests pass; lifecycle/registry/parameter-boundary tests pass; no strategy enabled, broker request, or order path added |
+| Phase 3.2 decimal-safe metrics | Pass | Full lint, build, typecheck, and 31 tests pass; P/L, drawdown, exposure, risk-cap, precision, and invalid-input tests pass; no strategy enabled or broker request performed |
 | Browser/preview | Partial | Production page HTTP check passed; visual/responsive review deferred beyond source scaffold |
 | Security review | Partial | No credential files, Alpaca client, database connection, or order code added; full review remains required |
 
@@ -347,10 +356,10 @@
 
 ## Session Handoff
 
-- **What exists:** Verified hosted foundation, Phase 0.3 selections, Phase 0.4 fail-closed guardrails, operator-confirmed paper setup, Phase 1 read-only account/dashboard foundation, guarded reconciliation command, Phase 2.1–2.2 authenticated asset/market-data reads, Phase 2.3 stream/backfill boundary, Phase 2.4 dashboard views, Phase 2.5 protected reconciliation verification, and Phase 3.1 disabled strategy contract. No hosted migration has been applied and no broker request has been run.
-- **Where to resume:** Add decimal-safe performance and risk metrics as pure functions. Separately, apply the reviewed migration through Railway's controlled process, run one guarded paper reconciliation, and verify `/v1/read-model`, `/v1/reconciliation-status`, and dashboard data against Alpaca.
+- **What exists:** Verified hosted foundation, Phase 0.3 selections, Phase 0.4 fail-closed guardrails, operator-confirmed paper setup, Phase 1 read-only account/dashboard foundation, guarded reconciliation command, Phase 2.1–2.2 authenticated asset/market-data reads, Phase 2.3 stream/backfill boundary, Phase 2.4 dashboard views, Phase 2.5 protected reconciliation verification, Phase 3.1 disabled strategy contract, and Phase 3.2 decimal-safe metrics. No hosted migration has been applied and no broker request has been run.
+- **Where to resume:** Build point-in-time historical replay with explicit fees/slippage and no live or paper order side effects. Separately, apply the reviewed migration through Railway's controlled process, run one guarded paper reconciliation, and verify `/v1/read-model`, `/v1/reconciliation-status`, and dashboard data against Alpaca.
 - **Important context:** Keep Alpaca paper mode and read-only behavior during Phase 2.
-- **Recommended next prompt:** Continue Phase 3 with pure decimal-safe performance and risk metrics; keep strategies disabled.
+- **Recommended next prompt:** Continue Phase 3 with the historical replay harness; keep strategies disabled and paper order behavior off.
 
 ## Change Log
 
@@ -466,3 +475,9 @@
 - Added the disabled-by-default, semantic-versioned strategy plug-in contract with bounded parameter validation, fresh market-input requirements, and structured proposal output.
 - Added sequential lifecycle transition guards and duplicate/invalid registration checks.
 - Verified full lint, build, typecheck, and 27 tests; no concrete strategy was enabled and no broker request or order behavior was added.
+
+### 2026-08-22 — Phase 3.2 decimal-safe metrics complete
+
+- Added `decimal.js` to the domain package and implemented pure P/L, return, drawdown, exposure, and planned-risk functions.
+- Enforced the lower of `0.25%` current equity and `USD 100` planned-stop risk limit, including fees and slippage, with fixed decimal-string output.
+- Verified full lint, build, typecheck, and 31 tests; no strategy was enabled and no broker request or order behavior was added.

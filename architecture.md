@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 3.1 versioned strategy plug-in contract implemented; Railway migration and first operator-run reconciliation remain operational dependencies.
+- **Stage:** Phase 3.2 decimal-safe performance and risk metrics implemented; Railway migration and first operator-run reconciliation remain operational dependencies.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -149,6 +149,13 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - Strategy lifecycle advancement is sequential: `disabled → replay → shadow → paper → eligible_live`. New registry entries must be disabled and semantic-versioned; duplicate keys and invalid lookbacks fail closed.
 - Strategy evaluation returns proposals only. It cannot submit, cancel, replace, approve risk, change policy, or access credentials. Financial values remain decimal strings and input market data must be fresh Alpaca data.
 - This unit adds no concrete momentum strategy, signal generation in production, persistence, broker request, or order behavior.
+
+### Phase 3.2 Decimal-Safe Performance and Risk Metrics
+
+- `packages/domain` uses the pinned `decimal.js` dependency for pure performance, exposure, drawdown, and planned-trade-risk calculations. Public results are serialized decimal strings.
+- Performance metrics include total P/L, return percentage, peak-to-trough drawdown amount, and drawdown percentage over ordered equity points. Exposure sums absolute position market values and reports gross exposure percentage.
+- Planned trade risk includes stop distance, quantity, estimated fees, and estimated slippage. It rejects risk above the lower of `0.25%` of current equity and `USD 100`, matching the initial USD 1,000 paper policy.
+- These functions do not approve or submit orders, persist results, enable strategies, or access broker/database state. They fail on invalid or negative financial inputs.
 
 ## Runtime Components
 
