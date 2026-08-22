@@ -78,7 +78,7 @@ export const strategyLifecycleEvents = pgTable(
     index("strategy_lifecycle_strategy_revision_idx").on(table.strategyKey, table.strategyVersion, table.revision),
     check("strategy_lifecycle_non_empty_text", sql`length(${table.actorId}) > 0 AND length(${table.approvedBy}) > 0 AND length(${table.approvalNote}) > 0 AND length(${table.evidenceKey}) > 0 AND length(${table.eventId}) > 0 AND length(${table.reason}) > 0 AND length(${table.strategyKey}) > 0 AND length(${table.strategyVersion}) > 0`),
     check("strategy_lifecycle_revision_positive", sql`${table.revision} > 0`),
-    check("strategy_lifecycle_disabled_replay_only", sql`${table.fromStage} = 'disabled' AND ${table.toStage} = 'replay'`),
+    check("strategy_lifecycle_allowed_transitions", sql`(${table.fromStage} = 'disabled' AND ${table.toStage} = 'replay') OR (${table.fromStage} = 'replay' AND ${table.toStage} = 'shadow')`),
   ],
 );
 

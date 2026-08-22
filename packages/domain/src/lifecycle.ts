@@ -1,5 +1,6 @@
 import { advanceStrategyStage, type StrategyPlugin, type StrategyStage } from "./strategy.js";
 import type { ReplayEvidence } from "./research.js";
+import type { ShadowPromotionEvidence } from "./shadow-promotion.js";
 
 export interface StrategyLifecycleApproval {
   readonly approvedAt: string;
@@ -12,6 +13,7 @@ export interface StrategyLifecycleTransitionRequest {
   readonly approval?: StrategyLifecycleApproval;
   readonly automatedChecksPass?: boolean;
   readonly evidence?: ReplayEvidence;
+  readonly shadowEvidence?: ShadowPromotionEvidence;
   readonly reason: string;
   readonly requestedAt: string;
   readonly strategyKey: string;
@@ -56,14 +58,22 @@ export function createStrategyLifecycleStore<Parameters extends object>(strategy
       if (!request.reason.trim()) throw new Error("Lifecycle transition requires a reason.");
       if (!request.requestedAt || Number.isNaN(Date.parse(request.requestedAt))) throw new Error("Lifecycle transition requires a valid request timestamp.");
       const nextStage = advanceStrategyStage(record.stage, request.toStage);
-      if (record.stage !== "disabled" || nextStage !== "replay") throw new Error("Only the disabled to replay lifecycle gate is implemented.");
-      if (!request.evidence || request.evidence.strategyKey !== record.strategyKey || request.evidence.strategyVersion !== record.strategyVersion) throw new Error("Replay evidence must match the strategy version.");
-      if (!request.approval || request.approval.approvedBy !== request.actorId || !request.approval.note.trim()) throw new Error("Disabled to replay requires explicit operator approval with a note.");
-      const hasRegimes = request.evidence.results.length >= 3 && new Set(request.evidence.results.map((result) => result.regime)).size >= 3;
-      if (!hasRegimes) throw new Error("Replay evidence must cover at least three distinct regimes.");
-      if (request.automatedChecksPass !== true) throw new Error("Replay evidence must pass automated checks before promotion.");
+      const isReplayGate = record.stage === "disabled" && nextStage === "replay";
+      const isShadowGate = record.stage === "replay" && nextStage === "shadow";
+      if (!isReplayGate && !isShadowGate) throw new Error("Only disabled to replay or replay to shadow lifecycle gates are implemented.");
+      if (!request.approval || request.approval.approvedBy !== request.actorId || !request.approval.note.trim()) throw new Error(`${isReplayGate ? "Disabled to replay" : "Replay to shadow"} requires explicit operator approval with a note.`);
+      const evidenceKey = isReplayGate ? request.evidence && `${request.evidence.strategyKey}@${request.evidence.strategyVersion}` : request.shadowEvidence && `${request.shadowEvidence.strategyKey}@${request.shadowEvidence.strategyVersion}:shadow`;
+      if (isReplayGate) {
+        if (!request.evidence || request.evidence.strategyKey !== record.strategyKey || request.evidence.strategyVersion !== record.strategyVersion) throw new Error("Replay evidence must match the strategy version.");
+        const hasRegimes = request.evidence.results.length >= 3 && new Set(request.evidence.results.map((result) => result.regime)).size >= 3;
+        if (!hasRegimes) throw new Error("Replay evidence must cover at least three distinct regimes.");
+        if (request.automatedChecksPass !== true) throw new Error("Replay evidence must pass automated checks before promotion.");
+      } else {
+        if (!request.shadowEvidence || request.shadowEvidence.strategyKey !== record.strategyKey || request.shadowEvidence.strategyVersion !== record.strategyVersion) throw new Error("Shadow evidence must match the strategy version.");
+        if (request.automatedChecksPass !== true) throw new Error("Shadow evidence must pass automated checks before promotion.");
+      }
       const event: StrategyLifecycleEvent = immutable({
-        actorId: request.actorId, approval: request.approval, evidenceKey: `${request.evidence.strategyKey}@${request.evidence.strategyVersion}`,
+        actorId: request.actorId, approval: request.approval, evidenceKey: evidenceKey!,
         eventId: `${record.strategyKey}@${record.strategyVersion}#${record.revision + 1}`, fromStage: record.stage, reason: request.reason,
         requestedAt: request.requestedAt, strategyKey: record.strategyKey, strategyVersion: record.strategyVersion, toStage: nextStage,
       });

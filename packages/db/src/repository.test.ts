@@ -29,6 +29,18 @@ describe("strategy lifecycle repository", () => {
     const database = { transaction: async <T>(callback: (value: never) => Promise<T>) => callback(transaction as never) } as unknown as Database;
     await expect(createStrategyLifecycleRepository(database).appendDisabledToReplay(event(3))).rejects.toThrow("must be 2");
   });
+
+  it("allows replay-to-shadow only after replay is recorded", async () => {
+    let stored: PersistedStrategyLifecycleEvent | undefined;
+    const transaction = {
+      insert: () => ({ values: (value: PersistedStrategyLifecycleEvent) => ({ returning: async () => { stored = value; return [value]; } }) }),
+      select: () => ({ from: () => ({ where: () => ({ orderBy: () => ({ limit: async () => stored ? [stored] : [] }) }) }) }),
+    };
+    const database = { transaction: async <T>(callback: (value: never) => Promise<T>) => callback(transaction as never) } as unknown as Database;
+    const repository = createStrategyLifecycleRepository(database);
+    await repository.appendDisabledToReplay(event(1));
+    await expect(repository.appendReplayToShadow({ ...event(2), evidenceKey: "cross-sectional-momentum@1.0.0:shadow", fromStage: "replay", toStage: "shadow", reason: "Shadow approval." })).resolves.toMatchObject({ toStage: "shadow", revision: 2 });
+  });
 });
 
 describe("shadow observation repository", () => {

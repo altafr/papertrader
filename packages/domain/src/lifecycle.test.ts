@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { createStrategyLifecycleStore } from "./lifecycle.js";
 import { assessReplayPromotion, runRegimeReplay } from "./research.js";
 import { crossSectionalMomentum } from "./strategies.js";
+import { assessShadowPromotion } from "./shadow-promotion.js";
 import type { StrategyBar } from "./strategy.js";
 
 const bars: readonly StrategyBar[] = Array.from({ length: 6 }, (_, index) => ({
@@ -35,5 +36,15 @@ describe("strategy lifecycle records", () => {
     const before = store.get();
     expect(() => store.transition({ actorId: "operator-1", approval: { approvedAt: "2026-01-10T00:00:00Z", approvedBy: "operator-1", note: "Reviewed." }, automatedChecksPass: true, evidence, reason: "Replay.", requestedAt: "2026-01-10T00:00:00Z", strategyKey: crossSectionalMomentum.key, strategyVersion: crossSectionalMomentum.version, toStage: "replay" })).not.toThrow();
     expect(before.stage).toBe("disabled"); expect(before.events).toHaveLength(0);
+  });
+
+  it("requires controlled shadow evidence for replay-to-shadow", () => {
+    const replayStrategy = { ...crossSectionalMomentum, stage: "replay" as const };
+    const store = createStrategyLifecycleStore(replayStrategy);
+    const shadowEvidence = { strategyKey: replayStrategy.key, strategyVersion: replayStrategy.version, observations: [{ observationId: "obs-1", observedAt: "2026-01-12T00:00:00Z", reason: "target" as const, returnPercent: "1.25", symbol: "AAA" }] };
+    const assessment = assessShadowPromotion(shadowEvidence, { maxLossPercent: "5", minimumClosedObservations: 1, minimumPositiveObservations: 1 });
+    expect(assessment.automatedChecksPass).toBe(true);
+    expect(() => store.transition({ actorId: "operator-1", approval: { approvedAt: "2026-01-12T00:00:00Z", approvedBy: "operator-1", note: "Reviewed shadow evidence." }, automatedChecksPass: true, reason: "Shadow review approved.", requestedAt: "2026-01-12T00:00:00Z", shadowEvidence, strategyKey: replayStrategy.key, strategyVersion: replayStrategy.version, toStage: "shadow" })).not.toThrow();
+    expect(store.get().stage).toBe("shadow");
   });
 });

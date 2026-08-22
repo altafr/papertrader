@@ -35,13 +35,13 @@ export interface PersistedStrategyLifecycleEvent {
   readonly approvalNote: string;
   readonly evidenceKey: string;
   readonly eventId: string;
-  readonly fromStage: "disabled";
+  readonly fromStage: "disabled" | "replay";
   readonly reason: string;
   readonly requestedAt: Date;
   readonly revision: number;
   readonly strategyKey: string;
   readonly strategyVersion: string;
-  readonly toStage: "replay";
+  readonly toStage: "replay" | "shadow";
 }
 
 export interface PersistedAccountSnapshot {
@@ -184,22 +184,30 @@ export function createAccountStateRepository(db: Database) {
 }
 
 export function createStrategyLifecycleRepository(db: Database) {
+  const appendTransition = async (event: PersistedStrategyLifecycleEvent) => {
+    const allowed = (event.fromStage === "disabled" && event.toStage === "replay") || (event.fromStage === "replay" && event.toStage === "shadow");
+    if (!allowed) throw new Error("Only disabled to replay or replay to shadow lifecycle events may be persisted.");
+    return db.transaction(async (transaction) => {
+      const [latest] = await transaction
+        .select()
+        .from(strategyLifecycleEvents)
+        .where(and(eq(strategyLifecycleEvents.strategyKey, event.strategyKey), eq(strategyLifecycleEvents.strategyVersion, event.strategyVersion)))
+        .orderBy(desc(strategyLifecycleEvents.revision))
+        .limit(1);
+      const expectedRevision = (latest?.revision ?? 0) + 1;
+      if (latest && latest.toStage !== event.fromStage) throw new Error(event.fromStage === "disabled" ? "Strategy lifecycle is no longer in the disabled stage." : "Strategy lifecycle source stage does not match the latest recorded stage.");
+      if (!latest && event.fromStage !== "disabled") throw new Error("A replay-to-shadow transition requires a recorded replay stage.");
+      if (event.revision !== expectedRevision) throw new Error(`Lifecycle revision must be ${expectedRevision}.`);
+      const [row] = await transaction.insert(strategyLifecycleEvents).values(event).returning();
+      return row;
+    });
+  };
   return {
     async appendDisabledToReplay(event: PersistedStrategyLifecycleEvent) {
-      if (event.fromStage !== "disabled" || event.toStage !== "replay") throw new Error("Only disabled to replay lifecycle events may be persisted.");
-      return db.transaction(async (transaction) => {
-        const [latest] = await transaction
-          .select()
-          .from(strategyLifecycleEvents)
-          .where(and(eq(strategyLifecycleEvents.strategyKey, event.strategyKey), eq(strategyLifecycleEvents.strategyVersion, event.strategyVersion)))
-          .orderBy(desc(strategyLifecycleEvents.revision))
-          .limit(1);
-        const expectedRevision = (latest?.revision ?? 0) + 1;
-        if (latest && latest.toStage !== "disabled") throw new Error("Strategy lifecycle is no longer in the disabled stage.");
-        if (event.revision !== expectedRevision) throw new Error(`Lifecycle revision must be ${expectedRevision}.`);
-        const [row] = await transaction.insert(strategyLifecycleEvents).values(event).returning();
-        return row;
-      });
+      return appendTransition(event);
+    },
+    async appendReplayToShadow(event: PersistedStrategyLifecycleEvent) {
+      return appendTransition(event);
     },
 
     async list(strategyKey: string, strategyVersion: string) {

@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 3.13 wired shadow worker source/repository and bounded scheduler implemented; Railway migration and first operator-run reconciliation remain operational dependencies.
+- **Stage:** Phase 3.14 controlled shadow evidence and replay-to-shadow lifecycle gate implemented; Railway migration and first operator-run reconciliation remain operational dependencies.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -227,6 +227,12 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - Wired the opt-in worker command to the read-only Alpaca historical-bar adapter, open-observation repository, deterministic shadow runner, and one-time outcome persistence.
 - Added a bounded interval scheduler with stable status transitions and last/next run timestamps in worker health. The scheduler starts only when shadow evaluation, paper broker access, database access, and source readiness are explicitly configured.
 - A source/API/database failure is reported as a failed run and never creates an order or advances a strategy stage. The default remains disabled.
+
+### Phase 3.14 Shadow Evidence and Replay-to-Shadow Gate
+
+- Added a controlled evidence builder that accepts only closed observations from one exact strategy version, plus a decimal-safe assessment for sample size, positive outcomes, and worst loss.
+- Added the explicit replay → shadow lifecycle gate. It requires matching shadow evidence, passing automated checks, and a named operator approval with a note; the transition remains auditable and append-only.
+- Automated assessment is deliberately non-promoting: manual review remains required, and no paper order, risk approval, or live-stage transition is reachable from this gate.
 
 ## Runtime Components
 

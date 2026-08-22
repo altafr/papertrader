@@ -3,9 +3,9 @@
 ## Snapshot
 
 - **Phase:** Phase 3 — strategy and replay foundation.
-- **Status:** Phase 3.13 wired shadow worker source/repository and bounded scheduler implemented; Railway migration and first operator-run reconciliation remain operational dependencies.
+- **Status:** Phase 3.14 controlled shadow evidence and replay-to-shadow lifecycle gate implemented; Railway migration and first operator-run reconciliation remain operational dependencies.
 - **Current operating mode:** Paper only; order submission not yet enabled.
-- **Current goal:** Collect controlled shadow observations and define evidence for replay → shadow promotion without enabling paper execution.
+- **Current goal:** Add the authenticated operator command for reviewed replay → shadow promotion; keep paper order behavior disabled.
 - **Last updated:** 2026-08-22.
 
 ## Delivery Roadmap
@@ -378,6 +378,14 @@
 - **Deployment dependency:** Railway must apply migrations and configure the explicit shadow/source flags before use; no hosted migration or broker request was performed in this workspace.
 - **Next smallest unit:** Run controlled shadow observations and define the replay → shadow promotion evidence gate; keep paper order behavior disabled.
 
+## Completed Build Unit — Phase 3.14
+
+- **User story:** As an operator, I can assess closed shadow observations for one exact strategy version and record an approved replay-to-shadow transition without enabling execution.
+- **Implemented:** Added closed-observation evidence construction, decimal-safe sample/positive/worst-loss assessment, migration `0004_allow_replay_shadow_lifecycle.sql`, repository transition checks, and the in-process replay → shadow gate.
+- **Safety boundary:** Evidence assessment never promotes automatically. The gate requires explicit matching operator approval and passing deterministic checks; no order, broker mutation, or paper execution path was added.
+- **Deployment dependency:** Railway must apply migrations `0002`–`0004` through the controlled process; no hosted migration or broker request was performed in this workspace.
+- **Next smallest unit:** Add the authenticated API command that loads persisted shadow outcomes, runs the assessment, and appends the reviewed replay-to-shadow event.
+
 ## Decisions Made
 
 | Date | Decision | Reason |
@@ -447,6 +455,7 @@
 | Phase 3.11 restart-safe shadow runner | Pass | Full lint, build, typecheck, and 56 tests pass; stable ordering, already-closed idempotency, unresolved observations, and redacted source/persistence failures are covered |
 | Phase 3.12 opt-in shadow worker boundary | Pass | Full lint, build, typecheck, and 59 tests pass; default-off config, interval bounds, source readiness, one-shot opt-in, and health reporting are covered |
 | Phase 3.13 wired shadow worker and scheduler | Pass | Full lint, build, typecheck, and 60 tests pass; Alpaca-source mapping, repository wiring, bounded scheduling, and last/next health boundaries are covered |
+| Phase 3.14 shadow evidence and replay-to-shadow gate | Pass | Full lint, build, typecheck, and 64 tests pass; closed-observation evidence, decimal assessment, stage/approval checks, and migration/repository transition boundaries are covered |
 | Browser/preview | Partial | Production page HTTP check passed; visual/responsive review deferred beyond source scaffold |
 | Security review | Partial | No credential files, Alpaca client, database connection, or order code added; full review remains required |
 
@@ -464,10 +473,10 @@
 
 ## Session Handoff
 
-- **What exists:** Verified hosted foundation, Phase 0.3 selections, Phase 0.4 fail-closed guardrails, operator-confirmed paper setup, Phase 1 read-only account/dashboard foundation, guarded reconciliation command, Phase 2.1–2.2 authenticated asset/market-data reads, Phase 2.3 stream/backfill boundary, Phase 2.4 dashboard views, Phase 2.5 protected reconciliation verification, Phase 3.1 disabled strategy contract, Phase 3.2 decimal-safe metrics, Phase 3.3 point-in-time replay, Phase 3.4 disabled momentum plug-ins, Phase 3.5 regime evidence, Phase 3.6 in-process lifecycle gate, Phase 3.7 reviewed lifecycle-event persistence, Phase 3.8 authenticated replay approval command, Phase 3.9 shadow observation persistence, Phase 3.10 finalized-bar evaluation, Phase 3.11 restart-safe shadow runner, Phase 3.12 opt-in worker boundary, and Phase 3.13 wired shadow worker/scheduler. No hosted migration has been applied and no broker request has been run.
-- **Where to resume:** Run controlled shadow observations and define replay → shadow promotion evidence; keep all paper order behavior disabled. Separately, apply the reviewed migrations through Railway's controlled process, run one guarded paper reconciliation, and verify `/v1/read-model`, `/v1/reconciliation-status`, and dashboard data against Alpaca.
+- **What exists:** Verified hosted foundation, Phase 0.3 selections, Phase 0.4 fail-closed guardrails, operator-confirmed paper setup, Phase 1 read-only account/dashboard foundation, guarded reconciliation command, Phase 2.1–2.2 authenticated asset/market-data reads, Phase 2.3 stream/backfill boundary, Phase 2.4 dashboard views, Phase 2.5 protected reconciliation verification, Phase 3.1 disabled strategy contract, Phase 3.2 decimal-safe metrics, Phase 3.3 point-in-time replay, Phase 3.4 disabled momentum plug-ins, Phase 3.5 regime evidence, Phase 3.6 in-process lifecycle gate, Phase 3.7 reviewed lifecycle-event persistence, Phase 3.8 authenticated replay approval command, Phase 3.9 shadow observation persistence, Phase 3.10 finalized-bar evaluation, Phase 3.11 restart-safe shadow runner, Phase 3.12 opt-in worker boundary, Phase 3.13 wired shadow worker/scheduler, and Phase 3.14 controlled shadow evidence/replay-to-shadow gate. No hosted migration has been applied and no broker request has been run.
+- **Where to resume:** Add the authenticated replay-to-shadow command, then apply the reviewed migrations through Railway's controlled process, run one guarded paper reconciliation, and verify `/v1/read-model`, `/v1/reconciliation-status`, and dashboard data against Alpaca.
 - **Important context:** Keep Alpaca paper mode and read-only behavior during Phase 2.
-- **Recommended next prompt:** Continue Phase 3.14 with controlled shadow evidence and replay → shadow promotion gate design; keep paper order behavior off.
+- **Recommended next prompt:** Continue Phase 3.15 with the authenticated replay-to-shadow command; keep paper order behavior off.
 
 ## Change Log
 
@@ -648,3 +657,9 @@
 
 - Wired read-only Alpaca historical bars, PostgreSQL open observations/outcomes, deterministic evaluation, and bounded recurring scheduling with last/next run health.
 - Verified full lint, build, typecheck, and 60 tests; no hosted migration, broker request, credential access, paper order, or lifecycle promotion was added.
+
+### 2026-08-22 — Phase 3.14 shadow evidence and replay-to-shadow gate complete
+
+- Added controlled closed-observation evidence construction, decimal-safe shadow assessment, migration `0004_allow_replay_shadow_lifecycle.sql`, and repository enforcement for replay-to-shadow revisions.
+- Extended the in-process lifecycle gate to require matching shadow evidence, passing automated checks, and explicit operator approval while keeping the transition non-promoting and paper-only.
+- Verified full lint, build, typecheck, and 64 tests; no hosted migration, broker request, credential access, paper order, or live-stage transition was added.
