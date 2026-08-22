@@ -29,6 +29,31 @@ export const positions = pgTable(
   (table) => [unique("positions_snapshot_symbol_unique").on(table.accountSnapshotId, table.symbol)],
 );
 
+export const orders = pgTable("orders", {
+  accountId: text("account_id").notNull(),
+  alpacaOrderId: text("alpaca_order_id").primaryKey(),
+  assetClass: text("asset_class").notNull(),
+  clientOrderId: text("client_order_id"),
+  filledQuantity: numeric("filled_quantity", { precision: 20, scale: 8 }),
+  quantity: numeric("quantity", { precision: 20, scale: 8 }),
+  side: text("side").notNull(),
+  status: text("status").notNull(),
+  submittedAt: timestamp("submitted_at", { withTimezone: true }),
+  symbol: text("symbol").notNull(),
+  type: text("type").notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }),
+});
+
+export const activities = pgTable("activities", {
+  accountId: text("account_id").notNull(),
+  activityId: text("activity_id").primaryKey(),
+  activityType: text("activity_type").notNull(),
+  price: numeric("price", { precision: 20, scale: 8 }),
+  quantity: numeric("quantity", { precision: 20, scale: 8 }),
+  symbol: text("symbol"),
+  transactionTime: timestamp("transaction_time", { withTimezone: true }),
+});
+
 export const accountSnapshotsRelations = relations(accountSnapshots, ({ many }) => ({
   positions: many(positions),
 }));

@@ -3,6 +3,8 @@ export { createAccountStateRepository, type PersistedAccountSnapshot } from "./r
 export {
   accountSnapshots,
   accountSnapshotsRelations,
+  activities,
+  orders,
   positions,
   positionsRelations,
 } from "./schema.js";

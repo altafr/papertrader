@@ -67,6 +67,8 @@ Create one Clerk application for the dashboard. Set the publishable key, secret 
 
 The reviewed migration is `packages/db/migrations/0001_account_read_models.sql`. Apply it through Railway's controlled migration process; the application does not run migrations automatically at startup. The authenticated Railway API exposes `GET /v1/account`, which remains `503 broker_not_configured` until `BROKER_CONNECTION_ENABLED=true`. Only then does it read the existing paper Alpaca credentials from Railway server variables. The adapter is read-only and accepts only `https://paper-api.alpaca.markets`; it has no order methods.
 
+The account response now includes normalized account, positions, orders, and account-activity data. The database reconciliation repository writes the account snapshot and positions in one transaction, refreshes broker order status idempotently, and inserts activities append-only. No reconciliation is run automatically until the migration and explicit operator enablement are complete.
+
 ## First implementation prompt
 
 ```text

@@ -71,7 +71,7 @@ async function readPaperAccount(request: IncomingMessage) {
     apiKey: process.env.ALPACA_API_KEY ?? "",
     secretKey: process.env.ALPACA_SECRET_KEY ?? "",
   });
-  const account = await reader.readAccount();
+  const account = await reader.readAccountState();
   return { body: { account }, status: 200 } as const;
 }
 
