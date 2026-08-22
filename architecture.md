@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Hosted foundation established; Phase 0.3 technical stack selected for later implementation.
+- **Stage:** Phase 1 authenticated read-only shell implemented; broker adapter and database schema remain next.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -63,6 +63,14 @@ Implementation constraints:
 - Financial values enter `decimal.js` from canonical decimal strings, use domain-specific cloned constructors with explicit precision and rounding, persist as PostgreSQL `numeric`, and serialize as strings. Conversion through JavaScript `number` is forbidden for authoritative calculations.
 
 Primary references reviewed for this selection: [Clerk Next.js](https://clerk.com/docs/nextjs/getting-started/quickstart), [Clerk backend token verification](https://clerk.com/docs/reference/backend/verify-token), [Clerk re-verification](https://clerk.com/docs/guides/secure/reverification), [Drizzle PostgreSQL](https://orm.drizzle.team/docs/get-started-postgresql), [Drizzle migrations](https://orm.drizzle.team/docs/drizzle-kit-generate), [`pg-boss`](https://github.com/timgit/pg-boss), [Zod](https://zod.dev/), and [`decimal.js`](https://mikemcl.github.io/decimal.js/).
+
+### Phase 1.1 Authenticated Shell
+
+- `apps/web` uses Clerk middleware, `ClerkProvider`, a sign-in route, and a protected `/dashboard` server component. The public foundation page and `/health` endpoint remain available for operational checks.
+- The dashboard requires a signed-in Clerk session and an exact `CLERK_OPERATOR_USER_ID`; a valid but different Clerk account receives an access-denied state.
+- `apps/api` exposes `GET /v1/session` as the first protected API boundary. It verifies a Clerk session token with `authenticateRequest`, checks `CLERK_AUTHORIZED_PARTIES`, and applies the same exact operator allowlist.
+- Missing Clerk configuration fails closed for protected surfaces (`503`); invalid sessions return `401`; authenticated non-operator sessions return `403`. No Clerk secret or token is returned in any response.
+- Clerk variables are deployment configuration only. The API and worker remain paper-only, `BROKER_CONNECTION_ENABLED=false`, and no database or Alpaca adapter is invoked by this unit.
 
 ## Runtime Components
 

@@ -1,4 +1,5 @@
 import { FOUNDATION_STATUS, OPERATING_MODES } from "@momentum/domain";
+import Link from "next/link";
 
 const boundaries = [
   ["Dashboard", "Vercel", "Scaffolded"],
@@ -72,6 +73,9 @@ export default function Home() {
           <p>
             Future Alpaca access belongs only in server-side Railway services and remains
             unavailable until the relevant paper-trading phases are implemented and verified.
+          </p>
+          <p>
+            <Link href="/dashboard">Open authenticated dashboard</Link>
           </p>
         </article>
       </section>

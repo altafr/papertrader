@@ -2,10 +2,10 @@
 
 ## Snapshot
 
-- **Phase:** Phase 0 — foundation and setup.
-- **Status:** Phase 0.4 operator setup reported complete; broker remains disabled pending the read-only adapter.
+- **Phase:** Phase 1 — trusted read-only foundation.
+- **Status:** Phase 1 authenticated shell implemented; read-only database and Alpaca account adapter remain next.
 - **Current operating mode:** Paper only; order submission not yet enabled.
-- **Current goal:** Complete the remaining Phase 0 verification, then begin the authenticated read-only paper-account adapter.
+- **Current goal:** Add the initial PostgreSQL schema and server-only Alpaca paper-account read adapter.
 - **Last updated:** 2026-08-22.
 
 ## Delivery Roadmap
@@ -65,7 +65,7 @@
 
 ### Phase 1 — Trusted Read-Only Foundation
 
-- [ ] Add single-operator authentication and authorization.
+- [x] Add single-operator authentication and authorization shell with Railway API operator enforcement.
 - [ ] Create the initial PostgreSQL schema, migrations, constraints, indexes, least-privilege roles, and append-only audit events.
 - [ ] Add server-only Alpaca paper-account adapter.
 - [ ] Display account status, equity, cash, buying power, positions, orders, and activities.
@@ -167,6 +167,14 @@
 - **Out of scope:** Authentication implementation, database domain schema, queue implementation, broker trading calls, strategies, risk decisions, or order behavior.
 - **Operator dependency:** Account reset and secret entry require the operator's authenticated Alpaca/Railway sessions; secret values must never be pasted into chat, source, logs, or documentation.
 
+## Completed Build Unit — Phase 1.1
+
+- **User story:** As the single operator, I can reach an authenticated dashboard shell, while the Railway API independently verifies the Clerk session and exact allowlisted user before serving a protected session response.
+- **Implemented:** Added Clerk Next.js middleware/provider/sign-in/dashboard route, a fail-closed unauthenticated configuration state, Railway API `/v1/session` authentication using `authenticateRequest`, authorized-party validation, exact operator allowlisting, and non-secret Clerk environment documentation.
+- **Safety boundary:** `/health` remains public; `/v1/session` returns `503` when Clerk is not provisioned, `401` for invalid sessions, `403` for a valid non-operator session, and never returns secret material. No Alpaca call, database connection, schema, order route, or broker authority was added.
+- **Operator dependency:** Clerk hosted variables must be configured before the dashboard can authenticate in Vercel/Railway. Values must not be pasted into chat or source control.
+- **Next smallest unit:** Add reviewed PostgreSQL migrations and a read-only account-state repository, then connect the paper Alpaca account adapter behind the authenticated API.
+
 ## Open Questions
 
 | Priority | Question | Impact | Owner |
@@ -222,6 +230,7 @@
 | Railway API health after merge | Pass | `https://api-production-e0a6.up.railway.app/health` returned healthy JSON; this endpoint does not inspect broker credentials |
 | Vercel response after merge | Pass | Production dashboard returned HTTP 200; no secret values were inspected |
 | Alpaca paper connection | Not run | Broker connection remains disabled until the read-only adapter is implemented |
+| Phase 1.1 auth shell | Pass | Clerk dashboard/API boundaries build successfully; authenticated behavior requires hosted Clerk variables and was not exercised with live credentials |
 | Browser/preview | Partial | Production page HTTP check passed; visual/responsive review deferred beyond source scaffold |
 | Security review | Partial | No credential files, Alpaca client, database connection, or order code added; full review remains required |
 
@@ -239,10 +248,10 @@
 
 ## Session Handoff
 
-- **What exists:** Verified hosted foundation, Phase 0.3 selections, Phase 0.4 fail-closed guardrails, and operator-confirmed paper-account/Railway setup. No broker access is enabled.
-- **Where to resume:** Complete the remaining Railway logs/PostgreSQL credential audit, then begin the authenticated read-only paper-account adapter.
+- **What exists:** Verified hosted foundation, Phase 0.3 selections, Phase 0.4 fail-closed guardrails, operator-confirmed paper setup, and the Phase 1.1 Clerk-authenticated shell/API boundary. No broker access is enabled.
+- **Where to resume:** Configure Clerk hosted variables, then begin the PostgreSQL schema and server-only read-only Alpaca account adapter.
 - **Important context:** Keep Alpaca paper mode and read-only behavior during Phase 1.
-- **Recommended next prompt:** Begin Phase 1 read-only paper-account integration after the remaining secret-surface audit.
+- **Recommended next prompt:** Continue Phase 1 with the PostgreSQL schema and read-only account adapter.
 
 ## Change Log
 
@@ -314,3 +323,10 @@
 - Operator confirmed the Alpaca paper-account setup and Railway variable entry; no credential values were requested or inspected.
 - Re-ran source credential scans, Railway API health, and Vercel production HTTP checks successfully.
 - Kept broker connection disabled because the read-only Alpaca adapter is not implemented yet; Railway logs and PostgreSQL contents remain outside the independently verifiable surface in this session.
+
+### 2026-08-22 — Phase 1.1 authenticated shell complete
+
+- Added Clerk Next.js middleware, provider, sign-in route, and authenticated dashboard shell.
+- Added Railway API `/v1/session` with Clerk backend token verification, authorized-party validation, exact operator allowlisting, and fail-closed responses when Clerk is not provisioned.
+- Added Clerk variable names and deployment-boundary instructions without recording values.
+- Verified 11 tests, lint, typecheck, and production builds; no Alpaca request, database schema, order behavior, or broker authority was added.

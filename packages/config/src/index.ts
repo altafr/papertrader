@@ -9,6 +9,13 @@ export type PaperOnlyRuntimeConfig = {
   tradingApiBaseUrl: typeof PAPER_TRADING_API_BASE_URL;
 };
 
+export type ClerkRuntimeConfig = {
+  authorizedParties: string[];
+  operatorUserId: string;
+  publishableKey: string;
+  secretKey: string;
+};
+
 export function getServerPort(environment = process.env): number {
   const rawPort = environment.PORT;
 
@@ -76,4 +83,31 @@ export function getPaperOnlyRuntimeConfig(environment = process.env): PaperOnlyR
     tradingMode: "paper",
     tradingApiBaseUrl: PAPER_TRADING_API_BASE_URL,
   };
+}
+
+/**
+ * Returns the server-side Clerk configuration when complete, or null when Clerk
+ * has not been provisioned yet. Partial configuration fails closed.
+ */
+export function getClerkRuntimeConfig(environment = process.env): ClerkRuntimeConfig | null {
+  const publishableKey = environment.CLERK_PUBLISHABLE_KEY;
+  const secretKey = environment.CLERK_SECRET_KEY;
+  const operatorUserId = environment.CLERK_OPERATOR_USER_ID;
+  const authorizedParties = environment.CLERK_AUTHORIZED_PARTIES
+    ?.split(",")
+    .map((party) => party.trim())
+    .filter(Boolean);
+
+  const configured = Boolean(publishableKey || secretKey || operatorUserId || authorizedParties?.length);
+  if (!configured) {
+    return null;
+  }
+
+  if (!publishableKey || !secretKey || !operatorUserId || !authorizedParties?.length) {
+    throw new Error(
+      "Clerk configuration requires CLERK_PUBLISHABLE_KEY, CLERK_SECRET_KEY, CLERK_OPERATOR_USER_ID, and CLERK_AUTHORIZED_PARTIES.",
+    );
+  }
+
+  return { authorizedParties, operatorUserId, publishableKey, secretKey };
 }
