@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 5.2 immutable trade intents and execution-time risk approvals implemented; Railway migration and first operator-run reconciliation remain operational dependencies.
+- **Stage:** Phase 5.3 idempotent paper-order submission boundary implemented; Railway migration and first operator-run reconciliation remain operational dependencies.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -263,6 +263,12 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - Added immutable paper trade intents with validated positive quantity, non-negative cost estimates, signal expiry, and stable intent identifiers.
 - Added execution-time risk approval that re-evaluates current account/market state, kill-switch state, exposure, limits, and expiry; each intent receives at most one stored approval record.
 - Approval is a deterministic authorization record only. It cannot submit, retry, cancel, or modify a broker order, and it remains paper-only.
+
+### Phase 5.3 Idempotent Paper-Order Submission Boundary
+
+- Added a server-only Alpaca paper-order adapter that rejects disabled broker access, rejected approvals, invalid intent-derived client IDs, and malformed limit orders.
+- Submission first looks up the client order ID and returns the existing normalized order on retry; it posts only after a `404`, preserving idempotency across restarts and network retries.
+- The adapter is hard-pinned to `https://paper-api.alpaca.markets`, never exposes credentials, and supports only buy orders. It does not cancel, replace, liquidate, or access live endpoints.
 
 ## Runtime Components
 
