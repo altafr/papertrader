@@ -3,9 +3,9 @@
 ## Snapshot
 
 - **Phase:** Phase 3 — strategy and replay foundation.
-- **Status:** Phase 5.4 transactional paper-order persistence and reconciliation records implemented; Railway migration and first operator-run reconciliation remain operational dependencies.
+- **Status:** Phase 6.1 end-to-end paper execution wiring and explicit Paper Autopilot mode gate implemented; Railway migration and first operator-run reconciliation remain operational dependencies.
 - **Current operating mode:** Paper only; order submission not yet enabled.
-- **Current goal:** Complete the paper execution/reconciliation workflow and mode gates without enabling live capability.
+- **Current goal:** Verify Paper Autopilot operationally in paper mode, then add durable scheduling/recovery without enabling live capability.
 - **Last updated:** 2026-08-22.
 
 ## Delivery Roadmap
@@ -115,7 +115,8 @@
 - [x] Add immutable trade intents and execution-time risk approvals.
 - [x] Add idempotent paper execution service.
 - [x] Persist submissions and reconcile broker truth records.
-- [ ] Wire execution, persistence, reconciliation, and Paper Autopilot mode gates end to end.
+- [x] Wire execution, persistence, reconciliation, and Paper Autopilot mode gates end to end.
+- [ ] Verify Paper Autopilot with controlled paper tests, partial fills, retries, and restart recovery.
 - [ ] Add order/trade stream handling and full reconciliation.
 - [ ] Test rejected orders, partial fills, timeouts, duplicates, and restarts.
 
@@ -448,6 +449,14 @@
 - **Deployment dependency:** Apply migration `0007` through Railway's controlled process before wiring the adapter to worker/API execution.
 - **Next smallest unit:** Wire approved paper submission, persistence, and account/order reconciliation behind an explicit Paper Autopilot mode gate.
 
+## Completed Build Unit — Phase 6.1
+
+- **User story:** As the paper autopilot worker, I can execute only a currently approved intent when the explicit paper mode gate is enabled, persist the attempt, reconcile the broker result, and mark failures safely.
+- **Implemented:** Added `PAPER_AUTOPILOT_ENABLED` fail-closed configuration, worker startup checks, approved-intent execution orchestration, pending/submitted/failed persistence flow, and end-to-end mock tests.
+- **Safety boundary:** The gate requires paper mode, paper broker opt-in, server credentials, database configuration, and approved risk state. Live mode remains impossible; no agent can override the gate.
+- **Deployment dependency:** Apply migration `0007` through Railway's controlled process and keep the flag false until the operator completes controlled paper verification.
+- **Next smallest unit:** Run controlled paper-only execution/retry/partial-fill/restart tests and add durable scheduling/recovery safeguards.
+
 ## Decisions Made
 
 | Date | Decision | Reason |
@@ -525,6 +534,7 @@
 | Phase 5.2 immutable trade intents and execution-time risk approvals | Pass | Full lint, build, typecheck, and 78 tests pass; intent immutability, expiry validation, current-state reassessment, versioned approvals, and one-approval-per-intent behavior are covered |
 | Phase 5.3 idempotent paper-order submission boundary | Pass | Full lint, build, typecheck, and 81 tests pass; paper endpoint pinning, approval/opt-in gates, client-ID lookup-before-post, retry normalization, and rejected-order boundaries are covered |
 | Phase 5.4 transactional paper-order persistence and reconciliation records | Pass | Full lint, build, typecheck, and 82 tests pass; migration/schema constraints, one-time intent recording, client-ID reuse rejection, broker status/fill reconciliation, and missing-submission failures are covered |
+| Phase 6.1 paper execution wiring and Paper Autopilot mode gate | Pass | Full lint, build, typecheck, and 86 tests pass; explicit off-by-default mode, startup prerequisites, pending/reconcile/failure flow, approved-intent enforcement, and no-submit-disabled behavior are covered |
 | Browser/preview | Partial | Production page HTTP check passed; visual/responsive review deferred beyond source scaffold |
 | Security review | Partial | No credential files, Alpaca client, database connection, or order code added; full review remains required |
 
@@ -542,10 +552,10 @@
 
 ## Session Handoff
 
-- **What exists:** Verified hosted foundation, Phase 0.3 selections, Phase 0.4 fail-closed guardrails, operator-confirmed paper setup, Phase 1 read-only account/dashboard foundation, guarded reconciliation command, Phase 2.1–2.2 authenticated asset/market-data reads, Phase 2.3 stream/backfill boundary, Phase 2.4 dashboard views, Phase 2.5 protected reconciliation verification, Phase 3.1 disabled strategy contract, Phase 3.2 decimal-safe metrics, Phase 3.3 point-in-time replay, Phase 3.4 disabled momentum plug-ins, Phase 3.5 regime evidence, Phase 3.6 in-process lifecycle gate, Phase 3.7 reviewed lifecycle-event persistence, Phase 3.8 authenticated replay approval command, Phase 3.9 shadow observation persistence, Phase 3.10 finalized-bar evaluation, Phase 3.11 restart-safe shadow runner, Phase 3.12 opt-in worker boundary, Phase 3.13 wired shadow worker/scheduler, Phase 3.14 controlled shadow evidence/replay-to-shadow gate, Phase 3.15 authenticated replay-to-shadow command, Phase 3.16 shadow-to-paper readiness gate, Phase 3.17 authenticated shadow-to-paper command, Phase 5.1 immutable paper signals/deterministic risk checks, Phase 5.2 immutable trade intents/execution-time risk approvals, Phase 5.3 idempotent paper-order submission boundary, and Phase 5.4 transactional paper-order persistence/reconciliation records. No hosted migration has been applied and no broker request has been run.
+- **What exists:** Verified hosted foundation, Phase 0.3 selections, Phase 0.4 fail-closed guardrails, operator-confirmed paper setup, Phase 1 read-only account/dashboard foundation, guarded reconciliation command, Phase 2.1–2.2 authenticated asset/market-data reads, Phase 2.3 stream/backfill boundary, Phase 2.4 dashboard views, Phase 2.5 protected reconciliation verification, Phase 3.1 disabled strategy contract, Phase 3.2 decimal-safe metrics, Phase 3.3 point-in-time replay, Phase 3.4 disabled momentum plug-ins, Phase 3.5 regime evidence, Phase 3.6 in-process lifecycle gate, Phase 3.7 reviewed lifecycle-event persistence, Phase 3.8 authenticated replay approval command, Phase 3.9 shadow observation persistence, Phase 3.10 finalized-bar evaluation, Phase 3.11 restart-safe shadow runner, Phase 3.12 opt-in worker boundary, Phase 3.13 wired shadow worker/scheduler, Phase 3.14 controlled shadow evidence/replay-to-shadow gate, Phase 3.15 authenticated replay-to-shadow command, Phase 3.16 shadow-to-paper readiness gate, Phase 3.17 authenticated shadow-to-paper command, Phase 5.1 immutable paper signals/deterministic risk checks, Phase 5.2 immutable trade intents/execution-time risk approvals, Phase 5.3 idempotent paper-order submission boundary, Phase 5.4 transactional paper-order persistence/reconciliation records, and Phase 6.1 paper execution wiring/Autopilot gate. No hosted migration has been applied and no broker request has been run.
 - **Where to resume:** Build the deterministic paper risk/execution boundary, then apply the reviewed migrations through Railway's controlled process, run one guarded paper reconciliation, and verify `/v1/read-model`, `/v1/reconciliation-status`, and dashboard data against Alpaca.
 - **Important context:** Keep Alpaca paper mode and read-only behavior during Phase 2.
-- **Recommended next prompt:** Continue Phase 6.1 with end-to-end paper execution wiring and explicit Paper Autopilot mode gates; keep live capability disabled.
+- **Recommended next prompt:** Continue Phase 6.2 with controlled paper execution verification, partial-fill/retry/restart tests, and durable recovery; keep live capability disabled.
 
 ## Change Log
 
@@ -770,3 +780,8 @@
 
 - Added migration `0007_paper_order_submissions.sql`, schema constraints, and transactional repository operations for one-time intent recording and broker status/fill updates.
 - Verified full lint, build, typecheck, and 82 tests; no hosted migration, broker request, credential access, or Paper Autopilot mode was enabled.
+
+### 2026-08-22 — Phase 6.1 paper execution wiring and Paper Autopilot mode gate complete
+
+- Added the off-by-default `PAPER_AUTOPILOT_ENABLED` gate and worker prerequisites, then wired approved submission → pending persistence → paper broker call → reconciliation/failure handling.
+- Verified full lint, build, typecheck, and 86 tests; no live endpoint, hosted migration, credential logging, or default Paper Autopilot enablement was added.

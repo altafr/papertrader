@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 5.4 transactional paper-order persistence and reconciliation records implemented; Railway migration and first operator-run reconciliation remain operational dependencies.
+- **Stage:** Phase 6.1 end-to-end paper execution wiring and explicit Paper Autopilot mode gate implemented; Railway migration and first operator-run reconciliation remain operational dependencies.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -275,6 +275,12 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - Added `paper_order_submissions` with unique intent and client-order identifiers, approval linkage, submission status, broker ID, fill quantity, and timestamps; migration `0007_paper_order_submissions.sql` adds the reviewed constraints and index.
 - Added transactional repository operations that record an intent once, reject client-ID reuse across intents, and update broker truth only for an existing submission.
 - This persistence boundary does not enable Paper Autopilot; broker truth must still be reconciled and execution-time gates must remain satisfied.
+
+### Phase 6.1 Paper Execution Wiring and Mode Gate
+
+- Added the explicit `PAPER_AUTOPILOT_ENABLED` configuration gate. It defaults off, requires paper runtime, paper credentials/broker opt-in, and database availability at worker startup; live mode remains unavailable.
+- Wired the approved-intent flow in the worker: persist `pending`, submit through the paper-only idempotent adapter, reconcile the broker response, or mark the submission failed without retrying through a second client order ID.
+- The worker path still has no live endpoint, agent override, or per-order approval bypass. Paper Autopilot is not enabled by default and requires the operator's explicit deployment configuration.
 
 ## Runtime Components
 

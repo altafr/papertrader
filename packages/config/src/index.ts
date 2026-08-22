@@ -10,6 +10,11 @@ export type PaperOnlyRuntimeConfig = {
   tradingApiBaseUrl: typeof PAPER_TRADING_API_BASE_URL;
 };
 
+export type PaperAutopilotConfig = {
+  readonly enabled: boolean;
+  readonly mode: "paper_autopilot" | "disabled";
+};
+
 export type ClerkRuntimeConfig = {
   authorizedParties: string[];
   operatorUserId: string;
@@ -84,6 +89,16 @@ export function getPaperOnlyRuntimeConfig(environment = process.env): PaperOnlyR
     tradingMode: "paper",
     tradingApiBaseUrl: PAPER_TRADING_API_BASE_URL,
   };
+}
+
+/** Explicit, paper-only mode gate. Live mode can never be enabled by this function. */
+export function getPaperAutopilotConfig(environment = process.env): PaperAutopilotConfig {
+  const raw = environment.PAPER_AUTOPILOT_ENABLED ?? "false";
+  if (raw !== "true" && raw !== "false") throw new Error("PAPER_AUTOPILOT_ENABLED must be exactly true or false.");
+  if (raw !== "true") return { enabled: false, mode: "disabled" };
+  const paper = getPaperOnlyRuntimeConfig(environment);
+  if (!paper.brokerConnectionEnabled) throw new Error("PAPER_AUTOPILOT_ENABLED=true requires BROKER_CONNECTION_ENABLED=true.");
+  return { enabled: true, mode: "paper_autopilot" };
 }
 
 /**

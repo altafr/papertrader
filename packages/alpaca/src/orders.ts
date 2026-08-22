@@ -5,7 +5,7 @@ import { PAPER_TRADING_API_BASE_URL } from "@momentum/config";
 const decimalValue = z.union([z.string(), z.number()]).transform(String);
 const orderSchema = z.object({
   id: z.string().min(1), client_order_id: z.string().min(1).optional(), symbol: z.string().min(1),
-  asset_class: z.string().min(1), side: z.string().min(1), type: z.string().min(1), qty: decimalValue,
+  asset_class: z.string().min(1), side: z.string().min(1), type: z.string().min(1), qty: decimalValue, filled_qty: decimalValue.nullable().optional(),
   status: z.string().min(1), submitted_at: z.string().datetime().nullable().optional(), updated_at: z.string().datetime().nullable().optional(),
 });
 
@@ -31,6 +31,7 @@ export interface PaperOrderSubmission {
   readonly alpacaOrderId: string;
   readonly assetClass: string;
   readonly clientOrderId: string;
+  readonly filledQuantity?: string;
   readonly quantity: string;
   readonly status: string;
   readonly submittedAt?: string;
@@ -53,7 +54,7 @@ export interface PaperOrderSubmitterOptions {
 function normalizeOrder(parsed: z.infer<typeof orderSchema>, request: PaperOrderSubmissionRequest): PaperOrderSubmission {
   return {
     alpacaOrderId: parsed.id, assetClass: parsed.asset_class, clientOrderId: parsed.client_order_id ?? request.clientOrderId,
-    quantity: parsed.qty, status: parsed.status, ...(parsed.submitted_at ? { submittedAt: parsed.submitted_at } : {}), symbol: parsed.symbol,
+    quantity: parsed.qty, status: parsed.status, ...(parsed.filled_qty ? { filledQuantity: parsed.filled_qty } : {}), ...(parsed.submitted_at ? { submittedAt: parsed.submitted_at } : {}), symbol: parsed.symbol,
     type: parsed.type, ...(parsed.updated_at ? { updatedAt: parsed.updated_at } : {}),
   };
 }

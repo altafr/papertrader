@@ -1,7 +1,7 @@
 import { createServer } from "node:http";
 
 import { createPaperMarketDataReader } from "@momentum/alpaca";
-import { getPaperOnlyRuntimeConfig, getServerPort } from "@momentum/config";
+import { getPaperAutopilotConfig, getPaperOnlyRuntimeConfig, getServerPort } from "@momentum/config";
 import { createDatabase, createShadowObservationRepository } from "@momentum/db";
 
 import { getWorkerHealth } from "./app.js";
@@ -26,6 +26,8 @@ const server = createServer((request, response) => {
 });
 
 getPaperOnlyRuntimeConfig();
+const autopilotConfiguration = getPaperAutopilotConfig();
+if (autopilotConfiguration.enabled && !process.env.DATABASE_URL?.trim()) throw new Error("PAPER_AUTOPILOT_ENABLED=true requires DATABASE_URL.");
 const shadowConfiguration = getShadowEvaluationConfig();
 if (shadowConfiguration.enabled) {
   if (process.env.BROKER_CONNECTION_ENABLED !== "true") throw new Error("SHADOW_EVALUATION_ENABLED=true requires BROKER_CONNECTION_ENABLED=true.");

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { getClerkRuntimeConfig, getPaperOnlyRuntimeConfig, getServerPort } from "./index.js";
+import { getClerkRuntimeConfig, getPaperAutopilotConfig, getPaperOnlyRuntimeConfig, getServerPort } from "./index.js";
 
 describe("server configuration", () => {
   it("uses a safe local default", () => {
@@ -51,6 +51,11 @@ describe("server configuration", () => {
       tradingApiBaseUrl: "https://paper-api.alpaca.markets",
     });
     expect(JSON.stringify(result)).not.toContain("paper-secret-placeholder");
+  });
+
+  it("keeps paper autopilot disabled unless explicitly enabled with broker opt-in", () => {
+    expect(getPaperAutopilotConfig({ TRADING_MODE: "paper", ALPACA_PAPER_TRADE: "true", BROKER_CONNECTION_ENABLED: "false" })).toEqual({ enabled: false, mode: "disabled" });
+    expect(() => getPaperAutopilotConfig({ PAPER_AUTOPILOT_ENABLED: "true", TRADING_MODE: "paper", ALPACA_PAPER_TRADE: "true", BROKER_CONNECTION_ENABLED: "false" })).toThrow(/BROKER_CONNECTION_ENABLED/);
   });
 
   it("treats absent Clerk configuration as not provisioned", () => {

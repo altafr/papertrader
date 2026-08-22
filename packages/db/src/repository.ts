@@ -354,6 +354,12 @@ export function createPaperOrderRepository(db: Database) {
       });
     },
 
+    async markFailed(intentId: string) {
+      const [row] = await db.update(paperOrderSubmissions).set({ status: "failed", updatedAt: new Date() }).where(eq(paperOrderSubmissions.intentId, intentId)).returning();
+      if (!row) throw new Error("Paper order submission was not found.");
+      return row;
+    },
+
     async getByClientOrderId(clientOrderId: string) {
       const [row] = await db.select().from(paperOrderSubmissions).where(eq(paperOrderSubmissions.clientOrderId, clientOrderId)).limit(1);
       return row;
