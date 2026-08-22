@@ -34,6 +34,8 @@ Momentum Autopilot researches US stocks and supported crypto assets, prepares a 
 7. Add durable schedules and live stream workers.
 8. Complete the live-readiness checklist before adding live credentials.
 
+For the controlled hosted paper reconciliation procedure, see [`docs/railway-paper-reconciliation-runbook.md`](docs/railway-paper-reconciliation-runbook.md). It uses command-scoped Railway flags only; continuous scheduling and Paper Autopilot remain separate gates.
+
 ## Local workspace
 
 - `apps/web` — Next.js dashboard for Vercel.

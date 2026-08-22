@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.13 dashboard operations health surface implemented; durable scheduler and Paper Autopilot activation remain separate gated steps.
+- **Stage:** Phase 6.14 hosted reconciliation runbook documented; durable scheduler and Paper Autopilot activation remain separate gated steps.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
