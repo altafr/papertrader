@@ -1,5 +1,6 @@
 import type { PaperOrderSubmission, PaperOrderSubmissionRequest, PaperOrderSubmitter } from "@momentum/alpaca";
 import { getPaperAutopilotConfig, type PaperAutopilotConfig } from "@momentum/config";
+import { reconcilePaperOrder } from "@momentum/domain";
 
 export interface PaperSubmissionPersistence {
   recordSubmission(input: { readonly approvalId: string; readonly assetClass: string; readonly clientOrderId: string; readonly intentId: string; readonly quantity: string; readonly status: string; readonly symbol: string }): Promise<unknown>;
@@ -26,7 +27,8 @@ export async function executeApprovedPaperOrder(input: {
   await input.persistence.recordSubmission({ approvalId: input.order.approval.approvalId, assetClass: input.order.assetClass, clientOrderId: input.order.clientOrderId, intentId, quantity: input.order.quantity, status: "pending", symbol: input.order.symbol });
   try {
     const brokerOrder = await input.submitter.submit(input.order);
-    await input.persistence.reconcile({ alpacaOrderId: brokerOrder.alpacaOrderId, ...(brokerOrder.filledQuantity ? { filledQuantity: brokerOrder.filledQuantity } : {}), intentId, status: brokerOrder.status, ...(brokerOrder.submittedAt ? { submittedAt: new Date(brokerOrder.submittedAt) } : {}), ...(brokerOrder.updatedAt ? { updatedAt: new Date(brokerOrder.updatedAt) } : {}) });
+    const recovery = reconcilePaperOrder({ brokerClientOrderId: brokerOrder.clientOrderId, brokerStatus: brokerOrder.status, expectedClientOrderId: input.order.clientOrderId, expectedQuantity: input.order.quantity, ...(brokerOrder.filledQuantity ? { filledQuantity: brokerOrder.filledQuantity } : {}) });
+    await input.persistence.reconcile({ alpacaOrderId: brokerOrder.alpacaOrderId, ...(recovery.filledQuantity ? { filledQuantity: recovery.filledQuantity } : {}), intentId, status: recovery.status, ...(brokerOrder.submittedAt ? { submittedAt: new Date(brokerOrder.submittedAt) } : {}), ...(brokerOrder.updatedAt ? { updatedAt: new Date(brokerOrder.updatedAt) } : {}) });
     return { brokerOrder, intentId, status: "reconciled" };
   } catch (error) {
     await input.persistence.markFailed(intentId);

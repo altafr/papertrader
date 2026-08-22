@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.1 end-to-end paper execution wiring and explicit Paper Autopilot mode gate implemented; Railway migration and first operator-run reconciliation remain operational dependencies.
+- **Stage:** Phase 6.2 controlled paper recovery and partial-fill reconciliation implemented; Railway migration and first operator-run reconciliation remain operational dependencies.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -281,6 +281,12 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - Added the explicit `PAPER_AUTOPILOT_ENABLED` configuration gate. It defaults off, requires paper runtime, paper credentials/broker opt-in, and database availability at worker startup; live mode remains unavailable.
 - Wired the approved-intent flow in the worker: persist `pending`, submit through the paper-only idempotent adapter, reconcile the broker response, or mark the submission failed without retrying through a second client order ID.
 - The worker path still has no live endpoint, agent override, or per-order approval bypass. Paper Autopilot is not enabled by default and requires the operator's explicit deployment configuration.
+
+### Phase 6.2 Controlled Paper Recovery and Partial-Fill Reconciliation
+
+- Added broker-status recovery rules that validate client-order identity, reject overfills/unknown statuses/terminal regressions, and preserve partial fills as non-terminal truth.
+- Integrated those rules before persistence updates so a malformed or contradictory broker response marks the submission failed rather than silently changing intent state.
+- Existing client-ID lookup and transactional persistence provide restart-safe retry behavior; live capability and automatic retry loops remain disabled.
 
 ## Runtime Components
 
