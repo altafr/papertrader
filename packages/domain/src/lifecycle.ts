@@ -44,7 +44,7 @@ function immutable<T extends object>(value: T): T {
   return Object.freeze(value);
 }
 
-export function createStrategyLifecycleStore(strategy: StrategyPlugin<object>) {
+export function createStrategyLifecycleStore<Parameters extends object>(strategy: StrategyPlugin<Parameters>) {
   let record: StrategyLifecycleRecord = immutable({
     events: Object.freeze([]), revision: 0, stage: strategy.stage, strategyKey: strategy.key, strategyVersion: strategy.version,
   });
@@ -59,9 +59,9 @@ export function createStrategyLifecycleStore(strategy: StrategyPlugin<object>) {
       if (record.stage !== "disabled" || nextStage !== "replay") throw new Error("Only the disabled to replay lifecycle gate is implemented.");
       if (!request.evidence || request.evidence.strategyKey !== record.strategyKey || request.evidence.strategyVersion !== record.strategyVersion) throw new Error("Replay evidence must match the strategy version.");
       if (!request.approval || request.approval.approvedBy !== request.actorId || !request.approval.note.trim()) throw new Error("Disabled to replay requires explicit operator approval with a note.");
-      if (request.automatedChecksPass !== true) throw new Error("Replay evidence must pass automated checks before promotion.");
       const hasRegimes = request.evidence.results.length >= 3 && new Set(request.evidence.results.map((result) => result.regime)).size >= 3;
       if (!hasRegimes) throw new Error("Replay evidence must cover at least three distinct regimes.");
+      if (request.automatedChecksPass !== true) throw new Error("Replay evidence must pass automated checks before promotion.");
       const event: StrategyLifecycleEvent = immutable({
         actorId: request.actorId, approval: request.approval, evidenceKey: `${request.evidence.strategyKey}@${request.evidence.strategyVersion}`,
         eventId: `${record.strategyKey}@${record.strategyVersion}#${record.revision + 1}`, fromStage: record.stage, reason: request.reason,

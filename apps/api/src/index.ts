@@ -1,6 +1,7 @@
 import { createServer, type IncomingMessage } from "node:http";
 
 import { createClerkClient } from "@clerk/backend";
+import { ZodError } from "zod";
 
 import {
   createPaperAccountReader,
@@ -9,7 +10,7 @@ import {
   type MarketAssetClass,
   type MarketBarTimeframe,
 } from "@momentum/alpaca";
-import { createAccountStateRepository, createDatabase } from "@momentum/db";
+import { createAccountStateRepository, createDatabase, createStrategyLifecycleRepository } from "@momentum/db";
 import {
   getClerkRuntimeConfig,
   getPaperOnlyRuntimeConfig,
@@ -18,8 +19,10 @@ import {
 
 import { getApiHealth } from "./app.js";
 import { compareReconciliationAccounts } from "./reconciliation-status.js";
+import { approveDisabledToReplay } from "./lifecycle-command.js";
 
 let readModelRepository: ReturnType<typeof createAccountStateRepository> | undefined;
+let strategyLifecycleRepository: ReturnType<typeof createStrategyLifecycleRepository> | undefined;
 
 class InvalidMarketDataRequest extends Error {}
 
@@ -83,6 +86,20 @@ function toWebRequest(request: IncomingMessage): Request {
 
   const url = new URL(request.url ?? "/", `http://${request.headers.host ?? "localhost"}`);
   return new Request(url, { headers, method: request.method ?? "GET" });
+}
+
+async function readJsonBody(request: IncomingMessage): Promise<unknown> {
+  const chunks: Buffer[] = [];
+  let size = 0;
+  for await (const chunk of request) {
+    const buffer = Buffer.isBuffer(chunk) ? chunk : Buffer.from(String(chunk));
+    size += buffer.byteLength;
+    if (size > 1_000_000) throw new Error("request_body_too_large");
+    chunks.push(buffer);
+  }
+  const raw = Buffer.concat(chunks).toString("utf8");
+  if (!raw.trim()) throw new Error("request_body_required");
+  return JSON.parse(raw) as unknown;
 }
 
 async function authenticateOperator(request: IncomingMessage) {
@@ -252,6 +269,19 @@ async function readReconciliationStatus(request: IncomingMessage) {
   } as const;
 }
 
+async function approveStrategyReplay(request: IncomingMessage) {
+  const authentication = await authenticateOperator(request);
+  if (authentication.status !== 200) return authentication;
+  if (!process.env.DATABASE_URL?.trim()) return { body: { error: "db_not_configured" }, status: 503 } as const;
+  getPaperOnlyRuntimeConfig();
+  if (!strategyLifecycleRepository) {
+    const { db } = createDatabase();
+    strategyLifecycleRepository = createStrategyLifecycleRepository(db);
+  }
+  const result = await approveDisabledToReplay({ actorId: authentication.body.userId, body: await readJsonBody(request), persistence: strategyLifecycleRepository });
+  return { body: { eventId: result.event.eventId, revision: result.revision, stage: result.stage, strategyKey: result.strategyKey, strategyVersion: result.strategyVersion }, status: 201 } as const;
+}
+
 const server = createServer((request, response) => {
   if (request.method === "GET" && request.url === "/health") {
     response.writeHead(200, { "content-type": "application/json" });
@@ -348,6 +378,20 @@ const server = createServer((request, response) => {
       .catch(() => {
         response.writeHead(502, { "content-type": "application/json" });
         response.end(JSON.stringify({ error: "reconciliation_unavailable" }));
+      });
+    return;
+  }
+
+  if (request.method === "POST" && request.url === "/v1/strategies/lifecycle/replay") {
+    approveStrategyReplay(request)
+      .then(({ body, status }) => {
+        response.writeHead(status, { "content-type": "application/json" });
+        response.end(JSON.stringify(body));
+      })
+      .catch((error: unknown) => {
+        const status = error instanceof ZodError ? 400 : error instanceof SyntaxError ? 400 : 409;
+        response.writeHead(status, { "content-type": "application/json" });
+        response.end(JSON.stringify({ error: status === 400 ? "invalid_lifecycle_request" : "lifecycle_gate_rejected" }));
       });
     return;
   }

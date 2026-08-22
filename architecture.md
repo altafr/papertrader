@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 3.7 lifecycle-event PostgreSQL schema and repository implemented; Railway migration and first operator-run reconciliation remain operational dependencies.
+- **Stage:** Phase 3.8 authenticated disabled-to-replay approval command implemented; Railway migration and first operator-run reconciliation remain operational dependencies.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -189,6 +189,13 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - Added reviewed migration `0002_strategy_lifecycle_events.sql` and matching Drizzle schema/repository for append-only disabled-to-replay approval events.
 - PostgreSQL enforces non-empty audit fields, positive revisions, unique strategy/version revisions, and the currently permitted `disabled → replay` transition. The repository checks the latest stage and expected revision inside a transaction before inserting.
 - The repository is not wired to a hosted command yet; no migration is applied automatically, no authenticated operator endpoint exists, and no strategy stage is enabled in production.
+
+### Phase 3.8 Authenticated Disabled-to-Replay Approval
+
+- Added `POST /v1/strategies/lifecycle/replay`, protected by the existing exact single-operator Clerk boundary and paper-only runtime guard.
+- The command validates a structured replay-evidence document, recomputes the automated sample/coverage/drawdown checks server-side, requires approval identity to match the authenticated operator, and persists only the domain-derived disabled-to-replay event.
+- Unknown strategies, mismatched versions, malformed decimal/timestamp fields, insufficient regimes, failed evidence checks, and client-supplied stage/approval flags fail closed. The response exposes only strategy/version, replay stage, revision, and event ID.
+- No Alpaca request, paper order, live endpoint, or later lifecycle transition is reachable through this command. Hosted database migration and Clerk/database configuration remain deployment dependencies.
 
 ## Runtime Components
 
