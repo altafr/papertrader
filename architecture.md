@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 2.3 supervised market-stream boundary implemented; Railway migration and first operator-run reconciliation remain operational dependencies.
+- **Stage:** Phase 2.4 read-only dashboard views implemented; Railway migration and first operator-run reconciliation remain operational dependencies.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -128,6 +128,13 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - `apps/worker` provides the paper-only runtime stream runner behind `MARKET_STREAM_ENABLED=false` by default. When explicitly enabled with broker opt-in, it uses Node's server-side WebSocket, reconnects with bounded backoff, and calls the existing market-data REST adapter for backfill.
 - Stream configuration requires an explicit asset class, 1–10 symbols, timeframe, and stock feed. The worker does not expose stream credentials, persist raw ticks, evaluate strategies, submit orders, or bypass freshness gates.
 - This unit does not claim a hosted stream has been enabled or connected; no hosted broker request was performed.
+
+### Phase 2.4 Read-Only Dashboard Views
+
+- `apps/web/app/dashboard` now presents overview/account, positions, orders & fills, performance, alerts, and recent activity sections from the authenticated persisted read model.
+- Freshness is classified as fresh (≤5 minutes), delayed (≤15 minutes), or stale (>15 minutes); unavailable data remains explicitly unavailable. Capture timestamps are rendered as UTC with provenance.
+- Performance and alert panels remain honest unavailable states until their persisted services exist. Market and trade streams are shown as disconnected/not enabled when no corresponding read model is present.
+- The dashboard remains display-only: no controls, order methods, database connection, Alpaca credentials, strategy approval, or risk-policy mutation was added.
 
 ## Runtime Components
 
