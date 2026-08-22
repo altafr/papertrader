@@ -3,9 +3,9 @@
 ## Snapshot
 
 - **Phase:** Phase 1 — trusted read-only foundation.
-- **Status:** Phase 1.3 read-only reconciliation bundle implemented; controlled migration and hosted dashboard wiring remain next.
+- **Status:** Phase 1.4 persisted read-model API implemented; controlled migration and hosted reconciliation remain next.
 - **Current operating mode:** Paper only; order submission not yet enabled.
-- **Current goal:** Apply the reviewed migration, then run a controlled paper reconciliation and connect dashboard read models.
+- **Current goal:** Apply the reviewed migration, run one controlled paper reconciliation, and connect dashboard read models.
 - **Last updated:** 2026-08-22.
 
 ## Delivery Roadmap
@@ -191,6 +191,14 @@
 - **Deployment dependency:** The migration still requires controlled application in Railway. No hosted database write or Alpaca request was performed in this unit.
 - **Next smallest unit:** Apply the migration in Railway, perform one operator-observed paper reconciliation, and expose persisted freshness/read-model endpoints to the dashboard.
 
+## Completed Build Unit — Phase 1.4
+
+- **User story:** As the operator, I can request the latest persisted account read model and see when it was captured, without the API querying the broker or exposing database details.
+- **Implemented:** Added a latest-read-model repository query spanning the newest account snapshot, positions, broker orders, and activities; added UTC capture/freshness metadata; added authenticated `GET /v1/read-model` with explicit database-not-configured, model-not-available, and redacted database-failure responses.
+- **Safety boundary:** The endpoint is authenticated and read-only. PostgreSQL creation is lazy, migrations are never applied by the application, and no browser code receives credentials or direct database access.
+- **Deployment dependency:** The Railway migration and one controlled paper reconciliation remain operator/deployment actions. Until then, the endpoint correctly returns a fail-closed unavailable state.
+- **Next smallest unit:** Apply the migration, run one paper reconciliation, verify `/v1/read-model` against persisted data, and wire dashboard read-only account/positions/orders surfaces.
+
 ## Open Questions
 
 | Priority | Question | Impact | Owner |
@@ -249,6 +257,7 @@
 | Phase 1.1 auth shell | Pass | Local and hosted boundaries verified: Railway `/v1/session` returns `503 auth_not_configured` without Clerk variables, `/health` remains `200`, and Vercel `/dashboard`/`/sign-in` fail closed with `503`; authenticated behavior requires hosted Clerk variables |
 | Phase 1.2 account boundary | Pass | `pnpm typecheck`, lint, tests, and build passed; mocked adapter test verifies normalized decimal strings and no order method; API route remains `503 broker_not_configured` with broker opt-in disabled |
 | Phase 1.3 reconciliation bundle | Pass | Expanded adapter tests cover account/position/order/activity normalization; typecheck, lint, build, and 14 tests pass; no hosted migration or broker request performed |
+| Phase 1.4 persisted read-model API | Pass | Repository/API compile; full lint, build, typecheck, and 14 tests pass; local API returns 503 `auth_not_configured` before any database access |
 | Browser/preview | Partial | Production page HTTP check passed; visual/responsive review deferred beyond source scaffold |
 | Security review | Partial | No credential files, Alpaca client, database connection, or order code added; full review remains required |
 
@@ -266,8 +275,8 @@
 
 ## Session Handoff
 
-- **What exists:** Verified hosted foundation, Phase 0.3 selections, Phase 0.4 fail-closed guardrails, operator-confirmed paper setup, Phase 1.1 auth shell, and Phase 1.3 read-only reconciliation bundle code. No hosted migration has been applied and no broker request has been run.
-- **Where to resume:** Apply the reviewed migration through Railway's controlled process, perform one paper reconciliation, then expose persisted freshness/read-model endpoints.
+- **What exists:** Verified hosted foundation, Phase 0.3 selections, Phase 0.4 fail-closed guardrails, operator-confirmed paper setup, Phase 1.1 auth shell, Phase 1.3 reconciliation bundle, and Phase 1.4 persisted read-model API. No hosted migration has been applied and no broker request has been run.
+- **Where to resume:** Apply the reviewed migration through Railway's controlled process, perform one paper reconciliation, verify `/v1/read-model`, then wire dashboard read-only surfaces.
 - **Important context:** Keep Alpaca paper mode and read-only behavior during Phase 1.
 - **Recommended next prompt:** Continue Phase 1 with the PostgreSQL schema and read-only account adapter.
 
