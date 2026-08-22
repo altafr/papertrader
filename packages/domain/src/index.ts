@@ -33,3 +33,5 @@ export const FOUNDATION_STATUS = {
   readonly health: HealthState;
   readonly label: string;
 };
+
+export * from "./strategy.js";
