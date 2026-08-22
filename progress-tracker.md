@@ -3,9 +3,9 @@
 ## Snapshot
 
 - **Phase:** Phase 1 — trusted read-only foundation.
-- **Status:** Phase 1 authenticated shell implemented; read-only database and Alpaca account adapter remain next.
+- **Status:** Phase 1.2 read-only account persistence and Alpaca paper adapter implemented; dashboard read models remain next.
 - **Current operating mode:** Paper only; order submission not yet enabled.
-- **Current goal:** Add the initial PostgreSQL schema and server-only Alpaca paper-account read adapter.
+- **Current goal:** Apply the reviewed migration, then persist/reconcile account and position read models for the dashboard.
 - **Last updated:** 2026-08-22.
 
 ## Delivery Roadmap
@@ -66,8 +66,8 @@
 ### Phase 1 — Trusted Read-Only Foundation
 
 - [x] Add single-operator authentication and authorization shell with Railway API operator enforcement.
-- [ ] Create the initial PostgreSQL schema, migrations, constraints, indexes, least-privilege roles, and append-only audit events.
-- [ ] Add server-only Alpaca paper-account adapter.
+- [x] Create the initial PostgreSQL read-model schema, reviewed migration, constraints, and indexes.
+- [x] Add server-only Alpaca paper-account adapter with paper-endpoint enforcement and response validation.
 - [ ] Display account status, equity, cash, buying power, positions, orders, and activities.
 - [ ] Add health, freshness, paper-mode banner, and reconciliation status.
 - [ ] Verify browser bundles/logs never contain Alpaca secrets.
@@ -175,6 +175,14 @@
 - **Operator dependency:** Clerk hosted variables must be configured before the dashboard can authenticate in Vercel/Railway. Values must not be pasted into chat or source control.
 - **Next smallest unit:** Add reviewed PostgreSQL migrations and a read-only account-state repository, then connect the paper Alpaca account adapter behind the authenticated API.
 
+## Completed Build Unit — Phase 1.2
+
+- **User story:** As the operator, I can request authenticated paper-account state through a server-only API boundary, with validated values ready for PostgreSQL reconciliation and dashboard reads.
+- **Implemented:** Added Drizzle PostgreSQL schema definitions and reviewed SQL migration for account snapshots and positions; added a lazy `node-postgres`/Drizzle client and latest-snapshot repository; added a Zod-validated Alpaca paper account reader and authenticated `GET /v1/account`.
+- **Safety boundary:** The Alpaca adapter exposes `readAccount()` only, hard-pins the paper endpoint, reads credentials only from server process configuration, returns decimal values as strings, and returns `503 broker_not_configured` while explicit broker opt-in is disabled. No order, live endpoint, market stream, or browser credential path exists.
+- **Deployment dependency:** The migration must be applied through Railway's controlled database migration step before persistence is used. Broker reads require existing Railway-only paper credentials and `BROKER_CONNECTION_ENABLED=true`; no secret values were inspected or changed.
+- **Next smallest unit:** Add positions/orders/activity read normalization and transactional reconciliation writes, then expose dashboard read models and freshness state.
+
 ## Open Questions
 
 | Priority | Question | Impact | Owner |
@@ -231,6 +239,7 @@
 | Vercel response after merge | Pass | Production dashboard returned HTTP 200; no secret values were inspected |
 | Alpaca paper connection | Not run | Broker connection remains disabled until the read-only adapter is implemented |
 | Phase 1.1 auth shell | Pass | Local and hosted boundaries verified: Railway `/v1/session` returns `503 auth_not_configured` without Clerk variables, `/health` remains `200`, and Vercel `/dashboard`/`/sign-in` fail closed with `503`; authenticated behavior requires hosted Clerk variables |
+| Phase 1.2 account boundary | Pass | `pnpm typecheck`, lint, tests, and build passed; mocked adapter test verifies normalized decimal strings and no order method; API route remains `503 broker_not_configured` with broker opt-in disabled |
 | Browser/preview | Partial | Production page HTTP check passed; visual/responsive review deferred beyond source scaffold |
 | Security review | Partial | No credential files, Alpaca client, database connection, or order code added; full review remains required |
 
@@ -248,8 +257,8 @@
 
 ## Session Handoff
 
-- **What exists:** Verified hosted foundation, Phase 0.3 selections, Phase 0.4 fail-closed guardrails, operator-confirmed paper setup, and the Phase 1.1 Clerk-authenticated shell/API boundary. No broker access is enabled.
-- **Where to resume:** Configure Clerk hosted variables, then begin the PostgreSQL schema and server-only read-only Alpaca account adapter.
+- **What exists:** Verified hosted foundation, Phase 0.3 selections, Phase 0.4 fail-closed guardrails, operator-confirmed paper setup, Phase 1.1 auth shell, and Phase 1.2 read-only account persistence/adapter code. No hosted migration has been applied and no broker request has been run.
+- **Where to resume:** Apply the reviewed migration through Railway's controlled process, then add transactional reconciliation for positions/orders/activities and dashboard read models.
 - **Important context:** Keep Alpaca paper mode and read-only behavior during Phase 1.
 - **Recommended next prompt:** Continue Phase 1 with the PostgreSQL schema and read-only account adapter.
 

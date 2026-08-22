@@ -63,6 +63,10 @@ For the Alpaca MCP connection, configure `ALPACA_API_KEY`, `ALPACA_SECRET_KEY`, 
 
 Create one Clerk application for the dashboard. Set the publishable key, secret key, exact operator user ID, and authorized Vercel origin only in the relevant hosted service variables. Vercel requires `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY`, `CLERK_OPERATOR_USER_ID`, and `CLERK_AUTHORIZED_PARTIES`; Railway API requires server-side `CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY`, `CLERK_OPERATOR_USER_ID`, and `CLERK_AUTHORIZED_PARTIES`. The API rejects missing or non-operator sessions. Do not enable public application authority through a frontend route guard alone.
 
+### Phase 1.2 account read setup
+
+The reviewed migration is `packages/db/migrations/0001_account_read_models.sql`. Apply it through Railway's controlled migration process; the application does not run migrations automatically at startup. The authenticated Railway API exposes `GET /v1/account`, which remains `503 broker_not_configured` until `BROKER_CONNECTION_ENABLED=true`. Only then does it read the existing paper Alpaca credentials from Railway server variables. The adapter is read-only and accepts only `https://paper-api.alpaca.markets`; it has no order methods.
+
 ## First implementation prompt
 
 ```text

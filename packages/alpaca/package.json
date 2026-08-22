@@ -13,5 +13,9 @@
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc --noEmit"
   },
-  "types": "./src/index.ts"
+  "types": "./src/index.ts",
+  "dependencies": {
+    "@momentum/config": "workspace:*",
+    "zod": "^4.4.3"
+  }
 }
