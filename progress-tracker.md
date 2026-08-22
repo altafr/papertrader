@@ -2,10 +2,10 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.8 — application schema migration and controlled paper verification.
-- **Status:** Phase 6.8 application schema migration verified in Railway; broker opt-in and first controlled paper reconciliation remain operational dependencies.
+- **Phase:** Phase 6.9 — controlled paper reconciliation verified.
+- **Status:** One guarded read-only Alpaca paper reconciliation completed in Railway and persisted successfully; durable scheduler and Paper Autopilot remain disabled.
 - **Current operating mode:** Paper only; order submission not yet enabled.
-- **Current goal:** Enable broker access only with explicit operator approval, then run one controlled paper reconciliation through the durable worker; keep live capability disabled.
+- **Current goal:** Add durable scheduler activation checks and operator-visible reconciliation health while keeping Paper Autopilot and live capability disabled.
 - **Last updated:** 2026-08-23.
 
 ## Delivery Roadmap
@@ -515,6 +515,14 @@
 - **Next smallest unit:** Apply the application migrations, confirm all required tables, then enable the paper broker read gate for one controlled reconciliation.
 - **Hosted evidence:** Worker deployment reached `SUCCESS`; migrations `0001` through `0007` applied; `schema_migrations` contains 7 records; `account_snapshots`, `paper_order_submissions`, and `strategy_lifecycle_events` are present.
 
+## Completed Build Unit — Phase 6.9
+
+- **User story:** As the operator, I can run one explicitly guarded paper reconciliation inside Railway and verify that broker truth is persisted without enabling an order loop.
+- **Verified:** Ran `RECONCILE_ONCE=true` with a temporary command-scoped `BROKER_CONNECTION_ENABLED=true`; the paper reconciliation completed and persisted 1 account snapshot, 1 position, and 1 order read-model row.
+- **Safety boundary:** The persistent Railway broker flag remains false; no scheduler, Paper Autopilot, order submission, or live endpoint was enabled. Queue work and dead-letter counts remain zero.
+- **Deployment dependency:** The Alpaca paper credentials and read-only account state are now verified in Railway; future scheduler activation must retain explicit broker, handler, and paper-mode gates.
+- **Next smallest unit:** Add operator-visible reconciliation health and scheduler activation checks before considering Paper Autopilot enablement.
+
 ## Decisions Made
 
 | Date | Decision | Reason |
@@ -600,6 +608,7 @@
 | Phase 6.6 idempotent hosted run-once trigger | Pass | Full build, typecheck, lint, and 94 tests pass; deterministic UTC job IDs, duplicate suppression, explicit guard, and enqueue-only boundaries are covered |
 | Phase 6.7 Railway queue migration and deployment verification | Partial | Railway worker deployment reached SUCCESS; `DATABASE_URL` reference is present; guarded migration completed; both queues are present with zero counts; broker opt-in and first paper reconciliation remain intentionally unperformed |
 | Phase 6.8 guarded application schema migration | Pass | Full build, typecheck, lint, and 94 tests pass; Railway deployment succeeded, migrations 0001–0007 were applied, and required read-model/order tables are present |
+| Phase 6.9 controlled paper reconciliation | Pass | Railway one-shot reconciliation completed; 1 account snapshot, 1 position, and 1 order persisted; work/dead-letter queues remain present with zero queued, active, and failed jobs; no persistent broker or autopilot enablement |
 | Browser/preview | Partial | Production page HTTP check passed; visual/responsive review deferred beyond source scaffold |
 | Security review | Partial | No credential files, Alpaca client, database connection, or order code added; full review remains required |
 
@@ -620,7 +629,7 @@
 - **What exists:** Verified hosted foundation, Phase 0.3 selections, Phase 0.4 fail-closed guardrails, operator-confirmed paper setup, Phase 1 read-only account/dashboard foundation, guarded reconciliation command, Phase 2.1–2.2 authenticated asset/market-data reads, Phase 2.3 stream/backfill boundary, Phase 2.4 dashboard views, Phase 2.5 protected reconciliation verification, Phase 3.1 disabled strategy contract, Phase 3.2 decimal-safe metrics, Phase 3.3 point-in-time replay, Phase 3.4 disabled momentum plug-ins, Phase 3.5 regime evidence, Phase 3.6 in-process lifecycle gate, Phase 3.7 reviewed lifecycle-event persistence, Phase 3.8 authenticated replay approval command, Phase 3.9 shadow observation persistence, Phase 3.10 finalized-bar evaluation, Phase 3.11 restart-safe shadow runner, Phase 3.12 opt-in worker boundary, Phase 3.13 wired shadow worker/scheduler, Phase 3.14 controlled shadow evidence/replay-to-shadow gate, Phase 3.15 authenticated replay-to-shadow command, Phase 3.16 shadow-to-paper readiness gate, Phase 3.17 authenticated shadow-to-paper command, Phase 5.1 immutable paper signals/deterministic risk checks, Phase 5.2 immutable trade intents/execution-time risk approvals, Phase 5.3 idempotent paper-order submission boundary, Phase 5.4 transactional paper-order persistence/reconciliation records, Phase 6.1 paper execution wiring/Autopilot gate, Phase 6.2 controlled paper recovery/partial-fill reconciliation, and Phase 6.3 durable daily scheduling/recovery boundary. No hosted migration has been applied and no broker request has been run.
 - **Where to resume:** Build the deterministic paper risk/execution boundary, then apply the reviewed migrations through Railway's controlled process, run one guarded paper reconciliation, and verify `/v1/read-model`, `/v1/reconciliation-status`, and dashboard data against Alpaca.
 - **Important context:** Keep Alpaca paper mode and read-only behavior during Phase 2.
-- **Recommended next prompt:** Continue Phase 6.7 by running the guarded Railway migration/status/restart/run-once sequence and recording controlled paper reconciliation evidence; keep live capability disabled.
+- **Recommended next prompt:** Continue Phase 6.10 with operator-visible reconciliation health and scheduler activation checks; keep Paper Autopilot and live capability disabled.
 
 ## Change Log
 
