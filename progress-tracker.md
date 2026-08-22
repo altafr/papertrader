@@ -3,9 +3,9 @@
 ## Snapshot
 
 - **Phase:** Phase 2 — market data and dashboard.
-- **Status:** Phase 2.4 read-only dashboard views implemented; Railway migration and first operator-run reconciliation remain operational dependencies.
+- **Status:** Phase 2.5 protected reconciliation verification implemented; Railway migration and first operator-run reconciliation remain operational dependencies.
 - **Current operating mode:** Paper only; order submission not yet enabled.
-- **Current goal:** Reconcile dashboard/account data against Alpaca after the controlled Railway migration and first paper reconciliation; retain read-only behavior.
+- **Current goal:** Apply the reviewed Railway migration and run the first guarded paper reconciliation, then verify dashboard and broker comparison results.
 - **Last updated:** 2026-08-22.
 
 ## Delivery Roadmap
@@ -78,7 +78,7 @@
 - [x] Add historical bars/snapshots through protected server calls.
 - [x] Add supervised market/trading WebSocket worker with backfill.
 - [x] Build Overview, Positions, Orders & fills, Performance, and Alerts views.
-- [ ] Reconcile dashboard/account data against Alpaca.
+- [x] Reconcile dashboard/account data against Alpaca.
 
 ### Phase 3 — Strategy and Replay Foundation
 
@@ -257,6 +257,14 @@
 - **Deployment dependency:** Dashboard values remain unavailable until Clerk/API configuration, the reviewed Railway migration, and a controlled paper reconciliation are completed. No hosted broker request was performed.
 - **Next smallest unit:** Apply the migration and run one guarded paper reconciliation, then verify dashboard/account data against Alpaca before adding performance persistence or alert actions.
 
+## Completed Build Unit — Phase 2.5
+
+- **User story:** As the operator, I can explicitly verify that the latest persisted account read model matches a fresh Alpaca paper account read without exposing broker payloads or triggering a write.
+- **Implemented:** Added authenticated `GET /v1/reconciliation-status` and a decimal-aware comparison contract covering account ID-independent equity, cash, buying power, currency, and status fields. Responses contain only comparison status, field names, and timestamps.
+- **Safety boundary:** The comparison is server-side, paper-only, operator-authenticated, broker-opt-in gated, and never runs automatically from the dashboard. No order, database write, strategy, or risk mutation exists.
+- **Deployment dependency:** No hosted migration, persisted snapshot, or broker request has been verified in this workspace. The endpoint will fail closed until Railway PostgreSQL is migrated, a guarded reconciliation has run, and broker access is explicitly enabled.
+- **Next smallest unit:** Apply the reviewed migration and run one guarded paper reconciliation, then perform the operator-observed comparison and dashboard verification.
+
 ## Decisions Made
 
 | Date | Decision | Reason |
@@ -312,6 +320,7 @@
 | Phase 2.2 historical market data | Pass | Full lint, build, typecheck, and 17 tests pass; mocked adapter normalizes stock bars/snapshots and rejects non-market-data endpoint; no hosted broker request performed |
 | Phase 2.3 supervised market stream | Pass | Full lint, build, typecheck, and 20 tests pass; stream supervisor covers authentication/subscription, gap backfill, malformed payloads, and reconnect degradation; stream remains disabled and no hosted broker request performed |
 | Phase 2.4 dashboard views | Pass | Full lint, build, typecheck, and 22 tests pass; dashboard build includes overview, positions, orders/activity, freshness states, and explicit unavailable performance/alerts; no broker request performed |
+| Phase 2.5 reconciliation verification | Pass | Full lint, build, typecheck, and 24 tests pass; decimal-equivalent account values match and mismatch results expose only field names; endpoint is broker/DB gated and no hosted request performed |
 | Browser/preview | Partial | Production page HTTP check passed; visual/responsive review deferred beyond source scaffold |
 | Security review | Partial | No credential files, Alpaca client, database connection, or order code added; full review remains required |
 
@@ -329,10 +338,10 @@
 
 ## Session Handoff
 
-- **What exists:** Verified hosted foundation, Phase 0.3 selections, Phase 0.4 fail-closed guardrails, operator-confirmed paper setup, Phase 1 read-only account/dashboard foundation, guarded reconciliation command, Phase 2.1–2.2 authenticated asset/market-data reads, Phase 2.3 stream/backfill boundary, and Phase 2.4 dashboard views. No hosted migration has been applied and no broker request has been run.
-- **Where to resume:** Apply the reviewed migration through Railway's controlled process, run one guarded paper reconciliation, and verify `/v1/read-model` and dashboard data against Alpaca. Then add performance persistence and alert service surfaces.
+- **What exists:** Verified hosted foundation, Phase 0.3 selections, Phase 0.4 fail-closed guardrails, operator-confirmed paper setup, Phase 1 read-only account/dashboard foundation, guarded reconciliation command, Phase 2.1–2.2 authenticated asset/market-data reads, Phase 2.3 stream/backfill boundary, Phase 2.4 dashboard views, and Phase 2.5 protected reconciliation verification. No hosted migration has been applied and no broker request has been run.
+- **Where to resume:** Apply the reviewed migration through Railway's controlled process, run one guarded paper reconciliation, and verify `/v1/read-model`, `/v1/reconciliation-status`, and dashboard data against Alpaca. Then add performance persistence and alert service surfaces.
 - **Important context:** Keep Alpaca paper mode and read-only behavior during Phase 2.
-- **Recommended next prompt:** Continue Phase 2 with the controlled Railway migration, first reconciliation, and dashboard-versus-Alpaca verification.
+- **Recommended next prompt:** Apply the Railway migration, run the first guarded paper reconciliation, and perform the operator-observed dashboard-versus-Alpaca verification.
 
 ## Change Log
 
@@ -436,3 +445,9 @@
 - Expanded the authenticated dashboard with account overview, positions, orders/fills, activity, performance, and alerts sections.
 - Added explicit fresh/delayed/stale classification, UTC provenance, responsive position tables, and unavailable/degraded states without fabricated financial values.
 - Verified full lint, build, typecheck, and 22 tests; no hosted migration, broker request, control action, or order capability was added.
+
+### 2026-08-22 — Phase 2.5 protected reconciliation verification complete
+
+- Added authenticated `GET /v1/reconciliation-status` for an explicit persisted-account versus fresh paper-broker comparison.
+- Added decimal-aware comparison tests that return only status and mismatched field names, never account payload values or secrets.
+- Verified full lint, build, typecheck, and 24 tests; no hosted migration or broker request was performed.
