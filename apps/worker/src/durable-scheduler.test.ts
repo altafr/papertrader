@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { DAILY_PREPARATION_QUEUE, createDurableScheduler, enqueueDailyPreparation, getDailyPreparationJobId, getDurableSchedulerConfig, getDurableSchedulerHealth, getDurableSchedulerReadiness, inspectDurableQueues, provisionDurableQueues } from "./durable-scheduler.js";
+import { DAILY_PREPARATION_QUEUE, createDurableScheduler, enqueueDailyPreparation, getDailyPreparationJobId, getDurableSchedulerConfig, getDurableSchedulerHealth, getDurableSchedulerReadiness, inspectDurableQueues, provisionDurableQueues, validateDurableSchedulerOneRun } from "./durable-scheduler.js";
 
 describe("durable scheduler", () => {
   it("is disabled by default and validates bounded retry configuration", () => {
@@ -27,6 +27,13 @@ describe("durable scheduler", () => {
     expect(ready).toMatchObject({ status: "ready", blockedReasons: [] });
     expect(JSON.stringify(ready)).not.toContain("secret-key");
     expect(JSON.stringify(ready)).not.toContain("secret-secret");
+  });
+
+  it("requires explicit command-scoped gates for one-run activation", () => {
+    expect(() => validateDurableSchedulerOneRun({})).toThrow("DAILY_PREPARATION_HANDLER_ENABLED");
+    expect(() => validateDurableSchedulerOneRun({ BROKER_CONNECTION_ENABLED: "true", DAILY_PREPARATION_HANDLER_ENABLED: "true", DURABLE_SCHEDULER_ENABLED: "true" })).toThrow("DURABLE_SCHEDULER_ENABLED");
+    expect(() => validateDurableSchedulerOneRun({ BROKER_CONNECTION_ENABLED: "true", DAILY_PREPARATION_HANDLER_ENABLED: "true" })).not.toThrow();
+    expect(() => validateDurableSchedulerOneRun({ BROKER_CONNECTION_ENABLED: "true", DAILY_PREPARATION_HANDLER_ENABLED: "true", PAPER_AUTOPILOT_ENABLED: "true" })).toThrow("PAPER_AUTOPILOT_ENABLED");
   });
 
   it("creates a UTC schedule and marks failed jobs degraded while preserving the queue boundary", async () => {

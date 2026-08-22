@@ -61,6 +61,21 @@ export function getDurableSchedulerReadiness(environment: NodeJS.ProcessEnv = pr
   };
 }
 
+export function validateDurableSchedulerOneRun(environment: NodeJS.ProcessEnv = process.env): void {
+  if (environment.DURABLE_SCHEDULER_ENABLED === "true") {
+    throw new Error("DURABLE_SCHEDULER_ENABLED must remain disabled for the one-run command.");
+  }
+  if (environment.DAILY_PREPARATION_HANDLER_ENABLED !== "true") {
+    throw new Error("DAILY_PREPARATION_HANDLER_ENABLED must be explicitly true for the one-run command.");
+  }
+  if (environment.BROKER_CONNECTION_ENABLED !== "true") {
+    throw new Error("BROKER_CONNECTION_ENABLED must be explicitly true for the one-run command.");
+  }
+  if (environment.PAPER_AUTOPILOT_ENABLED === "true") {
+    throw new Error("PAPER_AUTOPILOT_ENABLED must remain disabled for the one-run command.");
+  }
+}
+
 export interface DurableDailyJob {
   readonly kind: "daily_preparation";
   readonly version: 1;

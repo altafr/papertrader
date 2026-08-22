@@ -317,6 +317,12 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - The command reports only `disabled`, `blocked`, or `ready` plus non-secret reason codes; an explicitly enabled but incomplete scheduler exits non-zero.
 - Readiness does not activate the scheduler or Paper Autopilot. Persistent Railway flags remain disabled until a separate operator-approved activation step.
 
+### Phase 6.12 One-Run Scheduler Reconciliation Boundary
+
+- Added `durable-one-run`, which provisions the existing `pg-boss` queues, registers a temporary worker, enqueues one immediate daily-preparation payload, waits for one read-only paper reconciliation, and shuts down.
+- The command requires command-scoped broker and handler gates and refuses persistent scheduler or Paper Autopilot enablement. It never creates a recurring schedule or an order path.
+- Hosted execution remains a separately approved operator action because it performs one Alpaca paper read and one PostgreSQL reconciliation write.
+
 ### Phase 6.8 Guarded Application Schema Migration
 
 - Added a one-shot application migration runner with an explicit ledger and per-file transactions, separate from `pg-boss`'s own schema migration.
