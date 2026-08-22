@@ -48,6 +48,8 @@ For the controlled hosted paper reconciliation procedure, see [`docs/railway-pap
 
 Use `pnpm typecheck`, `pnpm lint`, `pnpm test`, and `pnpm build` for the local verification loop. Phase 0.1 contains no credentials, broker request, database connection, or order behavior.
 
+GitHub Actions runs the same locked, paper-only verification loop on pushes to `main` and every pull request. The workflow has read-only repository permissions and does not receive broker, database, Clerk, or deployment secrets.
+
 The server must run daily preparation, health, reconciliation, and evaluation independently of an open browser. Paper Autopilot does not require per-order human confirmation, but every order still requires deterministic risk approval. The initial paper baseline is `USD 1,000`; estimated loss at the planned stop is limited to the lower of `0.25%` of equity and `USD 100`.
 
 Railway PostgreSQL is the selected system of record. Railway also hosts the authenticated API, PostgreSQL-backed durable jobs, and persistent Alpaca market/trading WebSocket worker. Vercel hosts only the dashboard and contains no Alpaca credentials or direct order authority.

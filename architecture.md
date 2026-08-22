@@ -323,6 +323,11 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - The command requires command-scoped broker and handler gates and refuses persistent scheduler or Paper Autopilot enablement. It never creates a recurring schedule or an order path.
 - Hosted execution remains a separately approved operator action because it performs one Alpaca paper read and one PostgreSQL reconciliation write.
 
+### Phase 6.15 Paper-only CI Verification
+
+- GitHub Actions runs the locked lint, test, typecheck, and production-build loop for pull requests and pushes to `main`.
+- CI has read-only repository permissions and no access to Railway, PostgreSQL, Alpaca, Clerk, Vercel, or deployment secrets.
+
 ### Phase 6.13 Dashboard Operations Health Surface
 
 - The authenticated dashboard consumes only the redacted `/v1/operations-health` response and displays reconciliation freshness plus scheduler, broker-read, and Paper Autopilot gates.

@@ -2,8 +2,8 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.14 — hosted reconciliation runbook documented.
-- **Status:** The Vercel preview is Ready and deployment-protected; the authenticated dashboard and guarded Railway one-run procedure are documented while durable scheduler and Paper Autopilot remain disabled.
+- **Phase:** Phase 6.15 — paper-only CI verification added.
+- **Status:** The repository now enforces the local lint/test/typecheck/build loop in GitHub Actions without broker, database, Clerk, or deployment secrets; durable scheduler and Paper Autopilot remain disabled.
 - **Current operating mode:** Paper only; order submission not yet enabled.
 - **Current goal:** Run the separately approved one-run paper reconciliation using the reviewed runbook, then verify its result in the authenticated dashboard.
 - **Last updated:** 2026-08-23.
@@ -568,6 +568,14 @@
 - **Verification:** Documentation links and commands were reviewed against the deployed worker scripts; no hosted broker or database action was performed in this unit.
 - **Next smallest unit:** Obtain explicit operator approval, run the one-run command once, and record redacted evidence.
 
+## Completed Build Unit — Phase 6.15
+
+- **User story:** As the maintainer, I receive the same paper-only quality checks on every pull request and push to `main`.
+- **Implemented:** Added `.github/workflows/ci.yml` with locked pnpm installation, Node 22, lint, tests, typecheck, and production build. The workflow has `contents: read` permissions, a bounded timeout, and no service credentials.
+- **Safety boundary:** CI never connects to Railway, PostgreSQL, Alpaca, Clerk, Vercel, or any order path; it verifies source only.
+- **Verification:** The same four commands pass locally; workflow syntax and referenced scripts match the repository manifests.
+- **Next smallest unit:** Obtain explicit operator approval, run the one-run paper reconciliation, and record redacted hosted evidence.
+
 ## Decisions Made
 
 | Date | Decision | Reason |
@@ -659,6 +667,7 @@
 | Phase 6.12 one-run scheduler reconciliation boundary | Pass | Guarded `durable-one-run` provisions existing queues and consumes one read-only job only with explicit command-scoped gates; 101 tests, typecheck, lint, and build pass; worker deployment `9faf1392-c6ed-4735-a8ee-5ed59708feb4` is `SUCCESS`; hosted execution awaits explicit temporary broker/handler opt-in |
 | Phase 6.13 dashboard operations health surface | Pass | Authenticated dashboard displays strict operations-health state with unavailable/degraded handling; 102 tests, typecheck, lint, and production build pass; Vercel preview reports `Ready` and is deployment-protected; no browser authority or persistent gate change added |
 | Phase 6.14 hosted reconciliation runbook | Pass | Added and linked the guarded Railway runbook with command-scoped gates, expected evidence, persistent-variable checks, and failure handling; no hosted state changed |
+| Phase 6.15 paper-only CI verification | Pass | GitHub Actions workflow added for locked install, lint, tests, typecheck, and build with read-only repository permissions and no runtime secrets; local equivalent checks pass |
 | Browser/preview | Partial | Production page HTTP check passed; visual/responsive review deferred beyond source scaffold |
 | Security review | Partial | No credential files, Alpaca client, database connection, or order code added; full review remains required |
 
