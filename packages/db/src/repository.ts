@@ -246,5 +246,15 @@ export function createShadowObservationRepository(db: Database) {
       const [outcome] = await db.select().from(shadowObservationOutcomes).where(eq(shadowObservationOutcomes.observationId, observationId)).limit(1);
       return { observation, outcome };
     },
+
+    async listOpen() {
+      const rows = await db.select().from(shadowObservations);
+      const open = [] as typeof rows;
+      for (const row of rows) {
+        const [outcome] = await db.select().from(shadowObservationOutcomes).where(eq(shadowObservationOutcomes.observationId, row.observationId)).limit(1);
+        if (!outcome) open.push(row);
+      }
+      return open;
+    },
   };
 }

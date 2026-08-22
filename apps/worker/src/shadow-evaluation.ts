@@ -4,6 +4,12 @@ export interface ShadowEvaluationConfig {
   readonly sourceConfigured: boolean;
 }
 
+export type ShadowScheduleStatus = "degraded" | "disabled" | "ready" | "running" | "scheduled";
+export interface ShadowScheduleHealth { readonly lastRunAt?: string; readonly nextRunAt?: string; readonly status: ShadowScheduleStatus; }
+let scheduleHealth: ShadowScheduleHealth = { status: "disabled" };
+export function getShadowScheduleHealth(): ShadowScheduleHealth { return scheduleHealth; }
+export function setShadowScheduleHealth(next: ShadowScheduleHealth): void { scheduleHealth = next; }
+
 function parseBoolean(name: string, value: string | undefined, defaultValue: boolean): boolean {
   if (value === undefined) return defaultValue;
   if (value === "true") return true;

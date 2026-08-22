@@ -23,8 +23,10 @@ export interface WorkerHealth {
   readonly shadowEvaluation: {
     readonly enabled: boolean;
     readonly intervalSeconds: number;
+    readonly lastRunAt?: string;
+    readonly nextRunAt?: string;
     readonly sourceConfigured: boolean;
-    readonly status: "disabled" | "ready";
+    readonly status: "degraded" | "disabled" | "ready" | "running" | "scheduled";
   };
   readonly service: "worker";
   readonly status: HealthState;

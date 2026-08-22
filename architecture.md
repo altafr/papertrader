@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 3.12 opt-in shadow worker boundary and health record implemented; Railway migration and first operator-run reconciliation remain operational dependencies.
+- **Stage:** Phase 3.13 wired shadow worker source/repository and bounded scheduler implemented; Railway migration and first operator-run reconciliation remain operational dependencies.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -221,6 +221,12 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - Added worker configuration for `SHADOW_EVALUATION_ENABLED`, bounded `SHADOW_EVALUATION_INTERVAL_SECONDS`, source readiness, and explicit `SHADOW_EVALUATION_ONCE` one-shot invocation.
 - Worker health now reports shadow evaluation readiness without exposing secrets. Shadow evaluation remains disabled by default; enabling it without a finalized-bar source fails closed at startup.
 - Added the `shadow-evaluate` command boundary. It is intentionally not wired to a production bar adapter or repository yet and exits safely rather than claiming a run occurred.
+
+### Phase 3.13 Wired Shadow Worker and Scheduler
+
+- Wired the opt-in worker command to the read-only Alpaca historical-bar adapter, open-observation repository, deterministic shadow runner, and one-time outcome persistence.
+- Added a bounded interval scheduler with stable status transitions and last/next run timestamps in worker health. The scheduler starts only when shadow evaluation, paper broker access, database access, and source readiness are explicitly configured.
+- A source/API/database failure is reported as a failed run and never creates an order or advances a strategy stage. The default remains disabled.
 
 ## Runtime Components
 

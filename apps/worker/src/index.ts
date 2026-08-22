@@ -1,10 +1,13 @@
 import { createServer } from "node:http";
 
+import { createPaperMarketDataReader } from "@momentum/alpaca";
 import { getPaperOnlyRuntimeConfig, getServerPort } from "@momentum/config";
+import { createDatabase, createShadowObservationRepository } from "@momentum/db";
 
 import { getWorkerHealth } from "./app.js";
 import { startPaperMarketStream } from "./market-stream-runner.js";
 import { getShadowEvaluationConfig } from "./shadow-evaluation.js";
+import { createAlpacaShadowBarSource, createShadowEvaluationScheduler, runShadowEvaluationOnce } from "./shadow-evaluation-service.js";
 
 const streamEnabled = process.env.MARKET_STREAM_ENABLED;
 if (streamEnabled !== undefined && streamEnabled !== "true" && streamEnabled !== "false") {
@@ -23,7 +26,16 @@ const server = createServer((request, response) => {
 });
 
 getPaperOnlyRuntimeConfig();
-getShadowEvaluationConfig();
+const shadowConfiguration = getShadowEvaluationConfig();
+if (shadowConfiguration.enabled) {
+  if (process.env.BROKER_CONNECTION_ENABLED !== "true") throw new Error("SHADOW_EVALUATION_ENABLED=true requires BROKER_CONNECTION_ENABLED=true.");
+  if (!process.env.DATABASE_URL?.trim()) throw new Error("SHADOW_EVALUATION_ENABLED=true requires DATABASE_URL.");
+  const { db } = createDatabase();
+  const shadowRepository = createShadowObservationRepository(db);
+  const shadowReader = createPaperMarketDataReader({ apiKey: process.env.ALPACA_API_KEY ?? "", secretKey: process.env.ALPACA_SECRET_KEY ?? "" });
+  const shadowScheduler = createShadowEvaluationScheduler({ intervalSeconds: shadowConfiguration.intervalSeconds, run: () => runShadowEvaluationOnce({ barSource: createAlpacaShadowBarSource(shadowReader), repository: shadowRepository }).then(() => undefined) });
+  shadowScheduler.start();
+}
 if (streamEnabled === "true") {
   if (process.env.BROKER_CONNECTION_ENABLED !== "true") {
     throw new Error("MARKET_STREAM_ENABLED=true requires BROKER_CONNECTION_ENABLED=true.");
