@@ -18,6 +18,7 @@ import {
 } from "@momentum/config";
 
 import { getApiHealth } from "./app.js";
+import { assessReconciliationHealth, assessSchedulerActivation } from "./operations-health.js";
 import { compareReconciliationAccounts } from "./reconciliation-status.js";
 import { approveDisabledToReplay, approveReplayToShadow, approveShadowToPaper } from "./lifecycle-command.js";
 
@@ -270,6 +271,49 @@ async function readReconciliationStatus(request: IncomingMessage) {
   } as const;
 }
 
+function readBooleanEnvironmentFlag(name: string): boolean {
+  return process.env[name] === "true";
+}
+
+async function readOperationsHealth(request: IncomingMessage) {
+  const authentication = await authenticateOperator(request);
+  if (authentication.status !== 200) return authentication;
+  if (!process.env.DATABASE_URL?.trim()) {
+    return { body: { error: "db_not_configured" }, status: 503 } as const;
+  }
+
+  if (!readModelRepository) {
+    const { db } = createDatabase();
+    readModelRepository = createAccountStateRepository(db);
+  }
+  const model = await readModelRepository.getLatestReadModel();
+  const reconciliation = assessReconciliationHealth(model?.freshness.capturedAt);
+  const brokerConnectionEnabled = readBooleanEnvironmentFlag("BROKER_CONNECTION_ENABLED");
+  const schedulerEnabled = readBooleanEnvironmentFlag("DURABLE_SCHEDULER_ENABLED");
+  const handlerEnabled = readBooleanEnvironmentFlag("DAILY_PREPARATION_HANDLER_ENABLED");
+  const schedulerStatus = assessSchedulerActivation({
+    brokerConnectionEnabled,
+    dailyPreparationHandlerEnabled: handlerEnabled,
+    schedulerEnabled,
+  });
+
+  return {
+    body: {
+      reconciliation,
+      runtime: {
+        brokerConnectionEnabled,
+        dailyPreparationHandlerEnabled: handlerEnabled,
+        paperAutopilotEnabled: readBooleanEnvironmentFlag("PAPER_AUTOPILOT_ENABLED"),
+        scheduler: {
+          enabled: schedulerEnabled,
+          status: schedulerStatus,
+        },
+      },
+    },
+    status: 200,
+  } as const;
+}
+
 async function approveStrategyReplay(request: IncomingMessage) {
   const authentication = await authenticateOperator(request);
   if (authentication.status !== 200) return authentication;
@@ -406,6 +450,19 @@ const server = createServer((request, response) => {
       .catch(() => {
         response.writeHead(502, { "content-type": "application/json" });
         response.end(JSON.stringify({ error: "reconciliation_unavailable" }));
+      });
+    return;
+  }
+
+  if (request.method === "GET" && request.url === "/v1/operations-health") {
+    readOperationsHealth(request)
+      .then(({ body, status }) => {
+        response.writeHead(status, { "content-type": "application/json" });
+        response.end(JSON.stringify(body));
+      })
+      .catch(() => {
+        response.writeHead(503, { "content-type": "application/json" });
+        response.end(JSON.stringify({ error: "operations_health_unavailable" }));
       });
     return;
   }
