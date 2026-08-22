@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 1.4 persisted read-model API implemented; controlled migration and hosted reconciliation remain next.
+- **Stage:** Phase 1.5 dashboard read-only surfaces implemented; controlled migration and hosted reconciliation remain next.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -93,6 +93,13 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - `apps/api` exposes authenticated `GET /v1/read-model`. It returns `503 db_not_configured` without `DATABASE_URL`, `404 read_model_not_available` before a reconciliation exists, and a redacted `503 database_unavailable` for database/schema failures.
 - The API creates the PostgreSQL pool lazily on the first authenticated read-model request; it never runs migrations at startup and does not expose database connection details.
 - This unit does not claim that Railway has applied the migration or that a broker reconciliation has run. The dashboard can consume the endpoint only after those operational prerequisites are completed.
+
+### Phase 1.5 Dashboard Read-Only Surfaces
+
+- `apps/web/app/dashboard` consumes only the authenticated Railway `/v1/read-model` endpoint through a server component using a Clerk session token; it never receives Alpaca credentials or connects to PostgreSQL.
+- The dashboard renders paper/read-only status, account equity/cash/buying power/status, capture age, positions, orders, and activities.
+- Missing API configuration, authentication tokens, migration data, or connectivity produce explicit unavailable states. No frontend fallback grants access or invents financial values.
+- The dashboard remains display-only. Controls, order submission, strategy actions, and risk changes are not part of this unit.
 
 ## Runtime Components
 
