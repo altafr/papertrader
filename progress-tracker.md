@@ -2,11 +2,11 @@
 
 ## Snapshot
 
-- **Phase:** Phase 3 — strategy and replay foundation.
-- **Status:** Phase 6.4 controlled durable queue provisioning implemented; Railway migration, restart verification, and first operator-run reconciliation remain operational dependencies.
+- **Phase:** Phase 6.7 — hosted queue migration and controlled paper verification.
+- **Status:** Phase 6.7 Railway queue migration and worker deployment verified; broker opt-in and first controlled paper reconciliation remain operational dependencies.
 - **Current operating mode:** Paper only; order submission not yet enabled.
-- **Current goal:** Run the guarded Railway queue migration and status check, verify restart-safe reconciliation, and keep live capability disabled.
-- **Last updated:** 2026-08-22.
+- **Current goal:** Enable broker access only with explicit operator approval, then run one controlled paper reconciliation through the durable worker; keep live capability disabled.
+- **Last updated:** 2026-08-23.
 
 ## Delivery Roadmap
 
@@ -498,6 +498,14 @@
 - **Deployment dependency:** Run `durable-migrate`, `durable-status`, restart the worker, then run `durable-run-once` from Railway; inspect status and reconciliation read models afterward.
 - **Next smallest unit:** Perform the controlled Railway migration/status/restart/run-once sequence and record the observed evidence.
 
+## Active Build Unit — Phase 6.7
+
+- **User story:** As the operator, I can verify the deployed worker and durable queue in Railway's private runtime before allowing a read-only paper reconciliation.
+- **Verified:** Added `DATABASE_URL=${{Postgres.DATABASE_URL}}` references to both Railway API and worker with deploys initially skipped; deployed the Phase 6 worker successfully; ran the guarded queue migration through Railway SSH; verified both work and dead-letter queues are present with zero queued, active, and failed jobs.
+- **Safety boundary:** `DURABLE_SCHEDULER_ENABLED=false`, `DAILY_PREPARATION_HANDLER_ENABLED=false`, and `BROKER_CONNECTION_ENABLED=false` remain active. No Alpaca request, reconciliation, or order submission has occurred.
+- **Remaining operator gate:** `BROKER_CONNECTION_ENABLED=true` must be explicitly approved before the worker may call the Alpaca paper read API. The worker now fails closed if durable reconciliation is enabled without that opt-in.
+- **Next smallest unit:** After approval, enable broker connection and the verified handler, restart the worker, enqueue one run-once job, and verify the persisted read model.
+
 ## Decisions Made
 
 | Date | Decision | Reason |
@@ -581,6 +589,7 @@
 | Phase 6.4 controlled durable queue provisioning | Pass | Full build, typecheck, lint, and 92 tests pass; guarded one-shot migration, queue/dead-letter provisioning, stop/start schedule re-registration, and no-scheduler migration boundaries are covered |
 | Phase 6.5 hosted durable queue verification tooling | Pass | Full build, typecheck, lint, and 93 tests pass; guarded status command, queue presence/count inspection, missing-queue failure state, and no-broker/no-scheduler boundaries are covered |
 | Phase 6.6 idempotent hosted run-once trigger | Pass | Full build, typecheck, lint, and 94 tests pass; deterministic UTC job IDs, duplicate suppression, explicit guard, and enqueue-only boundaries are covered |
+| Phase 6.7 Railway queue migration and deployment verification | Partial | Railway worker deployment reached SUCCESS; `DATABASE_URL` reference is present; guarded migration completed; both queues are present with zero counts; broker opt-in and first paper reconciliation remain intentionally unperformed |
 | Browser/preview | Partial | Production page HTTP check passed; visual/responsive review deferred beyond source scaffold |
 | Security review | Partial | No credential files, Alpaca client, database connection, or order code added; full review remains required |
 
