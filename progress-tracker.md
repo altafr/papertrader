@@ -3,9 +3,9 @@
 ## Snapshot
 
 - **Phase:** Phase 3 — strategy and replay foundation.
-- **Status:** Phase 3.6 auditable disabled-to-replay lifecycle gate implemented; Railway migration and first operator-run reconciliation remain operational dependencies.
+- **Status:** Phase 3.7 lifecycle-event PostgreSQL schema and repository implemented; Railway migration and first operator-run reconciliation remain operational dependencies.
 - **Current operating mode:** Paper only; order submission not yet enabled.
-- **Current goal:** Add reviewed PostgreSQL persistence for lifecycle events without enabling paper execution.
+- **Current goal:** Add an authenticated operator command that persists only a validated disabled → replay approval.
 - **Last updated:** 2026-08-22.
 
 ## Delivery Roadmap
@@ -88,6 +88,7 @@
 - [x] Implement three initial momentum research strategies.
 - [x] Add regime-based replay evidence and non-promoting assessment.
 - [x] Add auditable disabled → replay lifecycle gate.
+- [x] Add reviewed PostgreSQL lifecycle-event schema and repository.
 - [ ] Add remaining strategy lifecycle gates: replay → shadow → paper → eligible live.
 
 ### Phase 4 — Research Agents and Daily Preparation
@@ -315,6 +316,14 @@
 - **Deployment dependency:** The store is deliberately in-process until a reviewed PostgreSQL audit migration and authenticated API command are implemented. No hosted promotion can occur from this unit.
 - **Next smallest unit:** Add the reviewed PostgreSQL lifecycle-event schema/repository, retaining append-only and unique revision constraints.
 
+## Completed Build Unit — Phase 3.7
+
+- **User story:** As the operator, I can persist a validated disabled-to-replay approval as an append-only PostgreSQL audit event with a unique strategy/version revision.
+- **Implemented:** Added migration `0002_strategy_lifecycle_events.sql`, Drizzle schema, and a repository that checks the current stage and expected revision transactionally before inserting. Database constraints require non-empty audit fields, positive revisions, and disabled → replay only.
+- **Safety boundary:** The migration is not applied by application startup, the repository is not exposed through an API command yet, and no strategy stage or paper order behavior is enabled.
+- **Deployment dependency:** Railway migration application remains a controlled operator action; no hosted database write or broker request was performed.
+- **Next smallest unit:** Add the authenticated operator command that composes domain evidence/approval validation with this repository, retaining re-authentication and append-only controls.
+
 ## Decisions Made
 
 | Date | Decision | Reason |
@@ -377,6 +386,7 @@
 | Phase 3.4 momentum research plug-ins | Pass | Full lint, build, typecheck, and 37 tests pass; registry/stage, ranking, breakout-volume, trend-alignment, insufficient-history, and parameter-boundary tests pass; all plug-ins remain disabled |
 | Phase 3.5 regime replay evidence | Pass | Full lint, build, typecheck, and 40 tests pass; all three plug-ins run across named regimes with explicit research notional, and assessments remain non-promoting with sample/drawdown reasons |
 | Phase 3.6 disabled-to-replay lifecycle gate | Pass | Full lint, build, typecheck, and 43 tests pass; approved transition records, immutable prior state, missing approval/check failures, version mismatch, and stage-jump rejection are covered |
+| Phase 3.7 lifecycle-event PostgreSQL persistence | Pass | Full lint, build, typecheck, and 45 tests pass; migration/schema constraints and repository revision/stage checks are covered with no hosted migration |
 | Browser/preview | Partial | Production page HTTP check passed; visual/responsive review deferred beyond source scaffold |
 | Security review | Partial | No credential files, Alpaca client, database connection, or order code added; full review remains required |
 
@@ -394,10 +404,10 @@
 
 ## Session Handoff
 
-- **What exists:** Verified hosted foundation, Phase 0.3 selections, Phase 0.4 fail-closed guardrails, operator-confirmed paper setup, Phase 1 read-only account/dashboard foundation, guarded reconciliation command, Phase 2.1–2.2 authenticated asset/market-data reads, Phase 2.3 stream/backfill boundary, Phase 2.4 dashboard views, Phase 2.5 protected reconciliation verification, Phase 3.1 disabled strategy contract, Phase 3.2 decimal-safe metrics, Phase 3.3 point-in-time replay, Phase 3.4 disabled momentum plug-ins, Phase 3.5 regime evidence, and Phase 3.6 in-process lifecycle gate. No hosted migration has been applied and no broker request has been run.
-- **Where to resume:** Add the reviewed PostgreSQL lifecycle-event schema/repository and authenticated operator command, retaining the disabled-only and paper-only boundaries. Separately, apply the reviewed migration through Railway's controlled process, run one guarded paper reconciliation, and verify `/v1/read-model`, `/v1/reconciliation-status`, and dashboard data against Alpaca.
+- **What exists:** Verified hosted foundation, Phase 0.3 selections, Phase 0.4 fail-closed guardrails, operator-confirmed paper setup, Phase 1 read-only account/dashboard foundation, guarded reconciliation command, Phase 2.1–2.2 authenticated asset/market-data reads, Phase 2.3 stream/backfill boundary, Phase 2.4 dashboard views, Phase 2.5 protected reconciliation verification, Phase 3.1 disabled strategy contract, Phase 3.2 decimal-safe metrics, Phase 3.3 point-in-time replay, Phase 3.4 disabled momentum plug-ins, Phase 3.5 regime evidence, Phase 3.6 in-process lifecycle gate, and Phase 3.7 reviewed lifecycle-event persistence. No hosted migration has been applied and no broker request has been run.
+- **Where to resume:** Add the authenticated operator command that composes domain evidence/approval validation with the lifecycle repository, retaining the disabled-only and paper-only boundaries. Separately, apply the reviewed migrations through Railway's controlled process, run one guarded paper reconciliation, and verify `/v1/read-model`, `/v1/reconciliation-status`, and dashboard data against Alpaca.
 - **Important context:** Keep Alpaca paper mode and read-only behavior during Phase 2.
-- **Recommended next prompt:** Continue Phase 3.7 with PostgreSQL lifecycle-event persistence and authenticated operator approval; keep paper order behavior off.
+- **Recommended next prompt:** Continue Phase 3.8 with the authenticated disabled → replay approval command; keep paper order behavior off.
 
 ## Change Log
 
@@ -543,3 +553,8 @@
 - Added an append-only, revisioned in-process lifecycle record with actor, reason, approval, evidence reference, and exact strategy version.
 - Enforced the disabled → replay gate with matching three-regime evidence and passing automated checks; stage jumps and future lifecycle stages remain blocked.
 - Verified full lint, build, typecheck, and 43 tests; no hosted persistence, broker request, credential access, or paper order behavior was added.
+
+### 2026-08-22 — Phase 3.7 lifecycle-event PostgreSQL persistence complete
+
+- Added the reviewed `0002_strategy_lifecycle_events.sql` migration, Drizzle schema, and transactional repository checks for append-only disabled-to-replay events.
+- Verified full lint, build, typecheck, and 45 tests; no hosted migration, authenticated command, broker request, credential access, or paper order behavior was added.

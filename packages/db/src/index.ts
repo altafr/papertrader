@@ -1,5 +1,5 @@
 export { createDatabase, type Database } from "./client.js";
-export { createAccountStateRepository, type PersistedAccountSnapshot } from "./repository.js";
+export { createAccountStateRepository, createStrategyLifecycleRepository, type PersistedAccountSnapshot, type PersistedStrategyLifecycleEvent } from "./repository.js";
 export {
   accountSnapshots,
   accountSnapshotsRelations,
@@ -7,6 +7,7 @@ export {
   orders,
   positions,
   positionsRelations,
+  strategyLifecycleEvents,
 } from "./schema.js";
 
 export const DATABASE_ADAPTER_STATUS = "not_configured" as const;

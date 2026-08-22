@@ -1,7 +1,23 @@
-import { desc, eq } from "drizzle-orm";
+import { and, asc, desc, eq } from "drizzle-orm";
 
 import type { Database } from "./client.js";
-import { accountSnapshots, activities, orders, positions } from "./schema.js";
+import { accountSnapshots, activities, orders, positions, strategyLifecycleEvents } from "./schema.js";
+
+export interface PersistedStrategyLifecycleEvent {
+  readonly actorId: string;
+  readonly approvedAt: Date;
+  readonly approvedBy: string;
+  readonly approvalNote: string;
+  readonly evidenceKey: string;
+  readonly eventId: string;
+  readonly fromStage: "disabled";
+  readonly reason: string;
+  readonly requestedAt: Date;
+  readonly revision: number;
+  readonly strategyKey: string;
+  readonly strategyVersion: string;
+  readonly toStage: "replay";
+}
 
 export interface PersistedAccountSnapshot {
   readonly accountId: string;
@@ -138,6 +154,45 @@ export function createAccountStateRepository(db: Database) {
         }
         return snapshot;
       });
+    },
+  };
+}
+
+export function createStrategyLifecycleRepository(db: Database) {
+  return {
+    async appendDisabledToReplay(event: PersistedStrategyLifecycleEvent) {
+      if (event.fromStage !== "disabled" || event.toStage !== "replay") throw new Error("Only disabled to replay lifecycle events may be persisted.");
+      return db.transaction(async (transaction) => {
+        const [latest] = await transaction
+          .select()
+          .from(strategyLifecycleEvents)
+          .where(and(eq(strategyLifecycleEvents.strategyKey, event.strategyKey), eq(strategyLifecycleEvents.strategyVersion, event.strategyVersion)))
+          .orderBy(desc(strategyLifecycleEvents.revision))
+          .limit(1);
+        const expectedRevision = (latest?.revision ?? 0) + 1;
+        if (latest && latest.toStage !== "disabled") throw new Error("Strategy lifecycle is no longer in the disabled stage.");
+        if (event.revision !== expectedRevision) throw new Error(`Lifecycle revision must be ${expectedRevision}.`);
+        const [row] = await transaction.insert(strategyLifecycleEvents).values(event).returning();
+        return row;
+      });
+    },
+
+    async list(strategyKey: string, strategyVersion: string) {
+      return db
+        .select()
+        .from(strategyLifecycleEvents)
+        .where(and(eq(strategyLifecycleEvents.strategyKey, strategyKey), eq(strategyLifecycleEvents.strategyVersion, strategyVersion)))
+        .orderBy(asc(strategyLifecycleEvents.revision));
+    },
+
+    async getLatest(strategyKey: string, strategyVersion: string) {
+      const [row] = await db
+        .select()
+        .from(strategyLifecycleEvents)
+        .where(and(eq(strategyLifecycleEvents.strategyKey, strategyKey), eq(strategyLifecycleEvents.strategyVersion, strategyVersion)))
+        .orderBy(desc(strategyLifecycleEvents.revision))
+        .limit(1);
+      return row;
     },
   };
 }

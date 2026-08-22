@@ -1,5 +1,6 @@
 import { relations } from "drizzle-orm";
-import { numeric, pgTable, text, timestamp, unique, uuid } from "drizzle-orm/pg-core";
+import { check, index, integer, numeric, pgTable, text, timestamp, unique, uuid } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
 
 export const accountSnapshots = pgTable("account_snapshots", {
   accountId: text("account_id").notNull(),
@@ -53,6 +54,33 @@ export const activities = pgTable("activities", {
   symbol: text("symbol"),
   transactionTime: timestamp("transaction_time", { withTimezone: true }),
 });
+
+export const strategyLifecycleEvents = pgTable(
+  "strategy_lifecycle_events",
+  {
+    actorId: text("actor_id").notNull(),
+    approvedAt: timestamp("approved_at", { withTimezone: true }).notNull(),
+    approvedBy: text("approved_by").notNull(),
+    approvalNote: text("approval_note").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    evidenceKey: text("evidence_key").notNull(),
+    eventId: text("event_id").primaryKey(),
+    fromStage: text("from_stage").notNull(),
+    reason: text("reason").notNull(),
+    requestedAt: timestamp("requested_at", { withTimezone: true }).notNull(),
+    revision: integer("revision").notNull(),
+    strategyKey: text("strategy_key").notNull(),
+    strategyVersion: text("strategy_version").notNull(),
+    toStage: text("to_stage").notNull(),
+  },
+  (table) => [
+    unique("strategy_lifecycle_strategy_revision_unique").on(table.strategyKey, table.strategyVersion, table.revision),
+    index("strategy_lifecycle_strategy_revision_idx").on(table.strategyKey, table.strategyVersion, table.revision),
+    check("strategy_lifecycle_non_empty_text", sql`length(${table.actorId}) > 0 AND length(${table.approvedBy}) > 0 AND length(${table.approvalNote}) > 0 AND length(${table.evidenceKey}) > 0 AND length(${table.eventId}) > 0 AND length(${table.reason}) > 0 AND length(${table.strategyKey}) > 0 AND length(${table.strategyVersion}) > 0`),
+    check("strategy_lifecycle_revision_positive", sql`${table.revision} > 0`),
+    check("strategy_lifecycle_disabled_replay_only", sql`${table.fromStage} = 'disabled' AND ${table.toStage} = 'replay'`),
+  ],
+);
 
 export const accountSnapshotsRelations = relations(accountSnapshots, ({ many }) => ({
   positions: many(positions),

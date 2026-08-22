@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 3.6 auditable disabled-to-replay lifecycle gate implemented; Railway migration and first operator-run reconciliation remain operational dependencies.
+- **Stage:** Phase 3.7 lifecycle-event PostgreSQL schema and repository implemented; Railway migration and first operator-run reconciliation remain operational dependencies.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -183,6 +183,12 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - The only implemented transition is `disabled → replay`; it requires matching three-regime evidence, passing automated evidence checks, an explicit operator approval note, and an exact current-stage match.
 - Stage jumps, missing approvals, failed checks, mismatched versions, invalid timestamps, and blank reasons fail closed. Shadow, paper, and eligible-live transitions remain unavailable until their own gates are implemented.
 - The current store is an in-process domain boundary for deterministic tests; production persistence must use the reviewed PostgreSQL audit schema before hosted promotion workflows are enabled.
+
+### Phase 3.7 Lifecycle-Event PostgreSQL Persistence
+
+- Added reviewed migration `0002_strategy_lifecycle_events.sql` and matching Drizzle schema/repository for append-only disabled-to-replay approval events.
+- PostgreSQL enforces non-empty audit fields, positive revisions, unique strategy/version revisions, and the currently permitted `disabled → replay` transition. The repository checks the latest stage and expected revision inside a transaction before inserting.
+- The repository is not wired to a hosted command yet; no migration is applied automatically, no authenticated operator endpoint exists, and no strategy stage is enabled in production.
 
 ## Runtime Components
 
