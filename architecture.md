@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 1.2 read-only account persistence and Alpaca paper adapter implemented; dashboard read models remain next.
+- **Stage:** Phase 1.3 read-only reconciliation bundle implemented; controlled migration and hosted dashboard wiring remain next.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -79,6 +79,13 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - `packages/alpaca` exposes only `readAccount()` and pins requests to `https://paper-api.alpaca.markets/v2/account`. Alpaca payloads are validated with Zod and financial values remain decimal strings.
 - `apps/api` exposes authenticated `GET /v1/account`. It returns `503 broker_not_configured` while broker opt-in is disabled, and never exposes credentials. Errors are normalized to avoid leaking provider details.
 - This unit adds no orders, market data, persistence startup, live endpoint, or risk bypass. The next unit should wire reconciliation persistence and dashboard read models after the migration is applied through Railway's controlled process.
+
+### Phase 1.3 Read-Only Reconciliation Bundle
+
+- `packages/alpaca` now validates and normalizes account, positions, orders, and account-activity responses into a single timestamped paper read bundle. The adapter still exposes no order or mutation method.
+- `packages/db` adds append-only account activity storage, broker-order read-model storage with status refresh, and a transaction that writes one account snapshot, its positions, and the latest broker reads together.
+- `apps/api` returns the expanded bundle from authenticated `GET /v1/account`; auth, paper-mode, explicit broker opt-in, and provider-error boundaries remain unchanged.
+- The migration remains a controlled operator/deployment step. No hosted database write or Alpaca request is claimed until Railway applies the migration and the operator enables the existing paper-only broker flag.
 
 ## Runtime Components
 
