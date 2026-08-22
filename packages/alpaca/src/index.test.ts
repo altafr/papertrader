@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { createPaperAccountReader, createPaperAssetReader } from "./index.js";
+import { createPaperAccountReader, createPaperAssetReader, createPaperMarketDataReader } from "./index.js";
 
 describe("paper account reader", () => {
   it("reads and normalizes account values without an order interface", async () => {
@@ -151,5 +151,91 @@ describe("paper account reader", () => {
         tradable: true,
       },
     ]);
+  });
+
+  it("reads and normalizes bounded stock bars and snapshots", async () => {
+    const requests: string[] = [];
+    const reader = createPaperMarketDataReader({
+      apiKey: "paper-key",
+      fetchImpl: async (input) => {
+        const url = String(input);
+        requests.push(url);
+        if (url.includes("/v2/stocks/bars")) {
+          return new Response(
+            JSON.stringify({
+              bars: {
+                TEST: [{ c: "11.00", h: "12.00", l: "9.00", n: 4, o: "10.00", t: "2026-08-22T00:00:00Z", v: 100, vw: "10.50" }],
+              },
+              next_page_token: null,
+            }),
+            { status: 200 },
+          );
+        }
+        return new Response(
+          JSON.stringify({
+            TEST: {
+              dailyBar: { c: "11.00", h: "12.00", l: "9.00", o: "10.00", t: "2026-08-22T00:00:00Z", v: 100 },
+              latestQuote: { ap: "11.10", as: 2, bp: "10.90", bs: 3, t: "2026-08-22T00:01:00Z" },
+              latestTrade: { p: "11.00", s: 1, t: "2026-08-22T00:01:00Z" },
+            },
+          }),
+          { status: 200 },
+        );
+      },
+      secretKey: "paper-secret",
+    });
+
+    await expect(
+      reader.readHistoricalBars({
+        assetClass: "us_equity",
+        limit: 10,
+        start: "2026-08-21T00:00:00Z",
+        symbols: ["TEST"],
+        timeframe: "1Day",
+      }),
+    ).resolves.toEqual({
+      bars: [
+        {
+          close: "11.00",
+          high: "12.00",
+          low: "9.00",
+          open: "10.00",
+          symbol: "TEST",
+          timestamp: "2026-08-22T00:00:00Z",
+          tradeCount: 4,
+          volume: "100",
+          vwap: "10.50",
+        },
+      ],
+    });
+    await expect(reader.readSnapshots({ assetClass: "us_equity", symbols: ["TEST"] })).resolves.toEqual([
+      {
+        dailyBar: {
+          close: "11.00",
+          high: "12.00",
+          low: "9.00",
+          open: "10.00",
+          symbol: "TEST",
+          timestamp: "2026-08-22T00:00:00Z",
+          volume: "100",
+        },
+        latestQuote: { askPrice: "11.10", bidPrice: "10.90", timestamp: "2026-08-22T00:01:00Z" },
+        latestTrade: { price: "11.00", timestamp: "2026-08-22T00:01:00Z" },
+        symbol: "TEST",
+      },
+    ]);
+    expect(requests[0]).toContain("/v2/stocks/bars?");
+    expect(requests[0]).toContain("symbols=TEST");
+    expect(requests[1]).toContain("/v2/stocks/snapshots?symbols=TEST");
+  });
+
+  it("rejects a non-market-data endpoint", () => {
+    expect(() =>
+      createPaperMarketDataReader({
+        apiKey: "paper-key",
+        baseUrl: "https://api.alpaca.markets",
+        secretKey: "paper-secret",
+      }),
+    ).toThrow("only permits the Alpaca market-data endpoint");
   });
 });

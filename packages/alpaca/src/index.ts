@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { PAPER_TRADING_API_BASE_URL } from "@momentum/config";
+import { ALPACA_MARKET_DATA_BASE_URL, PAPER_TRADING_API_BASE_URL } from "@momentum/config";
 
 export const ALPACA_ADAPTER_STATUS = "not_configured" as const;
 
@@ -60,6 +60,34 @@ const assetPayloadSchema = z.array(
     name: z.string().min(1),
     status: z.string().min(1),
     tradable: z.boolean(),
+  }),
+);
+const marketBarPayloadSchema = z.object({
+  t: z.string().min(1),
+  o: decimalValue,
+  h: decimalValue,
+  l: decimalValue,
+  c: decimalValue,
+  v: decimalValue,
+  n: z.number().int().nonnegative().optional(),
+  vw: nullableDecimalValue,
+});
+const barsPayloadSchema = z.object({
+  bars: z.record(z.string(), z.array(marketBarPayloadSchema)),
+  next_page_token: z.string().nullable().optional(),
+});
+const snapshotPayloadSchema = z.record(
+  z.string(),
+  z.object({
+    latestTrade: z
+      .object({ p: decimalValue, t: z.string().min(1) })
+      .optional(),
+    latestQuote: z
+      .object({ ap: decimalValue, bp: decimalValue, t: z.string().min(1) })
+      .optional(),
+    minuteBar: marketBarPayloadSchema.optional(),
+    dailyBar: marketBarPayloadSchema.optional(),
+    prevDailyBar: marketBarPayloadSchema.optional(),
   }),
 );
 
@@ -126,6 +154,45 @@ export interface PaperAsset {
 
 export interface PaperAssetReader {
   readEligibleAssets(): Promise<readonly PaperAsset[]>;
+}
+
+export type MarketAssetClass = "crypto" | "us_equity";
+export type MarketBarTimeframe = "1Day" | "1Hour" | "1Min" | "1Month" | "1Week" | "5Min" | "15Min";
+
+export interface PaperMarketBar {
+  readonly close: string;
+  readonly high: string;
+  readonly low: string;
+  readonly open: string;
+  readonly symbol: string;
+  readonly timestamp: string;
+  readonly tradeCount?: number;
+  readonly volume: string;
+  readonly vwap?: string;
+}
+
+export interface PaperMarketSnapshot {
+  readonly dailyBar?: PaperMarketBar;
+  readonly latestQuote?: { readonly askPrice: string; readonly bidPrice: string; readonly timestamp: string };
+  readonly latestTrade?: { readonly price: string; readonly timestamp: string };
+  readonly minuteBar?: PaperMarketBar;
+  readonly previousDailyBar?: PaperMarketBar;
+  readonly symbol: string;
+}
+
+export interface PaperMarketDataReader {
+  readHistoricalBars(request: {
+    readonly assetClass: MarketAssetClass;
+    readonly end?: string;
+    readonly limit: number;
+    readonly start?: string;
+    readonly symbols: readonly string[];
+    readonly timeframe: MarketBarTimeframe;
+  }): Promise<{ readonly bars: readonly PaperMarketBar[]; readonly nextPageToken?: string }>;
+  readSnapshots(request: {
+    readonly assetClass: MarketAssetClass;
+    readonly symbols: readonly string[];
+  }): Promise<readonly PaperMarketSnapshot[]>;
 }
 
 export interface AlpacaAccountReader {
@@ -270,6 +337,102 @@ export function createPaperAssetReader(options: AlpacaAccountReaderOptions): Pap
           symbol: asset.symbol,
           tradable: asset.tradable,
         } satisfies PaperAsset));
+    },
+  };
+}
+
+export interface AlpacaMarketDataReaderOptions {
+  readonly apiKey: string;
+  readonly secretKey: string;
+  readonly baseUrl?: string;
+  readonly fetchImpl?: typeof fetch;
+}
+
+function normalizeBar(symbol: string, bar: z.infer<typeof marketBarPayloadSchema>): PaperMarketBar {
+  return {
+    close: bar.c,
+    high: bar.h,
+    low: bar.l,
+    open: bar.o,
+    symbol,
+    timestamp: bar.t,
+    ...(bar.n !== undefined ? { tradeCount: bar.n } : {}),
+    volume: bar.v,
+    ...(bar.vw !== undefined && bar.vw !== null ? { vwap: bar.vw } : {}),
+  };
+}
+
+export function createPaperMarketDataReader(options: AlpacaMarketDataReaderOptions): PaperMarketDataReader {
+  const apiKey = options.apiKey.trim();
+  const secretKey = options.secretKey.trim();
+  if (!apiKey || !secretKey) {
+    throw new Error("Paper Alpaca credentials are required server-side.");
+  }
+  const baseUrl = options.baseUrl ?? ALPACA_MARKET_DATA_BASE_URL;
+  if (baseUrl !== ALPACA_MARKET_DATA_BASE_URL) {
+    throw new Error("The market-data reader only permits the Alpaca market-data endpoint.");
+  }
+  const fetchImpl = options.fetchImpl ?? fetch;
+  const requestJson = async <T>(path: string, schema: z.ZodType<T>): Promise<T> => {
+    const response = await fetchImpl(`${baseUrl}${path}`, {
+      headers: {
+        "APCA-API-KEY-ID": apiKey,
+        "APCA-API-SECRET-KEY": secretKey,
+        accept: "application/json",
+      },
+      method: "GET",
+    });
+    if (!response.ok) {
+      throw new Error(`Alpaca market-data read failed with HTTP ${response.status}.`);
+    }
+    return schema.parse(await response.json());
+  };
+
+  return {
+    async readHistoricalBars(request) {
+      const symbols = request.symbols.join(",");
+      const path = request.assetClass === "us_equity" ? "/v2/stocks/bars" : "/v1beta3/crypto/us/bars";
+      const query = new URLSearchParams({
+        limit: String(request.limit),
+        symbols,
+        timeframe: request.timeframe,
+      });
+      if (request.start) query.set("start", request.start);
+      if (request.end) query.set("end", request.end);
+      const parsed = await requestJson(`${path}?${query.toString()}`, barsPayloadSchema);
+      const bars = Object.entries(parsed.bars).flatMap(([symbol, symbolBars]) =>
+        symbolBars.map((bar) => normalizeBar(symbol, bar)),
+      );
+      return {
+        bars,
+        ...(parsed.next_page_token ? { nextPageToken: parsed.next_page_token } : {}),
+      };
+    },
+    async readSnapshots(request) {
+      const symbols = request.symbols.join(",");
+      const path =
+        request.assetClass === "us_equity"
+          ? "/v2/stocks/snapshots"
+          : "/v1beta3/crypto/us/snapshots";
+      const parsed = await requestJson(`${path}?${new URLSearchParams({ symbols }).toString()}`, snapshotPayloadSchema);
+      return Object.entries(parsed).map(([symbol, snapshot]) => ({
+        ...(snapshot.dailyBar ? { dailyBar: normalizeBar(symbol, snapshot.dailyBar) } : {}),
+        ...(snapshot.latestQuote
+          ? {
+              latestQuote: {
+                askPrice: snapshot.latestQuote.ap,
+                bidPrice: snapshot.latestQuote.bp,
+                timestamp: snapshot.latestQuote.t,
+              },
+            }
+          : {}),
+        ...(snapshot.latestTrade
+          ? { latestTrade: { price: snapshot.latestTrade.p, timestamp: snapshot.latestTrade.t } }
+          : {}),
+        ...(snapshot.minuteBar ? { minuteBar: normalizeBar(symbol, snapshot.minuteBar) } : {}),
+        ...(snapshot.prevDailyBar ? { previousDailyBar: normalizeBar(symbol, snapshot.prevDailyBar) } : {}),
+        symbol,
+      } satisfies PaperMarketSnapshot));
     },
   };
 }

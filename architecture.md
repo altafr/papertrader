@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 2.1 asset discovery implemented; Railway migration and first operator-run reconciliation remain operational dependencies.
+- **Stage:** Phase 2.2 protected historical bars/snapshots implemented; Railway migration and first operator-run reconciliation remain operational dependencies.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -114,6 +114,13 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - `apps/api` exposes authenticated `GET /v1/assets`, guarded by paper-only runtime configuration and explicit broker opt-in. It is a read-only discovery surface and does not grant order authority.
 - Initial filtering intentionally stops at active, tradable asset class. Liquidity, spread, volatility, and research-universe thresholds remain operator decisions for the strategy/data phases.
 - This unit adds no historical market-data, stream, strategy, risk, or order calls; no hosted broker request was performed.
+
+### Phase 2.2 Protected Historical Market Data
+
+- `packages/alpaca` adds a server-only market-data adapter pinned to `https://data.alpaca.markets`. It validates and normalizes stock/crypto historical bars and broker snapshots into internal decimal-string contracts.
+- `apps/api` exposes authenticated `GET /v1/market-data/bars` and `GET /v1/market-data/snapshots`. Requests require paper-only runtime configuration, explicit broker opt-in, 1–10 validated symbols, and bounded bar limits.
+- The API supports only the documented read paths and timeframes in this unit; it does not persist raw bars, expose credentials, or imply strategy/liquidity approval. Historical bars are inputs only and must be finalized/freshness-checked before strategy use.
+- No WebSocket, backfill supervisor, strategy, risk, order, or hosted broker request was added.
 
 ## Runtime Components
 
