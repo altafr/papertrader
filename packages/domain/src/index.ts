@@ -42,3 +42,4 @@ export * from "./research.js";
 export * from "./lifecycle.js";
 export * from "./shadow.js";
 export * from "./shadow-evaluator.js";
+export * from "./shadow-runner.js";

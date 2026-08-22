@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 3.10 finalized-bar shadow evaluator implemented; Railway migration and first operator-run reconciliation remain operational dependencies.
+- **Stage:** Phase 3.11 restart-safe shadow evaluation runner implemented; Railway migration and first operator-run reconciliation remain operational dependencies.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -209,6 +209,12 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - Added a pure evaluator that consumes finalized bars after the signal timestamp and closes an open observation on the first deterministic outcome.
 - Outcome precedence is explicit: ambiguous stop-and-target bars become `invalidated`; otherwise stop, target, time-stop, then expiry are applied. Bars at/before the signal, other symbols, and bars after closure cannot influence the result.
 - The evaluator returns hypothetical observation outcomes only. It has no sizing, risk approval, broker, order, database, or lifecycle-promotion authority.
+
+### Phase 3.11 Restart-Safe Shadow Evaluation Runner
+
+- Added a deterministic batch runner with injected finalized-bar source and persistence interfaces. It processes observations in stable ID order, closes only newly discovered outcomes, leaves unresolved observations open, and skips records already closed in PostgreSQL.
+- Provider and persistence failures are converted to redacted observation-level failure codes so a durable worker can retry without exposing external error details.
+- The runner is side-effect limited to the injected outcome repository. It does not fetch credentials, call Alpaca, submit orders, approve risk, or advance lifecycle stages.
 
 ## Runtime Components
 
