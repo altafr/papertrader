@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { getPaperOnlyRuntimeConfig, getServerPort } from "./index.js";
+import { getClerkRuntimeConfig, getPaperOnlyRuntimeConfig, getServerPort } from "./index.js";
 
 describe("server configuration", () => {
   it("uses a safe local default", () => {
@@ -51,5 +51,31 @@ describe("server configuration", () => {
       tradingApiBaseUrl: "https://paper-api.alpaca.markets",
     });
     expect(JSON.stringify(result)).not.toContain("paper-secret-placeholder");
+  });
+
+  it("treats absent Clerk configuration as not provisioned", () => {
+    expect(getClerkRuntimeConfig({})).toBeNull();
+  });
+
+  it("rejects partial Clerk configuration", () => {
+    expect(() => getClerkRuntimeConfig({ CLERK_PUBLISHABLE_KEY: "pk_test_placeholder" })).toThrow(
+      /Clerk configuration requires/,
+    );
+  });
+
+  it("normalizes complete Clerk configuration without exposing the secret in errors", () => {
+    expect(
+      getClerkRuntimeConfig({
+        CLERK_AUTHORIZED_PARTIES: "https://dashboard.example, https://dashboard.example ",
+        CLERK_OPERATOR_USER_ID: "user_operator_placeholder",
+        CLERK_PUBLISHABLE_KEY: "pk_test_placeholder",
+        CLERK_SECRET_KEY: "sk_test_placeholder",
+      }),
+    ).toEqual({
+      authorizedParties: ["https://dashboard.example", "https://dashboard.example"],
+      operatorUserId: "user_operator_placeholder",
+      publishableKey: "pk_test_placeholder",
+      secretKey: "sk_test_placeholder",
+    });
   });
 });

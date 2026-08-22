@@ -59,6 +59,10 @@ For the Alpaca MCP connection, configure `ALPACA_API_KEY`, `ALPACA_SECRET_KEY`, 
 3. Add the paper `ALPACA_API_KEY` and `ALPACA_SECRET_KEY` only to the Railway API and worker service variables. Seal both values after saving them. Do not put them in Vercel, GitHub, `.env.example`, browser code, logs, or PostgreSQL.
 4. Keep the repository template in `.env.example` as names and safe defaults only. The API and worker fail closed if live mode is requested, paper mode is disabled, or broker access is enabled without both credentials.
 
+### Phase 1 Clerk setup
+
+Create one Clerk application for the dashboard. Set the publishable key, secret key, exact operator user ID, and authorized Vercel origin only in the relevant hosted service variables. Vercel requires `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY`, `CLERK_OPERATOR_USER_ID`, and `CLERK_AUTHORIZED_PARTIES`; Railway API requires server-side `CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY`, `CLERK_OPERATOR_USER_ID`, and `CLERK_AUTHORIZED_PARTIES`. The API rejects missing or non-operator sessions. Do not enable public application authority through a frontend route guard alone.
+
 ## First implementation prompt
 
 ```text
