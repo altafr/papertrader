@@ -40,3 +40,4 @@ export * from "./replay.js";
 export * from "./strategies.js";
 export * from "./research.js";
 export * from "./lifecycle.js";
+export * from "./shadow.js";

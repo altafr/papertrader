@@ -1,7 +1,32 @@
 import { and, asc, desc, eq } from "drizzle-orm";
 
 import type { Database } from "./client.js";
-import { accountSnapshots, activities, orders, positions, strategyLifecycleEvents } from "./schema.js";
+import { accountSnapshots, activities, orders, positions, shadowObservationOutcomes, shadowObservations, strategyLifecycleEvents } from "./schema.js";
+
+export interface PersistedShadowObservation {
+  readonly assetClass: "crypto" | "us_equity";
+  readonly createdAt: Date;
+  readonly expiresAt: Date;
+  readonly observationId: string;
+  readonly plannedExitPrice?: string;
+  readonly plannedStopPrice: string;
+  readonly proposedEntryPrice: string;
+  readonly rationale: string;
+  readonly score: string;
+  readonly signalTime: Date;
+  readonly strategyKey: string;
+  readonly strategyVersion: string;
+  readonly symbol: string;
+  readonly timeStopAt?: Date;
+}
+
+export interface PersistedShadowObservationOutcome {
+  readonly exitPrice: string;
+  readonly observedAt: Date;
+  readonly observationId: string;
+  readonly reason: "expired" | "invalidated" | "stop" | "target" | "time_stop";
+  readonly returnPercent: string;
+}
 
 export interface PersistedStrategyLifecycleEvent {
   readonly actorId: string;
@@ -193,6 +218,33 @@ export function createStrategyLifecycleRepository(db: Database) {
         .orderBy(desc(strategyLifecycleEvents.revision))
         .limit(1);
       return row;
+    },
+  };
+}
+
+export function createShadowObservationRepository(db: Database) {
+  return {
+    async append(observation: PersistedShadowObservation) {
+      const [row] = await db.insert(shadowObservations).values(observation).returning();
+      return row;
+    },
+
+    async recordOutcome(outcome: PersistedShadowObservationOutcome) {
+      return db.transaction(async (transaction) => {
+        const [observation] = await transaction.select().from(shadowObservations).where(eq(shadowObservations.observationId, outcome.observationId)).limit(1);
+        if (!observation) throw new Error("Shadow observation was not found.");
+        const [existing] = await transaction.select().from(shadowObservationOutcomes).where(eq(shadowObservationOutcomes.observationId, outcome.observationId)).limit(1);
+        if (existing) throw new Error("Shadow observation outcome already exists.");
+        const [row] = await transaction.insert(shadowObservationOutcomes).values(outcome).returning();
+        return row;
+      });
+    },
+
+    async get(observationId: string) {
+      const [observation] = await db.select().from(shadowObservations).where(eq(shadowObservations.observationId, observationId)).limit(1);
+      if (!observation) return undefined;
+      const [outcome] = await db.select().from(shadowObservationOutcomes).where(eq(shadowObservationOutcomes.observationId, observationId)).limit(1);
+      return { observation, outcome };
     },
   };
 }

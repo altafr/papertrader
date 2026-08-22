@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 3.8 authenticated disabled-to-replay approval command implemented; Railway migration and first operator-run reconciliation remain operational dependencies.
+- **Stage:** Phase 3.9 shadow observation records and persistence boundary implemented; Railway migration and first operator-run reconciliation remain operational dependencies.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -196,6 +196,13 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - The command validates a structured replay-evidence document, recomputes the automated sample/coverage/drawdown checks server-side, requires approval identity to match the authenticated operator, and persists only the domain-derived disabled-to-replay event.
 - Unknown strategies, mismatched versions, malformed decimal/timestamp fields, insufficient regimes, failed evidence checks, and client-supplied stage/approval flags fail closed. The response exposes only strategy/version, replay stage, revision, and event ID.
 - No Alpaca request, paper order, live endpoint, or later lifecycle transition is reachable through this command. Hosted database migration and Clerk/database configuration remain deployment dependencies.
+
+### Phase 3.9 Shadow Observation Records
+
+- Added a shadow-only observation contract that captures a strategy proposal and later closes it with a timestamped hypothetical outcome and decimal return percentage; it requires a strategy already in `shadow` stage and never creates an order.
+- Added separate immutable PostgreSQL signal and one-time outcome tables. The repository inserts the signal once and records at most one outcome in a transaction; the original proposal is never updated or overwritten.
+- Expired, invalidated, stop, target, and time-stop outcomes are explicit. Missing observations, duplicate IDs, duplicate outcomes, invalid prices, and out-of-order timestamps fail closed.
+- No shadow promotion command, live market evaluator, paper order, broker request, or automatic lifecycle transition was added in this unit.
 
 ## Runtime Components
 
