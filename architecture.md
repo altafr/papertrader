@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 2.2 protected historical bars/snapshots implemented; Railway migration and first operator-run reconciliation remain operational dependencies.
+- **Stage:** Phase 2.3 supervised market-stream boundary implemented; Railway migration and first operator-run reconciliation remain operational dependencies.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -121,6 +121,13 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - `apps/api` exposes authenticated `GET /v1/market-data/bars` and `GET /v1/market-data/snapshots`. Requests require paper-only runtime configuration, explicit broker opt-in, 1–10 validated symbols, and bounded bar limits.
 - The API supports only the documented read paths and timeframes in this unit; it does not persist raw bars, expose credentials, or imply strategy/liquidity approval. Historical bars are inputs only and must be finalized/freshness-checked before strategy use.
 - No WebSocket, backfill supervisor, strategy, risk, order, or hosted broker request was added.
+
+### Phase 2.3 Supervised Market Stream and Backfill
+
+- `packages/alpaca` validates Alpaca bar-stream messages and provides a supervisor that authenticates, subscribes to bounded symbols, tracks last-bar timestamps, detects interval gaps, marks the stream degraded, and requests REST backfill before resuming the subscribed state.
+- `apps/worker` provides the paper-only runtime stream runner behind `MARKET_STREAM_ENABLED=false` by default. When explicitly enabled with broker opt-in, it uses Node's server-side WebSocket, reconnects with bounded backoff, and calls the existing market-data REST adapter for backfill.
+- Stream configuration requires an explicit asset class, 1–10 symbols, timeframe, and stock feed. The worker does not expose stream credentials, persist raw ticks, evaluate strategies, submit orders, or bypass freshness gates.
+- This unit does not claim a hosted stream has been enabled or connected; no hosted broker request was performed.
 
 ## Runtime Components
 

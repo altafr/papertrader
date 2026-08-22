@@ -436,3 +436,5 @@ export function createPaperMarketDataReader(options: AlpacaMarketDataReaderOptio
     },
   };
 }
+
+export * from "./stream.js";
