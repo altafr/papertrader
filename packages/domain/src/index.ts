@@ -20,6 +20,12 @@ export interface WorkerHealth {
   readonly alpaca: "not_configured";
   readonly asOf: string;
   readonly database: "not_configured";
+  readonly shadowEvaluation: {
+    readonly enabled: boolean;
+    readonly intervalSeconds: number;
+    readonly sourceConfigured: boolean;
+    readonly status: "disabled" | "ready";
+  };
   readonly service: "worker";
   readonly status: HealthState;
 }
