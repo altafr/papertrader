@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.10 operator health surface implemented; durable scheduler and Paper Autopilot activation remain separate gated steps.
+- **Stage:** Phase 6.10 operator health surface hosted verification complete; durable scheduler and Paper Autopilot activation remain separate gated steps.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -310,6 +310,12 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - Added a guarded enqueue command for immediate daily reconciliation verification after a worker restart.
 - The trigger uses a deterministic UTC job ID; repeated invocation for the same day reports `queued: false` rather than creating duplicate work.
 - It only enqueues the existing read-only reconciliation job and has no direct broker or order authority.
+
+### Phase 6.11 Scheduler Readiness Boundary
+
+- Added a guarded `durable-readiness` command that evaluates paper mode, database, broker opt-in, paper credentials, and verified handler gates without opening a database or broker connection.
+- The command reports only `disabled`, `blocked`, or `ready` plus non-secret reason codes; an explicitly enabled but incomplete scheduler exits non-zero.
+- Readiness does not activate the scheduler or Paper Autopilot. Persistent Railway flags remain disabled until a separate operator-approved activation step.
 
 ### Phase 6.8 Guarded Application Schema Migration
 

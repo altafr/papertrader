@@ -1,11 +1,32 @@
 import { describe, expect, it } from "vitest";
 
-import { DAILY_PREPARATION_QUEUE, createDurableScheduler, enqueueDailyPreparation, getDailyPreparationJobId, getDurableSchedulerConfig, getDurableSchedulerHealth, inspectDurableQueues, provisionDurableQueues } from "./durable-scheduler.js";
+import { DAILY_PREPARATION_QUEUE, createDurableScheduler, enqueueDailyPreparation, getDailyPreparationJobId, getDurableSchedulerConfig, getDurableSchedulerHealth, getDurableSchedulerReadiness, inspectDurableQueues, provisionDurableQueues } from "./durable-scheduler.js";
 
 describe("durable scheduler", () => {
   it("is disabled by default and validates bounded retry configuration", () => {
     expect(getDurableSchedulerConfig({})).toEqual({ cron: "0 0 * * *", enabled: false, retryDelaySeconds: 60, retryLimit: 3 });
     expect(() => getDurableSchedulerConfig({ DAILY_PREPARATION_RETRY_LIMIT: "11" })).toThrow("must be an integer");
+  });
+
+  it("reports disabled, blocked, and ready activation states without exposing credentials", () => {
+    expect(getDurableSchedulerReadiness({})).toMatchObject({ status: "disabled", blockedReasons: [] });
+    expect(getDurableSchedulerReadiness({ DURABLE_SCHEDULER_ENABLED: "true", TRADING_MODE: "paper", ALPACA_PAPER_TRADE: "true" })).toMatchObject({
+      status: "blocked",
+      blockedReasons: ["database_not_configured", "broker_connection_disabled", "paper_credentials_not_configured", "daily_preparation_handler_disabled"],
+    });
+    const ready = getDurableSchedulerReadiness({
+      ALPACA_API_KEY: "secret-key",
+      ALPACA_SECRET_KEY: "secret-secret",
+      ALPACA_PAPER_TRADE: "true",
+      BROKER_CONNECTION_ENABLED: "true",
+      DAILY_PREPARATION_HANDLER_ENABLED: "true",
+      DATABASE_URL: "postgres://redacted",
+      DURABLE_SCHEDULER_ENABLED: "true",
+      TRADING_MODE: "paper",
+    });
+    expect(ready).toMatchObject({ status: "ready", blockedReasons: [] });
+    expect(JSON.stringify(ready)).not.toContain("secret-key");
+    expect(JSON.stringify(ready)).not.toContain("secret-secret");
   });
 
   it("creates a UTC schedule and marks failed jobs degraded while preserving the queue boundary", async () => {

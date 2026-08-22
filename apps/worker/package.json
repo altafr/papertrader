@@ -9,6 +9,7 @@
     "durable-migrate": "tsx src/durable-migration-command.ts",
     "durable-status": "tsx src/durable-status-command.ts",
     "durable-run-once": "tsx src/durable-run-once-command.ts",
+    "durable-readiness": "tsx src/durable-readiness-command.ts",
     "database-migrate": "tsx src/database-migration-command.ts",
     "reconcile": "tsx src/reconcile-command.ts",
     "shadow-evaluate": "tsx src/shadow-evaluation-command.ts",

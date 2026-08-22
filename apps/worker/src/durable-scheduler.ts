@@ -20,6 +20,47 @@ export interface DurableSchedulerConfig {
   readonly retryLimit: number;
 }
 
+export type DurableSchedulerReadinessStatus = "blocked" | "disabled" | "ready";
+
+export interface DurableSchedulerReadiness {
+  readonly blockedReasons: readonly string[];
+  readonly checks: {
+    readonly brokerConnectionEnabled: boolean;
+    readonly dailyPreparationHandlerEnabled: boolean;
+    readonly databaseConfigured: boolean;
+    readonly paperCredentialsConfigured: boolean;
+    readonly paperMode: boolean;
+    readonly schedulerEnabled: boolean;
+  };
+  readonly status: DurableSchedulerReadinessStatus;
+}
+
+function exactBoolean(value: string | undefined, defaultValue: boolean): boolean {
+  return value === undefined ? defaultValue : value === "true";
+}
+
+export function getDurableSchedulerReadiness(environment: NodeJS.ProcessEnv = process.env): DurableSchedulerReadiness {
+  const schedulerEnabled = exactBoolean(environment.DURABLE_SCHEDULER_ENABLED, false);
+  const brokerConnectionEnabled = exactBoolean(environment.BROKER_CONNECTION_ENABLED, false);
+  const dailyPreparationHandlerEnabled = exactBoolean(environment.DAILY_PREPARATION_HANDLER_ENABLED, false);
+  const paperMode = (environment.TRADING_MODE ?? "paper") === "paper" && exactBoolean(environment.ALPACA_PAPER_TRADE, true);
+  const databaseConfigured = Boolean(environment.DATABASE_URL?.trim());
+  const paperCredentialsConfigured = Boolean(environment.ALPACA_API_KEY?.trim() && environment.ALPACA_SECRET_KEY?.trim());
+  const blockedReasons = [
+    ...(paperMode ? [] : ["paper_runtime_invalid"]),
+    ...(databaseConfigured ? [] : ["database_not_configured"]),
+    ...(brokerConnectionEnabled ? [] : ["broker_connection_disabled"]),
+    ...(paperCredentialsConfigured ? [] : ["paper_credentials_not_configured"]),
+    ...(dailyPreparationHandlerEnabled ? [] : ["daily_preparation_handler_disabled"]),
+  ];
+  const status = !schedulerEnabled ? "disabled" : blockedReasons.length === 0 ? "ready" : "blocked";
+  return {
+    blockedReasons: status === "disabled" ? [] : blockedReasons,
+    checks: { brokerConnectionEnabled, dailyPreparationHandlerEnabled, databaseConfigured, paperCredentialsConfigured, paperMode, schedulerEnabled },
+    status,
+  };
+}
+
 export interface DurableDailyJob {
   readonly kind: "daily_preparation";
   readonly version: 1;
