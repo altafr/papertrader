@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 3.3 point-in-time historical replay implemented; Railway migration and first operator-run reconciliation remain operational dependencies.
+- **Stage:** Phase 3.4 disabled momentum research plug-ins implemented; Railway migration and first operator-run reconciliation remain operational dependencies.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -163,6 +163,13 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - Replay requires a disabled or replay-stage strategy, validates its parameters, skips candidates without explicit exit/notional data, and applies configured per-trade fees plus two-sided slippage in basis points through decimal-safe functions.
 - Results include simulated trades, skipped-signal count, evaluated-bar count, and performance metrics. Replay has no broker, database, credential, order, or paper-account side effect.
 - Replay output is research evidence only; it is not a live or paper performance claim and cannot advance a strategy lifecycle by itself.
+
+### Phase 3.4 Initial Momentum Research Plug-ins
+
+- Added three deterministic, versioned, disabled-by-default research plug-ins: cross-sectional momentum, volume-confirmed breakout, and intraday trend continuation.
+- Each plug-in validates bounded lookbacks and decimal parameters, evaluates only the supplied fresh bars, emits long-only proposal candidates with explicit entry/stop/target/time-stop fields, and has no sizing, risk approval, persistence, broker, or order authority.
+- Failure regimes are fail-closed: insufficient history produces no candidate; negative/invalid parameters are rejected; breakout requires both a range break and relative-volume confirmation; trend continuation requires aligned fast and slow returns.
+- These candidates remain research artifacts until replay evidence, shadow monitoring, operator-approved parameters, and the sequential lifecycle gates are completed.
 
 ## Runtime Components
 
