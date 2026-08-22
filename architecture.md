@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.2 controlled paper recovery and partial-fill reconciliation implemented; Railway migration and first operator-run reconciliation remain operational dependencies.
+- **Stage:** Phase 6.3 durable daily scheduling and recovery boundary implemented; daily preparation handler, Railway migration, and first operator-run reconciliation remain operational dependencies.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -287,6 +287,12 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - Added broker-status recovery rules that validate client-order identity, reject overfills/unknown statuses/terminal regressions, and preserve partial fills as non-terminal truth.
 - Integrated those rules before persistence updates so a malformed or contradictory broker response marks the submission failed rather than silently changing intent state.
 - Existing client-ID lookup and transactional persistence provide restart-safe retry behavior; live capability and automatic retry loops remain disabled.
+
+### Phase 6.3 Durable Daily Scheduling and Recovery Boundary
+
+- Added the selected `pg-boss` PostgreSQL queue with a UTC daily-preparation schedule, bounded exponential retries, queue retention, and a dead-letter queue.
+- Added worker health fields for durable scheduler enablement, last run, next run, and degraded state; failed handlers remain visible and are retried by the durable queue rather than by an in-memory timer.
+- The queue is explicitly disabled by default. Enabling it requires `DATABASE_URL` and an explicit handler flag; the current handler performs read-only paper-account reconciliation and never submits orders.
 
 ## Runtime Components
 

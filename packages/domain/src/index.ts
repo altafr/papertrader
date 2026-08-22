@@ -20,6 +20,12 @@ export interface WorkerHealth {
   readonly alpaca: "not_configured";
   readonly asOf: string;
   readonly database: "not_configured";
+  readonly durableScheduler: {
+    readonly enabled: boolean;
+    readonly lastRunAt?: string;
+    readonly nextRunAt?: string;
+    readonly status: "degraded" | "disabled" | "ready" | "running" | "scheduled";
+  };
   readonly shadowEvaluation: {
     readonly enabled: boolean;
     readonly intervalSeconds: number;

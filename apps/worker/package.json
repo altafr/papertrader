@@ -15,6 +15,7 @@
     "@momentum/alpaca": "workspace:*",
     "@momentum/config": "workspace:*",
     "@momentum/db": "workspace:*",
-    "@momentum/domain": "workspace:*"
+    "@momentum/domain": "workspace:*",
+    "pg-boss": "12.27.0"
   }
 }

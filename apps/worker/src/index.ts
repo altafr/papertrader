@@ -1,13 +1,15 @@
 import { createServer } from "node:http";
 
-import { createPaperMarketDataReader } from "@momentum/alpaca";
+import { createPaperAccountReader, createPaperMarketDataReader } from "@momentum/alpaca";
 import { getPaperAutopilotConfig, getPaperOnlyRuntimeConfig, getServerPort } from "@momentum/config";
-import { createDatabase, createShadowObservationRepository } from "@momentum/db";
+import { createAccountStateRepository, createDatabase, createShadowObservationRepository } from "@momentum/db";
 
 import { getWorkerHealth } from "./app.js";
 import { startPaperMarketStream } from "./market-stream-runner.js";
 import { getShadowEvaluationConfig } from "./shadow-evaluation.js";
 import { createAlpacaShadowBarSource, createShadowEvaluationScheduler, runShadowEvaluationOnce } from "./shadow-evaluation-service.js";
+import { createDurableScheduler, getDurableSchedulerConfig } from "./durable-scheduler.js";
+import { reconcilePaperAccount } from "./reconcile.js";
 
 const streamEnabled = process.env.MARKET_STREAM_ENABLED;
 if (streamEnabled !== undefined && streamEnabled !== "true" && streamEnabled !== "false") {
@@ -29,6 +31,7 @@ getPaperOnlyRuntimeConfig();
 const autopilotConfiguration = getPaperAutopilotConfig();
 if (autopilotConfiguration.enabled && !process.env.DATABASE_URL?.trim()) throw new Error("PAPER_AUTOPILOT_ENABLED=true requires DATABASE_URL.");
 const shadowConfiguration = getShadowEvaluationConfig();
+const durableConfiguration = getDurableSchedulerConfig();
 if (shadowConfiguration.enabled) {
   if (process.env.BROKER_CONNECTION_ENABLED !== "true") throw new Error("SHADOW_EVALUATION_ENABLED=true requires BROKER_CONNECTION_ENABLED=true.");
   if (!process.env.DATABASE_URL?.trim()) throw new Error("SHADOW_EVALUATION_ENABLED=true requires DATABASE_URL.");
@@ -43,5 +46,25 @@ if (streamEnabled === "true") {
     throw new Error("MARKET_STREAM_ENABLED=true requires BROKER_CONNECTION_ENABLED=true.");
   }
   startPaperMarketStream();
+}
+if (durableConfiguration.enabled) {
+  if (!process.env.DATABASE_URL?.trim()) throw new Error("DURABLE_SCHEDULER_ENABLED=true requires DATABASE_URL.");
+  if (process.env.DAILY_PREPARATION_HANDLER_ENABLED !== "true") throw new Error("DURABLE_SCHEDULER_ENABLED=true requires the verified daily preparation handler.");
+  const durableScheduler = createDurableScheduler({
+    config: durableConfiguration,
+    connectionString: process.env.DATABASE_URL,
+    runDailyPreparation: async () => {
+      const { db, pool } = createDatabase(process.env.DATABASE_URL);
+      try {
+        await reconcilePaperAccount(
+          createPaperAccountReader({ apiKey: process.env.ALPACA_API_KEY ?? "", secretKey: process.env.ALPACA_SECRET_KEY ?? "" }),
+          createAccountStateRepository(db),
+        );
+      } finally {
+        await pool.end();
+      }
+    },
+  });
+  void durableScheduler.start().catch(() => { /* the health endpoint reports the degraded state */ });
 }
 server.listen(getServerPort(), "0.0.0.0");

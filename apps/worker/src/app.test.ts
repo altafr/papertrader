@@ -10,6 +10,7 @@ describe("worker health", () => {
       alpaca: "not_configured",
       asOf: "2026-08-21T00:00:00.000Z",
       database: "not_configured",
+      durableScheduler: { enabled: false, status: "disabled" },
       shadowEvaluation: { enabled: false, intervalSeconds: 3600, sourceConfigured: false, status: "disabled" },
       service: "worker",
       status: "healthy",
