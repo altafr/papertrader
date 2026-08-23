@@ -1321,6 +1321,7 @@
 - **Verification:** 194 tests passed; typecheck, lint, production build, secret-surface audit, and diff checks passed. No browser authority or persistent runtime gate changed.
 - **Next smallest unit:** Deploy API and dashboard changes, then verify the protected route/health contract while keeping scheduler gates disabled.
 - **Hosted verification:** API deployment `e96f4386-5570-4eaf-a490-42f182dc70bf` reached `SUCCESS` with private health `status:"healthy"`; durable queues remain present and drained and Railway broker gate remains false. Vercel deployment was rejected by the free-tier daily limit, so the previous protected preview remains the latest deployed dashboard.
+- **Frontend verification:** Latest Ready preview `https://papertrader-l6s6eyyvu-altafrs-projects.vercel.app` returned HTTP `302` for unauthenticated `/dashboard`, confirming deployment protection.
 
 ## Completed Build Unit — Phase 6.69
 
