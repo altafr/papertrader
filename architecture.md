@@ -709,7 +709,7 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 
 - Added a no-send readiness contract that reports only enablement, configuration presence/format checks, and bounded block reasons; bot tokens and chat IDs are never returned.
 - Added a command-scoped worker check requiring `TELEGRAM_ALERT_READINESS=true`; it performs no network request and exits non-zero only when configuration is blocked.
-- Railway remains Telegram-disabled and unconfigured, so no message was sent and no trading, scheduler, or reconciliation behavior changed.
+- Railway readiness returned `status:"ready"` without returning secret values; the command made no network request, sent no message, and changed no trading, scheduler, or reconciliation behavior.
 
 ### Phase 4.1 Structured Agent Runs
 
