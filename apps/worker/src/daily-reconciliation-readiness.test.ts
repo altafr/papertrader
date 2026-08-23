@@ -14,4 +14,9 @@ describe("daily reconciliation readiness", () => {
     const result = combineDailyReconciliationReadiness({ migration: { ...migration, blockedReasons: ["audit_table_missing"], status: "blocked" }, scheduler });
     expect(result).toMatchObject({ blockedReasons: ["migration_audit_table_missing"], status: "blocked" });
   });
+
+  it("does not duplicate the migration prefix in reason codes", () => {
+    const result = combineDailyReconciliationReadiness({ migration: { ...migration, blockedReasons: ["migration_not_recorded"], status: "blocked" }, scheduler });
+    expect(result.blockedReasons).toEqual(["migration_not_recorded"]);
+  });
 });

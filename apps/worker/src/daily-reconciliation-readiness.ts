@@ -12,7 +12,7 @@ export interface DailyReconciliationReadiness {
 
 export function combineDailyReconciliationReadiness(input: { readonly migration: DatabaseMigrationReadiness; readonly scheduler: DurableSchedulerReadiness }): DailyReconciliationReadiness {
   const blockedReasons = [
-    ...(input.migration.status === "ready" ? [] : input.migration.blockedReasons.map((reason) => `migration_${reason}`)),
+    ...(input.migration.status === "ready" ? [] : input.migration.blockedReasons.map((reason) => reason.startsWith("migration_") ? reason : `migration_${reason}`)),
     ...(input.scheduler.status === "blocked" ? input.scheduler.blockedReasons.map((reason) => `scheduler_${reason}`) : []),
   ];
   const status = blockedReasons.length > 0 ? "blocked" : input.scheduler.status === "disabled" ? "disabled" : "ready";
