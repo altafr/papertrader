@@ -471,6 +471,11 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - Added deterministic validation tests. The guard does not expose or persist the reference, apply SQL by itself, or alter hosted configuration.
 - Worker deployment `332fe1c9-1e55-4c53-8336-d20b08835d94` reached `SUCCESS`; private `/health` remained healthy with observe mode, broker/scheduler/research/shadow gates disabled, and the global kill switch inactive. The hosted readiness check remained blocked only by the unapplied `0009` schema state.
 
+### Phase 6.39 Migration Dry-Run Plan
+
+- Added the read-only `database-migration-plan` command. It lists unapplied migration files and marks which pending versions require an approval reference, without creating `schema_migrations`, applying SQL, or changing hosted state.
+- If the tracking table is absent, the plan reports that fact explicitly and does not infer that any migration is safe to apply. The command emits only bounded filenames, versions, booleans, and status.
+
 ### Phase 4.1 Structured Agent Runs
 
 - `packages/domain/src/agent-runs.ts` defines versioned, structured agent-run requests and artifacts for the orchestrator, stock/crypto research, macro advisory, strategy, risk explanation, execution, and reconciliation roles.
