@@ -518,6 +518,11 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - The dashboard now renders the bounded migration block reasons beneath the status, making `migration_not_recorded`, `audit_table_missing`, and `audit_columns_missing` visible to the operator without exposing SQL, credentials, or account data.
 - This remains display-only; no button, form, or browser path can apply migration SQL or enable scheduling.
 
+### Phase 6.47 API Migration Probe Contract
+
+- Extracted the API migration metadata query into a tested contract, covering complete schema and missing `schema_migrations` behavior. Operations health now uses this shared reader rather than inline query logic.
+- The reader returns only bounded status/reason data and propagates unexpected database failures to the existing unavailable response; it has no write authority.
+
 ### Phase 4.1 Structured Agent Runs
 
 - `packages/domain/src/agent-runs.ts` defines versioned, structured agent-run requests and artifacts for the orchestrator, stock/crypto research, macro advisory, strategy, risk explanation, execution, and reconciliation roles.
