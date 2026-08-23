@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.55 hosted paper one-run preflight verified; Railway API deployment is verified, while the dashboard deployment is pending Vercel's free-tier quota reset and research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
+- **Stage:** Phase 6.56 hosted PostgreSQL connectivity verified; Railway API deployment is verified, while the dashboard deployment is pending Vercel's free-tier quota reset and research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -570,6 +570,11 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - The deployed worker's client-free `durable-one-run-readiness` command was run with command-scoped gates, a bounded preflight reference, and a bounded run ID. It returned `status:"ready"` with no blocked reasons.
 - The readiness result confirmed paper mode, paper credentials, database configuration, broker/handler command gates, disabled persistent scheduler, disabled Paper Autopilot, and an inactive global kill switch. The command did not contact Alpaca, write PostgreSQL, start queues, or persist any runtime flag.
 - This preflight does not authorize or perform the one-run. A separate operator approval reference for the actual paper reconciliation remains required before the command that reads Alpaca and writes the reconciled read model.
+
+### Phase 6.56 Hosted PostgreSQL Connectivity Verification
+
+- The deployed worker's guarded `database-status` command returned `databaseReachable:true` using the server-side Railway connection; the connection string and database values were not printed.
+- This was a read-only `SELECT 1` probe. It did not contact Alpaca, start queues, apply migrations, alter persistent variables, or enable any execution path.
 
 ### Phase 4.1 Structured Agent Runs
 
