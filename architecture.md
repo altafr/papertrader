@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.51 explicit paper-mode research gate; Railway API deployment is verified, while the dashboard deployment is pending Vercel's free-tier quota reset and research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
+- **Stage:** Phase 6.52 durable one-run audit migration applied; Railway API deployment is verified, while the dashboard deployment is pending Vercel's free-tier quota reset and research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -546,6 +546,12 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 
 - Research-schedule readiness now requires an explicit paper-mode check (`TRADING_MODE=paper` and `ALPACA_PAPER_TRADE=true`) in addition to its existing credentials, database, broker, handler, and scheduler gates.
 - The check is deterministic metadata only and fails closed; it does not change operating mode or enable research. API deployment `0be9a305-3ce5-4031-8fee-4c922fb46899` reached `SUCCESS`, and private `/health` returned HTTP 200. No Vercel deployment was attempted because the dashboard code was unchanged and the free-tier quota remains exhausted.
+
+### Phase 6.52 Durable One-Run Audit Migration Applied
+
+- With the explicit non-secret operator reference `MIGRATION-0009-123`, Railway's guarded worker migration command applied only the reviewed target `0009`; the command reported `appliedThrough:"0009"` and `migrationCount:9`.
+- Read-only migration readiness now returns `ready` with the migration ledger, audit table, and required audit columns present. Combined daily-reconciliation readiness returns `disabled` with no blocked reasons because the recurring scheduler remains off.
+- The durable work and dead-letter queues are present with zero queued, active, and failed jobs. No one-run reconciliation, Alpaca request, persistent flag change, scheduler activation, or Paper Autopilot activation was performed; the one-run remains a separately approved action.
 
 ### Phase 4.1 Structured Agent Runs
 
