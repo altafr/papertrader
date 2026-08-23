@@ -13,6 +13,7 @@
     "paper-autopilot-readiness": "tsx src/paper-autopilot-readiness-command.ts",
     "paper-autopilot-runtime-readiness": "tsx src/paper-autopilot-runtime-readiness-command.ts",
     "durable-one-run": "tsx src/durable-one-run-command.ts",
+    "durable-one-run-readiness": "tsx src/durable-one-run-readiness-command.ts",
     "database-migrate": "tsx src/database-migration-command.ts",
     "database-status": "tsx src/database-status-command.ts",
     "reconcile": "tsx src/reconcile-command.ts",
