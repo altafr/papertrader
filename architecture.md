@@ -483,6 +483,11 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - The command reports `disabled` when prerequisites are structurally ready but the recurring scheduler flag is off, and `blocked` when migration or runtime prerequisites are missing. It never enables the scheduler, contacts Alpaca, or writes PostgreSQL.
 - Worker deployment `b1440657-b6aa-4497-97ab-6c6004723569` reached `SUCCESS`. The private Railway check returned `blocked` with the clean reasons `migration_not_recorded`, `migration_audit_table_missing`, and `migration_audit_columns_missing`; scheduler status remained `disabled`. No SQL mutation occurred.
 
+### Phase 6.41 Scheduler Startup Migration Gate
+
+- Added a fail-closed startup guard before the recurring durable scheduler starts. If `DURABLE_SCHEDULER_ENABLED=true` is ever supplied while migration `0009` is absent or incomplete, the worker refuses to start the daily scheduler and reports bounded migration reasons.
+- The guard closes its temporary database pool and does not enable the scheduler, call Alpaca, or write PostgreSQL. The current default-disabled worker path is unchanged.
+
 ### Phase 4.1 Structured Agent Runs
 
 - `packages/domain/src/agent-runs.ts` defines versioned, structured agent-run requests and artifacts for the orchestrator, stock/crypto research, macro advisory, strategy, risk explanation, execution, and reconciliation roles.
