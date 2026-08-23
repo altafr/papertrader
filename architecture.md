@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 4.11 research-preparation queue boundary added; Railway database connectivity is verified, while research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
+- **Stage:** Phase 4.12 deterministic research-preparation planner added; Railway database connectivity is verified, while research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -398,6 +398,12 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - The research scheduler now defines a separate work/dead-letter queue contract, bounded `pg-boss` queue options, and an idempotent UTC manual enqueue identity independent of daily reconciliation.
 - Queue payloads are validated as versioned `{ kind: "research_preparation", version: 1 }` jobs before an injected preparation runner can execute them. Invalid payloads fail closed; the runner has no implicit broker, order, risk, or configuration authority.
 - Queue provisioning/enqueue/handler functions are library boundaries only. The worker does not start this queue or enable its recurring cron while `RESEARCH_SCHEDULER_ENABLED` and `RESEARCH_HANDLER_ENABLED` remain disabled.
+
+### Phase 4.12 Deterministic Research-Preparation Planner
+
+- `apps/worker/src/research-preparation.ts` validates explicit stock and crypto symbol lists, approved timeframes, bar limits, and candidate limits, then creates one bounded plan per asset class.
+- The preparation executor reads validated fresh market input through an injected source, constructs a versioned agent-run request, dispatches the deterministic stock/crypto handler, and hands lifecycle persistence to the existing repository boundary.
+- The planner has no default universe, no LLM dependency, and no order/risk authority. It remains callable only from a future explicitly enabled queue handler; no hosted input read or persistence write was performed.
 
 ### Phase 6.13 Dashboard Operations Health Surface
 
