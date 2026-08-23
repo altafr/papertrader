@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.16 Railway database connectivity verified; durable scheduler and Paper Autopilot activation remain separate gated steps.
+- **Stage:** Phase 4.1 structured agent-run boundary added; Railway database connectivity is verified, while durable scheduler and Paper Autopilot activation remain separate gated steps.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -333,6 +333,12 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - Railway's `Postgres` service exposes `DATABASE_URL`, and the API and Worker services have non-empty service-side database values.
 - The deployed Worker completed the guarded read-only `durable-status` query, confirming both `pg-boss` work and dead-letter queues are present with zero queued, active, and failed jobs.
 - The verification did not print the connection string, change variables, enable broker access, start the scheduler, submit orders, or enable Paper Autopilot.
+
+### Phase 4.1 Structured Agent Runs
+
+- `packages/domain/src/agent-runs.ts` defines versioned, structured agent-run requests and artifacts for the orchestrator, stock/crypto research, macro advisory, strategy, risk explanation, execution, and reconciliation roles.
+- The in-process run store enforces `queued → running → succeeded|failed`, immutable snapshots, unique run IDs, timestamp ordering, concise rationale, evidence references, and redacted failure codes.
+- The deterministic orchestrator dispatches only registered handlers and validates returned artifacts. It does not call an LLM, broker, database, or order method; model/provider and prompt-template fields are provenance metadata only.
 
 ### Phase 6.13 Dashboard Operations Health Surface
 

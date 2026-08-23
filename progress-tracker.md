@@ -2,8 +2,8 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.16 — Railway database connectivity verified.
-- **Status:** Railway API and Worker both have a populated PostgreSQL connection, and the deployed Worker completed a read-only queue query successfully; durable scheduler and Paper Autopilot remain disabled.
+- **Phase:** Phase 4.1 — structured agent-run boundary added.
+- **Status:** Agent runs now have a deterministic, validated, append-only in-process orchestration boundary; Railway database connectivity is verified, while durable scheduler and Paper Autopilot remain disabled.
 - **Current operating mode:** Paper only; order submission not yet enabled.
 - **Current goal:** Run the separately approved one-run paper reconciliation using the reviewed runbook, then verify its result in the authenticated dashboard.
 - **Last updated:** 2026-08-23.
@@ -102,7 +102,7 @@
 
 ### Phase 4 — Research Agents and Daily Preparation
 
-- [ ] Implement orchestrator and structured agent-run records.
+- [x] Implement orchestrator and structured agent-run records.
 - [ ] Add stock and crypto research agents with read-only tools.
 - [ ] Add macro advisory and economic-event context.
 - [ ] Produce persisted daily stock and continuous crypto plans.
@@ -584,6 +584,14 @@
 - **Safety boundary:** No variable, deployment, migration, broker flag, scheduler flag, Paper Autopilot flag, or order behavior was changed. The check did not print credentials or account values.
 - **Next smallest unit:** Obtain explicit operator approval, run the one-run paper reconciliation, and record redacted hosted evidence.
 
+## Completed Build Unit — Phase 4.1
+
+- **User story:** As the orchestrator, I can create and track structured research-agent runs with provenance and concise evidence without granting any agent financial authority.
+- **Implemented:** Added `packages/domain/src/agent-runs.ts` with agent-role metadata, versioned artifact contracts, immutable run records, lifecycle validation, registered-handler dispatch, and redacted failure codes. Added focused tests covering lifecycle ordering, duplicate IDs, malformed artifacts, handler failures, and unregistered agents.
+- **Safety boundary:** The unit is in-process and paper-only. It does not call an LLM, Alpaca, PostgreSQL, scheduler, risk approval, or order path. Agent output is evidence-bearing input only; no output can approve or submit a trade.
+- **Verification:** `pnpm test` passes 106 tests; `pnpm typecheck`, `pnpm lint`, and `pnpm build` pass across the workspace.
+- **Next smallest unit:** Add read-only stock and crypto research agents that consume validated market inputs and emit bounded artifacts through this orchestrator.
+
 ## Decisions Made
 
 | Date | Decision | Reason |
@@ -677,6 +685,7 @@
 | Phase 6.14 hosted reconciliation runbook | Pass | Added and linked the guarded Railway runbook with command-scoped gates, expected evidence, persistent-variable checks, and failure handling; no hosted state changed |
 | Phase 6.15 paper-only CI verification | Pass | GitHub Actions workflow added for locked install, lint, tests, typecheck, and build with read-only repository permissions and no runtime secrets; local equivalent checks pass |
 | Phase 6.16 Railway database connectivity | Pass | CLI confirmed non-empty `DATABASE_URL` on API and Worker; deployed Worker `durable-status` read-only query succeeded with both queues present and zero queued/active/failed jobs; no secrets printed |
+| Phase 4.1 structured agent runs | Pass | Added immutable run lifecycle/orchestrator and versioned artifact contracts with provenance; 106 tests, typecheck, lint, and production build pass; no external calls or financial authority added |
 | Browser/preview | Partial | Production page HTTP check passed; visual/responsive review deferred beyond source scaffold |
 | Security review | Partial | No credential files, Alpaca client, database connection, or order code added; full review remains required |
 
