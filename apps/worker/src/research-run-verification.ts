@@ -14,6 +14,12 @@ export interface ResearchRunVerificationResult {
   readonly status: "succeeded";
 }
 
+export function selectLatestResearchRun<T extends ResearchRunVerificationInput>(runs: readonly T[], approvalReference: string): T {
+  const match = runs.find((run) => (run.agentType === "stock_research" || run.agentType === "crypto_research") && run.inputRefs.includes(`operator-approval:${approvalReference}`));
+  if (!match) throw new Error("No research run with matching approval provenance was found.");
+  return match;
+}
+
 export function verifyResearchRun(input: ResearchRunVerificationInput, approvalReference: string): ResearchRunVerificationResult {
   if (!/^[A-Za-z0-9][A-Za-z0-9._:/-]{0,127}$/.test(approvalReference)) throw new Error("Approval reference is invalid.");
   if (input.status !== "succeeded") throw new Error("Research run did not succeed.");

@@ -2,8 +2,8 @@
 
 ## Snapshot
 
-- **Phase:** Phase 4.22 — read-only research run verification added.
-- **Status:** Agent runs have deterministic contracts, reviewed PostgreSQL persistence, authenticated list/detail reads, a dashboard health surface, a paper-only market-data run-once boundary, a disabled-by-default daily research readiness surface, a separately named validated queue boundary, an explicit stock/crypto preparation planner, a fail-closed queue-handler composition, a readiness-gated scheduler registration boundary, safe runtime health reporting, explicit opt-in worker composition, a guarded local/CI readiness command, verified hosted disabled readiness, a separate approval/reference guard, bounded research-run preflight validation, non-secret approval provenance, and a read-only persisted-run verifier; Railway migration `0008` is applied, while research scheduling, durable reconciliation, and Paper Autopilot remain disabled.
+- **Phase:** Phase 4.23 — latest-run research verification added.
+- **Status:** Agent runs have deterministic contracts, reviewed PostgreSQL persistence, authenticated list/detail reads, a dashboard health surface, a paper-only market-data run-once boundary, a disabled-by-default daily research readiness surface, a separately named validated queue boundary, an explicit stock/crypto preparation planner, a fail-closed queue-handler composition, a readiness-gated scheduler registration boundary, safe runtime health reporting, explicit opt-in worker composition, a guarded local/CI readiness command, verified hosted disabled readiness, a separate approval/reference guard, bounded research-run preflight validation, non-secret approval provenance, and bounded explicit/latest persisted-run verification; Railway migration `0008` is applied, while research scheduling, durable reconciliation, and Paper Autopilot remain disabled.
 - **Current operating mode:** Paper only; order submission not yet enabled.
 - **Current goal:** Run the separately approved one-run paper reconciliation using the reviewed runbook, then verify its result in the authenticated dashboard.
 - **Last updated:** 2026-08-23.
@@ -760,6 +760,14 @@
 - **Verification:** `pnpm test` passes 142 tests; `pnpm typecheck`, `pnpm lint`, and `pnpm build` pass. No hosted research run or persisted artifact verification was performed.
 - **Next smallest unit:** Obtain explicit operator approval, execute the documented preflight and one-run command, then use this verifier to confirm the persisted result.
 
+## Completed Build Unit — Phase 4.23
+
+- **User story:** As the operator, I can verify a future approved research run by explicit ID or by the latest run carrying the matching approval reference, without exposing payloads.
+- **Implemented:** Added bounded latest-run selection over the most recent 100 records, preserving the explicit-ID path and metadata-only verification contract.
+- **Safety boundary:** Selection is read-only and cannot start research, mutate state, expose artifacts, approve risk, or submit orders.
+- **Verification:** `pnpm test` passes 143 tests; `pnpm typecheck`, `pnpm lint`, and `pnpm build` pass. No hosted run was selected or verified.
+- **Next smallest unit:** Obtain explicit operator approval, execute the documented preflight and one-run command, then verify the latest persisted result.
+
 ## Decisions Made
 
 | Date | Decision | Reason |
@@ -875,6 +883,7 @@
 | Phase 4.20 hosted research preflight | Pass | Added bounded no-client preflight command and runbook step for approval, paper, database, broker, symbol, timeframe, and limit checks; 139 tests, typecheck, lint, and production build pass; no hosted research execution performed |
 | Phase 4.21 research approval provenance | Pass | Added non-secret operator-approval provenance to one-run agent input references with focused tests; 140 tests, typecheck, lint, and production build pass; no hosted research execution performed |
 | Phase 4.22 read-only research run verification | Pass | Added guarded persisted-run verifier for status/artifact/approval provenance; 142 tests, typecheck, lint, and production build pass; no hosted research execution performed |
+| Phase 4.23 latest-run research verification | Pass | Added bounded latest-100 selection by approval provenance while retaining explicit IDs; 143 tests, typecheck, lint, and production build pass; no hosted research execution performed |
 | Browser/preview | Partial | Production page HTTP check passed; visual/responsive review deferred beyond source scaffold |
 | Security review | Partial | No credential files, Alpaca client, database connection, or order code added; full review remains required |
 

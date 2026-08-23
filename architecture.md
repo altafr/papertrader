@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 4.22 read-only research run verification added; Railway database connectivity is verified, while research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
+- **Stage:** Phase 4.23 latest-run research verification added; Railway database connectivity is verified, while research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -464,6 +464,11 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - `research-run-verify` loads one persisted agent run by ID and returns only bounded metadata after checking succeeded status, artifact presence, supported agent type, and the expected approval provenance.
 - The command is guarded by `RESEARCH_RUN_VERIFY=true`, uses PostgreSQL read-only repository methods, never contacts Alpaca, and prints no artifact payload, rationale, account value, or credential.
 - It exists to close out a future approved hosted run; no run ID is currently verified by this command.
+
+### Phase 4.23 Latest-Run Research Verification
+
+- The read-only verifier can now select the most recent supported stock/crypto run carrying the requested approval reference when `RESEARCH_RUN_ID` is omitted; an explicit ID remains supported for deterministic checks.
+- Selection is bounded to the latest 100 persisted runs and returns the same metadata-only success contract. No artifact payload or rationale is loaded into output.
 
 ### Phase 6.13 Dashboard Operations Health Surface
 

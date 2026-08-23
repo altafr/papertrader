@@ -51,6 +51,8 @@ After a successful run, verify the persisted artifact by run ID using the read-o
 RESEARCH_RUN_VERIFY=true RESEARCH_RUN_ID=<persisted-run-id> RESEARCH_MARKET_APPROVAL_REFERENCE=ticket-123 pnpm --filter @momentum/worker research-run-verify
 ```
 
+`RESEARCH_RUN_ID` may be omitted to select the most recent stock/crypto run carrying the matching approval reference.
+
 Record only the deployment ID, timestamp, approval reference, generic result, and bounded run metadata from the authenticated dashboard/API. Do not record market payloads, account values, credentials, or raw logs. Confirm persistent scheduler, handler, broker, durable, and Paper Autopilot flags remain disabled after the command exits.
 
 This command reads paper market data once and persists one research artifact. It does not submit, cancel, replace, or approve orders, and it does not start a recurring scheduler.
