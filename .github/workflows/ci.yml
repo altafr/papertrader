@@ -49,3 +49,6 @@ jobs:
 
       - name: Build
         run: pnpm build
+
+      - name: Audit secret surfaces
+        run: pnpm audit:secret-surfaces

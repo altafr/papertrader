@@ -10,6 +10,7 @@
   },
   "scripts": {
     "build": "pnpm -r --if-present build",
+    "audit:secret-surfaces": "bash scripts/audit-secret-surfaces.sh",
     "dev:api": "pnpm --filter @momentum/api dev",
     "dev:web": "pnpm --filter @momentum/web dev",
     "dev:worker": "pnpm --filter @momentum/worker dev",

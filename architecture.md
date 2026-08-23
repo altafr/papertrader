@@ -343,6 +343,12 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - Worker deployment `d28e267c-42cd-4cfa-b364-9f30c8468bca` reached `SUCCESS`; Railway SSH returned `{"databaseReachable":true}` with `env DATABASE_STATUS=true pnpm --filter @momentum/worker database-status`.
 - Post-deployment checks confirmed `BROKER_CONNECTION_ENABLED=false`; research, durable-scheduler, daily-handler, and Paper Autopilot flags remain unset. No broker request or order action occurred.
 
+### Phase 6.18 Secret-Surface CI Audit
+
+- Added `pnpm audit:secret-surfaces`, which scans source/tracked files for assigned credential-like values and scans the Next.js browser output for database URLs or Clerk secret-key formats.
+- The audit reports filenames only on failure and never prints matching values. Public variable-name references from dependencies are not treated as leaked credentials.
+- GitHub CI runs the audit after the production build. The current source and browser output pass with no credential-like values found.
+
 ### Phase 4.1 Structured Agent Runs
 
 - `packages/domain/src/agent-runs.ts` defines versioned, structured agent-run requests and artifacts for the orchestrator, stock/crypto research, macro advisory, strategy, risk explanation, execution, and reconciliation roles.
