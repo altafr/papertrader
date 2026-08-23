@@ -9,6 +9,7 @@ describe("worker health", () => {
     expect(getWorkerHealth(now, {})).toEqual({
       alpaca: "not_configured",
       asOf: "2026-08-21T00:00:00.000Z",
+      brokerConnectionEnabled: false,
       database: "not_configured",
       durableScheduler: { enabled: false, status: "disabled" },
       operatingMode: "observe",
@@ -17,6 +18,18 @@ describe("worker health", () => {
       service: "worker",
       status: "healthy",
     });
+  });
+
+  it("reports configuration presence separately from broker connection enablement", () => {
+    const health = getWorkerHealth(new Date("2026-08-21T00:00:00.000Z"), {
+      ALPACA_API_KEY: "paper-key",
+      ALPACA_SECRET_KEY: "paper-secret",
+      ALPACA_PAPER_TRADE: "true",
+      BROKER_CONNECTION_ENABLED: "false",
+      DATABASE_URL: "postgres://private",
+      TRADING_MODE: "paper",
+    });
+    expect(health).toMatchObject({ alpaca: "configured", brokerConnectionEnabled: false, database: "configured", operatingMode: "observe" });
   });
 
   it("reports an enabled research schedule as blocked until every gate is explicit", () => {

@@ -8,6 +8,7 @@ export const OPERATING_MODES = {
 
 export type OperatingMode = (typeof OPERATING_MODES)[keyof typeof OPERATING_MODES];
 export type RuntimeOperatingMode = "observe" | "recommend" | "paper_autopilot";
+export type IntegrationConfigStatus = "configured" | "not_configured";
 
 export type HealthState = "degraded" | "healthy" | "paused" | "stopped";
 
@@ -18,9 +19,10 @@ export interface ServiceHealth {
 }
 
 export interface WorkerHealth {
-  readonly alpaca: "not_configured";
+  readonly alpaca: IntegrationConfigStatus;
   readonly asOf: string;
-  readonly database: "not_configured";
+  readonly brokerConnectionEnabled: boolean;
+  readonly database: IntegrationConfigStatus;
   readonly durableScheduler: {
     readonly enabled: boolean;
     readonly lastRunAt?: string;
