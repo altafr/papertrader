@@ -358,6 +358,12 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - `packages/domain/src/macro-advisory.ts` defines validated economic-event records and a deterministic macro-advisory artifact with bounded horizon, source references, and explicit `high_impact_event_near`/`source_data_sparse` flags.
 - The artifact is advisory context only. It does not infer sentiment, change a risk policy, approve/reject a signal, or submit an order; stale, malformed, or over-large event input fails closed.
 
+### Phase 4.5 Guarded Research Run Once
+
+- `apps/worker` exposes `research-run-once`, guarded by `RESEARCH_RUN_ONCE=true`, explicit bounded JSON input, and the reviewed agent-run repository. It supports one stock, crypto, or macro artifact and exits after persistence.
+- The command is disabled by default, does not fetch data, and does not invoke an LLM. Future provider/Alpaca adapters must supply validated inputs through this boundary; no agent result can approve risk or submit an order.
+- Handler failures persist only `research_handler_failed`, while the command emits generic success/failure output. Hosted use requires the `0008_agent_runs.sql` migration and a separately reviewed operator invocation.
+
 ### Phase 6.13 Dashboard Operations Health Surface
 
 - The authenticated dashboard consumes only the redacted `/v1/operations-health` response and displays reconciliation freshness plus scheduler, broker-read, and Paper Autopilot gates.

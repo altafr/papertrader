@@ -2,8 +2,8 @@
 
 ## Snapshot
 
-- **Phase:** Phase 4.4 — macro advisory contract added.
-- **Status:** Agent runs have deterministic contracts, reviewed PostgreSQL persistence, and an authenticated metadata view; macro event context is advisory-only, while the new migration remains unapplied in hosted environments and durable scheduler/Paper Autopilot remain disabled.
+- **Phase:** Phase 4.5 — guarded research run-once boundary added.
+- **Status:** Agent runs have deterministic contracts, reviewed PostgreSQL persistence, authenticated metadata reads, and a disabled-by-default worker run-once boundary; the new migration remains unapplied in hosted environments and durable scheduler/Paper Autopilot remain disabled.
 - **Current operating mode:** Paper only; order submission not yet enabled.
 - **Current goal:** Run the separately approved one-run paper reconciliation using the reviewed runbook, then verify its result in the authenticated dashboard.
 - **Last updated:** 2026-08-23.
@@ -617,6 +617,14 @@
 - **Verification:** `pnpm test` passes 112 tests; `pnpm typecheck` passes across the workspace. Full lint/build remain part of the final phase handoff.
 - **Next smallest unit:** Wire bounded stock/crypto/macro research runs through a disabled-by-default worker command after the hosted `0008_agent_runs` migration is reviewed.
 
+## Completed Build Unit — Phase 4.5
+
+- **User story:** As the server runtime, I can execute exactly one explicitly guarded research artifact run and persist its status without creating a recurring job or financial authority.
+- **Implemented:** Added `apps/worker`'s `research-run-once` command and reusable runner. It requires `RESEARCH_RUN_ONCE=true`, bounded `RESEARCH_INPUT_JSON`, an explicit agent type, paper-only runtime, and `DATABASE_URL`; it persists queued/running/succeeded or redacted failed status, then exits.
+- **Safety boundary:** The command does not fetch market data, call an LLM, contact Alpaca, start a scheduler, approve risk, or submit orders. It remains disabled by default and requires migration `0008` before hosted use.
+- **Verification:** `pnpm test` passes 114 tests; `pnpm typecheck`, `pnpm lint`, and `pnpm build` pass across the workspace.
+- **Next smallest unit:** Apply migration `0008` through Railway's controlled process, then perform a separately approved non-broker research-run verification with safe fixture input.
+
 ## Decisions Made
 
 | Date | Decision | Reason |
@@ -714,6 +722,7 @@
 | Phase 4.2 read-only research agents | Pass | Added deterministic stock/crypto watchlist handlers with bounded, validated artifacts; 109 tests, typecheck, lint, and production build pass; no external calls or financial authority added |
 | Phase 4.3 agent-run persistence/read view | Pass | Added migration 0008, Drizzle/repository lifecycle enforcement, and authenticated metadata-only `/v1/agent-runs`; 110 tests, typecheck, lint, and production build pass; hosted migration not yet applied |
 | Phase 4.4 macro advisory/economic events | Pass | Added validated event contract and advisory-only deterministic flags; 112 tests and typecheck pass; no external provider, broker, risk, or order authority added |
+| Phase 4.5 guarded research run-once | Pass | Added disabled-by-default worker runner/command with bounded JSON input and redacted failure persistence; 114 tests, typecheck, lint, and production build pass; hosted migration/run not performed |
 | Browser/preview | Partial | Production page HTTP check passed; visual/responsive review deferred beyond source scaffold |
 | Security review | Partial | No credential files, Alpaca client, database connection, or order code added; full review remains required |
 
