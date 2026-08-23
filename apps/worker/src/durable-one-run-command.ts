@@ -31,10 +31,13 @@ if (!databaseUrl?.trim()) throw new Error("DATABASE_URL is required for the one-
 const boss = new PgBoss(databaseUrl);
 let databasePool: Awaited<ReturnType<typeof createDatabase>>["pool"] | undefined;
 const timeoutMs = 120_000;
+let failureStage: "database_connect" | "job_enqueue" | "queue_provision" | "queue_start" | "reconciliation" | "worker_registration" = "queue_start";
 
 try {
   await boss.start();
+  failureStage = "queue_provision";
   await provisionDurableQueues(boss, getDurableSchedulerConfig({ ...process.env, DURABLE_SCHEDULER_ENABLED: "true" }));
+  failureStage = "database_connect";
   const database = createDatabase(databaseUrl);
   databasePool = database.pool;
   const reader = createPaperAccountReader({ apiKey: process.env.ALPACA_API_KEY ?? "", secretKey: process.env.ALPACA_SECRET_KEY ?? "" });
@@ -42,10 +45,12 @@ try {
   let resolveCompleted: (() => void) | undefined;
   let rejectCompleted: ((error: unknown) => void) | undefined;
   const completed = new Promise<void>((resolve, reject) => { resolveCompleted = resolve; rejectCompleted = reject; });
+  failureStage = "worker_registration";
   await boss.work<DurableDailyJob>(DAILY_PREPARATION_QUEUE, async (jobs) => {
     try {
       for (const job of jobs) {
         if (job.data.runId !== runId || job.data.approvalReference !== approvalReference) throw new Error("Guarded one-run provenance did not match the queued job.");
+        failureStage = "reconciliation";
         await reconcilePaperAccount(reader, repository, { approvalReference, runId });
       }
       resolveCompleted?.();
@@ -54,8 +59,10 @@ try {
       throw error;
     }
   });
+  failureStage = "job_enqueue";
   const sentId = await boss.send(DAILY_PREPARATION_QUEUE, { kind: "daily_preparation", version: 1, approvalReference, runId }, { id: runId });
   if (!sentId) throw new Error("The guarded one-run job was not queued.");
+  failureStage = "reconciliation";
   let timeout: ReturnType<typeof setTimeout> | undefined;
   await Promise.race([
     completed,
@@ -63,7 +70,7 @@ try {
   ]).finally(() => { if (timeout) clearTimeout(timeout); });
   console.log(JSON.stringify({ approvalReference, runId, status: "completed" }));
 } catch (error) {
-  console.error(`Durable one-run paper reconciliation failed (failure_code=${classifyDurableOneRunFailure(error)}).`);
+  console.error(`Durable one-run paper reconciliation failed (failure_code=${classifyDurableOneRunFailure(error)} failure_stage=${failureStage}).`);
   process.exitCode = 1;
 } finally {
   await databasePool?.end().catch(() => undefined);
