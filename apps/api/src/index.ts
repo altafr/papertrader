@@ -21,6 +21,7 @@ import { getApiHealth } from "./app.js";
 import { assessReconciliationHealth, assessSchedulerActivation } from "./operations-health.js";
 import { compareReconciliationAccounts } from "./reconciliation-status.js";
 import { approveDisabledToReplay, approveReplayToShadow, approveShadowToPaper } from "./lifecycle-command.js";
+import { toAgentRunDetail } from "./agent-run-detail.js";
 
 let readModelRepository: ReturnType<typeof createAccountStateRepository> | undefined;
 let agentRunRepository: ReturnType<typeof createAgentRunRepository> | undefined;
@@ -352,6 +353,27 @@ async function readAgentRuns(request: IncomingMessage) {
   } as const;
 }
 
+async function readAgentRunDetail(request: IncomingMessage, runId: string) {
+  const authentication = await authenticateOperator(request);
+  if (authentication.status !== 200) return authentication;
+  if (!process.env.DATABASE_URL?.trim()) return { body: { error: "db_not_configured" }, status: 503 } as const;
+  if (!/^[A-Za-z0-9._:-]{1,128}$/.test(runId)) return { body: { error: "invalid_agent_run_id" }, status: 400 } as const;
+  if (!agentRunRepository) {
+    const { db } = createDatabase();
+    agentRunRepository = createAgentRunRepository(db);
+  }
+  const row = await agentRunRepository.get(runId);
+  if (!row) return { body: { error: "agent_run_not_found" }, status: 404 } as const;
+  return { body: { run: toAgentRunDetail(row) }, status: 200 } as const;
+}
+
+function getAgentRunPath(request: IncomingMessage): { readonly kind: "detail" | "list"; readonly runId?: string } {
+  const pathname = new URL(request.url ?? "/", `http://${request.headers.host ?? "localhost"}`).pathname;
+  const parts = pathname.split("/").filter(Boolean);
+  const runId = parts[2];
+  return parts.length === 3 && parts[0] === "v1" && parts[1] === "agent-runs" && runId ? { kind: "detail", runId } : { kind: "list" };
+}
+
 async function approveStrategyReplay(request: IncomingMessage) {
   const authentication = await authenticateOperator(request);
   if (authentication.status !== 200) return authentication;
@@ -506,7 +528,8 @@ const server = createServer((request, response) => {
   }
 
   if (request.method === "GET" && request.url?.startsWith("/v1/agent-runs")) {
-    readAgentRuns(request)
+    const path = getAgentRunPath(request);
+    (path.kind === "detail" ? readAgentRunDetail(request, path.runId ?? "") : readAgentRuns(request))
       .then(({ body, status }) => {
         response.writeHead(status, { "content-type": "application/json" });
         response.end(JSON.stringify(body));

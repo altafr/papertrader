@@ -2,8 +2,8 @@
 
 ## Snapshot
 
-- **Phase:** Phase 4.7 — agent health dashboard view added.
-- **Status:** Agent runs have deterministic contracts, reviewed PostgreSQL persistence, authenticated API metadata reads, and a dashboard health surface; Railway migration `0008` is applied, while durable scheduler and Paper Autopilot remain disabled.
+- **Phase:** Phase 4.8 — bounded agent-run detail boundary added.
+- **Status:** Agent runs have deterministic contracts, reviewed PostgreSQL persistence, authenticated list/detail reads, and a dashboard health surface; Railway migration `0008` is applied, while durable scheduler and Paper Autopilot remain disabled.
 - **Current operating mode:** Paper only; order submission not yet enabled.
 - **Current goal:** Run the separately approved one-run paper reconciliation using the reviewed runbook, then verify its result in the authenticated dashboard.
 - **Last updated:** 2026-08-23.
@@ -640,6 +640,14 @@
 - **Verification:** `pnpm test` passes 115 tests; `pnpm typecheck`, `pnpm lint`, and `pnpm build` pass across the workspace.
 - **Next smallest unit:** Obtain explicit approval for one non-broker fixture research run, or implement the next read-only agent evidence surface without hosted execution.
 
+## Completed Build Unit — Phase 4.8
+
+- **User story:** As the operator, I can inspect one stored agent artifact through an authenticated API without receiving unbounded or secret-like payload content.
+- **Implemented:** Added `GET /v1/agent-runs/:runId`, strict run-ID validation, bounded recursive payload handling, secret-key redaction, rationale truncation, and not-found/incomplete-artifact states. Added focused redaction tests.
+- **Safety boundary:** The endpoint is read-only and metadata/artifact inspection only. It cannot execute agents, change configuration, call Alpaca, approve risk, or submit orders.
+- **Verification:** `pnpm test` passes 117 tests; `pnpm typecheck`, `pnpm lint`, and `pnpm build` pass across the workspace.
+- **Next smallest unit:** Obtain explicit approval for one non-broker fixture research run, or continue implementing read-only agent evidence tooling without hosted execution.
+
 ## Decisions Made
 
 | Date | Decision | Reason |
@@ -740,6 +748,7 @@
 | Phase 4.5 guarded research run-once | Pass | Added disabled-by-default worker runner/command with bounded JSON input and redacted failure persistence; 114 tests, typecheck, lint, and production build pass; no fixture run performed |
 | Phase 4.6 hosted agent-run schema readiness | Pass | Worker deployment `c8db3f78-e562-451d-bbf6-6ad93c092f6f` reached SUCCESS; guarded Railway migration applied through 0008 with no broker/research execution or flag changes |
 | Phase 4.7 agent health dashboard | Pass | Added authenticated metadata-only run-health card and strict browser parser; 115 tests, typecheck, lint, and production build pass; no execution or financial authority added |
+| Phase 4.8 agent-run detail boundary | Pass | Added authenticated bounded detail endpoint with recursive secret-key redaction and 117 tests, typecheck, lint, and production build pass; no execution or financial authority added |
 | Browser/preview | Partial | Production page HTTP check passed; visual/responsive review deferred beyond source scaffold |
 | Security review | Partial | No credential files, Alpaca client, database connection, or order code added; full review remains required |
 

@@ -375,6 +375,12 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - The browser parser rejects malformed run/status/reference data and the UI never displays artifact payload or rationale. Unavailable API/authentication produces an explicit degraded state.
 - This is a read-only observation surface; it cannot invoke agents, change configuration, approve risk, or submit orders.
 
+### Phase 4.8 Agent-Run Detail Boundary
+
+- Authenticated `GET /v1/agent-runs/:runId` returns one stored run and its bounded artifact detail for operator inspection.
+- The API validates run IDs, limits nested payload depth/entries/string size, redacts secret-like keys, truncates rationale, and omits incomplete artifact details. Unknown runs return a redacted not-found response.
+- This endpoint is read-only and does not execute agents, expose credentials, contact providers, approve risk, or submit orders.
+
 ### Phase 6.13 Dashboard Operations Health Surface
 
 - The authenticated dashboard consumes only the redacted `/v1/operations-health` response and displays reconciliation freshness plus scheduler, broker-read, and Paper Autopilot gates.
