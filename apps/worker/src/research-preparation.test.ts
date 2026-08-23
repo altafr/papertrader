@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import type { ResearchAgentInput } from "@momentum/domain";
 
-import { createResearchPreparationPlan, executeResearchPreparation, getResearchPreparationConfig } from "./research-preparation.js";
+import { createResearchPreparationPlan, createResearchPreparationQueueHandler, executeResearchPreparation, getResearchPreparationConfig } from "./research-preparation.js";
 
 const input = (assetClass: ResearchAgentInput["assetClass"]): ResearchAgentInput => ({
   assetClass,
@@ -47,5 +47,28 @@ describe("research preparation", () => {
     });
     expect(result).toEqual({ agentType: "stock_research", runId: "research-preparation-stock_research-20260823020000", status: "succeeded" });
     expect(calls).toEqual(["enqueue", "start", "succeed"]);
+  });
+
+  it("fails closed before source access unless every readiness gate is ready", async () => {
+    const source = { read: vi.fn(async () => input("us_equity")) };
+    const handler = createResearchPreparationQueueHandler({ environment: { RESEARCH_SCHEDULER_ENABLED: "true" }, persistence: { enqueue: async () => {}, start: async () => {}, succeed: async () => {}, fail: async () => {} }, source });
+    await expect(handler({ kind: "research_preparation", version: 1 })).rejects.toThrow("not ready");
+    expect(source.read).not.toHaveBeenCalled();
+  });
+
+  it("runs both bounded asset-class plans only with explicit readiness", async () => {
+    const source = { read: vi.fn(async (plan) => input(plan.assetClass)) };
+    const calls: string[] = [];
+    const handler = createResearchPreparationQueueHandler({
+      clock: () => new Date("2026-08-23T02:01:00.000Z"),
+      environment: { ALPACA_API_KEY: "paper-key", ALPACA_SECRET_KEY: "paper-secret", ALPACA_PAPER_TRADE: "true", BROKER_CONNECTION_ENABLED: "true", DATABASE_URL: "postgres://private", RESEARCH_CRYPTO_SYMBOLS: "BTC/USD", RESEARCH_HANDLER_ENABLED: "true", RESEARCH_SCHEDULER_ENABLED: "true", RESEARCH_STOCK_SYMBOLS: "AAPL", TRADING_MODE: "paper" },
+      persistence: { enqueue: async () => { calls.push("enqueue"); }, start: async () => { calls.push("start"); }, succeed: async () => { calls.push("succeed"); }, fail: async () => { calls.push("fail"); } },
+      source,
+    });
+    const results = await handler({ kind: "research_preparation", version: 1 });
+    expect(results).toHaveLength(2);
+    expect(source.read).toHaveBeenCalledTimes(2);
+    expect(calls.filter((call) => call === "succeed")).toHaveLength(2);
+    expect(calls).not.toContain("fail");
   });
 });

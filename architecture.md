@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 4.12 deterministic research-preparation planner added; Railway database connectivity is verified, while research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
+- **Stage:** Phase 4.13 gated research-preparation queue handler added; Railway database connectivity is verified, while research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -404,6 +404,12 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - `apps/worker/src/research-preparation.ts` validates explicit stock and crypto symbol lists, approved timeframes, bar limits, and candidate limits, then creates one bounded plan per asset class.
 - The preparation executor reads validated fresh market input through an injected source, constructs a versioned agent-run request, dispatches the deterministic stock/crypto handler, and hands lifecycle persistence to the existing repository boundary.
 - The planner has no default universe, no LLM dependency, and no order/risk authority. It remains callable only from a future explicitly enabled queue handler; no hosted input read or persistence write was performed.
+
+### Phase 4.13 Gated Research-Preparation Queue Handler
+
+- `createResearchPreparationQueueHandler` composes the readiness check, explicit preparation configuration, two-asset-class plan, injected market-data source, deterministic agents, and existing agent-run persistence lifecycle.
+- The handler rejects the queue job before source access unless every research gate reports `ready`; it processes stock and crypto plans sequentially and returns only bounded run statuses/IDs.
+- This is composition code, not activation: the worker does not register the handler with `pg-boss`, enable the research cron, or run hosted market-data calls while the persistent gates remain disabled.
 
 ### Phase 6.13 Dashboard Operations Health Surface
 

@@ -2,8 +2,8 @@
 
 ## Snapshot
 
-- **Phase:** Phase 4.12 — deterministic research-preparation planner added.
-- **Status:** Agent runs have deterministic contracts, reviewed PostgreSQL persistence, authenticated list/detail reads, a dashboard health surface, a paper-only market-data run-once boundary, a disabled-by-default daily research readiness surface, a separately named validated queue boundary, and an explicit stock/crypto preparation planner; Railway migration `0008` is applied, while research scheduling, durable reconciliation, and Paper Autopilot remain disabled.
+- **Phase:** Phase 4.13 — gated research-preparation queue handler added.
+- **Status:** Agent runs have deterministic contracts, reviewed PostgreSQL persistence, authenticated list/detail reads, a dashboard health surface, a paper-only market-data run-once boundary, a disabled-by-default daily research readiness surface, a separately named validated queue boundary, an explicit stock/crypto preparation planner, and a fail-closed queue-handler composition; Railway migration `0008` is applied, while research scheduling, durable reconciliation, and Paper Autopilot remain disabled.
 - **Current operating mode:** Paper only; order submission not yet enabled.
 - **Current goal:** Run the separately approved one-run paper reconciliation using the reviewed runbook, then verify its result in the authenticated dashboard.
 - **Last updated:** 2026-08-23.
@@ -680,6 +680,14 @@
 - **Verification:** `pnpm test` passes 128 tests; `pnpm typecheck`, `pnpm lint`, and `pnpm build` pass across the workspace. No hosted market-data read or agent-run write was performed.
 - **Next smallest unit:** Add the disabled-by-default queue handler composition that invokes the planner only after all research readiness gates pass.
 
+## Completed Build Unit — Phase 4.13
+
+- **User story:** As the research queue, I can refuse preparation until all paper/database/broker/credential/handler gates are ready, then process bounded stock and crypto plans through deterministic persistence.
+- **Implemented:** Added a gated queue-handler factory that checks readiness before source access, composes the explicit planner, runs asset classes sequentially, and returns bounded run results. The handler is not registered or activated by the worker.
+- **Safety boundary:** A blocked or malformed environment fails closed before market-data access. The handler has no risk approval, order submission, live endpoint, persistent flag mutation, or scheduler-start authority.
+- **Verification:** `pnpm test` passes 130 tests; `pnpm typecheck`, `pnpm lint`, and `pnpm build` pass across the workspace. No hosted market-data read or agent-run write was performed.
+- **Next smallest unit:** Register the handler with the research queue only behind an explicit scheduler activation boundary, preserving disabled defaults and safe worker health.
+
 ## Decisions Made
 
 | Date | Decision | Reason |
@@ -785,6 +793,7 @@
 | Phase 4.10 research schedule readiness boundary | Pass | Added disabled-by-default research queue/cron contract, bounded readiness gates, deterministic job identity, and worker health status; 123 tests, typecheck, lint, and production build pass; no hosted schedule or research execution performed |
 | Phase 4.11 research-preparation queue boundary | Pass | Added separately named validated research queues, bounded provisioning, idempotent enqueue, and fail-closed handler dispatch; 125 tests, typecheck, lint, and production build pass; no hosted queue or research execution performed |
 | Phase 4.12 deterministic research-preparation planner | Pass | Added bounded stock/crypto plan parsing, deterministic run IDs, injected market-input read, deterministic handler dispatch, and persistence handoff; 128 tests, typecheck, lint, and production build pass; no hosted research execution performed |
+| Phase 4.13 gated research-preparation queue handler | Pass | Added readiness-gated queue composition for sequential stock/crypto preparation and persistence; 130 tests, typecheck, lint, and production build pass; no hosted research execution performed |
 | Browser/preview | Partial | Production page HTTP check passed; visual/responsive review deferred beyond source scaffold |
 | Security review | Partial | No credential files, Alpaca client, database connection, or order code added; full review remains required |
 

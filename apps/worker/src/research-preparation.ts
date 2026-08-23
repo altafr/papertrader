@@ -2,6 +2,7 @@ import type { AgentRunRequest, ResearchAgentInput, StrategyAssetClass } from "@m
 import { createCryptoResearchAgent, createStockResearchAgent } from "@momentum/domain";
 
 import { executeResearchRun, type ResearchRunPersistence } from "./research-runner.js";
+import { getResearchScheduleReadiness, type ResearchPreparationJob } from "./research-scheduler.js";
 
 export interface ResearchPreparationInputPlan {
   readonly agentType: "crypto_research" | "stock_research";
@@ -87,4 +88,24 @@ export async function executeResearchPreparation(input: {
   const handler = input.preparation.agentType === "stock_research" ? createStockResearchAgent(marketInput) : createCryptoResearchAgent(marketInput);
   const result = await executeResearchRun({ ...(input.clock ? { clock: input.clock } : {}), handler, persistence: input.persistence, request });
   return { agentType: input.preparation.agentType, runId: request.runId, status: result.status };
+}
+
+export function createResearchPreparationQueueHandler(input: {
+  readonly clock?: () => Date;
+  readonly environment?: NodeJS.ProcessEnv;
+  readonly persistence: ResearchRunPersistence;
+  readonly source: ResearchPreparationSource;
+}) {
+  const environment = input.environment ?? process.env;
+  return async (job: ResearchPreparationJob): Promise<readonly ResearchPreparationResult[]> => {
+    void job;
+    const readiness = getResearchScheduleReadiness(environment);
+    if (readiness.status !== "ready") throw new Error(`Research preparation is not ready: ${readiness.status}.`);
+    const plans = createResearchPreparationPlan(getResearchPreparationConfig(environment));
+    const results: ResearchPreparationResult[] = [];
+    for (const preparation of plans) {
+      results.push(await executeResearchPreparation({ ...(input.clock ? { clock: input.clock } : {}), persistence: input.persistence, preparation, source: input.source }));
+    }
+    return results;
+  };
 }
