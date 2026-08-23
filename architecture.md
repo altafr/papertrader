@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.59 one-run audit state verified; Railway API deployment is verified, while research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
+- **Stage:** Phase 6.60 guarded paper reconciliation failure contained; Railway API deployment is verified, while research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -593,6 +593,13 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - The read-only durable one-run verifier was run with the bounded preflight run ID and reference. It found both durable queues present and fully drained, an existing fresh read model, and no persisted provenance for that preflight ID.
 - The verifier returned `status:"incomplete"` with `provenance_audit_missing` and matching-reference/ID reasons, confirming that the preflight did not execute a reconciliation or write an audit row.
 - This is the expected safe state before a separately approved run; no runtime flag, scheduler, broker, or order behavior changed.
+
+### Phase 6.60 Guarded Paper Reconciliation Failure Contained
+
+- With explicit approval reference `PAPER-RECONCILIATION-123` and unique run ID `paper-reconciliation-20260823-01`, the guarded one-run command executed once and exited through its generic failure path. No provider, account, SQL, or credential details were emitted.
+- The post-run verifier found both queues present and drained, no persisted audit provenance for the run ID, and no completed one-run record. The failure cause is intentionally not inferred from the redacted command output; the run must not be retried blindly.
+- Persistent Railway flags remained safe (`BROKER_CONNECTION_ENABLED=false`; command-scoped handler/scheduler/autopilot flags were not persisted). A follow-up private health probe remained healthy in observe mode with durable/research/shadow schedulers disabled and the global kill switch inactive.
+- This is a contained failed attempt, not evidence of successful reconciliation. Any retry requires operator review of the failure and a new explicit approval/reference plus a new unique run ID.
 
 ### Phase 4.1 Structured Agent Runs
 
