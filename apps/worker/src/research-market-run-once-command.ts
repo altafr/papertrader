@@ -4,8 +4,9 @@ import { createAgentRunRepository, createDatabase } from "@momentum/db";
 import { createCryptoResearchAgent, createStockResearchAgent, type AgentRunRequest, type ResearchAgentInput } from "@momentum/domain";
 import { executeResearchRun } from "./research-runner.js";
 import { createAlpacaResearchInputSource } from "./research-market-source.js";
+import { validateResearchMarketRunOnce } from "./research-market-run-once-guard.js";
 
-if (process.env.RESEARCH_MARKET_RUN_ONCE !== "true") throw new Error("RESEARCH_MARKET_RUN_ONCE must be exactly true for the guarded market research command.");
+validateResearchMarketRunOnce();
 const runtime = getPaperOnlyRuntimeConfig();
 if (!runtime.brokerConnectionEnabled) throw new Error("RESEARCH_MARKET_RUN_ONCE requires command-scoped BROKER_CONNECTION_ENABLED=true.");
 if (!process.env.DATABASE_URL?.trim()) throw new Error("DATABASE_URL is required for the market research command.");

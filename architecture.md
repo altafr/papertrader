@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 4.18 hosted research readiness evidence recorded; Railway database connectivity is verified, while research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
+- **Stage:** Phase 4.19 separate approval guard for hosted research runs added; Railway database connectivity is verified, while research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -440,6 +440,12 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - Deployed worker `5290f522-99da-4b71-b1bf-2e2b4d9f8c86` reached `SUCCESS` through the Railway CLI using the tested revision.
 - Railway SSH ran the guarded `research-readiness` command successfully: status was `disabled`; `databaseConfigured` and `paperCredentialsConfigured` were true; `paperMode` was true; broker, handler, and scheduler gates were false.
 - A separate server-side flag classification confirmed `BROKER_CONNECTION_ENABLED=false`; research/durable scheduler and handler flags were unset; `PAPER_AUTOPILOT_ENABLED` was unset. No secret values were printed and no market-data, database-write, scheduler, or order operation was performed.
+
+### Phase 4.19 Separate Research Run Approval Guard
+
+- `research-market-run-once` now requires both `RESEARCH_MARKET_RUN_ONCE=true` and a separate command-scoped `RESEARCH_MARKET_OPERATOR_APPROVAL=true`, plus a bounded non-secret `RESEARCH_MARKET_APPROVAL_REFERENCE`.
+- The guard runs before paper credentials, database, or market-data clients are constructed. Invalid, missing, or unsafe references fail closed without revealing values.
+- [`docs/railway-research-runbook.md`](docs/railway-research-runbook.md) documents the future one-run process. No hosted research command was executed in this unit.
 
 ### Phase 6.13 Dashboard Operations Health Surface
 
