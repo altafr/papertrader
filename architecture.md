@@ -368,6 +368,12 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - The page now shows `Observe` and `Broker access gated`, states that order authority is disabled, and avoids claiming that credentials, database connectivity, or server-side paper adapters do not exist.
 - It remains informational only; no browser credential, broker call, mode-changing control, scheduler, or order authority was added. Vercel preview `dpl_BgZVSWj78ASLQtrBBTedh98DQK5c` reached `Ready` and remains deployment-protected.
 
+### Phase 6.22 Worker Operating-Mode Health
+
+- Extended the shared Worker health contract with the resolved paper operating mode and made Worker startup validate the same contradiction rules as the API.
+- Worker deployment `06735237-cbfa-4bc0-8004-cd4e899b53ba` reached `SUCCESS`; its private health endpoint returned HTTP 200 with `operatingMode:"observe"`, healthy status, and durable/research/shadow gates disabled.
+- The health field is observational only; it does not enable a mode, contact Alpaca, write PostgreSQL, or submit orders.
+
 ### Phase 4.1 Structured Agent Runs
 
 - `packages/domain/src/agent-runs.ts` defines versioned, structured agent-run requests and artifacts for the orchestrator, stock/crypto research, macro advisory, strategy, risk explanation, execution, and reconciliation roles.
