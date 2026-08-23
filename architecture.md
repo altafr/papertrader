@@ -420,7 +420,7 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 
 - Authenticated `GET /v1/operations-health` now includes the redacted `globalKillSwitchActive` state, and the dashboard renders it next to broker, scheduler, Autopilot, mode, and risk-policy metadata.
 - The browser remains display-only: it cannot toggle, clear, or override the kill switch. Invalid server-side values fail closed through the configuration guard.
-- Local tests, typecheck, lint, production build, secret-surface audit, and diff checks pass. No order, scheduler, or configuration mutation was added.
+- Local tests, typecheck, lint, production build, secret-surface audit, and diff checks pass. API deployment `ceb8f9fb-1723-43d0-8d8d-3e9344c72c1d` reached `SUCCESS`; `/health` returned HTTP 200 and unauthenticated operations health returned HTTP 401. Vercel preview `dpl_GGphneUFTQm7wviXF7w8HRsGphrz` reached `Ready` and remains deployment-protected with HTTP 302. No order, scheduler, or configuration mutation was added.
 
 ### Phase 4.1 Structured Agent Runs
 

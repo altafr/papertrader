@@ -697,8 +697,8 @@
 - **User story:** As the operator, I can see whether the global emergency stop is active without being given a browser control to alter it.
 - **Implemented:** Added `globalKillSwitchActive` to authenticated operations health, strict dashboard parsing, and the operations-health card.
 - **Safety boundary:** The value is redacted metadata only; the browser cannot toggle it, bypass it, or submit orders. No execution or scheduler behavior changed.
-- **Verification:** 161 tests, typecheck, lint, production build, secret-surface audit, and diff checks pass.
-- **Next smallest unit:** Deploy the API/web status contract and verify the protected surfaces; keep all execution gates disabled.
+- **Verification:** 161 tests, typecheck, lint, production build, secret-surface audit, and diff checks pass. API deployment `ceb8f9fb-1723-43d0-8d8d-3e9344c72c1d` reached `SUCCESS`; `/health` returned HTTP 200 and unauthenticated `/v1/operations-health` returned HTTP 401. Vercel preview `dpl_GGphneUFTQm7wviXF7w8HRsGphrz` reached `Ready`; unauthenticated HTTP returned the expected deployment-protection 302. No worker flags changed.
+- **Next smallest unit:** Obtain explicit approval for the one-run paper reconciliation; keep all execution gates disabled.
 
 ## Completed Build Unit — Phase 4.1
 
@@ -1019,7 +1019,7 @@
 | Phase 6.27 Paper Autopilot readiness report | Pass | Added guarded configuration-only readiness output with bounded reasons, fixed risk-policy checks, and explicit runtime-freshness requirement; 156 tests and full static verification pass; worker deployment `7f225657-eedb-4c42-b803-a7a8b4e6a7fe` verified hosted `status=disabled`; no external client or execution action added |
 | Phase 6.28 Paper Autopilot runtime freshness readiness | Pass | Added guarded PostgreSQL-only freshness classification and configuration/freshness composition; 158 tests and full static verification pass; worker deployment `3ac368fd-c5b3-4443-989b-354d2b16195f` verified hosted `status=disabled` with fresh reconciliation; no Alpaca, scheduler, approval, or order action added |
 | Phase 6.29 global kill-switch runtime guard | Pass | Added `GLOBAL_KILL_SWITCH_ACTIVE` fail-closed checks to readiness, Worker startup, and paper execution; 161 tests and full static verification pass; deployment `726c5b3b-8dfb-4b3f-9f4f-9511935f7f43` verified hosted inactive/default-safe state; no hosted flag change or order action occurred |
-| Phase 6.30 operator-visible kill-switch status | Pass | Authenticated API/dashboard expose read-only `globalKillSwitchActive`; 161 tests and full static verification pass; no browser control, execution, scheduler, or configuration mutation added |
+| Phase 6.30 operator-visible kill-switch status | Pass | Authenticated API/dashboard expose read-only `globalKillSwitchActive`; 161 tests and full static verification pass; API deployment `ceb8f9fb-1723-43d0-8d8d-3e9344c72c1d` and protected Vercel preview `dpl_GGphneUFTQm7wviXF7w8HRsGphrz` verified; no browser control, execution, scheduler, or configuration mutation added |
 | Phase 4.1 structured agent runs | Pass | Added immutable run lifecycle/orchestrator and versioned artifact contracts with provenance; 106 tests, typecheck, lint, and production build pass; no external calls or financial authority added |
 | Phase 4.2 read-only research agents | Pass | Added deterministic stock/crypto watchlist handlers with bounded, validated artifacts; 109 tests, typecheck, lint, and production build pass; no external calls or financial authority added |
 | Phase 4.3 agent-run persistence/read view | Pass | Added migration 0008, Drizzle/repository lifecycle enforcement, and authenticated metadata-only `/v1/agent-runs`; 110 tests, typecheck, lint, and production build pass; hosted migration not yet applied |
