@@ -28,6 +28,21 @@ export interface ResearchPreparationJob {
   readonly version: 1;
 }
 
+export interface ResearchQueueSender {
+  send(name: string, data?: object | null, options?: { readonly id?: string }): Promise<string | null>;
+}
+
+export interface ResearchQueueClient {
+  createQueue(name: string, options?: { readonly deleteAfterSeconds?: number; readonly expireInSeconds?: number; readonly retryBackoff?: boolean; readonly retryDelay?: number; readonly retryDelayMax?: number; readonly retryLimit?: number; readonly retentionSeconds?: number; readonly deadLetter?: string }): Promise<void>;
+  schedule(name: string, cron: string, data?: object | null, options?: { readonly key?: string; readonly tz?: string }): Promise<void>;
+  work<T>(name: string, handler: (jobs: readonly { readonly data: T }[]) => Promise<unknown>): Promise<string>;
+}
+
+export interface ResearchPreparationQueueInspection {
+  readonly deadLetterQueue: boolean;
+  readonly workQueue: boolean;
+}
+
 function parseBoolean(name: string, value: string | undefined, defaultValue: boolean): boolean {
   if (value === undefined) return defaultValue;
   if (value === "true") return true;
@@ -72,4 +87,38 @@ export function getResearchScheduleReadiness(environment: NodeJS.ProcessEnv = pr
 
 export function getResearchPreparationJobId(now = new Date()): string {
   return `manual-research-preparation-${now.toISOString().slice(0, 10)}`;
+}
+
+export async function enqueueResearchPreparation(sender: ResearchQueueSender, now = new Date()): Promise<{ readonly jobId: string; readonly queued: boolean }> {
+  const jobId = getResearchPreparationJobId(now);
+  const sentId = await sender.send(RESEARCH_PREPARATION_QUEUE, { kind: "research_preparation", version: 1 }, { id: jobId });
+  return { jobId, queued: sentId !== null };
+}
+
+export async function provisionResearchQueues(client: ResearchQueueClient, config: ResearchScheduleConfig): Promise<void> {
+  await client.createQueue(RESEARCH_PREPARATION_DEAD_LETTER_QUEUE, { retentionSeconds: 1_209_600 });
+  await client.createQueue(RESEARCH_PREPARATION_QUEUE, {
+    deadLetter: RESEARCH_PREPARATION_DEAD_LETTER_QUEUE,
+    deleteAfterSeconds: 604_800,
+    expireInSeconds: 900,
+    retryBackoff: true,
+    retryDelay: config.retryDelaySeconds,
+    retryDelayMax: 86_400,
+    retryLimit: config.retryLimit,
+    retentionSeconds: 1_209_600,
+  });
+}
+
+export function isResearchPreparationJob(value: unknown): value is ResearchPreparationJob {
+  if (!value || typeof value !== "object") return false;
+  const candidate = value as { readonly kind?: unknown; readonly version?: unknown };
+  return candidate.kind === "research_preparation" && candidate.version === 1;
+}
+
+export async function runResearchPreparationJob(input: {
+  readonly job: unknown;
+  readonly run: (job: ResearchPreparationJob) => Promise<void>;
+}): Promise<void> {
+  if (!isResearchPreparationJob(input.job)) throw new Error("Invalid research preparation job.");
+  await input.run(input.job);
 }

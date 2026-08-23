@@ -2,8 +2,8 @@
 
 ## Snapshot
 
-- **Phase:** Phase 4.10 — research schedule readiness boundary added.
-- **Status:** Agent runs have deterministic contracts, reviewed PostgreSQL persistence, authenticated list/detail reads, a dashboard health surface, a paper-only market-data run-once boundary, and a disabled-by-default daily research readiness surface; Railway migration `0008` is applied, while research scheduling, durable reconciliation, and Paper Autopilot remain disabled.
+- **Phase:** Phase 4.11 — research-preparation queue boundary added.
+- **Status:** Agent runs have deterministic contracts, reviewed PostgreSQL persistence, authenticated list/detail reads, a dashboard health surface, a paper-only market-data run-once boundary, a disabled-by-default daily research readiness surface, and a separately named validated queue boundary; Railway migration `0008` is applied, while research scheduling, durable reconciliation, and Paper Autopilot remain disabled.
 - **Current operating mode:** Paper only; order submission not yet enabled.
 - **Current goal:** Run the separately approved one-run paper reconciliation using the reviewed runbook, then verify its result in the authenticated dashboard.
 - **Last updated:** 2026-08-23.
@@ -664,6 +664,14 @@
 - **Verification:** `pnpm test` passes 123 tests; `pnpm typecheck`, `pnpm lint`, and `pnpm build` pass across the workspace. The malformed paper-mode case is covered and no credential value is included in readiness output.
 - **Next smallest unit:** Define the reviewed research-preparation job handler and queue wiring, keeping the schedule disabled until an explicit operator activation review.
 
+## Completed Build Unit — Phase 4.11
+
+- **User story:** As the research worker, I can provision and enqueue a versioned daily research-preparation job independently from reconciliation, then reject malformed queue payloads before an injected handler runs.
+- **Implemented:** Added separate research work/dead-letter queue identities, bounded queue provisioning options, deterministic UTC manual enqueue IDs, payload validation, and an injected preparation runner. Queue helpers remain disabled-by-default library boundaries; no recurring worker was started.
+- **Safety boundary:** The queue boundary cannot call Alpaca, approve risk, submit orders, mutate strategy state, or enable a scheduler on its own. Invalid payloads fail closed, and no credentials are included in queue data or errors.
+- **Verification:** `pnpm test` passes 125 tests; `pnpm typecheck`, `pnpm lint`, and `pnpm build` pass across the workspace. No hosted queue provisioning or research execution was performed.
+- **Next smallest unit:** Define the deterministic research-preparation input planner and persistence handoff, still behind explicit handler and scheduler gates.
+
 ## Decisions Made
 
 | Date | Decision | Reason |
@@ -767,6 +775,7 @@
 | Phase 4.8 agent-run detail boundary | Pass | Added authenticated bounded detail endpoint with recursive secret-key redaction and 117 tests, typecheck, lint, and production build pass; no execution or financial authority added |
 | Phase 4.9 guarded paper market research source | Pass | Added bounded Alpaca paper-bars adapter and command-scoped run-once boundary; 119 tests, typecheck, lint, and production build pass; hosted execution not performed |
 | Phase 4.10 research schedule readiness boundary | Pass | Added disabled-by-default research queue/cron contract, bounded readiness gates, deterministic job identity, and worker health status; 123 tests, typecheck, lint, and production build pass; no hosted schedule or research execution performed |
+| Phase 4.11 research-preparation queue boundary | Pass | Added separately named validated research queues, bounded provisioning, idempotent enqueue, and fail-closed handler dispatch; 125 tests, typecheck, lint, and production build pass; no hosted queue or research execution performed |
 | Browser/preview | Partial | Production page HTTP check passed; visual/responsive review deferred beyond source scaffold |
 | Security review | Partial | No credential files, Alpaca client, database connection, or order code added; full review remains required |
 
