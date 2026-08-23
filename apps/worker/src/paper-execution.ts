@@ -1,5 +1,5 @@
 import type { PaperOrderSubmission, PaperOrderSubmissionRequest, PaperOrderSubmitter } from "@momentum/alpaca";
-import { getPaperAutopilotConfig, type PaperAutopilotConfig } from "@momentum/config";
+import { getPaperAutopilotConfig, isGlobalKillSwitchActive, type PaperAutopilotConfig } from "@momentum/config";
 import { reconcilePaperOrder } from "@momentum/domain";
 
 export interface PaperSubmissionPersistence {
@@ -22,6 +22,7 @@ export async function executeApprovedPaperOrder(input: {
 }): Promise<PaperExecutionResult> {
   const mode = input.autopilot ?? getPaperAutopilotConfig();
   if (!mode.enabled || mode.mode !== "paper_autopilot") throw new Error("Paper Autopilot mode is disabled.");
+  if (isGlobalKillSwitchActive()) throw new Error("Paper order execution is blocked by the global kill switch.");
   if (input.order.approval.status !== "approved") throw new Error("A passing paper risk approval is required.");
   const intentId = input.order.approval.intentId;
   await input.persistence.recordSubmission({ approvalId: input.order.approval.approvalId, assetClass: input.order.assetClass, clientOrderId: input.order.clientOrderId, intentId, quantity: input.order.quantity, status: "pending", symbol: input.order.symbol });

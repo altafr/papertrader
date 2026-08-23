@@ -1,7 +1,7 @@
 import { createServer } from "node:http";
 
 import { createPaperAccountReader, createPaperMarketDataReader } from "@momentum/alpaca";
-import { getPaperAutopilotConfig, getPaperOperatingMode, getPaperOnlyRuntimeConfig, getServerPort } from "@momentum/config";
+import { getPaperAutopilotConfig, getPaperOperatingMode, getPaperOnlyRuntimeConfig, getServerPort, isGlobalKillSwitchActive } from "@momentum/config";
 import { createAccountStateRepository, createDatabase, createShadowObservationRepository } from "@momentum/db";
 
 import { getWorkerHealth } from "./app.js";
@@ -38,6 +38,7 @@ const researchScheduler = createResearchSchedulerFromEnvironment();
 if (researchScheduler) void researchScheduler.start().catch(() => { /* health endpoint reports degraded state */ });
 const autopilotConfiguration = getPaperAutopilotConfig();
 if (autopilotConfiguration.enabled && !process.env.DATABASE_URL?.trim()) throw new Error("PAPER_AUTOPILOT_ENABLED=true requires DATABASE_URL.");
+if (autopilotConfiguration.enabled && isGlobalKillSwitchActive()) throw new Error("PAPER_AUTOPILOT_ENABLED=true is blocked by GLOBAL_KILL_SWITCH_ACTIVE=true.");
 const shadowConfiguration = getShadowEvaluationConfig();
 const durableConfiguration = getDurableSchedulerConfig();
 if (shadowConfiguration.enabled) {

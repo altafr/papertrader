@@ -17,6 +17,11 @@ export type PaperAutopilotConfig = {
 
 export type PaperOperatingMode = "observe" | "recommend" | "paper_autopilot";
 
+/** Server-side emergency stop. It defaults to inactive and fails closed on invalid values. */
+export function isGlobalKillSwitchActive(environment = process.env): boolean {
+  return parseBooleanFlag("GLOBAL_KILL_SWITCH_ACTIVE", environment.GLOBAL_KILL_SWITCH_ACTIVE, false);
+}
+
 export type ClerkRuntimeConfig = {
   authorizedParties: string[];
   operatorUserId: string;

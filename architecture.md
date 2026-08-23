@@ -410,6 +410,12 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - The command never calls Alpaca, starts a queue, changes a variable, approves an intent, or submits an order. It closes its database pool and emits only bounded statuses, reason codes, timestamps, and non-secret policy metadata.
 - A runtime `ready` result requires both configuration readiness and fresh persisted broker truth; disabled configuration remains disabled even if a fresh snapshot exists. Local tests, typecheck, lint, production build, secret-surface audit, and diff checks pass. Worker deployment `3ac368fd-c5b3-4443-989b-354d2b16195f` reached `SUCCESS`; the hosted read-only check returned `status:"disabled"` with reconciliation `status:"fresh"` and age `56932` seconds, while broker, scheduler, handler, and Paper Autopilot gates remained disabled.
 
+### Phase 6.29 Global Kill-Switch Runtime Guard
+
+- Added the server-side `GLOBAL_KILL_SWITCH_ACTIVE` boolean guard, defaulting to inactive and rejecting invalid values. When active, Paper Autopilot readiness reports `global_kill_switch_active`, Worker startup refuses enabled Autopilot, and paper-order execution stops before persistence or broker submission.
+- The guard is independent of browser state and cannot be bypassed by an approved intent, agent output, or a command payload. It remains off in the current deployment and does not change any persistent Railway variable.
+- Added configuration, readiness, startup-boundary, and execution tests. Local tests, typecheck, lint, production build, secret-surface audit, and diff checks pass.
+
 ### Phase 4.1 Structured Agent Runs
 
 - `packages/domain/src/agent-runs.ts` defines versioned, structured agent-run requests and artifacts for the orchestrator, stock/crypto research, macro advisory, strategy, risk explanation, execution, and reconciliation roles.

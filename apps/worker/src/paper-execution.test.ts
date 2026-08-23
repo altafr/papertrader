@@ -22,4 +22,17 @@ describe("paper execution wiring", () => {
     await expect(executeApprovedPaperOrder({ autopilot: mode, order, persistence: { recordSubmission: async () => { events.push("pending"); }, reconcile: async () => { events.push("reconcile"); }, markFailed: async () => { events.push("failed"); } }, submitter: { submit: async () => { throw new Error("broker failed"); } } })).rejects.toThrow("broker failed");
     expect(events).toEqual(["pending", "failed"]);
   });
+
+  it("blocks submission before persistence when the global kill switch is active", async () => {
+    const events: string[] = [];
+    const previous = process.env.GLOBAL_KILL_SWITCH_ACTIVE;
+    process.env.GLOBAL_KILL_SWITCH_ACTIVE = "true";
+    try {
+      await expect(executeApprovedPaperOrder({ autopilot: mode, order, persistence: { recordSubmission: async () => { events.push("pending"); }, reconcile: async () => { events.push("reconcile"); }, markFailed: async () => { events.push("failed"); } }, submitter: { submit: async () => { throw new Error("must not submit"); } } })).rejects.toThrow("global kill switch");
+      expect(events).toEqual([]);
+    } finally {
+      if (previous === undefined) delete process.env.GLOBAL_KILL_SWITCH_ACTIVE;
+      else process.env.GLOBAL_KILL_SWITCH_ACTIVE = previous;
+    }
+  });
 });

@@ -1,4 +1,4 @@
-import { getPaperOperatingMode } from "@momentum/config";
+import { getPaperOperatingMode, isGlobalKillSwitchActive } from "@momentum/config";
 import { MAX_SINGLE_TRADE_RISK_PERCENT_OF_EQUITY, MAX_SINGLE_TRADE_RISK_USD, PAPER_INITIAL_EQUITY_BASELINE } from "@momentum/domain";
 
 export type PaperAutopilotReadinessStatus = "blocked" | "disabled" | "ready";
@@ -10,6 +10,7 @@ export interface PaperAutopilotReadiness {
     readonly dailyPreparationHandlerEnabled: boolean;
     readonly databaseConfigured: boolean;
     readonly durableSchedulerEnabled: boolean;
+    readonly globalKillSwitchActive: boolean;
     readonly operatingModePaperAutopilot: boolean;
     readonly paperCredentialsConfigured: boolean;
     readonly paperMode: boolean;
@@ -31,6 +32,9 @@ export function getPaperAutopilotReadiness(environment: NodeJS.ProcessEnv = proc
   const databaseConfigured = Boolean(environment.DATABASE_URL?.trim());
   const durableSchedulerEnabled = environment.DURABLE_SCHEDULER_ENABLED === "true";
   const dailyPreparationHandlerEnabled = environment.DAILY_PREPARATION_HANDLER_ENABLED === "true";
+  const globalKillSwitchActive = (() => {
+    try { return isGlobalKillSwitchActive(environment); } catch { return true; }
+  })();
   const autopilotEnabled = environment.PAPER_AUTOPILOT_ENABLED === "true";
   let operatingModePaperAutopilot = false;
   try {
@@ -48,12 +52,13 @@ export function getPaperAutopilotReadiness(environment: NodeJS.ProcessEnv = proc
     ...(operatingModePaperAutopilot ? [] : ["operating_mode_not_paper_autopilot"]),
     ...(durableSchedulerEnabled ? [] : ["durable_scheduler_disabled"]),
     ...(dailyPreparationHandlerEnabled ? [] : ["daily_preparation_handler_disabled"]),
+    ...(globalKillSwitchActive ? ["global_kill_switch_active"] : []),
     ...(paperRiskPolicyValid ? [] : ["paper_risk_policy_invalid"]),
   ];
   const status = !autopilotEnabled ? "disabled" : blockedReasons.length === 0 ? "ready" : "blocked";
   return {
     blockedReasons: status === "disabled" ? [] : blockedReasons,
-    checks: { brokerConnectionEnabled, dailyPreparationHandlerEnabled, databaseConfigured, durableSchedulerEnabled, operatingModePaperAutopilot, paperCredentialsConfigured, paperMode, paperRiskPolicyValid, runtimeFreshnessGateRequired: true },
+    checks: { brokerConnectionEnabled, dailyPreparationHandlerEnabled, databaseConfigured, durableSchedulerEnabled, globalKillSwitchActive, operatingModePaperAutopilot, paperCredentialsConfigured, paperMode, paperRiskPolicyValid, runtimeFreshnessGateRequired: true },
     policy: { initialEquityBaseline: PAPER_INITIAL_EQUITY_BASELINE, maxSingleTradeRiskPercent: MAX_SINGLE_TRADE_RISK_PERCENT_OF_EQUITY, maxSingleTradeRiskUsd: MAX_SINGLE_TRADE_RISK_USD },
     status,
   };

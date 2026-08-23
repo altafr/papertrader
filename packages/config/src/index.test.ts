@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { getClerkRuntimeConfig, getPaperAutopilotConfig, getPaperOnlyRuntimeConfig, getPaperOperatingMode, getServerPort } from "./index.js";
+import { getClerkRuntimeConfig, getPaperAutopilotConfig, getPaperOnlyRuntimeConfig, getPaperOperatingMode, getServerPort, isGlobalKillSwitchActive } from "./index.js";
 
 describe("server configuration", () => {
   it("uses a safe local default", () => {
@@ -67,6 +67,12 @@ describe("server configuration", () => {
     expect(() => getPaperOperatingMode({ OPERATING_MODE: "paper_autopilot", TRADING_MODE: "paper", ALPACA_PAPER_TRADE: "true", BROKER_CONNECTION_ENABLED: "false" })).toThrow(/PAPER_AUTOPILOT_ENABLED/);
     expect(() => getPaperOperatingMode({ OPERATING_MODE: "observe", PAPER_AUTOPILOT_ENABLED: "true", TRADING_MODE: "paper", ALPACA_PAPER_TRADE: "true", BROKER_CONNECTION_ENABLED: "true", ALPACA_API_KEY: "key", ALPACA_SECRET_KEY: "secret" })).toThrow(/conflicts/);
     expect(() => getPaperOperatingMode({ OPERATING_MODE: "live", TRADING_MODE: "paper" })).toThrow(/OPERATING_MODE/);
+  });
+
+  it("defaults the global kill switch to inactive and validates explicit values", () => {
+    expect(isGlobalKillSwitchActive({})).toBe(false);
+    expect(isGlobalKillSwitchActive({ GLOBAL_KILL_SWITCH_ACTIVE: "true" })).toBe(true);
+    expect(() => isGlobalKillSwitchActive({ GLOBAL_KILL_SWITCH_ACTIVE: "on" })).toThrow(/GLOBAL_KILL_SWITCH_ACTIVE/);
   });
 
   it("treats absent Clerk configuration as not provisioned", () => {
