@@ -1,6 +1,7 @@
 export type FreshnessState = "delayed" | "fresh" | "stale";
 export type MigrationBlockedReason = "audit_columns_missing" | "audit_table_missing" | "migration_not_recorded";
 export type ResearchScheduleStatus = "blocked" | "disabled" | "ready";
+export type TelegramAlertReadinessStatus = "blocked" | "disabled" | "ready";
 
 export type OperationsHealth = {
   readonly reconciliation: {
@@ -22,6 +23,7 @@ export type OperationsHealth = {
     };
     readonly researchSchedule: { readonly enabled: boolean; readonly handlerEnabled: boolean; readonly status: ResearchScheduleStatus };
     readonly scheduler: { readonly activationApprovalReferencePresent: boolean; readonly enabled: boolean; readonly status: "blocked" | "disabled" | "ready" };
+    readonly telegramAlerts: { readonly enabled: boolean; readonly status: TelegramAlertReadinessStatus };
   };
 };
 
@@ -55,16 +57,19 @@ export function parseOperationsHealth(value: unknown): OperationsHealth | undefi
   const runtime = value.runtime;
   if (!isRecord(runtime.scheduler)) return undefined;
   if (!isRecord(runtime.researchSchedule)) return undefined;
+  if (!isRecord(runtime.telegramAlerts)) return undefined;
   if (!isRecord(runtime.migration) || !Array.isArray(runtime.migration.blockedReasons) || runtime.migration.blockedReasons.some((reason) => !( ["audit_columns_missing", "audit_table_missing", "migration_not_recorded"] as const).includes(reason as MigrationBlockedReason))) return undefined;
   const scheduler = runtime.scheduler;
   const researchSchedule = runtime.researchSchedule;
+  const telegramAlerts = runtime.telegramAlerts;
   if (!isRecord(runtime.riskPolicy)) return undefined;
   const riskPolicy = runtime.riskPolicy;
   if (!(["delayed", "fresh", "stale", "unavailable"] as const).includes(reconciliation.status as OperationsHealth["reconciliation"]["status"])) return undefined;
   if (!(["blocked", "disabled", "ready"] as const).includes(scheduler.status as OperationsHealth["runtime"]["scheduler"]["status"])) return undefined;
   if (!( ["observe", "recommend", "paper_autopilot"] as const).includes(runtime.operatingMode as OperationsHealth["runtime"]["operatingMode"])) return undefined;
   if (!( ["blocked", "disabled", "ready"] as const).includes(researchSchedule.status as ResearchScheduleStatus)) return undefined;
-  if (typeof scheduler.activationApprovalReferencePresent !== "boolean" || typeof scheduler.enabled !== "boolean" || typeof researchSchedule.enabled !== "boolean" || typeof researchSchedule.handlerEnabled !== "boolean" || typeof runtime.brokerConnectionEnabled !== "boolean" || typeof runtime.dailyPreparationHandlerEnabled !== "boolean" || typeof runtime.globalKillSwitchActive !== "boolean" || typeof runtime.paperAutopilotEnabled !== "boolean") return undefined;
+  if (!( ["blocked", "disabled", "ready"] as const).includes(telegramAlerts.status as TelegramAlertReadinessStatus)) return undefined;
+  if (typeof scheduler.activationApprovalReferencePresent !== "boolean" || typeof scheduler.enabled !== "boolean" || typeof researchSchedule.enabled !== "boolean" || typeof researchSchedule.handlerEnabled !== "boolean" || typeof telegramAlerts.enabled !== "boolean" || typeof runtime.brokerConnectionEnabled !== "boolean" || typeof runtime.dailyPreparationHandlerEnabled !== "boolean" || typeof runtime.globalKillSwitchActive !== "boolean" || typeof runtime.paperAutopilotEnabled !== "boolean") return undefined;
   if (!(runtime.migration.status === "blocked" || runtime.migration.status === "ready")) return undefined;
   if (typeof riskPolicy.initialEquityBaseline !== "string" || typeof riskPolicy.maxSingleTradeRiskPercent !== "string" || typeof riskPolicy.maxSingleTradeRiskUsd !== "string") return undefined;
   if (reconciliation.ageSeconds !== undefined && typeof reconciliation.ageSeconds !== "number") return undefined;
@@ -89,6 +94,7 @@ export function parseOperationsHealth(value: unknown): OperationsHealth | undefi
       },
       researchSchedule: { enabled: researchSchedule.enabled, handlerEnabled: researchSchedule.handlerEnabled, status: researchSchedule.status as ResearchScheduleStatus },
       scheduler: { activationApprovalReferencePresent: scheduler.activationApprovalReferencePresent, enabled: scheduler.enabled, status: scheduler.status as OperationsHealth["runtime"]["scheduler"]["status"] },
+      telegramAlerts: { enabled: telegramAlerts.enabled, status: telegramAlerts.status as TelegramAlertReadinessStatus },
     },
   };
 }
