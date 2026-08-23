@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { DAILY_PREPARATION_QUEUE, createDurableScheduler, enqueueDailyPreparation, getDailyPreparationJobId, getDurableSchedulerConfig, getDurableSchedulerHealth, getDurableSchedulerReadiness, inspectDurableQueues, provisionDurableQueues, validateDurableSchedulerOneRun } from "./durable-scheduler.js";
+import { DAILY_PREPARATION_QUEUE, createDurableScheduler, enqueueDailyPreparation, getDailyPreparationJobId, getDurableSchedulerConfig, getDurableSchedulerHealth, getDurableSchedulerReadiness, inspectDurableQueues, provisionDurableQueues, validateDurableSchedulerApprovalReference, validateDurableSchedulerOneRun } from "./durable-scheduler.js";
 
 describe("durable scheduler", () => {
   it("is disabled by default and validates bounded retry configuration", () => {
@@ -34,6 +34,12 @@ describe("durable scheduler", () => {
     expect(() => validateDurableSchedulerOneRun({ BROKER_CONNECTION_ENABLED: "true", DAILY_PREPARATION_HANDLER_ENABLED: "true", DURABLE_SCHEDULER_ENABLED: "true" })).toThrow("DURABLE_SCHEDULER_ENABLED");
     expect(() => validateDurableSchedulerOneRun({ BROKER_CONNECTION_ENABLED: "true", DAILY_PREPARATION_HANDLER_ENABLED: "true" })).not.toThrow();
     expect(() => validateDurableSchedulerOneRun({ BROKER_CONNECTION_ENABLED: "true", DAILY_PREPARATION_HANDLER_ENABLED: "true", PAPER_AUTOPILOT_ENABLED: "true" })).toThrow("PAPER_AUTOPILOT_ENABLED");
+  });
+
+  it("requires a bounded non-secret operator reference for the hosted one-run", () => {
+    expect(() => validateDurableSchedulerApprovalReference({})).toThrow("DURABLE_SCHEDULER_APPROVAL_REFERENCE");
+    expect(() => validateDurableSchedulerApprovalReference({ DURABLE_SCHEDULER_APPROVAL_REFERENCE: "bad value" })).toThrow("bounded");
+    expect(validateDurableSchedulerApprovalReference({ DURABLE_SCHEDULER_APPROVAL_REFERENCE: "ticket-123" })).toBe("ticket-123");
   });
 
   it("creates a UTC schedule and marks failed jobs degraded while preserving the queue boundary", async () => {

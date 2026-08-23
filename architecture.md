@@ -380,6 +380,12 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - Deployment `af3ef28a-174d-4a63-bd5c-b5d5ac046201` reached `SUCCESS`; the private health endpoint returned HTTP 200 with `status:"healthy"`, `operatingMode:"observe"`, configured Alpaca/database status, broker access disabled, and durable/research/shadow gates disabled.
 - This is an observational verification only. It does not call Alpaca, write application state, start a scheduler, enable Paper Autopilot, or submit orders.
 
+### Phase 6.24 One-Run Approval Provenance Guard
+
+- The guarded durable one-run command now requires `DURABLE_SCHEDULER_APPROVAL_REFERENCE`, a bounded non-secret operator or change-ticket reference, in addition to its existing command-scoped paper, broker, handler, database, and scheduler gates.
+- The reference is passed only to the immediate queue payload for auditable provenance and is not persisted as a Railway variable, used as an authorization token, or accepted as a credential/account value.
+- Added focused validation tests and updated the Railway runbook. Local tests, typecheck, lint, production build, secret-surface audit, and diff checks pass; no hosted command was run and no broker/database side effect occurred.
+
 ### Phase 4.1 Structured Agent Runs
 
 - `packages/domain/src/agent-runs.ts` defines versioned, structured agent-run requests and artifacts for the orchestrator, stock/crypto research, macro advisory, strategy, risk explanation, execution, and reconciliation roles.

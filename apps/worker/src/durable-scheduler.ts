@@ -76,6 +76,19 @@ export function validateDurableSchedulerOneRun(environment: NodeJS.ProcessEnv = 
   }
 }
 
+/**
+ * A one-run hosted reconciliation is an operator-approved side effect even
+ * though it is read-only at the broker and cannot submit orders. Keep the
+ * approval reference command-scoped, bounded, and non-secret.
+ */
+export function validateDurableSchedulerApprovalReference(environment: NodeJS.ProcessEnv = process.env): string {
+  const reference = environment.DURABLE_SCHEDULER_APPROVAL_REFERENCE?.trim();
+  if (!reference || !/^[A-Za-z0-9][A-Za-z0-9._:/-]{0,127}$/.test(reference)) {
+    throw new Error("DURABLE_SCHEDULER_APPROVAL_REFERENCE must be a bounded non-secret reference.");
+  }
+  return reference;
+}
+
 export interface DurableDailyJob {
   readonly kind: "daily_preparation";
   readonly version: 1;

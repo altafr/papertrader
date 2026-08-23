@@ -8,6 +8,7 @@ This runbook describes the one-run, read-only verification of the durable worker
 - It does not submit, cancel, replace, or approve an order.
 - `DURABLE_SCHEDULER_ENABLED` and `PAPER_AUTOPILOT_ENABLED` must remain disabled in persistent Railway variables.
 - The broker and handler flags below are passed only to the one SSH process. They are not saved in Railway.
+- The approval reference below is a bounded, non-secret operator/ticket reference passed only to the one SSH process. It is not a credential and is not saved as a persistent Railway variable.
 - Never paste connection strings, Alpaca keys, Clerk secrets, or command output containing secrets into chat or source control.
 
 ## Before running
@@ -24,6 +25,8 @@ Confirm the following in Railway's worker service:
 ```sh
 DURABLE_QUEUE_READINESS=true pnpm --filter @momentum/worker durable-readiness
 ```
+
+7. You have an explicit operator approval reference for this one-run (for example, a change ticket ID). Do not use an Alpaca key, account value, or other secret as the reference.
 
 For a database-only probe, run the separate guarded command first. It performs
 only `SELECT 1` and does not contact Alpaca or start a queue:
@@ -46,7 +49,7 @@ railway ssh \
   --project dd693511-c5e0-4b47-af09-8c68cd2121f6 \
   --environment production \
   --service dd52c3be-ab1d-48b3-b16b-cd8d0efce9d1 \
-  -- 'DURABLE_SCHEDULER_ONCE=true DURABLE_SCHEDULER_ENABLED=false BROKER_CONNECTION_ENABLED=true DAILY_PREPARATION_HANDLER_ENABLED=true PAPER_AUTOPILOT_ENABLED=false pnpm --filter @momentum/worker durable-one-run'
+  -- 'DURABLE_SCHEDULER_ONCE=true DURABLE_SCHEDULER_APPROVAL_REFERENCE=ticket-123 DURABLE_SCHEDULER_ENABLED=false BROKER_CONNECTION_ENABLED=true DAILY_PREPARATION_HANDLER_ENABLED=true PAPER_AUTOPILOT_ENABLED=false pnpm --filter @momentum/worker durable-one-run'
 ```
 
 Expected success output is the generic line:

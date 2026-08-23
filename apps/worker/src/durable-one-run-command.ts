@@ -8,6 +8,7 @@ import {
   DAILY_PREPARATION_QUEUE,
   getDurableSchedulerConfig,
   provisionDurableQueues,
+  validateDurableSchedulerApprovalReference,
   validateDurableSchedulerOneRun,
 } from "./durable-scheduler.js";
 import { reconcilePaperAccount } from "./reconcile.js";
@@ -17,6 +18,7 @@ if (process.env.DURABLE_SCHEDULER_ONCE !== "true") {
 }
 
 validateDurableSchedulerOneRun();
+const approvalReference = validateDurableSchedulerApprovalReference();
 const runtime = getPaperOnlyRuntimeConfig();
 if (!runtime.brokerConnectionEnabled) throw new Error("BROKER_CONNECTION_ENABLED must be true for the one-run scheduler command.");
 const databaseUrl = process.env.DATABASE_URL;
@@ -46,7 +48,7 @@ try {
       throw error;
     }
   });
-  const sentId = await boss.send(DAILY_PREPARATION_QUEUE, { kind: "daily_preparation", version: 1 }, { id: runId });
+  const sentId = await boss.send(DAILY_PREPARATION_QUEUE, { kind: "daily_preparation", version: 1, approvalReference }, { id: runId });
   if (!sentId) throw new Error("The guarded one-run job was not queued.");
   let timeout: ReturnType<typeof setTimeout> | undefined;
   await Promise.race([
