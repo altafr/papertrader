@@ -689,6 +689,7 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - Renamed the primary worker execution entry point to `executePaperAutopilotOrder`; the compatibility alias remains internal-safe for existing callers.
 - Documented in the order contract that `approval` is a server-generated deterministic risk approval, not a per-order human confirmation or scheduler activation reference.
 - Existing execution-time mode, freshness/risk approval, kill-switch, idempotency, broker, and reconciliation checks remain unchanged; Paper Autopilot stays disabled by default.
+- The latest successful Worker deployment `1c0b43a2-fbe0-4d86-9fd0-3a22720a0945` is healthy in observe mode; hosted Paper Autopilot readiness remains `disabled` and both queues remain present and drained.
 
 ### Phase 4.1 Structured Agent Runs
 
