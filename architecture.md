@@ -404,6 +404,12 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - Readiness output contains only booleans, bounded reason codes, and non-secret policy constants. It never constructs Alpaca/PostgreSQL clients, reads account state, starts queues, changes variables, or submits orders.
 - A `ready` result is explicitly configuration readiness only; `runtimeFreshnessGateRequired:true` remains present, so reconciliation freshness, kill switch, deterministic risk approval, and other runtime checks must still pass before any order path can run. Local tests, typecheck, lint, production build, secret-surface audit, and diff checks pass. Worker deployment `7f225657-eedb-4c42-b803-a7a8b4e6a7fe` reached `SUCCESS`; the hosted guarded report returned `status:"disabled"`, paper mode and credentials configured, database configured, broker/scheduler/handler/autopilot gates disabled, and the fixed risk policy values. No client or external data call was made.
 
+### Phase 6.28 Paper Autopilot Runtime Freshness Readiness
+
+- Added the guarded `paper-autopilot-runtime-readiness` command. It reads the latest persisted reconciliation timestamp from PostgreSQL, classifies it as fresh/delayed/stale/unavailable using the shared operational thresholds, and combines that result with the configuration readiness contract.
+- The command never calls Alpaca, starts a queue, changes a variable, approves an intent, or submits an order. It closes its database pool and emits only bounded statuses, reason codes, timestamps, and non-secret policy metadata.
+- A runtime `ready` result requires both configuration readiness and fresh persisted broker truth; disabled configuration remains disabled even if a fresh snapshot exists. Local tests, typecheck, lint, production build, secret-surface audit, and diff checks pass.
+
 ### Phase 4.1 Structured Agent Runs
 
 - `packages/domain/src/agent-runs.ts` defines versioned, structured agent-run requests and artifacts for the orchestrator, stock/crypto research, macro advisory, strategy, risk explanation, execution, and reconciliation roles.
