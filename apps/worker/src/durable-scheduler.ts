@@ -1,4 +1,5 @@
 import { PgBoss, type Job, type QueueOptions } from "pg-boss";
+import { createHash } from "node:crypto";
 
 export const DAILY_PREPARATION_QUEUE = "momentum.daily-preparation";
 export const DAILY_PREPARATION_DEAD_LETTER_QUEUE = "momentum.daily-preparation.dead-letter";
@@ -95,6 +96,15 @@ export function validateDurableOneRunId(environment: NodeJS.ProcessEnv = process
     throw new Error("DURABLE_ONE_RUN_ID must be a bounded non-secret identifier.");
   }
   return runId;
+}
+
+/** Map the bounded operator-facing run ID to pg-boss's required UUID job ID. */
+export function getDurableOneRunJobId(runId: string): string {
+  const digest = createHash("sha256").update(`momentum:durable-one-run:${runId}`).digest();
+  digest[6] = ((digest[6] ?? 0) & 0x0f) | 0x50;
+  digest[8] = ((digest[8] ?? 0) & 0x3f) | 0x80;
+  const hex = digest.subarray(0, 16).toString("hex");
+  return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
 }
 
 export interface DurableDailyJob {

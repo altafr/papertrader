@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.63 approved retry diagnosed at the queue-enqueue boundary; Railway API/worker health is verified, while research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
+- **Stage:** Phase 6.64 pg-boss UUID enqueue boundary corrected; Railway API/worker health is verified, while research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -620,6 +620,12 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - Private worker health remained healthy in observe mode with broker access, durable/research/shadow schedulers, and Paper Autopilot disabled. The command-scoped broker/handler opt-ins were not persisted.
 - Added a bounded `queue_enqueue_error` fallback category for future opaque failures at the enqueue boundary; no retry is authorized by this diagnostic change.
 - Worker deployment `458e21a5-f6c5-4d28-8e26-1b085de888bd` reached `SUCCESS`; a private health probe remained healthy in observe mode with all recurring and execution gates disabled.
+
+### Phase 6.64 pg-Boss UUID Enqueue Boundary Correction
+
+- Root cause isolated from the `job_enqueue` stage and pg-boss contract: pg-boss job IDs are PostgreSQL UUIDs, but the command had supplied the operator-facing run ID directly.
+- Added a deterministic UUID mapping derived from the bounded run ID, preserving idempotency while keeping the original run ID and approval reference in the job payload and audit provenance.
+- Added focused UUID format, determinism, and differentiation tests. The change does not enable recurring scheduling, broker access, Paper Autopilot, or any automatic retry.
 
 ### Phase 4.1 Structured Agent Runs
 

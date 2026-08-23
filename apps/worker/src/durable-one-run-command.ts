@@ -6,6 +6,7 @@ import { createAccountStateRepository, createDatabase } from "@momentum/db";
 
 import {
   DAILY_PREPARATION_QUEUE,
+  getDurableOneRunJobId,
   type DurableDailyJob,
   getDurableSchedulerConfig,
   provisionDurableQueues,
@@ -60,7 +61,7 @@ try {
     }
   });
   failureStage = "job_enqueue";
-  const sentId = await boss.send(DAILY_PREPARATION_QUEUE, { kind: "daily_preparation", version: 1, approvalReference, runId }, { id: runId });
+  const sentId = await boss.send(DAILY_PREPARATION_QUEUE, { kind: "daily_preparation", version: 1, approvalReference, runId }, { id: getDurableOneRunJobId(runId) });
   if (!sentId) throw new Error("The guarded one-run job was not queued.");
   failureStage = "reconciliation";
   let timeout: ReturnType<typeof setTimeout> | undefined;

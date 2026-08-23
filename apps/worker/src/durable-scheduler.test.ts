@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { DAILY_PREPARATION_QUEUE, createDurableScheduler, enqueueDailyPreparation, getDailyPreparationJobId, getDurableSchedulerConfig, getDurableSchedulerHealth, getDurableSchedulerReadiness, inspectDurableQueues, provisionDurableQueues, validateDurableOneRunId, validateDurableSchedulerApprovalReference, validateDurableSchedulerOneRun } from "./durable-scheduler.js";
+import { DAILY_PREPARATION_QUEUE, createDurableScheduler, enqueueDailyPreparation, getDailyPreparationJobId, getDurableOneRunJobId, getDurableSchedulerConfig, getDurableSchedulerHealth, getDurableSchedulerReadiness, inspectDurableQueues, provisionDurableQueues, validateDurableOneRunId, validateDurableSchedulerApprovalReference, validateDurableSchedulerOneRun } from "./durable-scheduler.js";
 
 describe("durable scheduler", () => {
   it("is disabled by default and validates bounded retry configuration", () => {
@@ -96,6 +96,13 @@ describe("durable scheduler", () => {
       async start() {}, async stop() {}, async createQueue(name) { queues.push(name); }, async schedule() {}, async work() { return "worker"; },
     }, getDurableSchedulerConfig({}));
     expect(queues).toEqual(["momentum.daily-preparation.dead-letter", "momentum.daily-preparation"]);
+  });
+
+  it("maps operator run IDs to deterministic UUID job IDs for pg-boss", () => {
+    const first = getDurableOneRunJobId("paper-reconciliation-retry-20260823-01");
+    expect(first).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-5[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/);
+    expect(getDurableOneRunJobId("paper-reconciliation-retry-20260823-01")).toBe(first);
+    expect(getDurableOneRunJobId("paper-reconciliation-retry-20260823-02")).not.toBe(first);
   });
 
   it("reports queue presence and current counts without exposing connection details", async () => {
