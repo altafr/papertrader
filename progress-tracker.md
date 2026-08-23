@@ -1327,7 +1327,8 @@
 - **User story:** As the operator, I can see whether Telegram alert configuration is ready from private worker health without receiving secret values or activating delivery.
 - **Implemented:** Added non-secret `telegramAlerts` readiness metadata to the shared worker health contract and its deterministic health projection.
 - **Verification:** 201 tests, typecheck, lint, production build, secret-surface audit, and diff checks passed. Local health tests cover disabled, blocked, and ready states without network calls.
-- **Next smallest unit:** Deploy and verify the private health response, then obtain explicit approval/reference before any channel test.
+- **Hosted verification:** Worker deployment `92a03701-6ae4-43f3-8e3b-114ecbe71d63` succeeded. Private `/health` returned healthy observe mode with `telegramAlerts:{enabled:true,status:"ready"}`; broker/schedulers/Paper Autopilot remain disabled and both queues are present and drained. No Telegram message was sent.
+- **Next smallest unit:** Obtain explicit approval/reference before any channel test; readiness metadata does not authorize delivery.
 
 ## Completed Build Unit — Phase 6.75
 
@@ -1455,6 +1456,12 @@
 - **Implemented:** Added `@momentum/notifications`, strict enablement/configuration checks, numeric chat-ID validation, 4,096-character message bounds, URL/credential-like text redaction, injected-transport tests, and `telegram-alert-test` requiring a command-scoped non-secret approval reference.
 - **Safety boundary:** The adapter is disabled by default, never runs in browser code, never logs bot tokens/chat IDs/provider responses, and does not alter Alpaca, risk, scheduler, or Paper Autopilot behavior. No Telegram message was sent from this workspace because the Railway secret boundary is not accessible here.
 - **Verification:** 198 tests passed; typecheck, lint, and production build passed. Worker deployment `1c0b43a2-fbe0-4d86-9fd0-3a22720a0945` reached `SUCCESS`; Railway confirmed token/chat variables are configured without printing values, Telegram `getMe` returned HTTP 200, and the guarded send attempt returned HTTP 403 (no alert delivered), indicating bot access/target-chat permission needs correction.
+
+## Completed Hosted Verification — Telegram Destination Correction
+
+- **Root cause:** Railway's `TELEGRAM_CHAT_ID` pointed to a private chat belonging to another bot. Telegram `getChat` succeeded, while `sendMessage` returned HTTP 403 with `Forbidden: the bot can't send messages to the bot`.
+- **Fix:** Read the configured bot's pending update metadata without exposing message text or credentials, identified the operator's private chat, set the Railway worker `TELEGRAM_CHAT_ID` to that verified destination, and redeployed the local worker build so the guarded test command remained available.
+- **Verification:** Worker deployment `92a03701-6ae4-43f3-8e3b-114ecbe71d63` reached `SUCCESS` and `RUNNING`; the guarded command returned `Telegram alert channel test sent.` No credential or provider response body was logged.
 
 ## Session Handoff
 

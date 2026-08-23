@@ -716,6 +716,7 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - Extended the private `WorkerHealth` contract with `telegramAlerts.enabled` and a bounded `disabled`/`blocked`/`ready` status.
 - The health projection derives readiness from server-side configuration and never returns bot tokens, chat IDs, provider responses, or message content.
 - This is observational only: it does not enable delivery, contact Telegram, change scheduler/trading gates, or alter Paper Autopilot behavior.
+- Worker deployment `92a03701-6ae4-43f3-8e3b-114ecbe71d63` reached `SUCCESS`; private `/health` returned healthy observe mode with `telegramAlerts:{enabled:true,status:"ready"}`, broker/schedulers/Paper Autopilot disabled, and both durable queues present and drained.
 
 ### Phase 4.1 Structured Agent Runs
 
