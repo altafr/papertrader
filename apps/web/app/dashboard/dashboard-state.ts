@@ -1,4 +1,5 @@
 export type FreshnessState = "delayed" | "fresh" | "stale";
+export type MigrationBlockedReason = "audit_columns_missing" | "audit_table_missing" | "migration_not_recorded";
 
 export type OperationsHealth = {
   readonly reconciliation: {
@@ -12,7 +13,7 @@ export type OperationsHealth = {
     readonly globalKillSwitchActive: boolean;
     readonly operatingMode: "observe" | "recommend" | "paper_autopilot";
     readonly paperAutopilotEnabled: boolean;
-    readonly migration: { readonly blockedReasons: readonly string[]; readonly status: "blocked" | "ready" };
+    readonly migration: { readonly blockedReasons: readonly MigrationBlockedReason[]; readonly status: "blocked" | "ready" };
     readonly riskPolicy: {
       readonly initialEquityBaseline: string;
       readonly maxSingleTradeRiskPercent: string;
@@ -51,7 +52,7 @@ export function parseOperationsHealth(value: unknown): OperationsHealth | undefi
   const reconciliation = value.reconciliation;
   const runtime = value.runtime;
   if (!isRecord(runtime.scheduler)) return undefined;
-  if (!isRecord(runtime.migration) || !Array.isArray(runtime.migration.blockedReasons) || runtime.migration.blockedReasons.some((reason) => typeof reason !== "string")) return undefined;
+  if (!isRecord(runtime.migration) || !Array.isArray(runtime.migration.blockedReasons) || runtime.migration.blockedReasons.some((reason) => !( ["audit_columns_missing", "audit_table_missing", "migration_not_recorded"] as const).includes(reason as MigrationBlockedReason))) return undefined;
   const scheduler = runtime.scheduler;
   if (!isRecord(runtime.riskPolicy)) return undefined;
   const riskPolicy = runtime.riskPolicy;
@@ -75,7 +76,7 @@ export function parseOperationsHealth(value: unknown): OperationsHealth | undefi
       globalKillSwitchActive: runtime.globalKillSwitchActive,
       operatingMode: runtime.operatingMode as OperationsHealth["runtime"]["operatingMode"],
       paperAutopilotEnabled: runtime.paperAutopilotEnabled,
-      migration: { blockedReasons: runtime.migration.blockedReasons as readonly string[], status: runtime.migration.status },
+      migration: { blockedReasons: runtime.migration.blockedReasons as readonly MigrationBlockedReason[], status: runtime.migration.status },
       riskPolicy: {
         initialEquityBaseline: riskPolicy.initialEquityBaseline,
         maxSingleTradeRiskPercent: riskPolicy.maxSingleTradeRiskPercent,

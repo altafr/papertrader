@@ -1,9 +1,10 @@
 export type ReconciliationHealthStatus = "delayed" | "fresh" | "stale" | "unavailable";
 export type SchedulerActivationStatus = "blocked" | "disabled" | "ready";
 export type MigrationReadinessStatus = "blocked" | "ready";
+export type MigrationBlockedReason = "audit_columns_missing" | "audit_table_missing" | "migration_not_recorded";
 
 export interface MigrationReadiness {
-  readonly blockedReasons: readonly string[];
+  readonly blockedReasons: readonly MigrationBlockedReason[];
   readonly status: MigrationReadinessStatus;
 }
 
@@ -32,10 +33,10 @@ export function assessSchedulerActivation(input: {
 }
 
 export function assessAuditMigrationReadiness(input: { readonly auditTablePresent: boolean; readonly requiredColumnsPresent: boolean; readonly schemaMigrationRecorded: boolean }): MigrationReadiness {
-  const blockedReasons = [
-    ...(input.schemaMigrationRecorded ? [] : ["migration_not_recorded"]),
-    ...(input.auditTablePresent ? [] : ["audit_table_missing"]),
-    ...(input.requiredColumnsPresent ? [] : ["audit_columns_missing"]),
+  const blockedReasons: MigrationBlockedReason[] = [
+    ...(input.schemaMigrationRecorded ? [] : ["migration_not_recorded" as const]),
+    ...(input.auditTablePresent ? [] : ["audit_table_missing" as const]),
+    ...(input.requiredColumnsPresent ? [] : ["audit_columns_missing" as const]),
   ];
   return { blockedReasons, status: blockedReasons.length === 0 ? "ready" : "blocked" };
 }

@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.47 API migration probe contract; Railway database connectivity and the API probe deployment are verified, while research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
+- **Stage:** Phase 6.48 bounded migration reason contract; Railway API and Vercel dashboard deployments are verified, while research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -523,6 +523,12 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - Extracted the API migration metadata query into a tested contract, covering complete schema and missing `schema_migrations` behavior. Operations health now uses this shared reader rather than inline query logic.
 - The reader returns only bounded status/reason data and propagates unexpected database failures to the existing unavailable response; it has no write authority.
 - API deployment `388817b7-dced-4e13-8869-dca26122bb59` reached `SUCCESS`; a private Railway health probe returned HTTP 200 with the API healthy response. No migration SQL, scheduler, broker, or order operation was performed.
+
+### Phase 6.48 Bounded Migration Reason Contract
+
+- The dashboard parser now accepts only the server-defined migration reason codes `migration_not_recorded`, `audit_table_missing`, and `audit_columns_missing`; unknown codes fail closed instead of being rendered as trusted operational state.
+- The API migration-readiness type uses the same bounded reason union, preserving the read-only status contract without changing database queries or runtime gates.
+- API deployment `c4882939-bce4-47b9-8e05-38337a170691` reached `SUCCESS`; private `/health` returned HTTP 200. Vercel preview `dpl_4NrANzRza3rdLjSc86NxuxQnv9gG` reached `Ready`; unauthenticated dashboard access returned the expected HTTP 302 deployment-protection redirect. No migration SQL, scheduler, broker, or order operation was performed.
 
 ### Phase 4.1 Structured Agent Runs
 

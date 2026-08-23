@@ -32,6 +32,19 @@ describe("dashboard state", () => {
     });
     expect(health?.runtime.scheduler.status).toBe("disabled");
     expect(parseOperationsHealth({ reconciliation: { status: "fresh" }, runtime: {} })).toBeUndefined();
+    expect(parseOperationsHealth({
+      reconciliation: { status: "fresh" },
+      runtime: {
+        brokerConnectionEnabled: false,
+        dailyPreparationHandlerEnabled: false,
+        globalKillSwitchActive: false,
+        operatingMode: "observe",
+        paperAutopilotEnabled: false,
+        migration: { blockedReasons: ["unexpected_reason"], status: "blocked" },
+        riskPolicy: { initialEquityBaseline: "1000", maxSingleTradeRiskPercent: "0.25", maxSingleTradeRiskUsd: "100" },
+        scheduler: { enabled: false, status: "disabled" },
+      },
+    })).toBeUndefined();
   });
 
   it("accepts bounded agent-run metadata and rejects malformed status or refs", () => {
