@@ -440,6 +440,12 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - Added tests for missing gates, fully gated readiness, and kill-switch blocking. Local tests, typecheck, lint, production build, secret-surface audit, and diff checks pass.
 - Worker deployment `5e0f535b-0506-41c2-ae7e-90b1eee0851d` reached `SUCCESS`. Hosted preflight with persistent flags returned `status:"blocked"` for the expected temporary run-once, approval-reference, broker, and handler gates; a second command-scoped preflight with `ticket-123` and temporary gates returned `status:"ready"`. Neither invocation constructed a client or enqueued work.
 
+### Phase 6.34 Durable One-Run Post-Run Verification
+
+- Added the guarded `durable-one-run-verify` command. It reads bounded `pg-boss` queue state and the latest persisted reconciliation timestamp, then reports `verified` only when both queues are present and drained, the dead-letter queue is empty, and reconciliation is fresh.
+- It emits no account, position, order, credential, or raw queue payload values. It cannot enqueue, start a recurring schedule, call Alpaca, or write application state; database/queue clients are closed on every path.
+- Added deterministic tests for verified, incomplete, and stale outcomes. Local tests, typecheck, lint, production build, secret-surface audit, and diff checks pass.
+
 ### Phase 4.1 Structured Agent Runs
 
 - `packages/domain/src/agent-runs.ts` defines versioned, structured agent-run requests and artifacts for the orchestrator, stock/crypto research, macro advisory, strategy, risk explanation, execution, and reconciliation roles.
