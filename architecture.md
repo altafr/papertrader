@@ -493,6 +493,7 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 
 - Hardened the guarded migration command so a pending `0009` requires both `DATABASE_MIGRATION_TARGET=0009` and the bounded approval reference. This prevents a generic “apply all” invocation from being treated as authorization for the reviewed audit migration.
 - The target is command-scoped metadata only; it does not alter the database, scheduler, broker, or approval records.
+- Worker deployment `cd79e69e-1a31-438c-ba47-c4480ae1b82a` reached `SUCCESS`; private health remained healthy with observe mode, broker access disabled, durable scheduler disabled, and the global kill switch inactive. No migration command or SQL mutation was run.
 
 ### Phase 4.1 Structured Agent Runs
 
