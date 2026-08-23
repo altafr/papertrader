@@ -465,6 +465,11 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - A `ready` result means the hosted database is structurally prepared for the persisted one-run audit contract; a `blocked` result reports only bounded reason codes. The command does not apply migrations or enable any worker gate.
 - Worker deployment `586ab6cb-9a45-4013-8825-1b603e33b6cc` reached `SUCCESS`. The private Railway check returned `blocked` with `migration_not_recorded`, `audit_table_missing`, and `audit_columns_missing`; the reviewed migration file was present. No SQL mutation was performed.
 
+### Phase 6.38 Migration Approval Guard
+
+- Hardened the guarded application migration command so pending migration `0009` requires `DATABASE_MIGRATION_APPROVAL_REFERENCE`, a bounded non-secret operator reference. Earlier migrations retain their existing guarded behavior.
+- Added deterministic validation tests. The guard does not expose or persist the reference, apply SQL by itself, or alter hosted configuration.
+
 ### Phase 4.1 Structured Agent Runs
 
 - `packages/domain/src/agent-runs.ts` defines versioned, structured agent-run requests and artifacts for the orchestrator, stock/crypto research, macro advisory, strategy, risk explanation, execution, and reconciliation roles.
