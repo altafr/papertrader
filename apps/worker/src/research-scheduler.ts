@@ -38,6 +38,21 @@ export interface ResearchQueueClient {
   work<T>(name: string, handler: (jobs: readonly { readonly data: T }[]) => Promise<unknown>): Promise<string>;
 }
 
+export interface ResearchSchedulerClient extends ResearchQueueClient {
+  start(): Promise<unknown>;
+  stop(): Promise<void>;
+}
+
+export type ResearchSchedulerRuntimeStatus = "degraded" | "disabled" | "running" | "scheduled";
+
+export interface ResearchSchedulerHealth {
+  readonly enabled: boolean;
+  readonly handlerEnabled: boolean;
+  readonly lastRunAt?: string;
+  readonly nextRunAt?: string;
+  readonly status: ResearchSchedulerRuntimeStatus;
+}
+
 export interface ResearchPreparationQueueInspection {
   readonly deadLetterQueue: boolean;
   readonly workQueue: boolean;
@@ -121,4 +136,73 @@ export async function runResearchPreparationJob(input: {
 }): Promise<void> {
   if (!isResearchPreparationJob(input.job)) throw new Error("Invalid research preparation job.");
   await input.run(input.job);
+}
+
+function nextResearchRunAt(now: Date, cron: string): string | undefined {
+  if (cron !== RESEARCH_PREPARATION_CRON) return undefined;
+  const next = new Date(now);
+  next.setUTCHours(24, 0, 0, 0);
+  return next.toISOString();
+}
+
+let schedulerHealth: ResearchSchedulerHealth = { enabled: false, handlerEnabled: false, status: "disabled" };
+
+export function getResearchSchedulerHealth(): ResearchSchedulerHealth {
+  return schedulerHealth;
+}
+
+export function createResearchScheduler(input: {
+  readonly clientFactory: () => ResearchSchedulerClient;
+  readonly config: ResearchScheduleConfig;
+  readonly environment?: NodeJS.ProcessEnv;
+  readonly now?: () => Date;
+  readonly runPreparation: (job: ResearchPreparationJob) => Promise<void>;
+}) {
+  const environment = input.environment ?? process.env;
+  const now = input.now ?? (() => new Date());
+  let client: ResearchSchedulerClient | undefined;
+  let started = false;
+  return {
+    async start(): Promise<void> {
+      if (!input.config.enabled || started) return;
+      const readiness = getResearchScheduleReadiness(environment);
+      if (readiness.status !== "ready") {
+        schedulerHealth = { enabled: true, handlerEnabled: input.config.handlerEnabled, status: "degraded" };
+        throw new Error(`Research scheduler is not ready: ${readiness.status}.`);
+      }
+      started = true;
+      try {
+        client = input.clientFactory();
+        await client.start();
+        await provisionResearchQueues(client, input.config);
+        await client.schedule(RESEARCH_PREPARATION_QUEUE, input.config.cron, { kind: "research_preparation", version: 1 }, { key: "research-preparation", tz: "UTC" });
+        await client.work<ResearchPreparationJob>(RESEARCH_PREPARATION_QUEUE, async (jobs) => {
+          if (jobs.length === 0) return;
+          schedulerHealth = { ...schedulerHealth, status: "running" };
+          try {
+            for (const job of jobs) await runResearchPreparationJob({ job: job.data, run: input.runPreparation });
+            const nextRunAt = nextResearchRunAt(now(), input.config.cron);
+            schedulerHealth = { enabled: true, handlerEnabled: input.config.handlerEnabled, lastRunAt: now().toISOString(), ...(nextRunAt ? { nextRunAt } : {}), status: "scheduled" };
+          } catch (error) {
+            schedulerHealth = { ...schedulerHealth, status: "degraded" };
+            throw error;
+          }
+        });
+        const nextRunAt = nextResearchRunAt(now(), input.config.cron);
+        schedulerHealth = { enabled: true, handlerEnabled: input.config.handlerEnabled, ...(nextRunAt ? { nextRunAt } : {}), status: "scheduled" };
+      } catch (error) {
+        started = false;
+        schedulerHealth = { enabled: true, handlerEnabled: input.config.handlerEnabled, status: "degraded" };
+        if (client) await client.stop().catch(() => undefined);
+        client = undefined;
+        throw error;
+      }
+    },
+    async stop(): Promise<void> {
+      started = false;
+      if (client) await client.stop();
+      client = undefined;
+      schedulerHealth = { enabled: input.config.enabled, handlerEnabled: input.config.handlerEnabled, status: "disabled" };
+    },
+  };
 }

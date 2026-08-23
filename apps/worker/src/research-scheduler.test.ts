@@ -1,5 +1,5 @@
-import { describe, expect, it } from "vitest";
-import { enqueueResearchPreparation, getResearchPreparationJobId, getResearchScheduleConfig, getResearchScheduleReadiness, isResearchPreparationJob, provisionResearchQueues, runResearchPreparationJob, RESEARCH_PREPARATION_CRON, RESEARCH_PREPARATION_DEAD_LETTER_QUEUE, RESEARCH_PREPARATION_QUEUE } from "./research-scheduler.js";
+import { describe, expect, it, vi } from "vitest";
+import { createResearchScheduler, enqueueResearchPreparation, getResearchPreparationJobId, getResearchScheduleConfig, getResearchScheduleReadiness, getResearchSchedulerHealth, isResearchPreparationJob, provisionResearchQueues, runResearchPreparationJob, RESEARCH_PREPARATION_CRON, RESEARCH_PREPARATION_DEAD_LETTER_QUEUE, RESEARCH_PREPARATION_QUEUE } from "./research-scheduler.js";
 
 describe("research schedule boundary", () => {
   it("is disabled by default with bounded configuration", () => {
@@ -37,5 +37,34 @@ describe("research schedule boundary", () => {
     expect(isResearchPreparationJob(sent[0]?.data)).toBe(true);
     await expect(runResearchPreparationJob({ job: sent[0]?.data, run: async () => {} })).resolves.toBeUndefined();
     await expect(runResearchPreparationJob({ job: { kind: "research_preparation", version: 2 }, run: async () => {} })).rejects.toThrow("Invalid research preparation job");
+  });
+
+  it("does not register a blocked scheduler", async () => {
+    const clientFactory = vi.fn();
+    const scheduler = createResearchScheduler({ clientFactory, config: { cron: RESEARCH_PREPARATION_CRON, enabled: true, handlerEnabled: true, retryDelaySeconds: 1, retryLimit: 1 }, environment: { RESEARCH_SCHEDULER_ENABLED: "true", RESEARCH_HANDLER_ENABLED: "true" }, runPreparation: async () => {} });
+    await expect(scheduler.start()).rejects.toThrow("not ready");
+    expect(clientFactory).not.toHaveBeenCalled();
+    expect(getResearchSchedulerHealth()).toMatchObject({ enabled: true, status: "degraded" });
+  });
+
+  it("registers a ready scheduler with UTC scheduling and dispatches validated jobs", async () => {
+    const calls: string[] = [];
+    let workerHandler: ((jobs: readonly { readonly data: unknown }[]) => Promise<unknown>) | undefined;
+    const client = {
+      start: async () => { calls.push("start"); },
+      stop: async () => { calls.push("stop"); },
+      createQueue: async (name: string) => { calls.push(`queue:${name}`); },
+      schedule: async (name: string, cron: string, _data?: object | null, options?: { readonly tz?: string }) => { calls.push(`schedule:${name}:${cron}:${options?.tz ?? ""}`); },
+      work: async <T>(_name: string, handler: (jobs: readonly { readonly data: T }[]) => Promise<unknown>) => { workerHandler = handler as (jobs: readonly { readonly data: unknown }[]) => Promise<unknown>; calls.push("work"); return "worker"; },
+    };
+    const runPreparation = vi.fn(async () => { calls.push("run"); });
+    const scheduler = createResearchScheduler({ clientFactory: () => client, config: { cron: RESEARCH_PREPARATION_CRON, enabled: true, handlerEnabled: true, retryDelaySeconds: 1, retryLimit: 1 }, environment: { ALPACA_API_KEY: "key", ALPACA_SECRET_KEY: "secret", ALPACA_PAPER_TRADE: "true", BROKER_CONNECTION_ENABLED: "true", DATABASE_URL: "postgres://private", RESEARCH_HANDLER_ENABLED: "true", RESEARCH_SCHEDULER_ENABLED: "true", TRADING_MODE: "paper" }, now: () => new Date("2026-08-23T01:00:00.000Z"), runPreparation });
+    await scheduler.start();
+    expect(calls).toEqual(["start", `queue:${RESEARCH_PREPARATION_DEAD_LETTER_QUEUE}`, `queue:${RESEARCH_PREPARATION_QUEUE}`, `schedule:${RESEARCH_PREPARATION_QUEUE}:${RESEARCH_PREPARATION_CRON}:UTC`, "work"]);
+    await workerHandler?.([{ data: { kind: "research_preparation", version: 1 } }]);
+    expect(runPreparation).toHaveBeenCalledTimes(1);
+    expect(getResearchSchedulerHealth()).toMatchObject({ enabled: true, handlerEnabled: true, status: "scheduled", lastRunAt: "2026-08-23T01:00:00.000Z", nextRunAt: "2026-08-24T00:00:00.000Z" });
+    await scheduler.stop();
+    expect(calls.at(-1)).toBe("stop");
   });
 });

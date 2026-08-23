@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 4.13 gated research-preparation queue handler added; Railway database connectivity is verified, while research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
+- **Stage:** Phase 4.14 gated research scheduler registration added; Railway database connectivity is verified, while research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -410,6 +410,12 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - `createResearchPreparationQueueHandler` composes the readiness check, explicit preparation configuration, two-asset-class plan, injected market-data source, deterministic agents, and existing agent-run persistence lifecycle.
 - The handler rejects the queue job before source access unless every research gate reports `ready`; it processes stock and crypto plans sequentially and returns only bounded run statuses/IDs.
 - This is composition code, not activation: the worker does not register the handler with `pg-boss`, enable the research cron, or run hosted market-data calls while the persistent gates remain disabled.
+
+### Phase 4.14 Gated Research Scheduler Registration
+
+- `createResearchScheduler` registers the research queue, UTC cron, and validated job handler only after `getResearchScheduleReadiness` returns `ready`; blocked environments never create a queue client.
+- Queue lifecycle failures and handler failures set a bounded runtime health state (`scheduled`, `running`, `degraded`, or `disabled`) and stop the client after startup failure. The schedule uses a stable key and bounded retry/dead-letter settings.
+- This registration is an opt-in library boundary. The deployed worker still does not instantiate it while `RESEARCH_SCHEDULER_ENABLED=false`; no hosted queue or market-data action was performed.
 
 ### Phase 6.13 Dashboard Operations Health Surface
 
