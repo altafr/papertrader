@@ -2,7 +2,7 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.67 — persistent scheduler activation guard added.
+- **Phase:** Phase 6.68 — command-scoped scheduler activation rehearsal added.
 - **Status:** Agent runs have deterministic contracts, reviewed PostgreSQL persistence, authenticated list/detail reads, a dashboard health surface, a paper-only market-data run-once boundary, a disabled-by-default daily research readiness surface, a separately named validated queue boundary, an explicit stock/crypto preparation planner, a fail-closed queue-handler composition, a readiness-gated scheduler registration boundary, safe runtime health reporting, explicit opt-in worker composition, guarded local/CI readiness commands, verified hosted disabled readiness, separate approval/reference guards, bounded research-run preflight validation, non-secret approval provenance, bounded explicit/latest persisted-run verification, deployed hosted tooling, deterministic source bar-integrity checks with duplicate/out-of-order distinctions, verified deployed integrity code, a guarded read-only database probe, an automated source/browser credential-value audit, an explicit paper operating-mode contract, persistent dashboard mode visibility, a truthful public foundation status, worker mode health, worker integration configuration including the global kill-switch state, a command-scoped approval reference for the durable one-run, explicit paper baseline/single-trade risk invariants, authenticated operator-visible risk policy metadata, guarded Paper Autopilot configuration readiness, persisted reconciliation freshness readiness, a server-side global kill-switch guard, authenticated operator-visible kill-switch status, a verified command-scoped kill-switch exercise, a client-free durable one-run readiness preflight, a bounded durable one-run post-run verifier, persisted one-run audit provenance, a read-only migration readiness check, an explicit approval guard for pending migration `0009`, a no-write migration plan, a combined daily reconciliation readiness contract, a fail-closed migration guard at scheduler startup, an explicit target guard for migration `0009`, direct migration-probe tests, migration preflight ordering, dashboard migration-readiness visibility, dashboard migration block reasons, an extracted API migration probe contract, a bounded browser/API migration reason union, a fresh hosted daily-reconciliation readiness recheck, read-only research-schedule readiness visibility, an explicit paper-mode gate for research readiness, the guarded application of migration `0009` with reference `MIGRATION-0009-123`, a clean repository/browser secret-surface and quality audit, a linked Vercel environment-name audit, a hosted client-free one-run preflight returning ready, a hosted PostgreSQL connectivity probe returning `databaseReachable:true`, a refreshed Ready Vercel preview deployment `dpl_3jRuQ8ph9653U1MJ7DhzyqEm4zLi`, a private deployed-worker health response reporting healthy observe mode with broker, durable scheduler, research scheduler, and shadow evaluation disabled, a read-only one-run verifier confirming no persisted provenance for the preflight ID, a contained failed approved one-run attempt with no audit row, a deployed redacted one-run failure-code classifier, and stage-aware failure output; Railway migration `0008` and `0009` are applied, deployed API `0be9a305-3ce5-4031-8fee-4c922fb46899` is healthy, deployed worker `195298d5-789d-4fb2-acbe-7e4309400507` is healthy with migration readiness `ready`, combined daily reconciliation readiness `disabled`, and zero queued/active/failed jobs, while research scheduling, durable reconciliation, and Paper Autopilot remain disabled. Vercel environment inspection found only Clerk/authentication variables and `NEXT_PUBLIC_API_BASE_URL`; no Alpaca or database variable is present, and unauthenticated routes correctly return deployment-protection redirects.
 - **Current operating mode:** Paper only; order submission not yet enabled.
 - **Current goal:** Diagnose the queue-enqueue failure safely; do not retry again without a new explicit approval/reference and unique run ID.
@@ -1314,6 +1314,13 @@
 | P1 | Broker/internal state diverges | Alpaca treated as truth with scheduled/event-driven reconciliation |
 | P1 | Strategy overfits historical data | Holdout periods, multiple regimes, paper-forward validation, versioning |
 
+## Completed Build Unit — Phase 6.68
+
+- **User story:** As the operator, I can rehearse daily scheduler activation against the hosted migration state without changing persistent gates or starting a queue.
+- **Implemented:** Added `DAILY_RECONCILIATION_ACTIVATION_PREFLIGHT=true` support through `daily-reconciliation-activation-preflight`; it overlays broker/handler/scheduler gates in memory and requires the activation reference.
+- **Verification:** 194 tests passed; typecheck, lint, production build, secret-surface audit, and diff checks passed. No queue, broker, scheduler, or reconciliation side effect occurred locally.
+- **Next smallest unit:** Deploy the rehearsal and run it once over Railway's private network, then record the bounded result and confirm persistent defaults remain disabled.
+
 ## Completed Build Unit — Phase 6.67
 
 - **User story:** As the operator, I can require explicit review before enabling the persistent daily scheduler without adding approval per paper order.
@@ -1361,6 +1368,13 @@
 - **Architecture fidelity:** The explainer keeps the Vercel dashboard separate from Railway runtime authority, distinguishes AI proposal services from deterministic risk/execution gates, treats Alpaca as broker truth, and shows PostgreSQL as the canonical audit/state boundary.
 - **Safety boundary:** The artifact is a local, inline simulation outside the deployed application. It contains no credentials, network requests, broker calls, database writes, controls, or claims of live operation.
 - **Verification:** The fragment rendered successfully with the visualization renderer, remained below 1 MB, used a responsive single-column layout below 680px, and passed literal-markup/readback checks.
+
+## Completed Design Artifact — Excalidraw Data-Flow Map
+
+- **User-visible outcome:** Added an importable Excalidraw architecture map showing Vercel/browser, Clerk, Railway API/worker, research agents, strategies, trade intents, deterministic risk/execution, Alpaca, PostgreSQL, reconciliation, and alerting.
+- **Data-flow coverage:** Arrows distinguish identity/session, structured evidence, normalized signals, immutable intents, freshness-checked inputs, risk decisions, idempotent paper orders, broker events, reconciliation, and audit persistence.
+- **Safety boundary:** The diagram represents the current paper-only design and does not add runtime behavior, credentials, external calls, or live-trading capability.
+- **Verification:** JSON parses successfully; element IDs are unique; bindings resolve to existing elements; the file is saved outside the checked-out application as an editable `.excalidraw` artifact.
 
 ## Session Handoff
 

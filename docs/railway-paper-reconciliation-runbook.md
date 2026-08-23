@@ -39,6 +39,19 @@ env DATABASE_STATUS=true pnpm --filter @momentum/worker database-status
 Expected output is `{"databaseReachable":true}`. The command must not be
 persistently enabled.
 
+## Rehearse daily scheduler activation
+
+Before changing persistent Railway variables, run the read-only activation rehearsal. It uses a command-scoped reference and overlays the scheduler, handler, and broker gates in memory only:
+
+```sh
+DAILY_RECONCILIATION_READINESS=true \
+DAILY_RECONCILIATION_ACTIVATION_PREFLIGHT=true \
+DURABLE_SCHEDULER_ACTIVATION_APPROVAL_REFERENCE=scheduler-review-123 \
+pnpm --filter @momentum/worker daily-reconciliation-activation-preflight
+```
+
+The expected result is `status:"ready"` only when migration readiness and all simulated paper prerequisites pass. The rehearsal creates no queue client, makes no Alpaca request, writes no reconciliation state, and does not alter persistent variables. A ready rehearsal does not itself authorize activation.
+
 ## Run exactly once
 
 From an authenticated Railway CLI session, run this in the deployed worker. Replace the IDs only if the project/environment/service changes:

@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.67 persistent scheduler activation guard added; Railway API/worker health is verified, while research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
+- **Stage:** Phase 6.68 command-scoped scheduler activation rehearsal added; Railway API/worker health is verified, while research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -647,6 +647,12 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - This reference authorizes the operational scheduler activation only. It does not create per-order approval requirements: paper orders remain governed by deterministic risk/execution checks and the existing paper-only mode gates.
 - The hosted scheduler remains disabled; no Railway variable was added or changed in this unit.
 - Worker deployment `f0fd4349-c156-4548-ad3d-4660882c432a` reached `SUCCESS`; hosted readiness remains `disabled`, private health is healthy observe mode, and no activation-reference variable is present.
+
+### Phase 6.68 Command-Scoped Scheduler Activation Rehearsal
+
+- Added `daily-reconciliation-activation-preflight`, a read-only rehearsal that overlays the scheduler, handler, and broker gates only in memory and requires a non-secret activation reference.
+- The rehearsal combines the simulated scheduler readiness with live migration structure checks but never creates a pg-boss client, enqueues a job, reads Alpaca, writes reconciliation state, or changes Railway variables.
+- Paper order approval behavior is unchanged: the activation reference is for persistent scheduler operations, not individual paper orders.
 
 ### Phase 4.1 Structured Agent Runs
 

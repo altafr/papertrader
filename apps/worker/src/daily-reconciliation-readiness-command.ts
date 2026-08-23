@@ -6,7 +6,7 @@ import { createDatabase } from "@momentum/db";
 
 import { getDurableSchedulerReadiness } from "./durable-scheduler.js";
 import { assessDurableOneRunMigrationReadiness } from "./database-migration-readiness.js";
-import { combineDailyReconciliationReadiness } from "./daily-reconciliation-readiness.js";
+import { combineDailyReconciliationReadiness, getDailyReconciliationActivationSchedulerReadiness } from "./daily-reconciliation-readiness.js";
 
 if (process.env.DAILY_RECONCILIATION_READINESS !== "true") throw new Error("DAILY_RECONCILIATION_READINESS must be exactly true for the guarded readiness command.");
 getPaperOnlyRuntimeConfig();
@@ -25,7 +25,10 @@ try {
   const table = await pool.query("SELECT to_regclass('public.durable_one_run_audits') IS NOT NULL AS present");
   const columns = await pool.query("SELECT COUNT(*)::int AS count FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'durable_one_run_audits' AND column_name = ANY($1::text[])", [["run_id", "approval_reference", "account_snapshot_id", "captured_at", "created_at", "status"]]);
   const migration = assessDurableOneRunMigrationReadiness({ auditTablePresent: table.rows[0]?.present === true, migrationFilePresent, requiredColumnsPresent: Number(columns.rows[0]?.count ?? 0) === 6, schemaMigrationRecorded: recorded.rows[0]?.recorded === true });
-  const readiness = combineDailyReconciliationReadiness({ migration, scheduler: getDurableSchedulerReadiness() });
+  const scheduler = process.env.DAILY_RECONCILIATION_ACTIVATION_PREFLIGHT === "true"
+    ? getDailyReconciliationActivationSchedulerReadiness()
+    : getDurableSchedulerReadiness();
+  const readiness = combineDailyReconciliationReadiness({ migration, scheduler });
   console.log(JSON.stringify(readiness));
   if (readiness.status === "blocked") process.exitCode = 1;
 } catch {
