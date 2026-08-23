@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.58 deployed worker health verified; Railway API deployment is verified, while research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
+- **Stage:** Phase 6.59 one-run audit state verified; Railway API deployment is verified, while research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -587,6 +587,12 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - A server-side Node health probe against the private worker returned `status:"healthy"`, `operatingMode:"observe"`, paper credentials/database configured, and `globalKillSwitchActive:false`.
 - The same health response confirmed `brokerConnectionEnabled:false`, durable scheduler `disabled`, research schedule `disabled`, and shadow evaluation `disabled`. No credential values were emitted.
 - This confirms the worker is running safely in its default observation state; it does not authorize the paper reconciliation one-run or recurring scheduling.
+
+### Phase 6.59 One-Run Audit State Verification
+
+- The read-only durable one-run verifier was run with the bounded preflight run ID and reference. It found both durable queues present and fully drained, an existing fresh read model, and no persisted provenance for that preflight ID.
+- The verifier returned `status:"incomplete"` with `provenance_audit_missing` and matching-reference/ID reasons, confirming that the preflight did not execute a reconciliation or write an audit row.
+- This is the expected safe state before a separately approved run; no runtime flag, scheduler, broker, or order behavior changed.
 
 ### Phase 4.1 Structured Agent Runs
 
