@@ -463,6 +463,7 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 
 - Added the guarded, read-only `database-migration-readiness` command. It checks the reviewed `0009` migration file, the `schema_migrations` record, the audit table, and all required columns without creating or changing database state.
 - A `ready` result means the hosted database is structurally prepared for the persisted one-run audit contract; a `blocked` result reports only bounded reason codes. The command does not apply migrations or enable any worker gate.
+- Worker deployment `586ab6cb-9a45-4013-8825-1b603e33b6cc` reached `SUCCESS`. The private Railway check returned `blocked` with `migration_not_recorded`, `audit_table_missing`, and `audit_columns_missing`; the reviewed migration file was present. No SQL mutation was performed.
 
 ### Phase 4.1 Structured Agent Runs
 
