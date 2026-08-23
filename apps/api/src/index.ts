@@ -21,7 +21,7 @@ import {
 import { MAX_SINGLE_TRADE_RISK_PERCENT_OF_EQUITY, MAX_SINGLE_TRADE_RISK_USD, PAPER_INITIAL_EQUITY_BASELINE } from "@momentum/domain";
 
 import { getApiHealth } from "./app.js";
-import { assessReconciliationHealth, assessSchedulerActivation } from "./operations-health.js";
+import { assessAuditMigrationReadiness, assessReconciliationHealth, assessSchedulerActivation } from "./operations-health.js";
 import { compareReconciliationAccounts } from "./reconciliation-status.js";
 import { approveDisabledToReplay, approveReplayToShadow, approveShadowToPaper } from "./lifecycle-command.js";
 import { toAgentRunDetail } from "./agent-run-detail.js";
@@ -301,8 +301,20 @@ async function readOperationsHealth(request: IncomingMessage) {
     dailyPreparationHandlerEnabled: handlerEnabled,
     schedulerEnabled,
   });
+  const migrationDatabase = createDatabase();
+  let schemaMigrationRecorded = false;
+  try {
+    try {
+      const recorded = await migrationDatabase.pool.query<{ readonly recorded: boolean }>("SELECT EXISTS (SELECT 1 FROM schema_migrations WHERE version = $1) AS recorded", ["0009"]);
+      schemaMigrationRecorded = recorded.rows[0]?.recorded === true;
+    } catch (error) {
+      if ((error as { readonly code?: string }).code !== "42P01") throw error;
+    }
+    const table = await migrationDatabase.pool.query<{ readonly present: boolean }>("SELECT to_regclass('public.durable_one_run_audits') IS NOT NULL AS present");
+    const columns = await migrationDatabase.pool.query<{ readonly count: number }>("SELECT COUNT(*)::int AS count FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'durable_one_run_audits' AND column_name = ANY($1::text[])", [["run_id", "approval_reference", "account_snapshot_id", "captured_at", "created_at", "status"]]);
+    const migration = assessAuditMigrationReadiness({ auditTablePresent: table.rows[0]?.present === true, requiredColumnsPresent: Number(columns.rows[0]?.count ?? 0) === 6, schemaMigrationRecorded });
 
-  return {
+    return {
     body: {
       reconciliation,
       runtime: {
@@ -320,10 +332,14 @@ async function readOperationsHealth(request: IncomingMessage) {
           enabled: schedulerEnabled,
           status: schedulerStatus,
         },
+        migration,
       },
     },
     status: 200,
-  } as const;
+    } as const;
+  } finally {
+    await migrationDatabase.pool.end();
+  }
 }
 
 function parseAgentRunLimit(request: IncomingMessage): number {

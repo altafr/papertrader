@@ -506,6 +506,11 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - The command now refuses any pending version other than `0009`, then requires the exact target and bounded approval reference. This keeps a partially initialized or unexpectedly migrated database fail-closed.
 - Worker deployment `3cf7e599-61c8-47e3-9ab0-270468b357f5` reached `SUCCESS`. The private no-write plan reports exactly one pending migration (`0009_durable_one_run_audits.sql`) and no unrelated pending versions. No SQL mutation occurred.
 
+### Phase 6.45 Dashboard Migration Readiness Visibility
+
+- Added read-only audit-migration metadata to authenticated operations health and the dashboard. The UI shows `Ready` or `Blocked` alongside scheduler state and does not expose database details or controls.
+- The API checks only bounded schema booleans/reason codes and closes its temporary metadata pool. No endpoint can apply migration SQL, enable scheduling, or alter broker state.
+
 ### Phase 4.1 Structured Agent Runs
 
 - `packages/domain/src/agent-runs.ts` defines versioned, structured agent-run requests and artifacts for the orchestrator, stock/crypto research, macro advisory, strategy, risk explanation, execution, and reconciliation roles.

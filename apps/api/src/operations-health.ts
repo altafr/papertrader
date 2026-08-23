@@ -1,5 +1,11 @@
 export type ReconciliationHealthStatus = "delayed" | "fresh" | "stale" | "unavailable";
 export type SchedulerActivationStatus = "blocked" | "disabled" | "ready";
+export type MigrationReadinessStatus = "blocked" | "ready";
+
+export interface MigrationReadiness {
+  readonly blockedReasons: readonly string[];
+  readonly status: MigrationReadinessStatus;
+}
 
 export interface ReconciliationHealth {
   readonly ageSeconds?: number;
@@ -19,6 +25,15 @@ export function assessSchedulerActivation(input: {
 }): SchedulerActivationStatus {
   if (!input.schedulerEnabled) return "disabled";
   return input.brokerConnectionEnabled && input.dailyPreparationHandlerEnabled ? "ready" : "blocked";
+}
+
+export function assessAuditMigrationReadiness(input: { readonly auditTablePresent: boolean; readonly requiredColumnsPresent: boolean; readonly schemaMigrationRecorded: boolean }): MigrationReadiness {
+  const blockedReasons = [
+    ...(input.schemaMigrationRecorded ? [] : ["migration_not_recorded"]),
+    ...(input.auditTablePresent ? [] : ["audit_table_missing"]),
+    ...(input.requiredColumnsPresent ? [] : ["audit_columns_missing"]),
+  ];
+  return { blockedReasons, status: blockedReasons.length === 0 ? "ready" : "blocked" };
 }
 
 export function assessReconciliationHealth(

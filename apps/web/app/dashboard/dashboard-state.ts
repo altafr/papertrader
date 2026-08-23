@@ -12,6 +12,7 @@ export type OperationsHealth = {
     readonly globalKillSwitchActive: boolean;
     readonly operatingMode: "observe" | "recommend" | "paper_autopilot";
     readonly paperAutopilotEnabled: boolean;
+    readonly migration: { readonly blockedReasons: readonly string[]; readonly status: "blocked" | "ready" };
     readonly riskPolicy: {
       readonly initialEquityBaseline: string;
       readonly maxSingleTradeRiskPercent: string;
@@ -50,6 +51,7 @@ export function parseOperationsHealth(value: unknown): OperationsHealth | undefi
   const reconciliation = value.reconciliation;
   const runtime = value.runtime;
   if (!isRecord(runtime.scheduler)) return undefined;
+  if (!isRecord(runtime.migration) || !Array.isArray(runtime.migration.blockedReasons) || runtime.migration.blockedReasons.some((reason) => typeof reason !== "string")) return undefined;
   const scheduler = runtime.scheduler;
   if (!isRecord(runtime.riskPolicy)) return undefined;
   const riskPolicy = runtime.riskPolicy;
@@ -57,6 +59,7 @@ export function parseOperationsHealth(value: unknown): OperationsHealth | undefi
   if (!(["blocked", "disabled", "ready"] as const).includes(scheduler.status as OperationsHealth["runtime"]["scheduler"]["status"])) return undefined;
   if (!( ["observe", "recommend", "paper_autopilot"] as const).includes(runtime.operatingMode as OperationsHealth["runtime"]["operatingMode"])) return undefined;
   if (typeof scheduler.enabled !== "boolean" || typeof runtime.brokerConnectionEnabled !== "boolean" || typeof runtime.dailyPreparationHandlerEnabled !== "boolean" || typeof runtime.globalKillSwitchActive !== "boolean" || typeof runtime.paperAutopilotEnabled !== "boolean") return undefined;
+  if (!(runtime.migration.status === "blocked" || runtime.migration.status === "ready")) return undefined;
   if (typeof riskPolicy.initialEquityBaseline !== "string" || typeof riskPolicy.maxSingleTradeRiskPercent !== "string" || typeof riskPolicy.maxSingleTradeRiskUsd !== "string") return undefined;
   if (reconciliation.ageSeconds !== undefined && typeof reconciliation.ageSeconds !== "number") return undefined;
   if (reconciliation.capturedAt !== undefined && typeof reconciliation.capturedAt !== "string") return undefined;
@@ -72,6 +75,7 @@ export function parseOperationsHealth(value: unknown): OperationsHealth | undefi
       globalKillSwitchActive: runtime.globalKillSwitchActive,
       operatingMode: runtime.operatingMode as OperationsHealth["runtime"]["operatingMode"],
       paperAutopilotEnabled: runtime.paperAutopilotEnabled,
+      migration: { blockedReasons: runtime.migration.blockedReasons as readonly string[], status: runtime.migration.status },
       riskPolicy: {
         initialEquityBaseline: riskPolicy.initialEquityBaseline,
         maxSingleTradeRiskPercent: riskPolicy.maxSingleTradeRiskPercent,

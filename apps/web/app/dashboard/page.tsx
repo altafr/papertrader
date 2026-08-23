@@ -103,6 +103,7 @@ function StatusBadge({ state }: { readonly state: "degraded" | "delayed" | "fres
 function OperationsHealthCard({ health }: { readonly health: OperationsHealth | undefined }) {
   if (!health) return <article className="card full-width degraded-card"><p className="label">Operations health</p><h2>Unavailable</h2><p>The authenticated operations-health endpoint could not be read.</p></article>;
   const schedulerLabel = health.runtime.scheduler.status === "ready" ? "Ready" : health.runtime.scheduler.status === "blocked" ? "Blocked" : "Disabled";
+  const migrationLabel = health.runtime.migration.status === "ready" ? "Ready" : "Blocked";
   const reconciliationLabel = health.reconciliation.status === "fresh" ? "Fresh" : health.reconciliation.status === "delayed" ? "Delayed" : health.reconciliation.status === "stale" ? "Stale" : "Unavailable";
   return (
     <article className="card full-width operations-health-card" aria-label="Operations health">
@@ -111,6 +112,7 @@ function OperationsHealthCard({ health }: { readonly health: OperationsHealth | 
         <div><span className="label">Reconciliation</span><strong>{health.reconciliation.ageSeconds === undefined ? "Unavailable" : `${health.reconciliation.ageSeconds}s old`}</strong></div>
         <div><span className="label">Operating mode</span><strong>{health.runtime.operatingMode === "paper_autopilot" ? "Paper Autopilot" : health.runtime.operatingMode === "recommend" ? "Recommend" : "Observe"}</strong></div>
         <div><span className="label">Scheduler</span><strong>{schedulerLabel}</strong></div>
+        <div><span className="label">Audit migration</span><strong>{migrationLabel}</strong></div>
         <div><span className="label">Broker read gate</span><strong>{health.runtime.brokerConnectionEnabled ? "Enabled" : "Disabled"}</strong></div>
         <div><span className="label">Paper Autopilot</span><strong>{health.runtime.paperAutopilotEnabled ? "Enabled" : "Disabled"}</strong></div>
         <div><span className="label">Global kill switch</span><strong>{health.runtime.globalKillSwitchActive ? "ACTIVE" : "Inactive"}</strong></div>

@@ -25,6 +25,7 @@ describe("dashboard state", () => {
         globalKillSwitchActive: false,
         operatingMode: "observe",
         paperAutopilotEnabled: false,
+        migration: { blockedReasons: [], status: "ready" },
         riskPolicy: { initialEquityBaseline: "1000", maxSingleTradeRiskPercent: "0.25", maxSingleTradeRiskUsd: "100" },
         scheduler: { enabled: false, status: "disabled" },
       },

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { assessReconciliationHealth, assessSchedulerActivation } from "./operations-health.js";
+import { assessAuditMigrationReadiness, assessReconciliationHealth, assessSchedulerActivation } from "./operations-health.js";
 
 const now = new Date("2026-08-23T00:00:00.000Z");
 
@@ -26,5 +26,10 @@ describe("reconciliation health", () => {
     expect(assessSchedulerActivation({ brokerConnectionEnabled: false, dailyPreparationHandlerEnabled: false, schedulerEnabled: false })).toBe("disabled");
     expect(assessSchedulerActivation({ brokerConnectionEnabled: true, dailyPreparationHandlerEnabled: false, schedulerEnabled: true })).toBe("blocked");
     expect(assessSchedulerActivation({ brokerConnectionEnabled: true, dailyPreparationHandlerEnabled: true, schedulerEnabled: true })).toBe("ready");
+  });
+
+  it("reports the audit migration state with bounded reasons", () => {
+    expect(assessAuditMigrationReadiness({ auditTablePresent: false, requiredColumnsPresent: false, schemaMigrationRecorded: false })).toEqual({ blockedReasons: ["migration_not_recorded", "audit_table_missing", "audit_columns_missing"], status: "blocked" });
+    expect(assessAuditMigrationReadiness({ auditTablePresent: true, requiredColumnsPresent: true, schemaMigrationRecorded: true })).toEqual({ blockedReasons: [], status: "ready" });
   });
 });
