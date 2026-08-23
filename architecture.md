@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.54 Vercel environment-boundary verification; Railway API deployment is verified, while the dashboard deployment is pending Vercel's free-tier quota reset and research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
+- **Stage:** Phase 6.55 hosted paper one-run preflight verified; Railway API deployment is verified, while the dashboard deployment is pending Vercel's free-tier quota reset and research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -564,6 +564,12 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - The authenticated Vercel CLI linked the local dashboard checkout to `altafrs-projects/papertrader-web` for read-only inspection; no deployment or environment mutation was performed.
 - Vercel environment names are limited to Clerk/authentication values and `NEXT_PUBLIC_API_BASE_URL` across Preview and Production. No `ALPACA_API_KEY`, `ALPACA_SECRET_KEY`, or `DATABASE_URL` variable is present on the frontend project.
 - Runtime log inspection remains intentionally deferred unless a bounded observation window is needed; no log content was printed. Railway remains the only broker/database secret boundary, and the dashboard has no broker authority.
+
+### Phase 6.55 Hosted Paper One-Run Preflight
+
+- The deployed worker's client-free `durable-one-run-readiness` command was run with command-scoped gates, a bounded preflight reference, and a bounded run ID. It returned `status:"ready"` with no blocked reasons.
+- The readiness result confirmed paper mode, paper credentials, database configuration, broker/handler command gates, disabled persistent scheduler, disabled Paper Autopilot, and an inactive global kill switch. The command did not contact Alpaca, write PostgreSQL, start queues, or persist any runtime flag.
+- This preflight does not authorize or perform the one-run. A separate operator approval reference for the actual paper reconciliation remains required before the command that reads Alpaca and writes the reconciled read model.
 
 ### Phase 4.1 Structured Agent Runs
 
