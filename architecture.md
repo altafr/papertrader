@@ -487,6 +487,7 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 
 - Added a fail-closed startup guard before the recurring durable scheduler starts. If `DURABLE_SCHEDULER_ENABLED=true` is ever supplied while migration `0009` is absent or incomplete, the worker refuses to start the daily scheduler and reports bounded migration reasons.
 - The guard closes its temporary database pool and does not enable the scheduler, call Alpaca, or write PostgreSQL. The current default-disabled worker path is unchanged.
+- Worker deployment `34e9c4f9-a76c-4590-9e9e-d41c68067a36` reached `SUCCESS`; private health remained healthy with `durableScheduler.enabled:false`, broker access disabled, observe mode, and the global kill switch inactive. Combined readiness continued to report the three bounded migration reasons. No SQL mutation occurred.
 
 ### Phase 4.1 Structured Agent Runs
 
