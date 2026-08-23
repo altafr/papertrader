@@ -416,6 +416,12 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - The guard is independent of browser state and cannot be bypassed by an approved intent, agent output, or a command payload. It remains off in the current deployment and does not change any persistent Railway variable.
 - Added configuration, readiness, startup-boundary, and execution tests. Local tests, typecheck, lint, production build, secret-surface audit, and diff checks pass. Worker deployment `726c5b3b-8dfb-4b3f-9f4f-9511935f7f43` reached `SUCCESS`; hosted readiness returned `globalKillSwitchActive:false`, `status:"disabled"`, and broker/scheduler/handler/Autopilot gates disabled. No persistent variable was changed.
 
+### Phase 6.30 Operator-Visible Kill-Switch Status
+
+- Authenticated `GET /v1/operations-health` now includes the redacted `globalKillSwitchActive` state, and the dashboard renders it next to broker, scheduler, Autopilot, mode, and risk-policy metadata.
+- The browser remains display-only: it cannot toggle, clear, or override the kill switch. Invalid server-side values fail closed through the configuration guard.
+- Local tests, typecheck, lint, production build, secret-surface audit, and diff checks pass. No order, scheduler, or configuration mutation was added.
+
 ### Phase 4.1 Structured Agent Runs
 
 - `packages/domain/src/agent-runs.ts` defines versioned, structured agent-run requests and artifacts for the orchestrator, stock/crypto research, macro advisory, strategy, risk explanation, execution, and reconciliation roles.

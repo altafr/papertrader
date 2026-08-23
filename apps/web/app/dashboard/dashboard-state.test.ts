@@ -22,6 +22,7 @@ describe("dashboard state", () => {
       runtime: {
         brokerConnectionEnabled: false,
         dailyPreparationHandlerEnabled: false,
+        globalKillSwitchActive: false,
         operatingMode: "observe",
         paperAutopilotEnabled: false,
         riskPolicy: { initialEquityBaseline: "1000", maxSingleTradeRiskPercent: "0.25", maxSingleTradeRiskUsd: "100" },

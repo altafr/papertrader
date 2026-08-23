@@ -113,6 +113,7 @@ function OperationsHealthCard({ health }: { readonly health: OperationsHealth | 
         <div><span className="label">Scheduler</span><strong>{schedulerLabel}</strong></div>
         <div><span className="label">Broker read gate</span><strong>{health.runtime.brokerConnectionEnabled ? "Enabled" : "Disabled"}</strong></div>
         <div><span className="label">Paper Autopilot</span><strong>{health.runtime.paperAutopilotEnabled ? "Enabled" : "Disabled"}</strong></div>
+        <div><span className="label">Global kill switch</span><strong>{health.runtime.globalKillSwitchActive ? "ACTIVE" : "Inactive"}</strong></div>
         <div><span className="label">Paper baseline</span><strong>USD {health.runtime.riskPolicy.initialEquityBaseline}</strong></div>
         <div><span className="label">Max single-trade risk</span><strong>USD {health.runtime.riskPolicy.maxSingleTradeRiskUsd} / {health.runtime.riskPolicy.maxSingleTradeRiskPercent}%</strong></div>
       </div>

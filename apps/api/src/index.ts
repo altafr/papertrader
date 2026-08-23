@@ -16,6 +16,7 @@ import {
   getPaperOnlyRuntimeConfig,
   getPaperOperatingMode,
   getServerPort,
+  isGlobalKillSwitchActive,
 } from "@momentum/config";
 import { MAX_SINGLE_TRADE_RISK_PERCENT_OF_EQUITY, MAX_SINGLE_TRADE_RISK_USD, PAPER_INITIAL_EQUITY_BASELINE } from "@momentum/domain";
 
@@ -307,6 +308,7 @@ async function readOperationsHealth(request: IncomingMessage) {
       runtime: {
         brokerConnectionEnabled,
         dailyPreparationHandlerEnabled: handlerEnabled,
+        globalKillSwitchActive: isGlobalKillSwitchActive(),
         operatingMode: getPaperOperatingMode(),
         paperAutopilotEnabled: readBooleanEnvironmentFlag("PAPER_AUTOPILOT_ENABLED"),
         riskPolicy: {

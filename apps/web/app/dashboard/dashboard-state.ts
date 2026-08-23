@@ -9,6 +9,7 @@ export type OperationsHealth = {
   readonly runtime: {
     readonly brokerConnectionEnabled: boolean;
     readonly dailyPreparationHandlerEnabled: boolean;
+    readonly globalKillSwitchActive: boolean;
     readonly operatingMode: "observe" | "recommend" | "paper_autopilot";
     readonly paperAutopilotEnabled: boolean;
     readonly riskPolicy: {
@@ -55,7 +56,7 @@ export function parseOperationsHealth(value: unknown): OperationsHealth | undefi
   if (!(["delayed", "fresh", "stale", "unavailable"] as const).includes(reconciliation.status as OperationsHealth["reconciliation"]["status"])) return undefined;
   if (!(["blocked", "disabled", "ready"] as const).includes(scheduler.status as OperationsHealth["runtime"]["scheduler"]["status"])) return undefined;
   if (!( ["observe", "recommend", "paper_autopilot"] as const).includes(runtime.operatingMode as OperationsHealth["runtime"]["operatingMode"])) return undefined;
-  if (typeof scheduler.enabled !== "boolean" || typeof runtime.brokerConnectionEnabled !== "boolean" || typeof runtime.dailyPreparationHandlerEnabled !== "boolean" || typeof runtime.paperAutopilotEnabled !== "boolean") return undefined;
+  if (typeof scheduler.enabled !== "boolean" || typeof runtime.brokerConnectionEnabled !== "boolean" || typeof runtime.dailyPreparationHandlerEnabled !== "boolean" || typeof runtime.globalKillSwitchActive !== "boolean" || typeof runtime.paperAutopilotEnabled !== "boolean") return undefined;
   if (typeof riskPolicy.initialEquityBaseline !== "string" || typeof riskPolicy.maxSingleTradeRiskPercent !== "string" || typeof riskPolicy.maxSingleTradeRiskUsd !== "string") return undefined;
   if (reconciliation.ageSeconds !== undefined && typeof reconciliation.ageSeconds !== "number") return undefined;
   if (reconciliation.capturedAt !== undefined && typeof reconciliation.capturedAt !== "string") return undefined;
@@ -68,6 +69,7 @@ export function parseOperationsHealth(value: unknown): OperationsHealth | undefi
     runtime: {
       brokerConnectionEnabled: runtime.brokerConnectionEnabled,
       dailyPreparationHandlerEnabled: runtime.dailyPreparationHandlerEnabled,
+      globalKillSwitchActive: runtime.globalKillSwitchActive,
       operatingMode: runtime.operatingMode as OperationsHealth["runtime"]["operatingMode"],
       paperAutopilotEnabled: runtime.paperAutopilotEnabled,
       riskPolicy: {
