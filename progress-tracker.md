@@ -2,8 +2,8 @@
 
 ## Snapshot
 
-- **Phase:** Phase 4.9 — guarded paper market research source added.
-- **Status:** Agent runs have deterministic contracts, reviewed PostgreSQL persistence, authenticated list/detail reads, a dashboard health surface, and a paper-only market-data run-once boundary; Railway migration `0008` is applied, while durable scheduler and Paper Autopilot remain disabled.
+- **Phase:** Phase 4.10 — research schedule readiness boundary added.
+- **Status:** Agent runs have deterministic contracts, reviewed PostgreSQL persistence, authenticated list/detail reads, a dashboard health surface, a paper-only market-data run-once boundary, and a disabled-by-default daily research readiness surface; Railway migration `0008` is applied, while research scheduling, durable reconciliation, and Paper Autopilot remain disabled.
 - **Current operating mode:** Paper only; order submission not yet enabled.
 - **Current goal:** Run the separately approved one-run paper reconciliation using the reviewed runbook, then verify its result in the authenticated dashboard.
 - **Last updated:** 2026-08-23.
@@ -656,6 +656,14 @@
 - **Verification:** `pnpm test` passes 119 tests; `pnpm typecheck`, `pnpm lint`, and `pnpm build` pass across the workspace. Hosted command execution was not performed.
 - **Next smallest unit:** Obtain explicit approval for one paper market research run, or continue implementing read-only evidence/research persistence without hosted execution.
 
+## Completed Build Unit — Phase 4.10
+
+- **User story:** As the operator, I can see whether a future daily research schedule is disabled, blocked, or ready without accidentally starting research or trading behavior.
+- **Implemented:** Added a disabled-by-default research schedule contract with UTC queue/cron identity, bounded retry configuration, deterministic manual job IDs, fail-closed paper-mode validation, explicit database/broker/credential/handler gates, and redacted readiness status in worker health.
+- **Safety boundary:** This unit does not provision a queue, invoke a research handler, call Alpaca, approve risk, submit orders, or enable a recurring schedule. Research scheduling remains a separate reviewed activation step.
+- **Verification:** `pnpm test` passes 123 tests; `pnpm typecheck`, `pnpm lint`, and `pnpm build` pass across the workspace. The malformed paper-mode case is covered and no credential value is included in readiness output.
+- **Next smallest unit:** Define the reviewed research-preparation job handler and queue wiring, keeping the schedule disabled until an explicit operator activation review.
+
 ## Decisions Made
 
 | Date | Decision | Reason |
@@ -758,6 +766,7 @@
 | Phase 4.7 agent health dashboard | Pass | Added authenticated metadata-only run-health card and strict browser parser; 115 tests, typecheck, lint, and production build pass; no execution or financial authority added |
 | Phase 4.8 agent-run detail boundary | Pass | Added authenticated bounded detail endpoint with recursive secret-key redaction and 117 tests, typecheck, lint, and production build pass; no execution or financial authority added |
 | Phase 4.9 guarded paper market research source | Pass | Added bounded Alpaca paper-bars adapter and command-scoped run-once boundary; 119 tests, typecheck, lint, and production build pass; hosted execution not performed |
+| Phase 4.10 research schedule readiness boundary | Pass | Added disabled-by-default research queue/cron contract, bounded readiness gates, deterministic job identity, and worker health status; 123 tests, typecheck, lint, and production build pass; no hosted schedule or research execution performed |
 | Browser/preview | Partial | Production page HTTP check passed; visual/responsive review deferred beyond source scaffold |
 | Security review | Partial | No credential files, Alpaca client, database connection, or order code added; full review remains required |
 

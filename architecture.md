@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 4.1 structured agent-run boundary added; Railway database connectivity is verified, while durable scheduler and Paper Autopilot activation remain separate gated steps.
+- **Stage:** Phase 4.10 research schedule readiness boundary added; Railway database connectivity is verified, while research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -386,6 +386,12 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - `apps/worker/src/research-market-source.ts` maps the existing server-only Alpaca paper historical-bars adapter into validated stock/crypto research inputs with bounded symbols, timeframes, limits, and candidate counts.
 - The `research-market-run-once` command requires command-scoped `RESEARCH_MARKET_RUN_ONCE=true`, paper runtime, explicit broker opt-in, server credentials, `DATABASE_URL`, and migration `0008`; it reads bars once, persists one agent run, and exits.
 - The source and command are disabled by default and never submit orders, approve risk, start a scheduler, or expose credentials. Hosted execution remains a separately approved paper read/write operation.
+
+### Phase 4.10 Research Schedule Readiness Boundary
+
+- `apps/worker/src/research-scheduler.ts` defines the disabled-by-default daily research queue identity, UTC cron default, bounded retry settings, deterministic manual job identity, and a redacted readiness assessment.
+- Enabling the research schedule requires paper mode, a configured PostgreSQL connection, explicit broker read opt-in, paper credentials, and an explicitly enabled research handler. Malformed paper-mode values fail closed; readiness reports only safe reason codes and never returns credentials.
+- Worker health exposes `researchSchedule` with enabled/handler-enabled flags and `disabled`/`blocked`/`ready` status. This unit does not provision queues, invoke handlers, or start recurring research; those remain a separate reviewed activation and implementation step.
 
 ### Phase 6.13 Dashboard Operations Health Surface
 
