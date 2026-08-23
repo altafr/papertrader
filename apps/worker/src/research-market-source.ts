@@ -3,7 +3,38 @@ import type { ResearchAgentInput, StrategyAssetClass } from "@momentum/domain";
 
 const allowedTimeframes: readonly MarketBarTimeframe[] = ["1Day", "1Hour", "1Min", "1Month", "1Week", "5Min", "15Min"];
 
-export function createAlpacaResearchInputSource(reader: PaperMarketDataReader) {
+function positiveNumber(value: string, label: string): number {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed) || parsed <= 0) throw new Error(`${label} must be a positive number.`);
+  return parsed;
+}
+
+export function validateResearchBars(input: {
+  readonly bars: readonly { readonly close: string; readonly high: string; readonly low: string; readonly open: string; readonly symbol: string; readonly timestamp: string; readonly volume: string }[];
+  readonly now: Date;
+  readonly symbols: readonly string[];
+}): void {
+  if (input.bars.length < 2) throw new Error("Research source returned fewer than 2 bars.");
+  const requested = new Set(input.symbols);
+  const latestBySymbol = new Map<string, number>();
+  for (const bar of input.bars) {
+    if (!requested.has(bar.symbol)) throw new Error("Research source returned an unrequested symbol.");
+    const timestamp = Date.parse(bar.timestamp);
+    if (Number.isNaN(timestamp)) throw new Error("Research source returned an invalid bar timestamp.");
+    if (timestamp > input.now.getTime() + 5 * 60 * 1_000) throw new Error("Research source returned a future bar.");
+    const previous = latestBySymbol.get(bar.symbol);
+    if (previous !== undefined && timestamp <= previous) throw new Error("Research source returned out-of-order bars.");
+    latestBySymbol.set(bar.symbol, timestamp);
+    const open = positiveNumber(bar.open, "open");
+    const high = positiveNumber(bar.high, "high");
+    const low = positiveNumber(bar.low, "low");
+    const close = positiveNumber(bar.close, "close");
+    positiveNumber(bar.volume, "volume");
+    if (high < Math.max(open, close) || low > Math.min(open, close) || high < low) throw new Error("Research source returned inconsistent OHLC values.");
+  }
+}
+
+export function createAlpacaResearchInputSource(reader: PaperMarketDataReader, clock: () => Date = () => new Date()) {
   return {
     async read(input: {
       readonly assetClass: StrategyAssetClass;
@@ -19,10 +50,12 @@ export function createAlpacaResearchInputSource(reader: PaperMarketDataReader) {
       if (!Number.isSafeInteger(input.maxCandidates) || input.maxCandidates < 1 || input.maxCandidates > 20) throw new Error("Research source maxCandidates must be an integer from 1 to 20.");
       if (!allowedTimeframes.includes(input.timeframe)) throw new Error("Research source timeframe is not supported.");
       const result = await reader.readHistoricalBars({ assetClass: input.assetClass as MarketAssetClass, limit: input.limit, symbols: input.symbols, timeframe: input.timeframe, ...(input.end ? { end: input.end } : {}), ...(input.start ? { start: input.start } : {}) });
+      const capturedAt = clock();
+      validateResearchBars({ bars: result.bars, now: capturedAt, symbols: input.symbols });
       return {
         assetClass: input.assetClass,
         bars: result.bars.map((bar) => ({ close: bar.close, high: bar.high, low: bar.low, open: bar.open, symbol: bar.symbol, timestamp: bar.timestamp, volume: bar.volume })),
-        capturedAt: new Date().toISOString(),
+        capturedAt: capturedAt.toISOString(),
         freshness: "fresh",
         maxCandidates: input.maxCandidates,
         source: "alpaca",

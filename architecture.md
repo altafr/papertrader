@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 4.24 latest research tooling deployed and preflight verified; Railway database connectivity is verified, while research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
+- **Stage:** Phase 4.25 deterministic market-bar integrity checks added; Railway database connectivity is verified, while research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -475,6 +475,12 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - Worker deployment `9467848b-f63a-4598-a783-2bc65c65715c` reached `SUCCESS` through the Railway CLI with the tested research tooling.
 - Railway SSH verified `research-readiness` as `disabled` with database/paper credentials configured and broker, handler, and scheduler gates off. A command-scoped hosted preflight returned bounded paper configuration metadata for one stock symbol without constructing a market-data or database client.
 - No hosted research run, agent-run write, queue start, persistent variable change, or order action occurred.
+
+### Phase 4.25 Deterministic Market-Bar Integrity
+
+- The paper market-data source now rejects fewer-than-two bars, unrequested symbols, invalid/future timestamps, per-symbol out-of-order bars, non-positive OHLCV values, and inconsistent OHLC ranges before producing `ResearchAgentInput`.
+- The source accepts an injected clock for deterministic tests and captures the validated source time; the existing research handlers remain responsible for their own artifact-level validation.
+- These checks are read-only and fail closed. They do not alter broker requests, submit orders, write database state, or enable scheduling.
 
 ### Phase 6.13 Dashboard Operations Health Surface
 
