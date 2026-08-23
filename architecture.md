@@ -443,7 +443,7 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 ### Phase 6.34 Durable One-Run Post-Run Verification
 
 - Added the guarded `durable-one-run-verify` command. It reads bounded `pg-boss` queue state and the latest persisted reconciliation timestamp, then reports `verified` only when both queues are present and drained, the dead-letter queue is empty, and reconciliation is fresh.
-- It emits no account, position, order, credential, or raw queue payload values. It cannot enqueue, start a recurring schedule, call Alpaca, or write application state; database/queue clients are closed on every path.
+- It emits no account, position, order, credential, or raw queue payload values. It cannot enqueue, start a recurring schedule, call Alpaca, or write application state; database/queue clients are closed on every path. Worker deployment `66634d2f-9498-4e24-b7ef-38508d66c1fb` reached `SUCCESS`; the hosted verifier returned `status:"verified"` with both queues present/drained and reconciliation `status:"fresh"` at age `58259` seconds. This verifies current state only and does not claim that a new one-run caused the existing snapshot.
 - Added deterministic tests for verified, incomplete, and stale outcomes. Local tests, typecheck, lint, production build, secret-surface audit, and diff checks pass.
 
 ### Phase 4.1 Structured Agent Runs

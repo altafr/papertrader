@@ -729,8 +729,8 @@
 - **User story:** As the operator, I can verify queue drainage and fresh persisted reconciliation after a one-run without exposing financial data.
 - **Implemented:** Added `DURABLE_ONE_RUN_VERIFY=true pnpm --filter @momentum/worker durable-one-run-verify`, with bounded queue and reconciliation verification.
 - **Safety boundary:** The command is read-only; it cannot enqueue work, start schedules, call Alpaca, write PostgreSQL, or expose account/order payloads.
-- **Verification:** 167 tests, typecheck, lint, production build, secret-surface audit, and diff checks pass.
-- **Next smallest unit:** Deploy the Worker and run the verifier in Railway; expect an incomplete result until the approved one-run has actually executed.
+- **Verification:** 167 tests, typecheck, lint, production build, secret-surface audit, and diff checks pass. Worker deployment `66634d2f-9498-4e24-b7ef-38508d66c1fb` reached `SUCCESS`; hosted verifier returned `status:"verified"`, both queues present/drained, and reconciliation `status:"fresh"` at age `58259` seconds. This confirms current persisted state only; no new one-run was executed.
+- **Next smallest unit:** Obtain explicit approval for the one-run paper reconciliation; do not infer execution from the verifier's current-state result.
 
 ## Completed Build Unit — Phase 4.1
 
@@ -1055,7 +1055,7 @@
 | Phase 6.31 Worker kill-switch health consistency | Pass | Shared Worker health now reports the same server-resolved kill-switch state; 161 tests and full static verification pass; deployment `8823b09e-16c8-4773-874e-903321c23474` verified private health consistency; no hosted flag or order behavior changed |
 | Phase 6.32 hosted kill-switch exercise | Pass | Command-scoped fully gated readiness exited non-zero with `global_kill_switch_active`; persistent-variable audit confirmed no hosted setting changed and all execution gates remain disabled |
 | Phase 6.33 durable one-run readiness preflight | Pass | Added client-free one-run gate/approval-reference preflight; 164 tests and full static verification pass; deployment `5e0f535b-0506-41c2-ae7e-90b1eee0851d` verified blocked persistent state and ready command-scoped state; no queue, broker, database-write, or order action added |
-| Phase 6.34 durable one-run post-run verification | Pass | Added bounded queue-drain and reconciliation-freshness verifier; 167 tests and full static verification pass; no queue enqueue, broker call, database write, or account/order payload exposure added |
+| Phase 6.34 durable one-run post-run verification | Pass | Added bounded queue-drain and reconciliation-freshness verifier; 167 tests and full static verification pass; deployment `66634d2f-9498-4e24-b7ef-38508d66c1fb` verified current queues/reconciliation as fresh; no queue enqueue, broker call, database write, or account/order payload exposure added |
 | Phase 4.1 structured agent runs | Pass | Added immutable run lifecycle/orchestrator and versioned artifact contracts with provenance; 106 tests, typecheck, lint, and production build pass; no external calls or financial authority added |
 | Phase 4.2 read-only research agents | Pass | Added deterministic stock/crypto watchlist handlers with bounded, validated artifacts; 109 tests, typecheck, lint, and production build pass; no external calls or financial authority added |
 | Phase 4.3 agent-run persistence/read view | Pass | Added migration 0008, Drizzle/repository lifecycle enforcement, and authenticated metadata-only `/v1/agent-runs`; 110 tests, typecheck, lint, and production build pass; hosted migration not yet applied |
