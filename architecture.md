@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.66 hosted daily-reconciliation readiness rechecked after queue-boundary hardening; Railway API/worker health is verified, while research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
+- **Stage:** Phase 6.67 persistent scheduler activation guard added; Railway API/worker health is verified, while research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -640,6 +640,12 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - Railway SSH ran the guarded read-only `daily-reconciliation-readiness` command after the queue payload deployment. Migration `0009` and its audit table/columns remain `ready`; combined daily reconciliation remains safely `disabled` because persistent scheduler, handler, and broker gates are off.
 - The private worker health response remains `healthy`/`observe`, with the global kill switch inactive and research, durable, and shadow schedulers disabled. Durable work and dead-letter queues are present and fully drained.
 - No queue enqueue, Alpaca read, PostgreSQL reconciliation write, scheduler activation, Paper Autopilot activation, or persistent variable mutation occurred.
+
+### Phase 6.67 Persistent Scheduler Activation Guard
+
+- Persistent `DURABLE_SCHEDULER_ENABLED=true` now requires a bounded non-secret `DURABLE_SCHEDULER_ACTIVATION_APPROVAL_REFERENCE`; missing or malformed references fail closed in both readiness and startup configuration.
+- This reference authorizes the operational scheduler activation only. It does not create per-order approval requirements: paper orders remain governed by deterministic risk/execution checks and the existing paper-only mode gates.
+- The hosted scheduler remains disabled; no Railway variable was added or changed in this unit.
 
 ### Phase 4.1 Structured Agent Runs
 

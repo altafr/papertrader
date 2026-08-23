@@ -17,6 +17,7 @@ export interface DurableSchedulerHealth {
 export interface DurableSchedulerConfig {
   readonly cron: string;
   readonly enabled: boolean;
+  readonly activationApprovalReference?: string;
   readonly retryDelaySeconds: number;
   readonly retryLimit: number;
 }
@@ -47,12 +48,14 @@ export function getDurableSchedulerReadiness(environment: NodeJS.ProcessEnv = pr
   const paperMode = (environment.TRADING_MODE ?? "paper") === "paper" && exactBoolean(environment.ALPACA_PAPER_TRADE, true);
   const databaseConfigured = Boolean(environment.DATABASE_URL?.trim());
   const paperCredentialsConfigured = Boolean(environment.ALPACA_API_KEY?.trim() && environment.ALPACA_SECRET_KEY?.trim());
+  const activationApprovalReferencePresent = !schedulerEnabled || Boolean(environment.DURABLE_SCHEDULER_ACTIVATION_APPROVAL_REFERENCE?.trim() && boundedJobField.test(environment.DURABLE_SCHEDULER_ACTIVATION_APPROVAL_REFERENCE.trim()));
   const blockedReasons = [
     ...(paperMode ? [] : ["paper_runtime_invalid"]),
     ...(databaseConfigured ? [] : ["database_not_configured"]),
     ...(brokerConnectionEnabled ? [] : ["broker_connection_disabled"]),
     ...(paperCredentialsConfigured ? [] : ["paper_credentials_not_configured"]),
     ...(dailyPreparationHandlerEnabled ? [] : ["daily_preparation_handler_disabled"]),
+    ...(activationApprovalReferencePresent ? [] : ["scheduler_activation_approval_reference_missing"]),
   ];
   const status = !schedulerEnabled ? "disabled" : blockedReasons.length === 0 ? "ready" : "blocked";
   return {
@@ -96,6 +99,16 @@ export function validateDurableOneRunId(environment: NodeJS.ProcessEnv = process
     throw new Error("DURABLE_ONE_RUN_ID must be a bounded non-secret identifier.");
   }
   return runId;
+}
+
+/** Require an explicit non-secret review reference only when persistent scheduling is enabled. */
+export function validateDurableSchedulerActivation(environment: NodeJS.ProcessEnv = process.env): string | undefined {
+  if (environment.DURABLE_SCHEDULER_ENABLED !== "true") return undefined;
+  const reference = environment.DURABLE_SCHEDULER_ACTIVATION_APPROVAL_REFERENCE?.trim();
+  if (!reference || !boundedJobField.test(reference)) {
+    throw new Error("DURABLE_SCHEDULER_ACTIVATION_APPROVAL_REFERENCE must be a bounded non-secret reference when durable scheduling is enabled.");
+  }
+  return reference;
 }
 
 /** Map the bounded operator-facing run ID to pg-boss's required UUID job ID. */
@@ -209,13 +222,14 @@ function parseBoolean(name: string, value: string | undefined, defaultValue: boo
 
 export function getDurableSchedulerConfig(environment = process.env): DurableSchedulerConfig {
   const enabled = parseBoolean("DURABLE_SCHEDULER_ENABLED", environment.DURABLE_SCHEDULER_ENABLED, false);
+  const activationApprovalReference = validateDurableSchedulerActivation(environment);
   const cron = environment.DAILY_PREPARATION_CRON ?? DAILY_PREPARATION_CRON;
   if (cron.trim().length === 0 || cron.length > 120) throw new Error("DAILY_PREPARATION_CRON must be a non-empty cron expression no longer than 120 characters.");
   const retryLimit = Number(environment.DAILY_PREPARATION_RETRY_LIMIT ?? "3");
   if (!Number.isSafeInteger(retryLimit) || retryLimit < 0 || retryLimit > 10) throw new Error("DAILY_PREPARATION_RETRY_LIMIT must be an integer from 0 to 10.");
   const retryDelaySeconds = Number(environment.DAILY_PREPARATION_RETRY_DELAY_SECONDS ?? "60");
   if (!Number.isSafeInteger(retryDelaySeconds) || retryDelaySeconds < 1 || retryDelaySeconds > 86_400) throw new Error("DAILY_PREPARATION_RETRY_DELAY_SECONDS must be an integer from 1 to 86400.");
-  return { cron, enabled, retryDelaySeconds, retryLimit };
+  return { cron, enabled, ...(activationApprovalReference ? { activationApprovalReference } : {}), retryDelaySeconds, retryLimit };
 }
 
 function nextDailyRunAt(now: Date, cron: string): string | undefined {

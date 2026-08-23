@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { DAILY_PREPARATION_QUEUE, createDurableScheduler, enqueueDailyPreparation, getDailyPreparationJobId, getDurableOneRunJobId, getDurableSchedulerConfig, getDurableSchedulerHealth, getDurableSchedulerReadiness, inspectDurableQueues, parseDurableDailyJob, provisionDurableQueues, validateDurableOneRunId, validateDurableSchedulerApprovalReference, validateDurableSchedulerOneRun } from "./durable-scheduler.js";
+import { DAILY_PREPARATION_QUEUE, createDurableScheduler, enqueueDailyPreparation, getDailyPreparationJobId, getDurableOneRunJobId, getDurableSchedulerConfig, getDurableSchedulerHealth, getDurableSchedulerReadiness, inspectDurableQueues, parseDurableDailyJob, provisionDurableQueues, validateDurableOneRunId, validateDurableSchedulerActivation, validateDurableSchedulerApprovalReference, validateDurableSchedulerOneRun } from "./durable-scheduler.js";
 
 describe("durable scheduler", () => {
   it("is disabled by default and validates bounded retry configuration", () => {
@@ -10,7 +10,7 @@ describe("durable scheduler", () => {
 
   it("reports disabled, blocked, and ready activation states without exposing credentials", () => {
     expect(getDurableSchedulerReadiness({})).toMatchObject({ status: "disabled", blockedReasons: [] });
-    expect(getDurableSchedulerReadiness({ DURABLE_SCHEDULER_ENABLED: "true", TRADING_MODE: "paper", ALPACA_PAPER_TRADE: "true" })).toMatchObject({
+    expect(getDurableSchedulerReadiness({ DURABLE_SCHEDULER_ACTIVATION_APPROVAL_REFERENCE: "scheduler-review-123", DURABLE_SCHEDULER_ENABLED: "true", TRADING_MODE: "paper", ALPACA_PAPER_TRADE: "true" })).toMatchObject({
       status: "blocked",
       blockedReasons: ["database_not_configured", "broker_connection_disabled", "paper_credentials_not_configured", "daily_preparation_handler_disabled"],
     });
@@ -21,6 +21,7 @@ describe("durable scheduler", () => {
       BROKER_CONNECTION_ENABLED: "true",
       DAILY_PREPARATION_HANDLER_ENABLED: "true",
       DATABASE_URL: "postgres://redacted",
+      DURABLE_SCHEDULER_ACTIVATION_APPROVAL_REFERENCE: "scheduler-review-123",
       DURABLE_SCHEDULER_ENABLED: "true",
       TRADING_MODE: "paper",
     });
@@ -34,6 +35,14 @@ describe("durable scheduler", () => {
     expect(() => validateDurableSchedulerOneRun({ BROKER_CONNECTION_ENABLED: "true", DAILY_PREPARATION_HANDLER_ENABLED: "true", DURABLE_SCHEDULER_ENABLED: "true" })).toThrow("DURABLE_SCHEDULER_ENABLED");
     expect(() => validateDurableSchedulerOneRun({ BROKER_CONNECTION_ENABLED: "true", DAILY_PREPARATION_HANDLER_ENABLED: "true" })).not.toThrow();
     expect(() => validateDurableSchedulerOneRun({ BROKER_CONNECTION_ENABLED: "true", DAILY_PREPARATION_HANDLER_ENABLED: "true", PAPER_AUTOPILOT_ENABLED: "true" })).toThrow("PAPER_AUTOPILOT_ENABLED");
+  });
+
+  it("requires a separate activation reference only for persistent scheduling", () => {
+    expect(validateDurableSchedulerActivation({})).toBeUndefined();
+    expect(() => validateDurableSchedulerActivation({ DURABLE_SCHEDULER_ENABLED: "true" })).toThrow("ACTIVATION_APPROVAL_REFERENCE");
+    expect(validateDurableSchedulerActivation({ DURABLE_SCHEDULER_ENABLED: "true", DURABLE_SCHEDULER_ACTIVATION_APPROVAL_REFERENCE: "scheduler-review-123" })).toBe("scheduler-review-123");
+    expect(getDurableSchedulerReadiness({ DURABLE_SCHEDULER_ENABLED: "true", TRADING_MODE: "paper", ALPACA_PAPER_TRADE: "true" }).blockedReasons).toContain("scheduler_activation_approval_reference_missing");
+    expect(getDurableSchedulerConfig({ DURABLE_SCHEDULER_ENABLED: "true", DURABLE_SCHEDULER_ACTIVATION_APPROVAL_REFERENCE: "scheduler-review-123" })).toMatchObject({ enabled: true, activationApprovalReference: "scheduler-review-123" });
   });
 
   it("requires a bounded non-secret operator reference for the hosted one-run", () => {

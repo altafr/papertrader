@@ -7,6 +7,7 @@ This runbook describes the one-run, read-only verification of the durable worker
 - The command reads the Alpaca **paper** account and writes one reconciled read model to Railway PostgreSQL.
 - It does not submit, cancel, replace, or approve an order.
 - `DURABLE_SCHEDULER_ENABLED` and `PAPER_AUTOPILOT_ENABLED` must remain disabled in persistent Railway variables.
+- If persistent scheduling is later reviewed for activation, it additionally requires the non-secret `DURABLE_SCHEDULER_ACTIVATION_APPROVAL_REFERENCE`; this is an activation reference, not approval for individual paper orders.
 - The broker and handler flags below are passed only to the one SSH process. They are not saved in Railway.
 - The approval reference below is a bounded, non-secret operator/ticket reference passed only to the one SSH process. It is not a credential and is not saved as a persistent Railway variable.
 - Never paste connection strings, Alpaca keys, Clerk secrets, or command output containing secrets into chat or source control.
