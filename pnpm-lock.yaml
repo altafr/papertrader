@@ -50,6 +50,9 @@ importers:
       '@momentum/domain':
         specifier: workspace:*
         version: link:../../packages/domain
+      '@momentum/notifications':
+        specifier: workspace:*
+        version: link:../../packages/notifications
       zod:
         specifier: ^4.4.3
         version: 4.4.3
