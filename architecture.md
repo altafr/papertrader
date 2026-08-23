@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.52 durable one-run audit migration applied; Railway API deployment is verified, while the dashboard deployment is pending Vercel's free-tier quota reset and research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
+- **Stage:** Phase 6.53 hosted safety-surface verification; Railway API deployment is verified, while the dashboard deployment is pending Vercel's free-tier quota reset and research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -552,6 +552,12 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - With the explicit non-secret operator reference `MIGRATION-0009-123`, Railway's guarded worker migration command applied only the reviewed target `0009`; the command reported `appliedThrough:"0009"` and `migrationCount:9`.
 - Read-only migration readiness now returns `ready` with the migration ledger, audit table, and required audit columns present. Combined daily-reconciliation readiness returns `disabled` with no blocked reasons because the recurring scheduler remains off.
 - The durable work and dead-letter queues are present with zero queued, active, and failed jobs. No one-run reconciliation, Alpaca request, persistent flag change, scheduler activation, or Paper Autopilot activation was performed; the one-run remains a separately approved action.
+
+### Phase 6.53 Hosted Safety-Surface Verification
+
+- The repository secret-surface audit passed against source and the generated browser bundle; the full quality gate also passed with 186 tests, workspace typecheck, lint, and production build.
+- Railway variable-name inspection confirmed Alpaca credentials and `DATABASE_URL` are present on the API/worker backend boundary, while the worker retains paper mode and disabled broker access. Values were not printed or inspected.
+- The local checkout is not linked to the Vercel project, so Vercel environment names and hosted logs were not independently rechecked in this unit. No claim is made that the Vercel-side credential audit is complete; the dashboard remains display-only and no code/deployment change was made.
 
 ### Phase 4.1 Structured Agent Runs
 
