@@ -12,6 +12,7 @@ describe("worker health", () => {
       brokerConnectionEnabled: false,
       database: "not_configured",
       durableScheduler: { enabled: false, status: "disabled" },
+      globalKillSwitchActive: false,
       operatingMode: "observe",
       researchSchedule: { enabled: false, handlerEnabled: false, status: "disabled" },
       shadowEvaluation: { enabled: false, intervalSeconds: 3600, sourceConfigured: false, status: "disabled" },

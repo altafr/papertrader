@@ -29,6 +29,7 @@ export interface WorkerHealth {
     readonly nextRunAt?: string;
     readonly status: "degraded" | "disabled" | "ready" | "running" | "scheduled";
   };
+  readonly globalKillSwitchActive: boolean;
   readonly operatingMode: RuntimeOperatingMode;
   readonly researchSchedule: {
     readonly enabled: boolean;

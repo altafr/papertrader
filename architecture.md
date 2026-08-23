@@ -422,6 +422,12 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - The browser remains display-only: it cannot toggle, clear, or override the kill switch. Invalid server-side values fail closed through the configuration guard.
 - Local tests, typecheck, lint, production build, secret-surface audit, and diff checks pass. API deployment `ceb8f9fb-1723-43d0-8d8d-3e9344c72c1d` reached `SUCCESS`; `/health` returned HTTP 200 and unauthenticated operations health returned HTTP 401. Vercel preview `dpl_GGphneUFTQm7wviXF7w8HRsGphrz` reached `Ready` and remains deployment-protected with HTTP 302. No order, scheduler, or configuration mutation was added.
 
+### Phase 6.31 Worker Kill-Switch Health Consistency
+
+- Extended the private Worker health contract with `globalKillSwitchActive`, resolved through the same server-side configuration guard used by API operations health and Paper Autopilot execution.
+- Worker health is observational and contains no secret values or controls. A mismatch cannot enable execution; startup and order-path guards remain authoritative.
+- Local tests, typecheck, lint, production build, secret-surface audit, and diff checks pass. No hosted flag or order behavior changed in this unit.
+
 ### Phase 4.1 Structured Agent Runs
 
 - `packages/domain/src/agent-runs.ts` defines versioned, structured agent-run requests and artifacts for the orchestrator, stock/crypto research, macro advisory, strategy, risk explanation, execution, and reconciliation roles.
