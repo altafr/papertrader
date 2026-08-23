@@ -1320,6 +1320,7 @@
 - **Implemented:** Added scheduler activation-reference presence to Paper Autopilot readiness checks and blocked reasons; updated ready/missing-reference coverage.
 - **Verification:** 194 tests passed; typecheck, lint, production build, secret-surface audit, and diff checks passed. No paper order, scheduler, or persistent variable action occurred.
 - **Next smallest unit:** Deploy the readiness alignment and verify hosted default-disabled state; keep Paper Autopilot and scheduler gates disabled.
+- **Hosted verification:** Deployment `e940dae6-7cf3-4559-98c0-b472bfc3b33e` succeeded. Hosted Paper Autopilot readiness returned `disabled`, `paperRiskPolicyValid:true`, and the explicit scheduler-reference check; worker health is healthy observe mode and persistent gates remain disabled.
 
 ## Completed Build Unit — Phase 6.71
 

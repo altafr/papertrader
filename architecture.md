@@ -682,6 +682,7 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - Paper Autopilot readiness now requires the same bounded scheduler activation reference whenever durable scheduling is enabled, preventing a false `ready` result that would fail at worker startup.
 - The check is configuration-only and does not add human approval to individual paper orders; deterministic risk approval, freshness, kill-switch, and paper-mode checks remain mandatory.
 - Missing references produce the bounded `scheduler_activation_approval_reference_missing` reason without exposing values.
+- Worker deployment `e940dae6-7cf3-4559-98c0-b472bfc3b33e` reached `SUCCESS`; hosted Paper Autopilot readiness is safely `disabled` with paper risk policy valid, and worker health remains healthy observe mode with all activation gates off.
 
 ### Phase 4.1 Structured Agent Runs
 
