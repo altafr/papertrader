@@ -723,6 +723,7 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - Added the same bounded Telegram readiness metadata to the authenticated API operations-health response and dashboard health card.
 - The browser receives only `enabled` plus `disabled`/`blocked`/`ready`; no bot token, chat ID, provider response, message content, or control action is exposed.
 - The dashboard remains observational and cannot enable alerts, send a test, change trading mode, activate schedulers, or modify risk policy.
+- API deployment `43f841c9-b29a-4f00-bbea-8f54925575af` reached `SUCCESS` and private API health returned healthy. Vercel preview `https://papertrader-iti0ribm2-altafrs-projects.vercel.app` completed successfully; unauthenticated dashboard access returned the expected deployment-protection HTTP 302.
 
 ### Phase 4.1 Structured Agent Runs
 

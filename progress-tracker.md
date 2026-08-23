@@ -1335,7 +1335,8 @@
 - **User story:** As the authenticated operator, I can see Telegram alert configuration readiness in the dashboard without receiving secret values or a send control.
 - **Implemented:** Added bounded Telegram readiness metadata to API operations health, strict browser parsing, and the dashboard operations-health card; added the API workspace dependency on the shared notification contract.
 - **Verification:** 201 tests, typecheck, lint, production build, secret-surface audit, and diff checks passed. No network or alert action was added.
-- **Next smallest unit:** Deploy the API/dashboard changes and verify the authenticated contract; retain the explicit approval requirement for any channel test.
+- **Hosted verification:** API deployment `43f841c9-b29a-4f00-bbea-8f54925575af` reached `SUCCESS` and private `/health` returned healthy. Vercel preview `https://papertrader-iti0ribm2-altafrs-projects.vercel.app` completed; unauthenticated `/dashboard` returned deployment-protection HTTP 302. The authenticated contract remains read-only and no alert was sent.
+- **Next smallest unit:** Obtain explicit approval/reference before any channel test; dashboard readiness visibility does not authorize delivery.
 
 ## Completed Build Unit — Phase 6.75
 
