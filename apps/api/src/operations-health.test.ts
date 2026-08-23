@@ -29,9 +29,10 @@ describe("reconciliation health", () => {
   });
 
   it("keeps research scheduling disabled or blocked until every gate is set", () => {
-    expect(assessResearchScheduleActivation({ brokerConnectionEnabled: false, databaseConfigured: true, handlerEnabled: true, paperCredentialsConfigured: true, schedulerEnabled: false })).toBe("disabled");
-    expect(assessResearchScheduleActivation({ brokerConnectionEnabled: false, databaseConfigured: true, handlerEnabled: true, paperCredentialsConfigured: true, schedulerEnabled: true })).toBe("blocked");
-    expect(assessResearchScheduleActivation({ brokerConnectionEnabled: true, databaseConfigured: true, handlerEnabled: true, paperCredentialsConfigured: true, schedulerEnabled: true })).toBe("ready");
+    expect(assessResearchScheduleActivation({ brokerConnectionEnabled: false, databaseConfigured: true, handlerEnabled: true, paperCredentialsConfigured: true, paperMode: true, schedulerEnabled: false })).toBe("disabled");
+    expect(assessResearchScheduleActivation({ brokerConnectionEnabled: false, databaseConfigured: true, handlerEnabled: true, paperCredentialsConfigured: true, paperMode: true, schedulerEnabled: true })).toBe("blocked");
+    expect(assessResearchScheduleActivation({ brokerConnectionEnabled: true, databaseConfigured: true, handlerEnabled: true, paperCredentialsConfigured: true, paperMode: false, schedulerEnabled: true })).toBe("blocked");
+    expect(assessResearchScheduleActivation({ brokerConnectionEnabled: true, databaseConfigured: true, handlerEnabled: true, paperCredentialsConfigured: true, paperMode: true, schedulerEnabled: true })).toBe("ready");
   });
 
   it("reports the audit migration state with bounded reasons", () => {

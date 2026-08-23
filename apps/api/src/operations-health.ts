@@ -38,10 +38,11 @@ export function assessResearchScheduleActivation(input: {
   readonly databaseConfigured: boolean;
   readonly handlerEnabled: boolean;
   readonly paperCredentialsConfigured: boolean;
+  readonly paperMode: boolean;
   readonly schedulerEnabled: boolean;
 }): ResearchScheduleActivationStatus {
   if (!input.schedulerEnabled) return "disabled";
-  return input.brokerConnectionEnabled && input.databaseConfigured && input.handlerEnabled && input.paperCredentialsConfigured ? "ready" : "blocked";
+  return input.brokerConnectionEnabled && input.databaseConfigured && input.handlerEnabled && input.paperCredentialsConfigured && input.paperMode ? "ready" : "blocked";
 }
 
 export function assessAuditMigrationReadiness(input: { readonly auditTablePresent: boolean; readonly requiredColumnsPresent: boolean; readonly schemaMigrationRecorded: boolean }): MigrationReadiness {

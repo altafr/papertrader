@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.50 research-schedule readiness visibility; Railway API deployment is verified, while the dashboard deployment is pending Vercel's free-tier quota reset and research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
+- **Stage:** Phase 6.51 explicit paper-mode research gate; Railway API deployment is verified, while the dashboard deployment is pending Vercel's free-tier quota reset and research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -541,6 +541,11 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - Authenticated API operations health now reports read-only research-schedule status (`disabled`, `blocked`, or `ready`) from explicit paper credentials, database, broker, handler, and scheduler gates. The dashboard displays this beside the durable scheduler state.
 - The contract is configuration/readiness metadata only; it does not start research, contact Alpaca, create a queue, write PostgreSQL, or alter any Railway variable.
 - API deployment `d5764f90-7ba4-424c-a8a2-cc979e684c98` reached `SUCCESS`; private `/health` returned HTTP 200. A Vercel deployment attempt was rejected by the free-tier limit (`more than 100` deployments in 24 hours), so the prior preview remains the latest hosted dashboard build until quota resets.
+
+### Phase 6.51 Explicit Paper-Mode Research Gate
+
+- Research-schedule readiness now requires an explicit paper-mode check (`TRADING_MODE=paper` and `ALPACA_PAPER_TRADE=true`) in addition to its existing credentials, database, broker, handler, and scheduler gates.
+- The check is deterministic metadata only and fails closed; it does not change operating mode or enable research. API deployment `0be9a305-3ce5-4031-8fee-4c922fb46899` reached `SUCCESS`, and private `/health` returned HTTP 200. No Vercel deployment was attempted because the dashboard code was unchanged and the free-tier quota remains exhausted.
 
 ### Phase 4.1 Structured Agent Runs
 

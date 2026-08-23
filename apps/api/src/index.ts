@@ -299,6 +299,7 @@ async function readOperationsHealth(request: IncomingMessage) {
   const researchSchedulerEnabled = readBooleanEnvironmentFlag("RESEARCH_SCHEDULER_ENABLED");
   const researchHandlerEnabled = readBooleanEnvironmentFlag("RESEARCH_HANDLER_ENABLED");
   const paperCredentialsConfigured = Boolean(process.env.ALPACA_API_KEY?.trim() && process.env.ALPACA_SECRET_KEY?.trim() && process.env.ALPACA_PAPER_TRADE !== "false");
+  const paperMode = (process.env.TRADING_MODE ?? "paper") === "paper" && (process.env.ALPACA_PAPER_TRADE ?? "true") === "true";
   const schedulerStatus = assessSchedulerActivation({
     brokerConnectionEnabled,
     dailyPreparationHandlerEnabled: handlerEnabled,
@@ -329,7 +330,7 @@ async function readOperationsHealth(request: IncomingMessage) {
         researchSchedule: {
           enabled: researchSchedulerEnabled,
           handlerEnabled: researchHandlerEnabled,
-          status: assessResearchScheduleActivation({ brokerConnectionEnabled, databaseConfigured: true, handlerEnabled: researchHandlerEnabled, paperCredentialsConfigured, schedulerEnabled: researchSchedulerEnabled }),
+          status: assessResearchScheduleActivation({ brokerConnectionEnabled, databaseConfigured: true, handlerEnabled: researchHandlerEnabled, paperCredentialsConfigured, paperMode, schedulerEnabled: researchSchedulerEnabled }),
         },
         migration,
       },
