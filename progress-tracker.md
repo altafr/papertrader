@@ -665,7 +665,6 @@
 - **User story:** As the operator, I can see the active paper baseline and single-trade risk ceiling in the authenticated operations dashboard.
 - **Implemented:** Extended the redacted operations-health API contract and dashboard parser/card with the USD 1,000 baseline, USD 100 absolute ceiling, and 0.25% equity limit.
 - **Safety boundary:** The values are server-provided display metadata; no browser control, policy mutation, approval bypass, broker call, database write, or execution enablement was added.
-- **Verification:** 153 tests, typecheck, lint, production build, secret-surface audit, and diff checks pass.
 - **Verification:** 153 tests, typecheck, lint, production build, secret-surface audit, and diff checks pass. API deployment `c4c0901c-f9ea-4638-95af-add7ca2227fd` reached `SUCCESS`; `/health` returned HTTP 200 and unauthenticated `/v1/operations-health` returned HTTP 401. Vercel preview `dpl_E378eJz2ZU3AauLptSPJeogFqhCW` reached `Ready`; unauthenticated HTTP returned the expected deployment-protection 302. No Railway worker flags changed.
 - **Next smallest unit:** Obtain explicit approval for the one-run paper reconciliation.
 
@@ -674,8 +673,8 @@
 - **User story:** As the operator, I can inspect whether unattended paper execution is configuration-ready without enabling it or contacting external services.
 - **Implemented:** Added `PAPER_AUTOPILOT_READINESS=true pnpm --filter @momentum/worker paper-autopilot-readiness`, with bounded checks for paper mode, credentials, database/broker gates, scheduler/handler gates, operating mode, and risk invariants.
 - **Safety boundary:** The command is read-only and client-free; `ready` means configuration-ready only and explicitly retains a runtime freshness gate. It cannot start schedules, read Alpaca, write PostgreSQL, approve an intent, or submit an order.
-- **Verification:** 156 tests, typecheck, lint, production build, secret-surface audit, and diff checks pass.
-- **Next smallest unit:** Run the guarded readiness report in Railway (no broker/database side effect), then obtain explicit approval for the one-run paper reconciliation.
+- **Verification:** 156 tests, typecheck, lint, production build, secret-surface audit, and diff checks pass. Worker deployment `7f225657-eedb-4c42-b803-a7a8b4e6a7fe` reached `SUCCESS`; hosted `PAPER_AUTOPILOT_READINESS=true` returned `status:"disabled"`, paper mode/credentials/database configured, broker/scheduler/handler/autopilot gates disabled, and `runtimeFreshnessGateRequired:true`. No Alpaca or PostgreSQL client was constructed.
+- **Next smallest unit:** Obtain explicit approval for the one-run paper reconciliation; keep the hosted readiness result disabled until then.
 
 ## Completed Build Unit — Phase 4.1
 
@@ -993,7 +992,7 @@
 | Phase 6.24 one-run approval provenance guard | Pass | Guarded durable one-run now requires a bounded non-secret command-scoped approval reference; 151 tests, typecheck, lint, build, audit, and diff checks pass; no hosted command or broker/database side effect occurred |
 | Phase 6.25 paper baseline and single-trade risk invariants | Pass | Domain names the USD 1,000 baseline and USD 100 absolute risk ceiling; high-equity regression coverage proves the lower-of-0.25%-or-USD-100 rule including costs; 153 tests and full static verification pass |
 | Phase 6.26 operator-visible paper risk policy | Pass | Authenticated operations-health and dashboard now expose the non-secret USD 1,000 baseline, USD 100 ceiling, and 0.25% limit; 153 tests and full static verification pass; API deployment `c4c0901c-f9ea-4638-95af-add7ca2227fd` and protected Vercel preview `dpl_E378eJz2ZU3AauLptSPJeogFqhCW` verified; no execution authority added |
-| Phase 6.27 Paper Autopilot readiness report | Pass | Added guarded configuration-only readiness output with bounded reasons, fixed risk-policy checks, and explicit runtime-freshness requirement; 156 tests and full static verification pass; no external client or execution action added |
+| Phase 6.27 Paper Autopilot readiness report | Pass | Added guarded configuration-only readiness output with bounded reasons, fixed risk-policy checks, and explicit runtime-freshness requirement; 156 tests and full static verification pass; worker deployment `7f225657-eedb-4c42-b803-a7a8b4e6a7fe` verified hosted `status=disabled`; no external client or execution action added |
 | Phase 4.1 structured agent runs | Pass | Added immutable run lifecycle/orchestrator and versioned artifact contracts with provenance; 106 tests, typecheck, lint, and production build pass; no external calls or financial authority added |
 | Phase 4.2 read-only research agents | Pass | Added deterministic stock/crypto watchlist handlers with bounded, validated artifacts; 109 tests, typecheck, lint, and production build pass; no external calls or financial authority added |
 | Phase 4.3 agent-run persistence/read view | Pass | Added migration 0008, Drizzle/repository lifecycle enforcement, and authenticated metadata-only `/v1/agent-runs`; 110 tests, typecheck, lint, and production build pass; hosted migration not yet applied |
