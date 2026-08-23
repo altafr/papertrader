@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.60 guarded paper reconciliation failure contained; Railway API deployment is verified, while research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
+- **Stage:** Phase 6.61 redacted one-run failure diagnostics deployed; Railway API deployment is verified, while research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -600,6 +600,12 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - The post-run verifier found both queues present and drained, no persisted audit provenance for the run ID, and no completed one-run record. A bounded Railway log query returned zero worker log lines for the observation window, so the failure cause is intentionally not inferred from the redacted command output; the run must not be retried blindly.
 - Persistent Railway flags remained safe (`BROKER_CONNECTION_ENABLED=false`; command-scoped handler/scheduler/autopilot flags were not persisted). A follow-up private health probe remained healthy in observe mode with durable/research/shadow schedulers disabled and the global kill switch inactive.
 - This is a contained failed attempt, not evidence of successful reconciliation. Any retry requires operator review of the failure and a new explicit approval/reference plus a new unique run ID.
+
+### Phase 6.61 Redacted One-Run Failure Diagnostics
+
+- Added a bounded failure classifier for the one-run command, covering broker HTTP/network errors, timeout, queue-provenance, database constraint/schema, and generic failure categories without logging the original error.
+- Added focused tests and verified 189 total tests, typecheck, lint, production build, and secret-surface audit. Railway worker deployment `7e940734-ba4e-4f16-8f72-74672a25ae34` reached `SUCCESS`.
+- The diagnostic deployment changes output only; it does not retry the failed run, enable persistent gates, expose credentials, or alter reconciliation semantics.
 
 ### Phase 4.1 Structured Agent Runs
 
