@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.53 hosted safety-surface verification; Railway API deployment is verified, while the dashboard deployment is pending Vercel's free-tier quota reset and research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
+- **Stage:** Phase 6.54 Vercel environment-boundary verification; Railway API deployment is verified, while the dashboard deployment is pending Vercel's free-tier quota reset and research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -558,6 +558,12 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - The repository secret-surface audit passed against source and the generated browser bundle; the full quality gate also passed with 186 tests, workspace typecheck, lint, and production build.
 - Railway variable-name inspection confirmed Alpaca credentials and `DATABASE_URL` are present on the API/worker backend boundary, while the worker retains paper mode and disabled broker access. Values were not printed or inspected.
 - The local checkout is not linked to the Vercel project, so Vercel environment names and hosted logs were not independently rechecked in this unit. No claim is made that the Vercel-side credential audit is complete; the dashboard remains display-only and no code/deployment change was made.
+
+### Phase 6.54 Vercel Environment-Boundary Verification
+
+- The authenticated Vercel CLI linked the local dashboard checkout to `altafrs-projects/papertrader-web` for read-only inspection; no deployment or environment mutation was performed.
+- Vercel environment names are limited to Clerk/authentication values and `NEXT_PUBLIC_API_BASE_URL` across Preview and Production. No `ALPACA_API_KEY`, `ALPACA_SECRET_KEY`, or `DATABASE_URL` variable is present on the frontend project.
+- Runtime log inspection remains intentionally deferred unless a bounded observation window is needed; no log content was printed. Railway remains the only broker/database secret boundary, and the dashboard has no broker authority.
 
 ### Phase 4.1 Structured Agent Runs
 
