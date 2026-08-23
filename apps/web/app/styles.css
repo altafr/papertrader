@@ -241,6 +241,39 @@ h2 {
   border-color: rgb(79 142 247 / 42%);
 }
 
+.agent-runs-card {
+  border-color: rgb(98 184 246 / 32%);
+}
+
+.agent-runs-list {
+  border-top: 1px solid var(--border);
+  display: grid;
+  margin-top: 1.1rem;
+}
+
+.agent-run-row {
+  align-items: center;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+  padding: 0.85rem 0;
+}
+
+.agent-run-row > div {
+  display: grid;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.agent-run-row span:not(.state-badge) {
+  color: var(--muted);
+  font-size: 0.85rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .operations-health-grid {
   display: grid;
   gap: 0.8rem;

@@ -1,7 +1,7 @@
 import { UserButton } from "@clerk/nextjs";
 import { auth } from "@clerk/nextjs/server";
 
-import { formatUtc, getFreshnessLabel, getFreshnessState, parseOperationsHealth, type OperationsHealth } from "./dashboard-state";
+import { formatUtc, getFreshnessLabel, getFreshnessState, parseAgentRuns, parseOperationsHealth, type AgentRunSummary, type OperationsHealth } from "./dashboard-state";
 
 type ReadModel = {
   activities: Array<Record<string, unknown>>;
@@ -76,6 +76,20 @@ async function loadOperationsHealth(getToken: () => Promise<string | null>) {
   }
 }
 
+async function loadAgentRuns(getToken: () => Promise<string | null>) {
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+  if (!apiBaseUrl) return undefined;
+  const token = await getToken();
+  if (!token) return undefined;
+  try {
+    const response = await fetch(`${apiBaseUrl}/v1/agent-runs?limit=20`, { cache: "no-store", headers: { authorization: `Bearer ${token}` } });
+    if (!response.ok) return undefined;
+    return parseAgentRuns(await response.json());
+  } catch {
+    return undefined;
+  }
+}
+
 function value(row: Record<string, unknown>, key: string) {
   const result = row[key];
   return typeof result === "string" || typeof result === "number" ? String(result) : "—";
@@ -104,6 +118,18 @@ function OperationsHealthCard({ health }: { readonly health: OperationsHealth | 
   );
 }
 
+function AgentRunsCard({ runs }: { readonly runs: readonly AgentRunSummary[] | undefined }) {
+  return (
+    <article className="card full-width agent-runs-card" aria-label="Agent run health">
+      <div className="card-heading"><div><p className="label">Research agents</p><h2>Run health &amp; provenance</h2></div><span className={`state-badge ${runs ? "fresh" : "degraded"}`}>{runs ? `${runs.length} recent` : "Unavailable"}</span></div>
+      {!runs ? <p className="empty-state">Authenticated agent-run metadata is currently unavailable.</p> : runs.length === 0 ? <p className="empty-state">No agent runs have been recorded.</p> : (
+        <div className="agent-runs-list">{runs.slice(0, 8).map((run) => <div className="agent-run-row" key={run.runId}><div><strong>{run.agentType}</strong><span>{run.task} · {formatUtc(run.createdAt)}</span></div><span className={`state-badge ${run.status === "succeeded" ? "fresh" : run.status === "failed" ? "degraded" : "delayed"}`}>{run.status}</span></div>)}</div>
+      )}
+      <p className="provenance">Metadata only: artifact payloads and rationale remain server-side. Agent output never authorizes risk or orders.</p>
+    </article>
+  );
+}
+
 export default async function DashboardPage() {
   const { isAuthenticated, redirectToSignIn, userId, getToken } = await auth();
   if (!isAuthenticated) return redirectToSignIn();
@@ -115,6 +141,7 @@ export default async function DashboardPage() {
 
   const result = await loadReadModel(getToken);
   const operationsHealth = await loadOperationsHealth(getToken);
+  const agentRuns = await loadAgentRuns(getToken);
   const freshness = result.kind === "ready" ? getFreshnessState(result.model.freshness.ageSeconds) : "stale";
   const freshnessLabel = getFreshnessLabel(freshness);
 
@@ -156,6 +183,7 @@ export default async function DashboardPage() {
       {result.kind === "unavailable" ? (
         <section className="grid" aria-label="Dashboard unavailable state">
           <OperationsHealthCard health={operationsHealth} />
+          <AgentRunsCard runs={agentRuns} />
           <article className="card full-width alert-card degraded-card">
             <p className="label">Read model unavailable</p>
             <h2>Waiting for the first safe reconciliation.</h2>
@@ -168,6 +196,7 @@ export default async function DashboardPage() {
       ) : (
         <section className="grid" aria-label="Paper account dashboard">
           <OperationsHealthCard health={operationsHealth} />
+          <AgentRunsCard runs={agentRuns} />
           <article className="card primary-card" id="overview">
             <div className="card-heading"><div><p className="label">Account equity</p><h2>{value(result.model.snapshot, "currency")} {value(result.model.snapshot, "equity")}</h2></div><StatusBadge state={freshness} /></div>
             <dl className="facts">

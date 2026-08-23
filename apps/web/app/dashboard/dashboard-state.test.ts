@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { formatUtc, getFreshnessLabel, getFreshnessState, parseOperationsHealth } from "./dashboard-state";
+import { formatUtc, getFreshnessLabel, getFreshnessState, parseAgentRuns, parseOperationsHealth } from "./dashboard-state";
 
 describe("dashboard state", () => {
   it("classifies persisted data by freshness", () => {
@@ -28,5 +28,12 @@ describe("dashboard state", () => {
     });
     expect(health?.runtime.scheduler.status).toBe("disabled");
     expect(parseOperationsHealth({ reconciliation: { status: "fresh" }, runtime: {} })).toBeUndefined();
+  });
+
+  it("accepts bounded agent-run metadata and rejects malformed status or refs", () => {
+    const runs = parseAgentRuns({ runs: [{ agentType: "stock_research", artifact: { confidence: "not_calibrated", evidenceRefs: ["bars:1"], schemaVersion: "1", type: "research_watchlist" }, createdAt: "2026-08-23T00:00:00.000Z", inputRefs: ["bars:1"], promptVersion: "research@1", runId: "run-1", status: "succeeded", task: "Rank stocks." }] });
+    expect(runs?.[0]?.artifact?.type).toBe("research_watchlist");
+    expect(parseAgentRuns({ runs: [{ agentType: "stock_research", createdAt: "now", inputRefs: ["bars:1"], promptVersion: "research@1", runId: "run-1", status: "unknown", task: "Rank stocks." }] })).toBeUndefined();
+    expect(parseAgentRuns({ runs: [{ agentType: "stock_research", createdAt: "now", inputRefs: [1], promptVersion: "research@1", runId: "run-1", status: "queued", task: "Rank stocks." }] })).toBeUndefined();
   });
 });

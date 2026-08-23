@@ -369,6 +369,12 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - Worker deployment `c8db3f78-e562-451d-bbf6-6ad93c092f6f` reached `SUCCESS` with the Phase 4.5 command boundary.
 - The guarded Railway migration reported `appliedThrough=0008` and `migrationCount=8`. No research fixture was inserted, no broker request was made, and persistent scheduler/handler/Paper Autopilot flags remain disabled.
 
+### Phase 4.7 Agent Health Dashboard View
+
+- The authenticated dashboard reads `GET /v1/agent-runs?limit=20` and displays recent agent type, task, status, creation time, and artifact provenance metadata.
+- The browser parser rejects malformed run/status/reference data and the UI never displays artifact payload or rationale. Unavailable API/authentication produces an explicit degraded state.
+- This is a read-only observation surface; it cannot invoke agents, change configuration, approve risk, or submit orders.
+
 ### Phase 6.13 Dashboard Operations Health Surface
 
 - The authenticated dashboard consumes only the redacted `/v1/operations-health` response and displays reconciliation freshness plus scheduler, broker-read, and Paper Autopilot gates.
