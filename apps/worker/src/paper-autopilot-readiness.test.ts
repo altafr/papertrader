@@ -15,7 +15,7 @@ describe("paper autopilot readiness", () => {
   });
 
   it("reports configuration-ready only when every explicit deployment gate is set", () => {
-    expect(getPaperAutopilotReadiness({ ALPACA_API_KEY: "key", ALPACA_SECRET_KEY: "secret", ALPACA_PAPER_TRADE: "true", BROKER_CONNECTION_ENABLED: "true", DAILY_PREPARATION_HANDLER_ENABLED: "true", DATABASE_URL: "postgres://redacted", DURABLE_SCHEDULER_ENABLED: "true", PAPER_AUTOPILOT_ENABLED: "true", OPERATING_MODE: "paper_autopilot", TRADING_MODE: "paper" })).toMatchObject({ status: "ready", blockedReasons: [], checks: { runtimeFreshnessGateRequired: true } });
+    expect(getPaperAutopilotReadiness({ ALPACA_API_KEY: "key", ALPACA_SECRET_KEY: "secret", ALPACA_PAPER_TRADE: "true", BROKER_CONNECTION_ENABLED: "true", DAILY_PREPARATION_HANDLER_ENABLED: "true", DATABASE_URL: "postgres://redacted", DURABLE_SCHEDULER_ACTIVATION_APPROVAL_REFERENCE: "scheduler-review-123", DURABLE_SCHEDULER_ENABLED: "true", PAPER_AUTOPILOT_ENABLED: "true", OPERATING_MODE: "paper_autopilot", TRADING_MODE: "paper" })).toMatchObject({ status: "ready", blockedReasons: [], checks: { runtimeFreshnessGateRequired: true, schedulerActivationApprovalReferencePresent: true } });
   });
 
   it("blocks configuration readiness while the global kill switch is active", () => {
@@ -23,5 +23,6 @@ describe("paper autopilot readiness", () => {
     expect(result.status).toBe("blocked");
     expect(result.blockedReasons).toContain("global_kill_switch_active");
     expect(result.checks.globalKillSwitchActive).toBe(true);
+    expect(result.blockedReasons).toContain("scheduler_activation_approval_reference_missing");
   });
 });

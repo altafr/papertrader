@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.71 worker health aligned with scheduler activation-reference readiness; Railway API/worker health is verified, while research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
+- **Stage:** Phase 6.72 Paper Autopilot readiness aligned with scheduler activation-reference readiness; Railway API/worker health is verified, while research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -676,6 +676,12 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - Default-disabled worker health reports the gate as satisfied-by-not-applicable while scheduler `enabled:false`; an enabled scheduler cannot start without the validated reference.
 - No scheduler, broker, or Paper Autopilot behavior changed; this is contract alignment and observability only.
 - Worker deployment `72f7fc06-3d19-4b3d-833c-3cfc30f3c67d` reached `SUCCESS`; private health reports `activationApprovalReferencePresent:true`, scheduler disabled, and healthy observe mode, while queues remain present and drained.
+
+### Phase 6.72 Paper Autopilot Activation-Reference Alignment
+
+- Paper Autopilot readiness now requires the same bounded scheduler activation reference whenever durable scheduling is enabled, preventing a false `ready` result that would fail at worker startup.
+- The check is configuration-only and does not add human approval to individual paper orders; deterministic risk approval, freshness, kill-switch, and paper-mode checks remain mandatory.
+- Missing references produce the bounded `scheduler_activation_approval_reference_missing` reason without exposing values.
 
 ### Phase 4.1 Structured Agent Runs
 

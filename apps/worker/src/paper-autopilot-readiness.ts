@@ -16,6 +16,7 @@ export interface PaperAutopilotReadiness {
     readonly paperMode: boolean;
     readonly paperRiskPolicyValid: boolean;
     readonly runtimeFreshnessGateRequired: true;
+    readonly schedulerActivationApprovalReferencePresent: boolean;
   };
   readonly policy: {
     readonly initialEquityBaseline: string;
@@ -31,6 +32,7 @@ export function getPaperAutopilotReadiness(environment: NodeJS.ProcessEnv = proc
   const brokerConnectionEnabled = environment.BROKER_CONNECTION_ENABLED === "true";
   const databaseConfigured = Boolean(environment.DATABASE_URL?.trim());
   const durableSchedulerEnabled = environment.DURABLE_SCHEDULER_ENABLED === "true";
+  const schedulerActivationApprovalReferencePresent = !durableSchedulerEnabled || Boolean(environment.DURABLE_SCHEDULER_ACTIVATION_APPROVAL_REFERENCE?.trim() && /^[A-Za-z0-9][A-Za-z0-9._:/-]{0,127}$/.test(environment.DURABLE_SCHEDULER_ACTIVATION_APPROVAL_REFERENCE.trim()));
   const dailyPreparationHandlerEnabled = environment.DAILY_PREPARATION_HANDLER_ENABLED === "true";
   const globalKillSwitchActive = (() => {
     try { return isGlobalKillSwitchActive(environment); } catch { return true; }
@@ -52,13 +54,14 @@ export function getPaperAutopilotReadiness(environment: NodeJS.ProcessEnv = proc
     ...(operatingModePaperAutopilot ? [] : ["operating_mode_not_paper_autopilot"]),
     ...(durableSchedulerEnabled ? [] : ["durable_scheduler_disabled"]),
     ...(dailyPreparationHandlerEnabled ? [] : ["daily_preparation_handler_disabled"]),
+    ...(schedulerActivationApprovalReferencePresent ? [] : ["scheduler_activation_approval_reference_missing"]),
     ...(globalKillSwitchActive ? ["global_kill_switch_active"] : []),
     ...(paperRiskPolicyValid ? [] : ["paper_risk_policy_invalid"]),
   ];
   const status = !autopilotEnabled ? "disabled" : blockedReasons.length === 0 ? "ready" : "blocked";
   return {
     blockedReasons: status === "disabled" ? [] : blockedReasons,
-    checks: { brokerConnectionEnabled, dailyPreparationHandlerEnabled, databaseConfigured, durableSchedulerEnabled, globalKillSwitchActive, operatingModePaperAutopilot, paperCredentialsConfigured, paperMode, paperRiskPolicyValid, runtimeFreshnessGateRequired: true },
+    checks: { brokerConnectionEnabled, dailyPreparationHandlerEnabled, databaseConfigured, durableSchedulerEnabled, globalKillSwitchActive, operatingModePaperAutopilot, paperCredentialsConfigured, paperMode, paperRiskPolicyValid, runtimeFreshnessGateRequired: true, schedulerActivationApprovalReferencePresent },
     policy: { initialEquityBaseline: PAPER_INITIAL_EQUITY_BASELINE, maxSingleTradeRiskPercent: MAX_SINGLE_TRADE_RISK_PERCENT_OF_EQUITY, maxSingleTradeRiskUsd: MAX_SINGLE_TRADE_RISK_USD },
     status,
   };
