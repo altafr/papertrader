@@ -675,6 +675,7 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - The private Worker health contract now includes the same boolean `activationApprovalReferencePresent` as the API and dashboard contract; the reference value is never emitted.
 - Default-disabled worker health reports the gate as satisfied-by-not-applicable while scheduler `enabled:false`; an enabled scheduler cannot start without the validated reference.
 - No scheduler, broker, or Paper Autopilot behavior changed; this is contract alignment and observability only.
+- Worker deployment `72f7fc06-3d19-4b3d-833c-3cfc30f3c67d` reached `SUCCESS`; private health reports `activationApprovalReferencePresent:true`, scheduler disabled, and healthy observe mode, while queues remain present and drained.
 
 ### Phase 4.1 Structured Agent Runs
 

@@ -1320,6 +1320,7 @@
 - **Implemented:** Added `activationApprovalReferencePresent` to the shared WorkerHealth contract and worker health response, with default-safe coverage.
 - **Verification:** 194 tests passed; typecheck, lint, production build, secret-surface audit, and diff checks passed. No runtime gate or persistent Railway setting changed.
 - **Next smallest unit:** Deploy the worker contract alignment and verify health, queue state, and disabled gates.
+- **Hosted verification:** Deployment `72f7fc06-3d19-4b3d-833c-3cfc30f3c67d` succeeded; worker health includes the boolean activation-reference state, remains healthy observe mode, queues are present and drained, and persistent broker/scheduler/handler/autopilot gates remain disabled.
 
 ## Completed Build Unit — Phase 6.70
 
