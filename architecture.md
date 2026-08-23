@@ -513,6 +513,11 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - API deployment `ecc32524-c11f-49b0-bac0-c191f75f88a9` reached `SUCCESS`; private `/health` returned healthy. The authenticated operations-health response now carries migration status/reasons for the dashboard; no migration or scheduler control was added.
 - Vercel preview deployment `dpl_Coim3aCAv7mRqduqRCaBXD1ZAtHn` reached `Ready` for the current branch, confirming the dashboard build containing the read-only migration status. No browser control or persistent configuration was added.
 
+### Phase 6.46 Dashboard Migration Block Reasons
+
+- The dashboard now renders the bounded migration block reasons beneath the status, making `migration_not_recorded`, `audit_table_missing`, and `audit_columns_missing` visible to the operator without exposing SQL, credentials, or account data.
+- This remains display-only; no button, form, or browser path can apply migration SQL or enable scheduling.
+
 ### Phase 4.1 Structured Agent Runs
 
 - `packages/domain/src/agent-runs.ts` defines versioned, structured agent-run requests and artifacts for the orchestrator, stock/crypto research, macro advisory, strategy, risk explanation, execution, and reconciliation roles.
