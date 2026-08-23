@@ -1320,6 +1320,7 @@
 - **Implemented:** Added a deterministic UUID mapping for bounded run IDs and used it only for the pg-boss `id` option; the original run ID remains the provenance field checked by the worker handler.
 - **Verification:** 191 tests passed; typecheck, lint, production build, secret-surface audit, and diff checks passed. No hosted one-run retry or persistent gate change occurred.
 - **Next smallest unit:** Deploy this correction and verify worker health/queue state; obtain a new approval before any hosted one-run attempt.
+- **Hosted verification:** Worker deployment `fcc3c0ac-7bbd-4261-8e39-3e6f6f2f9b71` reached `SUCCESS`; health is healthy observe mode, queues are present and drained, and persistent `BROKER_CONNECTION_ENABLED=false` remains unchanged.
 
 ## Completed Operations Unit — Phase 6.63
 
