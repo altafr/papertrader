@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.61 redacted one-run failure diagnostics deployed; Railway API deployment is verified, while research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
+- **Stage:** Phase 6.62 stage-aware one-run failure diagnostics deployed; Railway API deployment is verified, while research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -606,6 +606,12 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - Added a bounded failure classifier for the one-run command, covering broker HTTP/network errors, timeout, queue-provenance, database constraint/schema, and generic failure categories without logging the original error.
 - Added focused tests and verified 189 total tests, typecheck, lint, production build, and secret-surface audit. Railway worker deployment `7e940734-ba4e-4f16-8f72-74672a25ae34` reached `SUCCESS`.
 - The diagnostic deployment changes output only; it does not retry the failed run, enable persistent gates, expose credentials, or alter reconciliation semantics.
+
+### Phase 6.62 Stage-Aware One-Run Failure Diagnostics
+
+- Extended the bounded failure output with a lifecycle stage (`queue_start`, `queue_provision`, `database_connect`, `worker_registration`, `job_enqueue`, or `reconciliation`) while preserving error redaction.
+- The worker quality gate remained green at 189 tests, typecheck, lint, production build, and secret audit; Railway deployment `195298d5-789d-4fb2-acbe-7e4309400507` reached `SUCCESS`.
+- No reconciliation retry or runtime-gate change was performed. The stage output is available for a future separately authorized attempt only.
 
 ### Phase 4.1 Structured Agent Runs
 
