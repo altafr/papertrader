@@ -408,7 +408,7 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 
 - Added the guarded `paper-autopilot-runtime-readiness` command. It reads the latest persisted reconciliation timestamp from PostgreSQL, classifies it as fresh/delayed/stale/unavailable using the shared operational thresholds, and combines that result with the configuration readiness contract.
 - The command never calls Alpaca, starts a queue, changes a variable, approves an intent, or submits an order. It closes its database pool and emits only bounded statuses, reason codes, timestamps, and non-secret policy metadata.
-- A runtime `ready` result requires both configuration readiness and fresh persisted broker truth; disabled configuration remains disabled even if a fresh snapshot exists. Local tests, typecheck, lint, production build, secret-surface audit, and diff checks pass.
+- A runtime `ready` result requires both configuration readiness and fresh persisted broker truth; disabled configuration remains disabled even if a fresh snapshot exists. Local tests, typecheck, lint, production build, secret-surface audit, and diff checks pass. Worker deployment `3ac368fd-c5b3-4443-989b-354d2b16195f` reached `SUCCESS`; the hosted read-only check returned `status:"disabled"` with reconciliation `status:"fresh"` and age `56932` seconds, while broker, scheduler, handler, and Paper Autopilot gates remained disabled.
 
 ### Phase 4.1 Structured Agent Runs
 
