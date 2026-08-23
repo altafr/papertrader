@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { migrationRequiresApproval, validateDatabaseMigrationApprovalReference, validateDatabaseMigrationTarget } from "./database-migration-guard.js";
+import { migrationRequiresApproval, validateDatabaseMigrationApprovalReference, validateDatabaseMigrationTarget, validatePendingMigrationSet } from "./database-migration-guard.js";
 
 describe("database migration approval guard", () => {
   it("requires a bounded non-secret reference", () => {
@@ -18,5 +18,11 @@ describe("database migration approval guard", () => {
     expect(() => validateDatabaseMigrationTarget("0009", {})).toThrow("DATABASE_MIGRATION_TARGET");
     expect(() => validateDatabaseMigrationTarget("0009", { DATABASE_MIGRATION_TARGET: "0008" })).toThrow("0009");
     expect(() => validateDatabaseMigrationTarget("0009", { DATABASE_MIGRATION_TARGET: "0009" })).not.toThrow();
+  });
+
+  it("rejects unrelated pending migrations before any migration can run", () => {
+    expect(() => validatePendingMigrationSet(["0008", "0009"], "0009", { DATABASE_MIGRATION_TARGET: "0009", DATABASE_MIGRATION_APPROVAL_REFERENCE: "change-123" })).toThrow("unexpected pending versions: 0008");
+    expect(() => validatePendingMigrationSet(["0009"], "0009", {})).toThrow("DATABASE_MIGRATION_TARGET");
+    expect(() => validatePendingMigrationSet([], "0009", {})).not.toThrow();
   });
 });

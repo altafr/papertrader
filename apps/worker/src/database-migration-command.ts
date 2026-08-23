@@ -4,7 +4,7 @@ import { join } from "node:path";
 import { getPaperOnlyRuntimeConfig } from "@momentum/config";
 import { createDatabase } from "@momentum/db";
 
-import { migrationRequiresApproval, validateDatabaseMigrationApprovalReference, validateDatabaseMigrationTarget } from "./database-migration-guard.js";
+import { validatePendingMigrationSet } from "./database-migration-guard.js";
 
 if (process.env.DATABASE_MIGRATE !== "true") {
   throw new Error("DATABASE_MIGRATE must be exactly true for the guarded application migration command.");
@@ -31,22 +31,24 @@ for (const candidate of migrationDirectoryCandidates) {
 if (!migrationDirectory) throw new Error("Reviewed application migrations were not found in the workspace.");
 const migrationFiles = (await readdir(migrationDirectory)).filter((file) => /^\d{4}_.+\.sql$/.test(file)).sort();
 if (migrationFiles.length === 0) throw new Error("No reviewed application migrations were found.");
+const migrationVersions = migrationFiles.map((file) => {
+  const [version] = file.split("_", 1);
+  if (!version) throw new Error(`Migration filename has no version: ${file}`);
+  return { file, version };
+});
 
 const { pool } = createDatabase(databaseUrl);
 try {
+  const trackingTable = await pool.query<{ readonly present: boolean }>("SELECT to_regclass('public.schema_migrations') IS NOT NULL AS present");
+  const applied = trackingTable.rows[0]?.present === true ? new Set((await pool.query<{ readonly version: string }>("SELECT version FROM schema_migrations")).rows.map((row) => row.version)) : new Set<string>();
+  validatePendingMigrationSet(migrationVersions.filter(({ version }) => !applied.has(version)).map(({ version }) => version), "0009");
   await pool.query(`CREATE TABLE IF NOT EXISTS schema_migrations (
     version TEXT PRIMARY KEY,
     applied_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
   )`);
-  for (const file of migrationFiles) {
-    const [version] = file.split("_", 1);
-    if (!version) throw new Error(`Migration filename has no version: ${file}`);
+  for (const { file, version } of migrationVersions) {
     const existing = await pool.query("SELECT 1 FROM schema_migrations WHERE version = $1", [version]);
     if (existing.rowCount) continue;
-    if (migrationRequiresApproval(version)) {
-      validateDatabaseMigrationTarget(version);
-      validateDatabaseMigrationApprovalReference();
-    }
     const sql = await readFile(join(migrationDirectory, file), "utf8");
     const client = await pool.connect();
     try {

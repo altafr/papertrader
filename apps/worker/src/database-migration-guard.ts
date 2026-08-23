@@ -15,3 +15,11 @@ export function validateDatabaseMigrationTarget(version: string, environment: No
     throw new Error(`DATABASE_MIGRATION_TARGET must be exactly ${version} for this pending migration.`);
   }
 }
+
+export function validatePendingMigrationSet(pendingVersions: readonly string[], targetVersion: string, environment: NodeJS.ProcessEnv = process.env): void {
+  if (pendingVersions.length === 0) return;
+  const unexpectedVersions = pendingVersions.filter((version) => version !== targetVersion);
+  if (unexpectedVersions.length > 0) throw new Error(`Only migration ${targetVersion} may be applied by this guarded command; unexpected pending versions: ${unexpectedVersions.join(",")}.`);
+  validateDatabaseMigrationTarget(targetVersion, environment);
+  if (migrationRequiresApproval(targetVersion)) validateDatabaseMigrationApprovalReference(environment);
+}

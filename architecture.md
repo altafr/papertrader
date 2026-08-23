@@ -500,6 +500,11 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - Added direct tests for the scheduler migration probe: complete schema readiness, missing `schema_migrations` fail-closed behavior, and assertion rejection of incomplete state.
 - This verifies the actual query-contract path used at startup, not just the pure error assertion. No hosted state or runtime behavior was changed.
 
+### Phase 6.44 Migration Preflight Ordering
+
+- Reordered the guarded migration command so it reads the tracking-table state and validates the exact pending set before creating `schema_migrations` or applying any migration SQL.
+- The command now refuses any pending version other than `0009`, then requires the exact target and bounded approval reference. This keeps a partially initialized or unexpectedly migrated database fail-closed.
+
 ### Phase 4.1 Structured Agent Runs
 
 - `packages/domain/src/agent-runs.ts` defines versioned, structured agent-run requests and artifacts for the orchestrator, stock/crypto research, macro advisory, strategy, risk explanation, execution, and reconciliation roles.
