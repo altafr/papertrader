@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.35 durable one-run provenance; Railway database connectivity is verified, while research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
+- **Stage:** Phase 6.47 API migration probe contract; Railway database connectivity and the API probe deployment are verified, while research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -522,6 +522,7 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 
 - Extracted the API migration metadata query into a tested contract, covering complete schema and missing `schema_migrations` behavior. Operations health now uses this shared reader rather than inline query logic.
 - The reader returns only bounded status/reason data and propagates unexpected database failures to the existing unavailable response; it has no write authority.
+- API deployment `388817b7-dced-4e13-8869-dca26122bb59` reached `SUCCESS`; a private Railway health probe returned HTTP 200 with the API healthy response. No migration SQL, scheduler, broker, or order operation was performed.
 
 ### Phase 4.1 Structured Agent Runs
 
