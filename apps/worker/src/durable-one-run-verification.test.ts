@@ -6,7 +6,7 @@ const queues = { deadLetterQueue: { activeCount: 0, failedCount: 0, present: tru
 
 describe("durable one-run verification", () => {
   it("verifies drained queues and fresh persisted reconciliation", () => {
-    expect(assessDurableOneRunVerification({ queues, capturedAt: "2026-08-23T00:00:00.000Z", now: new Date("2026-08-23T01:00:00.000Z") })).toMatchObject({ blockedReasons: [], reconciliation: { status: "fresh" }, status: "verified" });
+    expect(assessDurableOneRunVerification({ approvalReference: "ticket-123", queues, runId: "run-1", capturedAt: "2026-08-23T00:00:00.000Z", now: new Date("2026-08-23T01:00:00.000Z") })).toMatchObject({ blockedReasons: [], provenance: { approvalReference: "ticket-123", runId: "run-1" }, reconciliation: { status: "fresh" }, status: "verified" });
   });
 
   it("fails closed when queues or reconciliation are incomplete", () => {

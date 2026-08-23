@@ -9,6 +9,7 @@ import {
   getDurableSchedulerConfig,
   provisionDurableQueues,
   validateDurableSchedulerApprovalReference,
+  validateDurableOneRunId,
   validateDurableSchedulerOneRun,
 } from "./durable-scheduler.js";
 import { reconcilePaperAccount } from "./reconcile.js";
@@ -19,6 +20,7 @@ if (process.env.DURABLE_SCHEDULER_ONCE !== "true") {
 
 validateDurableSchedulerOneRun();
 const approvalReference = validateDurableSchedulerApprovalReference();
+const runId = validateDurableOneRunId();
 const runtime = getPaperOnlyRuntimeConfig();
 if (!runtime.brokerConnectionEnabled) throw new Error("BROKER_CONNECTION_ENABLED must be true for the one-run scheduler command.");
 const databaseUrl = process.env.DATABASE_URL;
@@ -27,7 +29,6 @@ if (!databaseUrl?.trim()) throw new Error("DATABASE_URL is required for the one-
 const boss = new PgBoss(databaseUrl);
 let databasePool: Awaited<ReturnType<typeof createDatabase>>["pool"] | undefined;
 const timeoutMs = 120_000;
-const runId = `guarded-one-run-${Date.now()}`;
 
 try {
   await boss.start();
@@ -55,7 +56,7 @@ try {
     completed,
     new Promise<never>((_, reject) => { timeout = setTimeout(() => reject(new Error("guarded one-run timed out")), timeoutMs); }),
   ]).finally(() => { if (timeout) clearTimeout(timeout); });
-  console.log("Durable one-run paper reconciliation completed.");
+  console.log(JSON.stringify({ approvalReference, runId, status: "completed" }));
 } catch {
   console.error("Durable one-run paper reconciliation failed.");
   process.exitCode = 1;

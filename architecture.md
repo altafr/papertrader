@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 4.27 market-bar integrity deployment verified; Railway database connectivity is verified, while research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
+- **Stage:** Phase 6.35 durable one-run provenance; Railway database connectivity is verified, while research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -445,6 +445,13 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - Added the guarded `durable-one-run-verify` command. It reads bounded `pg-boss` queue state and the latest persisted reconciliation timestamp, then reports `verified` only when both queues are present and drained, the dead-letter queue is empty, and reconciliation is fresh.
 - It emits no account, position, order, credential, or raw queue payload values. It cannot enqueue, start a recurring schedule, call Alpaca, or write application state; database/queue clients are closed on every path. Worker deployment `66634d2f-9498-4e24-b7ef-38508d66c1fb` reached `SUCCESS`; the hosted verifier returned `status:"verified"` with both queues present/drained and reconciliation `status:"fresh"` at age `58259` seconds. This verifies current state only and does not claim that a new one-run caused the existing snapshot.
 - Added deterministic tests for verified, incomplete, and stale outcomes. Local tests, typecheck, lint, production build, secret-surface audit, and diff checks pass.
+
+### Phase 6.35 Durable One-Run Provenance
+
+- Added bounded, non-secret `DURABLE_ONE_RUN_ID` and retained the bounded approval reference on the guarded one-run command. The command emits only `{runId, approvalReference, status}` on completion.
+- The post-run verifier requires the same command-scoped run identifier and approval reference and includes them in its JSON contract, so an operator can attach evidence to a specific invocation without exposing credentials or account data.
+- This is provenance supplied by the operator, not a persisted causal audit event: the verifier still confirms current queue/database state only and does not claim that the referenced run caused the snapshot until durable audit persistence is added.
+- Added readiness, validation, verification, and secret-surface tests. No hosted command, broker request, scheduler enablement, or one-run reconciliation was executed.
 
 ### Phase 4.1 Structured Agent Runs
 

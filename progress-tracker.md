@@ -2,7 +2,7 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.34 — durable one-run post-run verification.
+- **Phase:** Phase 6.35 — durable one-run provenance.
 - **Status:** Agent runs have deterministic contracts, reviewed PostgreSQL persistence, authenticated list/detail reads, a dashboard health surface, a paper-only market-data run-once boundary, a disabled-by-default daily research readiness surface, a separately named validated queue boundary, an explicit stock/crypto preparation planner, a fail-closed queue-handler composition, a readiness-gated scheduler registration boundary, safe runtime health reporting, explicit opt-in worker composition, guarded local/CI readiness commands, verified hosted disabled readiness, separate approval/reference guards, bounded research-run preflight validation, non-secret approval provenance, bounded explicit/latest persisted-run verification, deployed hosted tooling, deterministic source bar-integrity checks with duplicate/out-of-order distinctions, verified deployed integrity code, a guarded read-only database probe, an automated source/browser credential-value audit, an explicit paper operating-mode contract, persistent dashboard mode visibility, a truthful public foundation status, worker mode health, worker integration configuration including the global kill-switch state, a command-scoped approval reference for the durable one-run, explicit paper baseline/single-trade risk invariants, authenticated operator-visible risk policy metadata, guarded Paper Autopilot configuration readiness, persisted reconciliation freshness readiness, a server-side global kill-switch guard, authenticated operator-visible kill-switch status, a verified command-scoped kill-switch exercise, a client-free durable one-run readiness preflight, and a bounded durable one-run post-run verifier; Railway migration `0008` is applied, `DATABASE_URL` is verified on the backend services with private-host reachability and read-only PostgreSQL connectivity, while research scheduling, durable reconciliation, and Paper Autopilot remain disabled.
 - **Current operating mode:** Paper only; order submission not yet enabled.
 - **Current goal:** Run the separately approved one-run paper reconciliation using the reviewed runbook, then verify its result in the authenticated dashboard.
@@ -731,6 +731,14 @@
 - **Safety boundary:** The command is read-only; it cannot enqueue work, start schedules, call Alpaca, write PostgreSQL, or expose account/order payloads.
 - **Verification:** 167 tests, typecheck, lint, production build, secret-surface audit, and diff checks pass. Worker deployment `66634d2f-9498-4e24-b7ef-38508d66c1fb` reached `SUCCESS`; hosted verifier returned `status:"verified"`, both queues present/drained, and reconciliation `status:"fresh"` at age `58259` seconds. This confirms current persisted state only; no new one-run was executed.
 - **Next smallest unit:** Obtain explicit approval for the one-run paper reconciliation; do not infer execution from the verifier's current-state result.
+
+## Completed Build Unit — Phase 6.35
+
+- **User story:** As the operator, I can attach post-run evidence to a bounded run identifier and approval reference without exposing secrets or claiming unsupported causality.
+- **Implemented:** Added command-scoped `DURABLE_ONE_RUN_ID` validation, included the run ID and approval reference in the guarded one-run completion output, and required both bounded references in the post-run verifier contract. Readiness now checks for the run identifier as well as the approval reference.
+- **Safety boundary:** References are non-secret operator metadata only. The verifier remains read-only and current-state based; it does not persist an audit event or prove that a particular run caused the latest reconciliation snapshot.
+- **Verification:** 168 tests, typecheck, lint, production build, secret-surface audit, and diff checks pass. No hosted command, broker request, scheduler enablement, or one-run reconciliation was executed.
+- **Next smallest unit:** Obtain explicit approval for the one-run paper reconciliation; provide a unique run ID and approval reference if execution is authorized.
 
 ## Completed Build Unit — Phase 4.1
 

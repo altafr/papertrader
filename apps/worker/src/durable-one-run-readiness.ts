@@ -4,6 +4,7 @@ export type DurableOneRunReadinessStatus = "blocked" | "ready";
 
 export interface DurableOneRunReadiness {
   readonly approvalReferencePresent: boolean;
+  readonly runIdPresent: boolean;
   readonly blockedReasons: readonly string[];
   readonly checks: {
     readonly brokerConnectionEnabled: boolean;
@@ -15,6 +16,7 @@ export interface DurableOneRunReadiness {
     readonly paperCredentialsConfigured: boolean;
     readonly paperMode: boolean;
     readonly runOnceEnabled: boolean;
+    readonly runIdPresent: boolean;
   };
   readonly status: DurableOneRunReadinessStatus;
 }
@@ -29,11 +31,13 @@ export function getDurableOneRunReadiness(environment: NodeJS.ProcessEnv = proce
   const paperAutopilotDisabled = environment.PAPER_AUTOPILOT_ENABLED !== "true";
   const runOnceEnabled = environment.DURABLE_SCHEDULER_ONCE === "true";
   const approvalReferencePresent = Boolean(environment.DURABLE_SCHEDULER_APPROVAL_REFERENCE?.trim() && /^[A-Za-z0-9][A-Za-z0-9._:/-]{0,127}$/.test(environment.DURABLE_SCHEDULER_APPROVAL_REFERENCE.trim()));
+  const runIdPresent = Boolean(environment.DURABLE_ONE_RUN_ID?.trim() && /^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/.test(environment.DURABLE_ONE_RUN_ID.trim()));
   let globalKillSwitchActive = true;
   try { globalKillSwitchActive = isGlobalKillSwitchActive(environment); } catch { /* invalid values fail closed */ }
   const blockedReasons = [
     ...(runOnceEnabled ? [] : ["run_once_disabled"]),
     ...(approvalReferencePresent ? [] : ["approval_reference_missing_or_invalid"]),
+    ...(runIdPresent ? [] : ["run_id_missing_or_invalid"]),
     ...(paperMode ? [] : ["paper_runtime_invalid"]),
     ...(paperCredentialsConfigured ? [] : ["paper_credentials_not_configured"]),
     ...(databaseConfigured ? [] : ["database_not_configured"]),
@@ -45,8 +49,9 @@ export function getDurableOneRunReadiness(environment: NodeJS.ProcessEnv = proce
   ];
   return {
     approvalReferencePresent,
+    runIdPresent,
     blockedReasons,
-    checks: { brokerConnectionEnabled, dailyPreparationHandlerEnabled, databaseConfigured, durableSchedulerDisabled, globalKillSwitchActive, paperAutopilotDisabled, paperCredentialsConfigured, paperMode, runOnceEnabled },
+    checks: { brokerConnectionEnabled, dailyPreparationHandlerEnabled, databaseConfigured, durableSchedulerDisabled, globalKillSwitchActive, paperAutopilotDisabled, paperCredentialsConfigured, paperMode, runOnceEnabled, runIdPresent },
     status: blockedReasons.length === 0 ? "ready" : "blocked",
   };
 }

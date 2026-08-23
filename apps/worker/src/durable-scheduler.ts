@@ -89,6 +89,14 @@ export function validateDurableSchedulerApprovalReference(environment: NodeJS.Pr
   return reference;
 }
 
+export function validateDurableOneRunId(environment: NodeJS.ProcessEnv = process.env): string {
+  const runId = environment.DURABLE_ONE_RUN_ID?.trim();
+  if (!runId || !/^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/.test(runId)) {
+    throw new Error("DURABLE_ONE_RUN_ID must be a bounded non-secret identifier.");
+  }
+  return runId;
+}
+
 export interface DurableDailyJob {
   readonly kind: "daily_preparation";
   readonly version: 1;
