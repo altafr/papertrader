@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.49 hosted daily-reconciliation readiness recheck; Railway API and Vercel dashboard deployments are verified, while research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
+- **Stage:** Phase 6.50 research-schedule readiness visibility; Railway API deployment is verified, while the dashboard deployment is pending Vercel's free-tier quota reset and research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -535,6 +535,12 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - The deployed Worker read-only `daily-reconciliation-readiness` command was rerun over Railway's private network. It returned `blocked` with `migration_not_recorded`, `migration_audit_table_missing`, and `migration_audit_columns_missing`; the reviewed migration file is present.
 - The scheduler sub-check remained `disabled`, with paper mode, database, and paper credentials configured but broker, handler, and scheduler flags false. The command exited non-zero because the migration prerequisite is blocked, as designed.
 - No migration SQL, queue start, Alpaca request, broker mutation, or order action occurred.
+
+### Phase 6.50 Research-Schedule Readiness Visibility
+
+- Authenticated API operations health now reports read-only research-schedule status (`disabled`, `blocked`, or `ready`) from explicit paper credentials, database, broker, handler, and scheduler gates. The dashboard displays this beside the durable scheduler state.
+- The contract is configuration/readiness metadata only; it does not start research, contact Alpaca, create a queue, write PostgreSQL, or alter any Railway variable.
+- API deployment `d5764f90-7ba4-424c-a8a2-cc979e684c98` reached `SUCCESS`; private `/health` returned HTTP 200. A Vercel deployment attempt was rejected by the free-tier limit (`more than 100` deployments in 24 hours), so the prior preview remains the latest hosted dashboard build until quota resets.
 
 ### Phase 4.1 Structured Agent Runs
 

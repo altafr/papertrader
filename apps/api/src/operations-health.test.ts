@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { assessAuditMigrationReadiness, assessReconciliationHealth, assessSchedulerActivation, readAuditMigrationReadiness } from "./operations-health.js";
+import { assessAuditMigrationReadiness, assessReconciliationHealth, assessResearchScheduleActivation, assessSchedulerActivation, readAuditMigrationReadiness } from "./operations-health.js";
 
 const now = new Date("2026-08-23T00:00:00.000Z");
 
@@ -26,6 +26,12 @@ describe("reconciliation health", () => {
     expect(assessSchedulerActivation({ brokerConnectionEnabled: false, dailyPreparationHandlerEnabled: false, schedulerEnabled: false })).toBe("disabled");
     expect(assessSchedulerActivation({ brokerConnectionEnabled: true, dailyPreparationHandlerEnabled: false, schedulerEnabled: true })).toBe("blocked");
     expect(assessSchedulerActivation({ brokerConnectionEnabled: true, dailyPreparationHandlerEnabled: true, schedulerEnabled: true })).toBe("ready");
+  });
+
+  it("keeps research scheduling disabled or blocked until every gate is set", () => {
+    expect(assessResearchScheduleActivation({ brokerConnectionEnabled: false, databaseConfigured: true, handlerEnabled: true, paperCredentialsConfigured: true, schedulerEnabled: false })).toBe("disabled");
+    expect(assessResearchScheduleActivation({ brokerConnectionEnabled: false, databaseConfigured: true, handlerEnabled: true, paperCredentialsConfigured: true, schedulerEnabled: true })).toBe("blocked");
+    expect(assessResearchScheduleActivation({ brokerConnectionEnabled: true, databaseConfigured: true, handlerEnabled: true, paperCredentialsConfigured: true, schedulerEnabled: true })).toBe("ready");
   });
 
   it("reports the audit migration state with bounded reasons", () => {

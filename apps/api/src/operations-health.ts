@@ -1,5 +1,6 @@
 export type ReconciliationHealthStatus = "delayed" | "fresh" | "stale" | "unavailable";
 export type SchedulerActivationStatus = "blocked" | "disabled" | "ready";
+export type ResearchScheduleActivationStatus = "blocked" | "disabled" | "ready";
 export type MigrationReadinessStatus = "blocked" | "ready";
 export type MigrationBlockedReason = "audit_columns_missing" | "audit_table_missing" | "migration_not_recorded";
 
@@ -30,6 +31,17 @@ export function assessSchedulerActivation(input: {
 }): SchedulerActivationStatus {
   if (!input.schedulerEnabled) return "disabled";
   return input.brokerConnectionEnabled && input.dailyPreparationHandlerEnabled ? "ready" : "blocked";
+}
+
+export function assessResearchScheduleActivation(input: {
+  readonly brokerConnectionEnabled: boolean;
+  readonly databaseConfigured: boolean;
+  readonly handlerEnabled: boolean;
+  readonly paperCredentialsConfigured: boolean;
+  readonly schedulerEnabled: boolean;
+}): ResearchScheduleActivationStatus {
+  if (!input.schedulerEnabled) return "disabled";
+  return input.brokerConnectionEnabled && input.databaseConfigured && input.handlerEnabled && input.paperCredentialsConfigured ? "ready" : "blocked";
 }
 
 export function assessAuditMigrationReadiness(input: { readonly auditTablePresent: boolean; readonly requiredColumnsPresent: boolean; readonly schemaMigrationRecorded: boolean }): MigrationReadiness {

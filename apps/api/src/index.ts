@@ -21,7 +21,7 @@ import {
 import { MAX_SINGLE_TRADE_RISK_PERCENT_OF_EQUITY, MAX_SINGLE_TRADE_RISK_USD, PAPER_INITIAL_EQUITY_BASELINE } from "@momentum/domain";
 
 import { getApiHealth } from "./app.js";
-import { assessReconciliationHealth, assessSchedulerActivation, readAuditMigrationReadiness } from "./operations-health.js";
+import { assessReconciliationHealth, assessResearchScheduleActivation, assessSchedulerActivation, readAuditMigrationReadiness } from "./operations-health.js";
 import { compareReconciliationAccounts } from "./reconciliation-status.js";
 import { approveDisabledToReplay, approveReplayToShadow, approveShadowToPaper } from "./lifecycle-command.js";
 import { toAgentRunDetail } from "./agent-run-detail.js";
@@ -296,6 +296,9 @@ async function readOperationsHealth(request: IncomingMessage) {
   const brokerConnectionEnabled = readBooleanEnvironmentFlag("BROKER_CONNECTION_ENABLED");
   const schedulerEnabled = readBooleanEnvironmentFlag("DURABLE_SCHEDULER_ENABLED");
   const handlerEnabled = readBooleanEnvironmentFlag("DAILY_PREPARATION_HANDLER_ENABLED");
+  const researchSchedulerEnabled = readBooleanEnvironmentFlag("RESEARCH_SCHEDULER_ENABLED");
+  const researchHandlerEnabled = readBooleanEnvironmentFlag("RESEARCH_HANDLER_ENABLED");
+  const paperCredentialsConfigured = Boolean(process.env.ALPACA_API_KEY?.trim() && process.env.ALPACA_SECRET_KEY?.trim() && process.env.ALPACA_PAPER_TRADE !== "false");
   const schedulerStatus = assessSchedulerActivation({
     brokerConnectionEnabled,
     dailyPreparationHandlerEnabled: handlerEnabled,
@@ -322,6 +325,11 @@ async function readOperationsHealth(request: IncomingMessage) {
         scheduler: {
           enabled: schedulerEnabled,
           status: schedulerStatus,
+        },
+        researchSchedule: {
+          enabled: researchSchedulerEnabled,
+          handlerEnabled: researchHandlerEnabled,
+          status: assessResearchScheduleActivation({ brokerConnectionEnabled, databaseConfigured: true, handlerEnabled: researchHandlerEnabled, paperCredentialsConfigured, schedulerEnabled: researchSchedulerEnabled }),
         },
         migration,
       },

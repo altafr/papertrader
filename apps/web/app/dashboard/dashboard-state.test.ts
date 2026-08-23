@@ -27,6 +27,7 @@ describe("dashboard state", () => {
         paperAutopilotEnabled: false,
         migration: { blockedReasons: [], status: "ready" },
         riskPolicy: { initialEquityBaseline: "1000", maxSingleTradeRiskPercent: "0.25", maxSingleTradeRiskUsd: "100" },
+        researchSchedule: { enabled: false, handlerEnabled: false, status: "disabled" },
         scheduler: { enabled: false, status: "disabled" },
       },
     });
@@ -42,6 +43,7 @@ describe("dashboard state", () => {
         paperAutopilotEnabled: false,
         migration: { blockedReasons: ["unexpected_reason"], status: "blocked" },
         riskPolicy: { initialEquityBaseline: "1000", maxSingleTradeRiskPercent: "0.25", maxSingleTradeRiskUsd: "100" },
+        researchSchedule: { enabled: false, handlerEnabled: false, status: "disabled" },
         scheduler: { enabled: false, status: "disabled" },
       },
     })).toBeUndefined();
