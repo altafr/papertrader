@@ -11,7 +11,7 @@ describe("worker health", () => {
       asOf: "2026-08-21T00:00:00.000Z",
       brokerConnectionEnabled: false,
       database: "not_configured",
-      durableScheduler: { enabled: false, status: "disabled" },
+      durableScheduler: { activationApprovalReferencePresent: true, enabled: false, status: "disabled" },
       globalKillSwitchActive: false,
       operatingMode: "observe",
       researchSchedule: { enabled: false, handlerEnabled: false, status: "disabled" },

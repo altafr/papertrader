@@ -24,6 +24,7 @@ export interface WorkerHealth {
   readonly brokerConnectionEnabled: boolean;
   readonly database: IntegrationConfigStatus;
   readonly durableScheduler: {
+    readonly activationApprovalReferencePresent: boolean;
     readonly enabled: boolean;
     readonly lastRunAt?: string;
     readonly nextRunAt?: string;

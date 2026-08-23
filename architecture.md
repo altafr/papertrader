@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.70 operator health exposes scheduler activation-reference readiness; Railway API/worker health is verified, while research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
+- **Stage:** Phase 6.71 worker health aligned with scheduler activation-reference readiness; Railway API/worker health is verified, while research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -669,6 +669,12 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - Parsing remains fail-closed for malformed or older responses; no browser authority, scheduler mutation, broker access, or order behavior was added.
 - API deployment `e96f4386-5570-4eaf-a490-42f182dc70bf` reached `SUCCESS` and private API health is healthy. Vercel preview deployment was attempted but rejected by the free-tier daily deployment limit; the prior protected preview remains unchanged until quota resets.
 - The latest Ready Vercel preview `https://papertrader-l6s6eyyvu-altafrs-projects.vercel.app` returned the expected unauthenticated `302` deployment-protection response for `/dashboard`; no unauthenticated dashboard content was exposed.
+
+### Phase 6.71 Worker Health Activation Visibility
+
+- The private Worker health contract now includes the same boolean `activationApprovalReferencePresent` as the API and dashboard contract; the reference value is never emitted.
+- Default-disabled worker health reports the gate as satisfied-by-not-applicable while scheduler `enabled:false`; an enabled scheduler cannot start without the validated reference.
+- No scheduler, broker, or Paper Autopilot behavior changed; this is contract alignment and observability only.
 
 ### Phase 4.1 Structured Agent Runs
 
