@@ -381,6 +381,12 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - The API validates run IDs, limits nested payload depth/entries/string size, redacts secret-like keys, truncates rationale, and omits incomplete artifact details. Unknown runs return a redacted not-found response.
 - This endpoint is read-only and does not execute agents, expose credentials, contact providers, approve risk, or submit orders.
 
+### Phase 4.9 Guarded Paper Market Research Source
+
+- `apps/worker/src/research-market-source.ts` maps the existing server-only Alpaca paper historical-bars adapter into validated stock/crypto research inputs with bounded symbols, timeframes, limits, and candidate counts.
+- The `research-market-run-once` command requires command-scoped `RESEARCH_MARKET_RUN_ONCE=true`, paper runtime, explicit broker opt-in, server credentials, `DATABASE_URL`, and migration `0008`; it reads bars once, persists one agent run, and exits.
+- The source and command are disabled by default and never submit orders, approve risk, start a scheduler, or expose credentials. Hosted execution remains a separately approved paper read/write operation.
+
 ### Phase 6.13 Dashboard Operations Health Surface
 
 - The authenticated dashboard consumes only the redacted `/v1/operations-health` response and displays reconciliation freshness plus scheduler, broker-read, and Paper Autopilot gates.
