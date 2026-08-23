@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 4.26 duplicate market-bar rejection clarified; Railway database connectivity is verified, while research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
+- **Stage:** Phase 4.27 market-bar integrity deployment verified; Railway database connectivity is verified, while research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -486,6 +486,11 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 
 - The integrity boundary distinguishes exact duplicate timestamps from older out-of-order rows, producing explicit safe failure categories for operator diagnosis.
 - Both cases remain fail-closed before agent input creation; no provider payload or credential is emitted.
+
+### Phase 4.27 Market-Bar Integrity Deployment
+
+- Worker deployment `440f6de2-6d34-4661-9d90-547f4fd18ce9` reached `SUCCESS` with the tested integrity checks.
+- Railway SSH readiness remains `disabled` with paper mode/database/paper credentials configured and broker, handler, and scheduler gates off. No hosted market-data request or artifact write was made.
 
 ### Phase 6.13 Dashboard Operations Health Surface
 

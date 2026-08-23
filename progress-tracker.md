@@ -2,8 +2,8 @@
 
 ## Snapshot
 
-- **Phase:** Phase 4.26 — duplicate market-bar rejection clarified.
-- **Status:** Agent runs have deterministic contracts, reviewed PostgreSQL persistence, authenticated list/detail reads, a dashboard health surface, a paper-only market-data run-once boundary, a disabled-by-default daily research readiness surface, a separately named validated queue boundary, an explicit stock/crypto preparation planner, a fail-closed queue-handler composition, a readiness-gated scheduler registration boundary, safe runtime health reporting, explicit opt-in worker composition, a guarded local/CI readiness command, verified hosted disabled readiness, a separate approval/reference guard, bounded research-run preflight validation, non-secret approval provenance, bounded explicit/latest persisted-run verification, deployed hosted tooling, and deterministic source bar-integrity checks with duplicate/out-of-order distinctions; Railway migration `0008` is applied, while research scheduling, durable reconciliation, and Paper Autopilot remain disabled.
+- **Phase:** Phase 4.27 — market-bar integrity deployment verified.
+- **Status:** Agent runs have deterministic contracts, reviewed PostgreSQL persistence, authenticated list/detail reads, a dashboard health surface, a paper-only market-data run-once boundary, a disabled-by-default daily research readiness surface, a separately named validated queue boundary, an explicit stock/crypto preparation planner, a fail-closed queue-handler composition, a readiness-gated scheduler registration boundary, safe runtime health reporting, explicit opt-in worker composition, a guarded local/CI readiness command, verified hosted disabled readiness, a separate approval/reference guard, bounded research-run preflight validation, non-secret approval provenance, bounded explicit/latest persisted-run verification, deployed hosted tooling, deterministic source bar-integrity checks with duplicate/out-of-order distinctions, and verified deployed integrity code; Railway migration `0008` is applied, while research scheduling, durable reconciliation, and Paper Autopilot remain disabled.
 - **Current operating mode:** Paper only; order submission not yet enabled.
 - **Current goal:** Run the separately approved one-run paper reconciliation using the reviewed runbook, then verify its result in the authenticated dashboard.
 - **Last updated:** 2026-08-23.
@@ -791,6 +791,13 @@
 - **Verification:** `pnpm test` passes 144 tests; `pnpm typecheck`, `pnpm lint`, and `pnpm build` pass. No hosted market-data request was performed.
 - **Next smallest unit:** Obtain explicit operator approval for one bounded hosted paper research run, execute the preflight and run once, then verify its persisted metadata.
 
+## Completed Operations Unit — Phase 4.27
+
+- **User story:** As the operator, I can confirm the deployed worker contains the latest fail-closed market-bar integrity checks before any approved research execution.
+- **Verified:** Worker deployment `440f6de2-6d34-4661-9d90-547f4fd18ce9` reached `SUCCESS`; hosted readiness returned `disabled` with all research activation gates off.
+- **Safety boundary:** Deployment and readiness verification did not call market data, write PostgreSQL, start queues, change persistent variables, or submit orders.
+- **Next smallest unit:** Obtain explicit operator approval for one bounded hosted paper research run, execute the preflight and run once, then verify its persisted metadata.
+
 ## Decisions Made
 
 | Date | Decision | Reason |
@@ -910,6 +917,7 @@
 | Phase 4.24 hosted research tooling deployment | Pass | Worker deployment `9467848b-f63a-4598-a783-2bc65c65715c` reached `SUCCESS`; hosted readiness remained disabled and command-scoped preflight passed without client construction; no hosted research execution performed |
 | Phase 4.25 deterministic market-bar integrity | Pass | Added fail-closed source validation for symbols, timestamps, ordering, positive OHLCV, and OHLC consistency; 144 tests, typecheck, lint, and production build pass; no hosted research execution performed |
 | Phase 4.26 duplicate market-bar rejection | Pass | Distinguished exact duplicate timestamps from out-of-order bars with fail-closed tests; 144 tests, typecheck, lint, and production build pass; no hosted research execution performed |
+| Phase 4.27 market-bar integrity deployment | Pass | Worker deployment `440f6de2-6d34-4661-9d90-547f4fd18ce9` reached `SUCCESS`; hosted readiness remained disabled; no hosted research execution performed |
 | Browser/preview | Partial | Production page HTTP check passed; visual/responsive review deferred beyond source scaffold |
 | Security review | Partial | No credential files, Alpaca client, database connection, or order code added; full review remains required |
 
