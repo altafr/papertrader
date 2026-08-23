@@ -2,8 +2,8 @@
 
 ## Snapshot
 
-- **Phase:** Phase 4.3 — agent-run persistence and authenticated read view added.
-- **Status:** Agent runs now have deterministic contracts, reviewed PostgreSQL persistence, and an authenticated metadata view; the new migration remains unapplied in hosted environments, while durable scheduler and Paper Autopilot remain disabled.
+- **Phase:** Phase 4.4 — macro advisory contract added.
+- **Status:** Agent runs have deterministic contracts, reviewed PostgreSQL persistence, and an authenticated metadata view; macro event context is advisory-only, while the new migration remains unapplied in hosted environments and durable scheduler/Paper Autopilot remain disabled.
 - **Current operating mode:** Paper only; order submission not yet enabled.
 - **Current goal:** Run the separately approved one-run paper reconciliation using the reviewed runbook, then verify its result in the authenticated dashboard.
 - **Last updated:** 2026-08-23.
@@ -104,7 +104,7 @@
 
 - [x] Implement orchestrator and structured agent-run records.
 - [x] Add stock and crypto research agents with read-only tools.
-- [ ] Add macro advisory and economic-event context.
+- [x] Add macro advisory and economic-event context.
 - [x] Persist agent-run records and expose an authenticated read-only health/audit view.
 - [ ] Produce persisted daily stock and continuous crypto plans.
 - [ ] Add agent health, evidence, and audit views.
@@ -609,6 +609,14 @@
 - **Verification:** `pnpm test` passes 110 tests; `pnpm typecheck`, `pnpm lint`, and `pnpm build` pass across the workspace. Hosted migration and endpoint verification remain pending the controlled Railway process and authenticated operator session.
 - **Next smallest unit:** Add the macro advisory/economic-event read-only artifact contract, then wire bounded research runs through the durable worker only after migration review.
 
+## Completed Build Unit — Phase 4.4
+
+- **User story:** As the research layer, I can represent scheduled macro/economic events and deterministic timing risk flags without allowing advisory context to authorize a trade.
+- **Implemented:** Added validated economic-event records, bounded 1–168-hour horizons, source references, high-impact-near and sparse-source flags, and the `macro_advisory` structured artifact/handler.
+- **Safety boundary:** The artifact is advisory-only and does not call external providers, alter risk policy, approve/reject intents, or submit orders. Invalid timestamps, stale input, blank fields, and oversized inputs fail closed.
+- **Verification:** `pnpm test` passes 112 tests; `pnpm typecheck` passes across the workspace. Full lint/build remain part of the final phase handoff.
+- **Next smallest unit:** Wire bounded stock/crypto/macro research runs through a disabled-by-default worker command after the hosted `0008_agent_runs` migration is reviewed.
+
 ## Decisions Made
 
 | Date | Decision | Reason |
@@ -705,6 +713,7 @@
 | Phase 4.1 structured agent runs | Pass | Added immutable run lifecycle/orchestrator and versioned artifact contracts with provenance; 106 tests, typecheck, lint, and production build pass; no external calls or financial authority added |
 | Phase 4.2 read-only research agents | Pass | Added deterministic stock/crypto watchlist handlers with bounded, validated artifacts; 109 tests, typecheck, lint, and production build pass; no external calls or financial authority added |
 | Phase 4.3 agent-run persistence/read view | Pass | Added migration 0008, Drizzle/repository lifecycle enforcement, and authenticated metadata-only `/v1/agent-runs`; 110 tests, typecheck, lint, and production build pass; hosted migration not yet applied |
+| Phase 4.4 macro advisory/economic events | Pass | Added validated event contract and advisory-only deterministic flags; 112 tests and typecheck pass; no external provider, broker, risk, or order authority added |
 | Browser/preview | Partial | Production page HTTP check passed; visual/responsive review deferred beyond source scaffold |
 | Security review | Partial | No credential files, Alpaca client, database connection, or order code added; full review remains required |
 

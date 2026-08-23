@@ -353,6 +353,11 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - Authenticated `GET /v1/agent-runs?limit=50` returns recent run metadata, statuses, timestamps, input references, and artifact provenance. It intentionally omits artifact rationale and payload contents from this read view to keep the operational surface bounded.
 - No agent is invoked automatically by this unit. The endpoint has no broker, order, risk-approval, or configuration mutation authority and fails closed when `DATABASE_URL` or Clerk authentication is unavailable.
 
+### Phase 4.4 Macro Advisory and Economic Events
+
+- `packages/domain/src/macro-advisory.ts` defines validated economic-event records and a deterministic macro-advisory artifact with bounded horizon, source references, and explicit `high_impact_event_near`/`source_data_sparse` flags.
+- The artifact is advisory context only. It does not infer sentiment, change a risk policy, approve/reject a signal, or submit an order; stale, malformed, or over-large event input fails closed.
+
 ### Phase 6.13 Dashboard Operations Health Surface
 
 - The authenticated dashboard consumes only the redacted `/v1/operations-health` response and displays reconciliation freshness plus scheduler, broker-read, and Paper Autopilot gates.

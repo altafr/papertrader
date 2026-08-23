@@ -64,3 +64,4 @@ export * from "./trade-intent.js";
 export * from "./paper-recovery.js";
 export * from "./agent-runs.js";
 export * from "./research-agents.js";
+export * from "./macro-advisory.js";
