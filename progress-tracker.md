@@ -721,8 +721,8 @@
 - **User story:** As the operator, I can verify the exact temporary preconditions for one paper reconciliation before running the side-effecting command.
 - **Implemented:** Added `DURABLE_ONE_RUN_READINESS=true pnpm --filter @momentum/worker durable-one-run-readiness` with bounded gate checks and approval-reference validation.
 - **Safety boundary:** The command is client-free and read-only; `ready` does not enqueue work, contact Alpaca, write PostgreSQL, enable a scheduler, or approve orders.
-- **Verification:** 164 tests, typecheck, lint, production build, secret-surface audit, and diff checks pass.
-- **Next smallest unit:** Deploy the Worker and run the preflight in Railway; keep persistent execution flags disabled.
+- **Verification:** 164 tests, typecheck, lint, production build, secret-surface audit, and diff checks pass. Worker deployment `5e0f535b-0506-41c2-ae7e-90b1eee0851d` reached `SUCCESS`; hosted preflight with persistent flags returned `blocked` for the expected temporary gates, while a command-scoped fully gated preflight with approval reference `ticket-123` returned `ready`. Neither invocation enqueued work or constructed clients.
+- **Next smallest unit:** Obtain explicit approval for the one-run paper reconciliation; do not execute it solely because preflight is ready.
 
 ## Completed Build Unit — Phase 4.1
 
@@ -1046,7 +1046,7 @@
 | Phase 6.30 operator-visible kill-switch status | Pass | Authenticated API/dashboard expose read-only `globalKillSwitchActive`; 161 tests and full static verification pass; API deployment `ceb8f9fb-1723-43d0-8d8d-3e9344c72c1d` and protected Vercel preview `dpl_GGphneUFTQm7wviXF7w8HRsGphrz` verified; no browser control, execution, scheduler, or configuration mutation added |
 | Phase 6.31 Worker kill-switch health consistency | Pass | Shared Worker health now reports the same server-resolved kill-switch state; 161 tests and full static verification pass; deployment `8823b09e-16c8-4773-874e-903321c23474` verified private health consistency; no hosted flag or order behavior changed |
 | Phase 6.32 hosted kill-switch exercise | Pass | Command-scoped fully gated readiness exited non-zero with `global_kill_switch_active`; persistent-variable audit confirmed no hosted setting changed and all execution gates remain disabled |
-| Phase 6.33 durable one-run readiness preflight | Pass | Added client-free one-run gate/approval-reference preflight; 164 tests and full static verification pass; no queue, broker, database-write, or order action added |
+| Phase 6.33 durable one-run readiness preflight | Pass | Added client-free one-run gate/approval-reference preflight; 164 tests and full static verification pass; deployment `5e0f535b-0506-41c2-ae7e-90b1eee0851d` verified blocked persistent state and ready command-scoped state; no queue, broker, database-write, or order action added |
 | Phase 4.1 structured agent runs | Pass | Added immutable run lifecycle/orchestrator and versioned artifact contracts with provenance; 106 tests, typecheck, lint, and production build pass; no external calls or financial authority added |
 | Phase 4.2 read-only research agents | Pass | Added deterministic stock/crypto watchlist handlers with bounded, validated artifacts; 109 tests, typecheck, lint, and production build pass; no external calls or financial authority added |
 | Phase 4.3 agent-run persistence/read view | Pass | Added migration 0008, Drizzle/repository lifecycle enforcement, and authenticated metadata-only `/v1/agent-runs`; 110 tests, typecheck, lint, and production build pass; hosted migration not yet applied |

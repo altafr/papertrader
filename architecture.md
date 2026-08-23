@@ -438,6 +438,7 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - Added the guarded `durable-one-run-readiness` command. It validates the command-scoped run-once flag, bounded approval reference, paper mode/credentials, database, temporary broker/handler gates, disabled persistent scheduler/Autopilot flags, and global kill switch without constructing any client.
 - Output contains only booleans and bounded reason codes. A `ready` result means the one-run command's temporary preconditions are satisfied; it does not enqueue a job, read Alpaca, write PostgreSQL, or authorize an order.
 - Added tests for missing gates, fully gated readiness, and kill-switch blocking. Local tests, typecheck, lint, production build, secret-surface audit, and diff checks pass.
+- Worker deployment `5e0f535b-0506-41c2-ae7e-90b1eee0851d` reached `SUCCESS`. Hosted preflight with persistent flags returned `status:"blocked"` for the expected temporary run-once, approval-reference, broker, and handler gates; a second command-scoped preflight with `ticket-123` and temporary gates returned `status:"ready"`. Neither invocation constructed a client or enqueued work.
 
 ### Phase 4.1 Structured Agent Runs
 
