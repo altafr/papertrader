@@ -475,6 +475,7 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 
 - Added the read-only `database-migration-plan` command. It lists unapplied migration files and marks which pending versions require an approval reference, without creating `schema_migrations`, applying SQL, or changing hosted state.
 - If the tracking table is absent, the plan reports that fact explicitly and does not infer that any migration is safe to apply. The command emits only bounded filenames, versions, booleans, and status.
+- Worker deployment `7b78fe6a-f6f9-4d51-9984-d7bb7cc70647` reached `SUCCESS`. The private Railway plan reported exactly one pending migration, `0009_durable_one_run_audits.sql`, with `approvalRequired:true`; `schema_migrations` is present. No SQL mutation occurred.
 
 ### Phase 4.1 Structured Agent Runs
 
