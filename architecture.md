@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.48 bounded migration reason contract; Railway API and Vercel dashboard deployments are verified, while research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
+- **Stage:** Phase 6.49 hosted daily-reconciliation readiness recheck; Railway API and Vercel dashboard deployments are verified, while research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -529,6 +529,12 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - The dashboard parser now accepts only the server-defined migration reason codes `migration_not_recorded`, `audit_table_missing`, and `audit_columns_missing`; unknown codes fail closed instead of being rendered as trusted operational state.
 - The API migration-readiness type uses the same bounded reason union, preserving the read-only status contract without changing database queries or runtime gates.
 - API deployment `c4882939-bce4-47b9-8e05-38337a170691` reached `SUCCESS`; private `/health` returned HTTP 200. Vercel preview `dpl_4NrANzRza3rdLjSc86NxuxQnv9gG` reached `Ready`; unauthenticated dashboard access returned the expected HTTP 302 deployment-protection redirect. No migration SQL, scheduler, broker, or order operation was performed.
+
+### Phase 6.49 Hosted Daily-Reconciliation Readiness Recheck
+
+- The deployed Worker read-only `daily-reconciliation-readiness` command was rerun over Railway's private network. It returned `blocked` with `migration_not_recorded`, `migration_audit_table_missing`, and `migration_audit_columns_missing`; the reviewed migration file is present.
+- The scheduler sub-check remained `disabled`, with paper mode, database, and paper credentials configured but broker, handler, and scheduler flags false. The command exited non-zero because the migration prerequisite is blocked, as designed.
+- No migration SQL, queue start, Alpaca request, broker mutation, or order action occurred.
 
 ### Phase 4.1 Structured Agent Runs
 
