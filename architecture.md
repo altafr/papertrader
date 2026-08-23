@@ -331,7 +331,8 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 ### Phase 6.16 Railway Database Connectivity Verification
 
 - Railway's `Postgres` service exposes `DATABASE_URL`, and the API and Worker services have non-empty service-side database values.
-- The deployed Worker completed the guarded read-only `durable-status` query, confirming both `pg-boss` work and dead-letter queues are present with zero queued, active, and failed jobs.
+- The deployed Worker parsed its `DATABASE_URL` without exposing credentials, resolved the private `postgres.railway.internal:5432` host, and established a TCP connection.
+- The PostgreSQL service completed a read-only `SELECT 1` through its service-side `DATABASE_URL`; the Worker also completed the guarded read-only `durable-status` query, confirming both `pg-boss` work and dead-letter queues are present with zero queued, active, and failed jobs.
 - The verification did not print the connection string, change variables, enable broker access, start the scheduler, submit orders, or enable Paper Autopilot.
 
 ### Phase 4.1 Structured Agent Runs
