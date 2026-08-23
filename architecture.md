@@ -703,6 +703,7 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - Wired the disabled-by-default Telegram adapter to durable-scheduler startup and runtime failure callbacks using bounded generic codes/messages (`durable_scheduler_start_failed` and `durable_scheduler_runtime_failed`).
 - Notification delivery failures are swallowed at the alert boundary and cannot change scheduler failure semantics; raw exceptions, provider responses, credentials, and account values are never included.
 - No Telegram configuration is present in Railway, so no alert was sent and no scheduler/trading behavior changed.
+- Worker deployment `19d282d4-cf94-4d93-9f48-e5a6ecdc7340` reached `SUCCESS`; private health remains healthy observe mode, queues are present and drained, and Telegram variables remain absent.
 
 ### Phase 4.1 Structured Agent Runs
 

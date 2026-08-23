@@ -1320,6 +1320,7 @@
 - **Implemented:** Added scheduler alert callbacks for startup/runtime failure paths and wired them to the disabled-by-default Telegram adapter; notification failures cannot alter scheduler state.
 - **Verification:** 199 tests passed; typecheck, lint, production build, secret-surface audit, and diff checks passed. Telegram remains unconfigured and disabled; no alert or scheduler action occurred.
 - **Next smallest unit:** Deploy the alert wiring and verify the worker remains healthy with Telegram absent and all scheduler/trading gates disabled.
+- **Hosted verification:** Deployment `19d282d4-cf94-4d93-9f48-e5a6ecdc7340` succeeded; worker health is healthy observe mode, queues are present and drained, Telegram variables are absent, and broker/scheduler/handler/Paper Autopilot gates remain disabled.
 
 ## Completed Build Unit — Phase 6.74
 
