@@ -24,7 +24,11 @@ const Decimal = (DecimalModule as unknown as { readonly default: DecimalConstruc
 
 export type DecimalString = string;
 
-const ABSOLUTE_TRADE_RISK_LIMIT = new Decimal("100");
+/** Hard ceiling required by the paper-trading risk invariant. */
+export const MAX_SINGLE_TRADE_RISK_USD = "100";
+export const MAX_SINGLE_TRADE_RISK_PERCENT_OF_EQUITY = "0.25";
+
+const ABSOLUTE_TRADE_RISK_LIMIT = new Decimal(MAX_SINGLE_TRADE_RISK_USD);
 const PERCENT_TRADE_RISK_LIMIT = new Decimal("0.0025");
 
 function decimal(value: DecimalString): DecimalValue {

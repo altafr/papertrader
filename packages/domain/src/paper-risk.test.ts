@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { assessPaperRisk, createImmutablePaperSignal } from "./paper-risk.js";
+import { assessPaperRisk, createImmutablePaperSignal, DEFAULT_PAPER_RISK_POLICY, PAPER_INITIAL_EQUITY_BASELINE } from "./paper-risk.js";
 import { crossSectionalMomentum } from "./strategies.js";
 
 const candidate = { assetClass: "us_equity" as const, expiresAt: "2026-01-11T00:00:00Z", plannedExitPrice: "110", plannedStopPrice: "99", proposedEntryPrice: "100", rationale: "fixture", score: "1", signalTime: "2026-01-10T00:00:00Z", side: "long" as const, strategyKey: crossSectionalMomentum.key, strategyVersion: crossSectionalMomentum.version, symbol: "AAA" };
@@ -7,6 +7,11 @@ const signal = createImmutablePaperSignal({ candidate, createdAt: "2026-01-10T00
 const state = { accountBaselineVerified: true, accountFresh: true, dataFresh: true, killSwitchActive: false, openPositions: [], submittedEntriesLast24Hours: 0 };
 
 describe("paper signals and deterministic risk", () => {
+  it("locks the initial paper baseline at USD 1,000", () => {
+    expect(PAPER_INITIAL_EQUITY_BASELINE).toBe("1000");
+    expect(DEFAULT_PAPER_RISK_POLICY.initialEquityBaseline).toBe(PAPER_INITIAL_EQUITY_BASELINE);
+  });
+
   it("freezes a signal and passes a bounded low-risk proposal", () => {
     expect(Object.isFrozen(signal)).toBe(true);
     const result = assessPaperRisk({ estimatedFees: "0.01", estimatedSlippage: "0.01", equity: "1000", quantity: "0.02", signal, state });

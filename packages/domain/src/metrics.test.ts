@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { calculateExposure, calculatePerformanceMetrics, calculateTradeRisk } from "./metrics.js";
+import { calculateExposure, calculatePerformanceMetrics, calculateTradeRisk, MAX_SINGLE_TRADE_RISK_USD } from "./metrics.js";
 
 describe("decimal-safe metrics", () => {
   it("calculates P/L and drawdown without binary floating-point drift", () => {
@@ -40,6 +40,15 @@ describe("decimal-safe metrics", () => {
     expect(result.estimatedLoss).toBe("2.20000000");
     expect(result.passes).toBe(true);
     expect(calculateTradeRisk({ ...resultInput(), quantity: "1" }).passes).toBe(false);
+  });
+
+  it("never raises the absolute single-trade ceiling above USD 100", () => {
+    const result = calculateTradeRisk({ ...resultInput(), equity: "100000", quantity: "10" });
+    expect(MAX_SINGLE_TRADE_RISK_USD).toBe("100");
+    expect(result.maximumRiskAbsolute).toBe("100.00000000");
+    expect(result.allowedRisk).toBe("100.00000000");
+    expect(result.estimatedLoss).toBe("100.20000000");
+    expect(result.passes).toBe(false);
   });
 
   it("rejects invalid negative financial inputs", () => {

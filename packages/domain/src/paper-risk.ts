@@ -46,8 +46,11 @@ export interface PaperRiskPolicy {
   readonly maxStockPositionPercent: DecimalString;
 }
 
+/** The paper account must start from the operator's USD 1,000 baseline. */
+export const PAPER_INITIAL_EQUITY_BASELINE = "1000";
+
 export const DEFAULT_PAPER_RISK_POLICY: PaperRiskPolicy = {
-  initialEquityBaseline: "1000",
+  initialEquityBaseline: PAPER_INITIAL_EQUITY_BASELINE,
   maxCryptoPositionPercent: "3",
   maxGrossExposurePercent: "50",
   maxOpenPositions: 10,

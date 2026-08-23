@@ -386,6 +386,12 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - The reference is passed only to the immediate queue payload for auditable provenance and is not persisted as a Railway variable, used as an authorization token, or accepted as a credential/account value.
 - Added focused validation tests and updated the Railway runbook. Local tests, typecheck, lint, production build, secret-surface audit, and diff checks pass; no hosted command was run and no broker/database side effect occurred.
 
+### Phase 6.25 Paper Baseline and Single-Trade Risk Invariants
+
+- The domain contract now names the initial paper-equity baseline as `USD 1,000` and exports the absolute single-trade risk ceiling as `USD 100`; the deterministic risk calculation continues to apply the lower of `0.25%` of current equity and that absolute ceiling.
+- Added regression coverage at both the `USD 1,000` baseline and a high-equity case proving the absolute ceiling cannot be exceeded, including estimated fees and slippage.
+- These are server/domain invariants only. They do not enable a strategy, approve an intent, contact Alpaca, write PostgreSQL, or alter hosted configuration.
+
 ### Phase 4.1 Structured Agent Runs
 
 - `packages/domain/src/agent-runs.ts` defines versioned, structured agent-run requests and artifacts for the orchestrator, stock/crypto research, macro advisory, strategy, risk explanation, execution, and reconciliation roles.
