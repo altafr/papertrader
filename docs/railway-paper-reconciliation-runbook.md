@@ -25,6 +25,16 @@ Confirm the following in Railway's worker service:
 DURABLE_QUEUE_READINESS=true pnpm --filter @momentum/worker durable-readiness
 ```
 
+For a database-only probe, run the separate guarded command first. It performs
+only `SELECT 1` and does not contact Alpaca or start a queue:
+
+```sh
+DATABASE_STATUS=true pnpm --filter @momentum/worker database-status
+```
+
+Expected output is `{"databaseReachable":true}`. The command must not be
+persistently enabled.
+
 ## Run exactly once
 
 From an authenticated Railway CLI session, run this in the deployed worker. Replace the IDs only if the project/environment/service changes:

@@ -12,6 +12,7 @@
     "durable-readiness": "tsx src/durable-readiness-command.ts",
     "durable-one-run": "tsx src/durable-one-run-command.ts",
     "database-migrate": "tsx src/database-migration-command.ts",
+    "database-status": "tsx src/database-status-command.ts",
     "reconcile": "tsx src/reconcile-command.ts",
     "research-run-once": "tsx src/research-run-once-command.ts",
     "research-market-run-once": "tsx src/research-market-run-once-command.ts",

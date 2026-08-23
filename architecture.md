@@ -335,6 +335,12 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - The PostgreSQL service completed a read-only `SELECT 1` through its service-side `DATABASE_URL`; the Worker also completed the guarded read-only `durable-status` query, confirming both `pg-boss` work and dead-letter queues are present with zero queued, active, and failed jobs.
 - The verification did not print the connection string, change variables, enable broker access, start the scheduler, submit orders, or enable Paper Autopilot.
 
+### Phase 6.17 Guarded Database Status Command
+
+- The Worker now exposes `database-status`, guarded by the command-scoped `DATABASE_STATUS=true` flag, to run a single read-only `SELECT 1` through the configured PostgreSQL pool.
+- The command requires the existing paper-only runtime and `DATABASE_URL`, returns only `{"databaseReachable":true}` on success, and replaces all database/provider failures with a generic message.
+- It closes the pool before exit and has no Alpaca, queue, scheduler, strategy, risk, or order authority. The flag is never a persistent Railway setting.
+
 ### Phase 4.1 Structured Agent Runs
 
 - `packages/domain/src/agent-runs.ts` defines versioned, structured agent-run requests and artifacts for the orchestrator, stock/crypto research, macro advisory, strategy, risk explanation, execution, and reconciliation roles.
