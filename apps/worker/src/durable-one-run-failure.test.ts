@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { classifyDurableOneRunFailure } from "./durable-one-run-failure.js";
+import { classifyDurableOneRunFailure, classifyDurableOneRunFailureAtStage } from "./durable-one-run-failure.js";
 
 describe("durable one-run failure classification", () => {
   it("returns bounded broker categories without exposing the provider message", () => {
@@ -17,5 +17,10 @@ describe("durable one-run failure classification", () => {
 
   it("fails closed to a generic category for unknown errors", () => {
     expect(classifyDurableOneRunFailure({ secret: "do-not-log" })).toBe("one_run_failed");
+  });
+
+  it("adds a bounded enqueue category when the queue send boundary fails", () => {
+    expect(classifyDurableOneRunFailureAtStage(new Error("opaque queue error"), "job_enqueue")).toBe("queue_enqueue_error");
+    expect(classifyDurableOneRunFailureAtStage(new Error("opaque queue error"), "reconciliation")).toBe("one_run_failed");
   });
 });

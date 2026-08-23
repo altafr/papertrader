@@ -14,7 +14,7 @@ import {
   validateDurableSchedulerOneRun,
 } from "./durable-scheduler.js";
 import { reconcilePaperAccount } from "./reconcile.js";
-import { classifyDurableOneRunFailure } from "./durable-one-run-failure.js";
+import { classifyDurableOneRunFailureAtStage } from "./durable-one-run-failure.js";
 
 if (process.env.DURABLE_SCHEDULER_ONCE !== "true") {
   throw new Error("DURABLE_SCHEDULER_ONCE must be exactly true for the guarded one-run scheduler command.");
@@ -70,7 +70,7 @@ try {
   ]).finally(() => { if (timeout) clearTimeout(timeout); });
   console.log(JSON.stringify({ approvalReference, runId, status: "completed" }));
 } catch (error) {
-  console.error(`Durable one-run paper reconciliation failed (failure_code=${classifyDurableOneRunFailure(error)} failure_stage=${failureStage}).`);
+    console.error(`Durable one-run paper reconciliation failed (failure_code=${classifyDurableOneRunFailureAtStage(error, failureStage)} failure_stage=${failureStage}).`);
   process.exitCode = 1;
 } finally {
   await databasePool?.end().catch(() => undefined);

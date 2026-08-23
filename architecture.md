@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.62 stage-aware one-run failure diagnostics deployed; Railway API deployment is verified, while research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
+- **Stage:** Phase 6.63 approved retry diagnosed at the queue-enqueue boundary; Railway API/worker health is verified, while research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -612,6 +612,13 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - Extended the bounded failure output with a lifecycle stage (`queue_start`, `queue_provision`, `database_connect`, `worker_registration`, `job_enqueue`, or `reconciliation`) while preserving error redaction.
 - The worker quality gate remained green at 189 tests, typecheck, lint, production build, and secret audit; Railway deployment `195298d5-789d-4fb2-acbe-7e4309400507` reached `SUCCESS`.
 - No reconciliation retry or runtime-gate change was performed. The stage output is available for a future separately authorized attempt only.
+
+### Phase 6.63 Approved Retry Queue-Enqueue Diagnosis
+
+- With new approval reference `PAPER-RECONCILIATION-RETRY-123` and unique run ID `paper-reconciliation-retry-20260823-01`, the guarded command executed exactly once and returned only `failure_code=one_run_failed failure_stage=job_enqueue`.
+- The read-only verifier found both queues present and drained, no persisted audit provenance for the retry ID, and a pre-existing fresh reconciliation read model; the retry did not complete a reconciliation audit.
+- Private worker health remained healthy in observe mode with broker access, durable/research/shadow schedulers, and Paper Autopilot disabled. The command-scoped broker/handler opt-ins were not persisted.
+- Added a bounded `queue_enqueue_error` fallback category for future opaque failures at the enqueue boundary; no retry is authorized by this diagnostic change.
 
 ### Phase 4.1 Structured Agent Runs
 
