@@ -349,7 +349,7 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 ### Phase 4.3 Agent-Run Persistence and Read View
 
 - `packages/db/migrations/0008_agent_runs.sql` and the matching Drizzle schema persist agent-run provenance, lifecycle status, redacted error codes, and structured artifact metadata/payloads with status and non-empty-field constraints.
-- `createAgentRunRepository` enforces queued → running → succeeded/failed updates and bounded recent-run queries. Migration application remains a controlled operation; application startup never migrates automatically.
+- `createAgentRunRepository` enforces queued → running → succeeded/failed updates and bounded recent-run queries. Migration application remains a controlled operation; application startup never migrates automatically. Railway has now applied migration `0008` through that guarded process.
 - Authenticated `GET /v1/agent-runs?limit=50` returns recent run metadata, statuses, timestamps, input references, and artifact provenance. It intentionally omits artifact rationale and payload contents from this read view to keep the operational surface bounded.
 - No agent is invoked automatically by this unit. The endpoint has no broker, order, risk-approval, or configuration mutation authority and fails closed when `DATABASE_URL` or Clerk authentication is unavailable.
 
@@ -363,6 +363,11 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - `apps/worker` exposes `research-run-once`, guarded by `RESEARCH_RUN_ONCE=true`, explicit bounded JSON input, and the reviewed agent-run repository. It supports one stock, crypto, or macro artifact and exits after persistence.
 - The command is disabled by default, does not fetch data, and does not invoke an LLM. Future provider/Alpaca adapters must supply validated inputs through this boundary; no agent result can approve risk or submit an order.
 - Handler failures persist only `research_handler_failed`, while the command emits generic success/failure output. Hosted use requires the `0008_agent_runs.sql` migration and a separately reviewed operator invocation.
+
+### Phase 4.6 Hosted Agent-Run Schema Readiness
+
+- Worker deployment `c8db3f78-e562-451d-bbf6-6ad93c092f6f` reached `SUCCESS` with the Phase 4.5 command boundary.
+- The guarded Railway migration reported `appliedThrough=0008` and `migrationCount=8`. No research fixture was inserted, no broker request was made, and persistent scheduler/handler/Paper Autopilot flags remain disabled.
 
 ### Phase 6.13 Dashboard Operations Health Surface
 

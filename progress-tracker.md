@@ -2,8 +2,8 @@
 
 ## Snapshot
 
-- **Phase:** Phase 4.5 — guarded research run-once boundary added.
-- **Status:** Agent runs have deterministic contracts, reviewed PostgreSQL persistence, authenticated metadata reads, and a disabled-by-default worker run-once boundary; the new migration remains unapplied in hosted environments and durable scheduler/Paper Autopilot remain disabled.
+- **Phase:** Phase 4.6 — hosted agent-run schema readiness verified.
+- **Status:** Agent runs have deterministic contracts, reviewed PostgreSQL persistence, authenticated metadata reads, and a disabled-by-default worker run-once boundary; Railway migration `0008` is applied, while durable scheduler and Paper Autopilot remain disabled.
 - **Current operating mode:** Paper only; order submission not yet enabled.
 - **Current goal:** Run the separately approved one-run paper reconciliation using the reviewed runbook, then verify its result in the authenticated dashboard.
 - **Last updated:** 2026-08-23.
@@ -625,6 +625,13 @@
 - **Verification:** `pnpm test` passes 114 tests; `pnpm typecheck`, `pnpm lint`, and `pnpm build` pass across the workspace.
 - **Next smallest unit:** Apply migration `0008` through Railway's controlled process, then perform a separately approved non-broker research-run verification with safe fixture input.
 
+## Completed Operations Unit — Phase 4.6
+
+- **User story:** As the operator, I can verify the hosted database is ready for agent-run records without starting research or trading behavior.
+- **Verified:** Deployed Worker `c8db3f78-e562-451d-bbf6-6ad93c092f6f` reached `SUCCESS`; guarded `database-migrate` reported `appliedThrough=0008` and `migrationCount=8`.
+- **Safety boundary:** No synthetic research artifact was inserted, no Alpaca request or broker flag was enabled, and durable scheduler, handler, and Paper Autopilot remain disabled.
+- **Next smallest unit:** Obtain explicit approval for one non-broker fixture research run, or continue implementing the next read-only artifact boundary without hosted execution.
+
 ## Decisions Made
 
 | Date | Decision | Reason |
@@ -722,7 +729,8 @@
 | Phase 4.2 read-only research agents | Pass | Added deterministic stock/crypto watchlist handlers with bounded, validated artifacts; 109 tests, typecheck, lint, and production build pass; no external calls or financial authority added |
 | Phase 4.3 agent-run persistence/read view | Pass | Added migration 0008, Drizzle/repository lifecycle enforcement, and authenticated metadata-only `/v1/agent-runs`; 110 tests, typecheck, lint, and production build pass; hosted migration not yet applied |
 | Phase 4.4 macro advisory/economic events | Pass | Added validated event contract and advisory-only deterministic flags; 112 tests and typecheck pass; no external provider, broker, risk, or order authority added |
-| Phase 4.5 guarded research run-once | Pass | Added disabled-by-default worker runner/command with bounded JSON input and redacted failure persistence; 114 tests, typecheck, lint, and production build pass; hosted migration/run not performed |
+| Phase 4.5 guarded research run-once | Pass | Added disabled-by-default worker runner/command with bounded JSON input and redacted failure persistence; 114 tests, typecheck, lint, and production build pass; no fixture run performed |
+| Phase 4.6 hosted agent-run schema readiness | Pass | Worker deployment `c8db3f78-e562-451d-bbf6-6ad93c092f6f` reached SUCCESS; guarded Railway migration applied through 0008 with no broker/research execution or flag changes |
 | Browser/preview | Partial | Production page HTTP check passed; visual/responsive review deferred beyond source scaffold |
 | Security review | Partial | No credential files, Alpaca client, database connection, or order code added; full review remains required |
 
