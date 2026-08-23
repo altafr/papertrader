@@ -689,8 +689,8 @@
 - **User story:** As the operator, I can stop all paper-order execution with one server-side emergency flag that agents, browser code, and order payloads cannot bypass.
 - **Implemented:** Added `GLOBAL_KILL_SWITCH_ACTIVE`, readiness reason reporting, Worker startup validation, and a pre-persistence execution check with regression tests.
 - **Safety boundary:** The flag defaults to inactive, rejects malformed values, remains server-side, and does not itself enable execution. Current Railway configuration remains unchanged and disabled.
-- **Verification:** 161 tests, typecheck, lint, production build, secret-surface audit, and diff checks pass.
-- **Next smallest unit:** Deploy the Worker guard and verify hosted readiness/startup remains safely disabled.
+- **Verification:** 161 tests, typecheck, lint, production build, secret-surface audit, and diff checks pass. Worker deployment `726c5b3b-8dfb-4b3f-9f4f-9511935f7f43` reached `SUCCESS`; hosted readiness returned `globalKillSwitchActive:false`, `status:"disabled"`, and all execution gates disabled. No persistent variable changed.
+- **Next smallest unit:** Obtain explicit approval for the one-run paper reconciliation; keep the kill switch and all execution gates disabled.
 
 ## Completed Build Unit — Phase 4.1
 
@@ -1010,7 +1010,7 @@
 | Phase 6.26 operator-visible paper risk policy | Pass | Authenticated operations-health and dashboard now expose the non-secret USD 1,000 baseline, USD 100 ceiling, and 0.25% limit; 153 tests and full static verification pass; API deployment `c4c0901c-f9ea-4638-95af-add7ca2227fd` and protected Vercel preview `dpl_E378eJz2ZU3AauLptSPJeogFqhCW` verified; no execution authority added |
 | Phase 6.27 Paper Autopilot readiness report | Pass | Added guarded configuration-only readiness output with bounded reasons, fixed risk-policy checks, and explicit runtime-freshness requirement; 156 tests and full static verification pass; worker deployment `7f225657-eedb-4c42-b803-a7a8b4e6a7fe` verified hosted `status=disabled`; no external client or execution action added |
 | Phase 6.28 Paper Autopilot runtime freshness readiness | Pass | Added guarded PostgreSQL-only freshness classification and configuration/freshness composition; 158 tests and full static verification pass; worker deployment `3ac368fd-c5b3-4443-989b-354d2b16195f` verified hosted `status=disabled` with fresh reconciliation; no Alpaca, scheduler, approval, or order action added |
-| Phase 6.29 global kill-switch runtime guard | Pass | Added `GLOBAL_KILL_SWITCH_ACTIVE` fail-closed checks to readiness, Worker startup, and paper execution; 161 tests and full static verification pass; no hosted flag change or order action occurred |
+| Phase 6.29 global kill-switch runtime guard | Pass | Added `GLOBAL_KILL_SWITCH_ACTIVE` fail-closed checks to readiness, Worker startup, and paper execution; 161 tests and full static verification pass; deployment `726c5b3b-8dfb-4b3f-9f4f-9511935f7f43` verified hosted inactive/default-safe state; no hosted flag change or order action occurred |
 | Phase 4.1 structured agent runs | Pass | Added immutable run lifecycle/orchestrator and versioned artifact contracts with provenance; 106 tests, typecheck, lint, and production build pass; no external calls or financial authority added |
 | Phase 4.2 read-only research agents | Pass | Added deterministic stock/crypto watchlist handlers with bounded, validated artifacts; 109 tests, typecheck, lint, and production build pass; no external calls or financial authority added |
 | Phase 4.3 agent-run persistence/read view | Pass | Added migration 0008, Drizzle/repository lifecycle enforcement, and authenticated metadata-only `/v1/agent-runs`; 110 tests, typecheck, lint, and production build pass; hosted migration not yet applied |

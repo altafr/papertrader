@@ -414,7 +414,7 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 
 - Added the server-side `GLOBAL_KILL_SWITCH_ACTIVE` boolean guard, defaulting to inactive and rejecting invalid values. When active, Paper Autopilot readiness reports `global_kill_switch_active`, Worker startup refuses enabled Autopilot, and paper-order execution stops before persistence or broker submission.
 - The guard is independent of browser state and cannot be bypassed by an approved intent, agent output, or a command payload. It remains off in the current deployment and does not change any persistent Railway variable.
-- Added configuration, readiness, startup-boundary, and execution tests. Local tests, typecheck, lint, production build, secret-surface audit, and diff checks pass.
+- Added configuration, readiness, startup-boundary, and execution tests. Local tests, typecheck, lint, production build, secret-surface audit, and diff checks pass. Worker deployment `726c5b3b-8dfb-4b3f-9f4f-9511935f7f43` reached `SUCCESS`; hosted readiness returned `globalKillSwitchActive:false`, `status:"disabled"`, and broker/scheduler/handler/Autopilot gates disabled. No persistent variable was changed.
 
 ### Phase 4.1 Structured Agent Runs
 
