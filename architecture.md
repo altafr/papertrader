@@ -392,6 +392,12 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - Added regression coverage at both the `USD 1,000` baseline and a high-equity case proving the absolute ceiling cannot be exceeded, including estimated fees and slippage.
 - These are server/domain invariants only. They do not enable a strategy, approve an intent, contact Alpaca, write PostgreSQL, or alter hosted configuration.
 
+### Phase 6.26 Operator-Visible Paper Risk Policy
+
+- Authenticated `GET /v1/operations-health` now returns the non-secret active paper risk policy: the USD 1,000 initial baseline, the USD 100 absolute single-trade ceiling, and the 0.25% equity limit.
+- The dashboard validates the expanded redacted contract and displays the baseline and maximum single-trade risk beside the existing mode, scheduler, broker, and Paper Autopilot gates.
+- This is read-only metadata. The browser cannot change the policy, approve a trade, contact Alpaca, write PostgreSQL, or enable any execution gate. Local tests, typecheck, lint, production build, secret-surface audit, and diff checks pass.
+
 ### Phase 4.1 Structured Agent Runs
 
 - `packages/domain/src/agent-runs.ts` defines versioned, structured agent-run requests and artifacts for the orchestrator, stock/crypto research, macro advisory, strategy, risk explanation, execution, and reconciliation roles.

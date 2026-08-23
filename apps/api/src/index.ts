@@ -17,6 +17,7 @@ import {
   getPaperOperatingMode,
   getServerPort,
 } from "@momentum/config";
+import { MAX_SINGLE_TRADE_RISK_PERCENT_OF_EQUITY, MAX_SINGLE_TRADE_RISK_USD, PAPER_INITIAL_EQUITY_BASELINE } from "@momentum/domain";
 
 import { getApiHealth } from "./app.js";
 import { assessReconciliationHealth, assessSchedulerActivation } from "./operations-health.js";
@@ -308,6 +309,11 @@ async function readOperationsHealth(request: IncomingMessage) {
         dailyPreparationHandlerEnabled: handlerEnabled,
         operatingMode: getPaperOperatingMode(),
         paperAutopilotEnabled: readBooleanEnvironmentFlag("PAPER_AUTOPILOT_ENABLED"),
+        riskPolicy: {
+          initialEquityBaseline: PAPER_INITIAL_EQUITY_BASELINE,
+          maxSingleTradeRiskPercent: MAX_SINGLE_TRADE_RISK_PERCENT_OF_EQUITY,
+          maxSingleTradeRiskUsd: MAX_SINGLE_TRADE_RISK_USD,
+        },
         scheduler: {
           enabled: schedulerEnabled,
           status: schedulerStatus,

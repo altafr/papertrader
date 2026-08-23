@@ -2,8 +2,8 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.25 — paper baseline and single-trade risk invariants.
-- **Status:** Agent runs have deterministic contracts, reviewed PostgreSQL persistence, authenticated list/detail reads, a dashboard health surface, a paper-only market-data run-once boundary, a disabled-by-default daily research readiness surface, a separately named validated queue boundary, an explicit stock/crypto preparation planner, a fail-closed queue-handler composition, a readiness-gated scheduler registration boundary, safe runtime health reporting, explicit opt-in worker composition, a guarded local/CI readiness command, verified hosted disabled readiness, separate approval/reference guards, bounded research-run preflight validation, non-secret approval provenance, bounded explicit/latest persisted-run verification, deployed hosted tooling, deterministic source bar-integrity checks with duplicate/out-of-order distinctions, verified deployed integrity code, a guarded read-only database probe, an automated source/browser credential-value audit, an explicit paper operating-mode contract, persistent dashboard mode visibility, a truthful public foundation status, worker mode health, worker integration configuration health, a command-scoped approval reference for the durable one-run, and explicit paper baseline/single-trade risk invariants; Railway migration `0008` is applied, `DATABASE_URL` is verified on the backend services with private-host reachability and read-only PostgreSQL connectivity, while research scheduling, durable reconciliation, and Paper Autopilot remain disabled.
+- **Phase:** Phase 6.26 — operator-visible paper risk policy.
+- **Status:** Agent runs have deterministic contracts, reviewed PostgreSQL persistence, authenticated list/detail reads, a dashboard health surface, a paper-only market-data run-once boundary, a disabled-by-default daily research readiness surface, a separately named validated queue boundary, an explicit stock/crypto preparation planner, a fail-closed queue-handler composition, a readiness-gated scheduler registration boundary, safe runtime health reporting, explicit opt-in worker composition, a guarded local/CI readiness command, verified hosted disabled readiness, separate approval/reference guards, bounded research-run preflight validation, non-secret approval provenance, bounded explicit/latest persisted-run verification, deployed hosted tooling, deterministic source bar-integrity checks with duplicate/out-of-order distinctions, verified deployed integrity code, a guarded read-only database probe, an automated source/browser credential-value audit, an explicit paper operating-mode contract, persistent dashboard mode visibility, a truthful public foundation status, worker mode health, worker integration configuration health, a command-scoped approval reference for the durable one-run, explicit paper baseline/single-trade risk invariants, and authenticated operator-visible risk policy metadata; Railway migration `0008` is applied, `DATABASE_URL` is verified on the backend services with private-host reachability and read-only PostgreSQL connectivity, while research scheduling, durable reconciliation, and Paper Autopilot remain disabled.
 - **Current operating mode:** Paper only; order submission not yet enabled.
 - **Current goal:** Run the separately approved one-run paper reconciliation using the reviewed runbook, then verify its result in the authenticated dashboard.
 - **Last updated:** 2026-08-23.
@@ -660,6 +660,14 @@
 - **Verification:** 153 tests, typecheck, lint, production build, secret-surface audit, and diff checks pass.
 - **Next smallest unit:** Obtain explicit approval for the one-run paper reconciliation.
 
+## Completed Build Unit — Phase 6.26
+
+- **User story:** As the operator, I can see the active paper baseline and single-trade risk ceiling in the authenticated operations dashboard.
+- **Implemented:** Extended the redacted operations-health API contract and dashboard parser/card with the USD 1,000 baseline, USD 100 absolute ceiling, and 0.25% equity limit.
+- **Safety boundary:** The values are server-provided display metadata; no browser control, policy mutation, approval bypass, broker call, database write, or execution enablement was added.
+- **Verification:** 153 tests, typecheck, lint, production build, secret-surface audit, and diff checks pass.
+- **Next smallest unit:** Deploy the API/web contract and verify the protected previews; keep hosted worker gates disabled.
+
 ## Completed Build Unit — Phase 4.1
 
 - **User story:** As the orchestrator, I can create and track structured research-agent runs with provenance and concise evidence without granting any agent financial authority.
@@ -975,6 +983,7 @@
 | Phase 6.23 worker integration configuration health | Pass | Worker health distinguishes configured Alpaca/database prerequisites from `brokerConnectionEnabled=false`; deployment `af3ef28a-174d-4a63-bd5c-b5d5ac046201` returned HTTP 200 with `operatingMode=observe`, configured statuses, and durable/research/shadow gates disabled; no broker or order action occurred |
 | Phase 6.24 one-run approval provenance guard | Pass | Guarded durable one-run now requires a bounded non-secret command-scoped approval reference; 151 tests, typecheck, lint, build, audit, and diff checks pass; no hosted command or broker/database side effect occurred |
 | Phase 6.25 paper baseline and single-trade risk invariants | Pass | Domain names the USD 1,000 baseline and USD 100 absolute risk ceiling; high-equity regression coverage proves the lower-of-0.25%-or-USD-100 rule including costs; 153 tests and full static verification pass |
+| Phase 6.26 operator-visible paper risk policy | Pass | Authenticated operations-health and dashboard now expose the non-secret USD 1,000 baseline, USD 100 ceiling, and 0.25% limit; 153 tests and full static verification pass; no execution authority added |
 | Phase 4.1 structured agent runs | Pass | Added immutable run lifecycle/orchestrator and versioned artifact contracts with provenance; 106 tests, typecheck, lint, and production build pass; no external calls or financial authority added |
 | Phase 4.2 read-only research agents | Pass | Added deterministic stock/crypto watchlist handlers with bounded, validated artifacts; 109 tests, typecheck, lint, and production build pass; no external calls or financial authority added |
 | Phase 4.3 agent-run persistence/read view | Pass | Added migration 0008, Drizzle/repository lifecycle enforcement, and authenticated metadata-only `/v1/agent-runs`; 110 tests, typecheck, lint, and production build pass; hosted migration not yet applied |

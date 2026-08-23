@@ -24,6 +24,7 @@ describe("dashboard state", () => {
         dailyPreparationHandlerEnabled: false,
         operatingMode: "observe",
         paperAutopilotEnabled: false,
+        riskPolicy: { initialEquityBaseline: "1000", maxSingleTradeRiskPercent: "0.25", maxSingleTradeRiskUsd: "100" },
         scheduler: { enabled: false, status: "disabled" },
       },
     });

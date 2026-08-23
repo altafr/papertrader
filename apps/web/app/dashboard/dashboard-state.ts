@@ -11,6 +11,11 @@ export type OperationsHealth = {
     readonly dailyPreparationHandlerEnabled: boolean;
     readonly operatingMode: "observe" | "recommend" | "paper_autopilot";
     readonly paperAutopilotEnabled: boolean;
+    readonly riskPolicy: {
+      readonly initialEquityBaseline: string;
+      readonly maxSingleTradeRiskPercent: string;
+      readonly maxSingleTradeRiskUsd: string;
+    };
     readonly scheduler: { readonly enabled: boolean; readonly status: "blocked" | "disabled" | "ready" };
   };
 };
@@ -45,10 +50,13 @@ export function parseOperationsHealth(value: unknown): OperationsHealth | undefi
   const runtime = value.runtime;
   if (!isRecord(runtime.scheduler)) return undefined;
   const scheduler = runtime.scheduler;
+  if (!isRecord(runtime.riskPolicy)) return undefined;
+  const riskPolicy = runtime.riskPolicy;
   if (!(["delayed", "fresh", "stale", "unavailable"] as const).includes(reconciliation.status as OperationsHealth["reconciliation"]["status"])) return undefined;
   if (!(["blocked", "disabled", "ready"] as const).includes(scheduler.status as OperationsHealth["runtime"]["scheduler"]["status"])) return undefined;
   if (!( ["observe", "recommend", "paper_autopilot"] as const).includes(runtime.operatingMode as OperationsHealth["runtime"]["operatingMode"])) return undefined;
   if (typeof scheduler.enabled !== "boolean" || typeof runtime.brokerConnectionEnabled !== "boolean" || typeof runtime.dailyPreparationHandlerEnabled !== "boolean" || typeof runtime.paperAutopilotEnabled !== "boolean") return undefined;
+  if (typeof riskPolicy.initialEquityBaseline !== "string" || typeof riskPolicy.maxSingleTradeRiskPercent !== "string" || typeof riskPolicy.maxSingleTradeRiskUsd !== "string") return undefined;
   if (reconciliation.ageSeconds !== undefined && typeof reconciliation.ageSeconds !== "number") return undefined;
   if (reconciliation.capturedAt !== undefined && typeof reconciliation.capturedAt !== "string") return undefined;
   return {
@@ -62,6 +70,11 @@ export function parseOperationsHealth(value: unknown): OperationsHealth | undefi
       dailyPreparationHandlerEnabled: runtime.dailyPreparationHandlerEnabled,
       operatingMode: runtime.operatingMode as OperationsHealth["runtime"]["operatingMode"],
       paperAutopilotEnabled: runtime.paperAutopilotEnabled,
+      riskPolicy: {
+        initialEquityBaseline: riskPolicy.initialEquityBaseline,
+        maxSingleTradeRiskPercent: riskPolicy.maxSingleTradeRiskPercent,
+        maxSingleTradeRiskUsd: riskPolicy.maxSingleTradeRiskUsd,
+      },
       scheduler: { enabled: scheduler.enabled, status: scheduler.status as OperationsHealth["runtime"]["scheduler"]["status"] },
     },
   };
