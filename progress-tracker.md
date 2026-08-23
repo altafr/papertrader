@@ -1320,6 +1320,7 @@
 - **Implemented:** Added `@momentum/notifications`, Telegram configuration/formatting/redaction/transport boundaries, `.env.example`/README guidance, and the guarded worker `telegram-alert-test` command with a non-secret test reference.
 - **Verification:** 199 tests passed; typecheck, lint, production build, secret-surface audit, and diff checks passed. Telegram remains disabled and no message was sent from this workspace.
 - **Next smallest unit:** Configure the Railway worker Telegram secrets and obtain explicit approval for the guarded channel test; do not enable alerts persistently until the channel is verified.
+- **Hosted verification:** Worker deployment `c83e71c6-4885-4d8b-8858-b3f592a35391` succeeded; health is healthy observe mode, queues are present and drained, Telegram variables are absent, and broker/scheduler/Paper Autopilot gates remain disabled.
 
 ## Completed Build Unit — Phase 6.73
 

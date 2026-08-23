@@ -696,6 +696,7 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - Added a server-only Telegram Bot API adapter with disabled-by-default configuration, numeric chat-ID validation, bounded/redacted message formatting, and injected transport tests.
 - Added a guarded worker `telegram-alert-test` command requiring a command-scoped non-secret test reference; it emits only generic success/failure output and never logs Telegram credentials or provider responses.
 - Raw bot-token-shaped text, credential-like key/value text, URLs, invalid severities, and oversized messages are rejected or redacted at the notification boundary. No Telegram message was sent from this workspace.
+- Worker deployment `c83e71c6-4885-4d8b-8858-b3f592a35391` reached `SUCCESS`; private health remains healthy observe mode, queues remain present and drained, and no Telegram variables are configured in Railway.
 
 ### Phase 4.1 Structured Agent Runs
 
