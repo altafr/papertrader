@@ -426,7 +426,7 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 
 - Extended the private Worker health contract with `globalKillSwitchActive`, resolved through the same server-side configuration guard used by API operations health and Paper Autopilot execution.
 - Worker health is observational and contains no secret values or controls. A mismatch cannot enable execution; startup and order-path guards remain authoritative.
-- Local tests, typecheck, lint, production build, secret-surface audit, and diff checks pass. No hosted flag or order behavior changed in this unit.
+- Local tests, typecheck, lint, production build, secret-surface audit, and diff checks pass. Worker deployment `8823b09e-16c8-4773-874e-903321c23474` reached `SUCCESS`; private `/health` returned HTTP 200 with `operatingMode:"observe"`, `globalKillSwitchActive:false`, configured integrations, broker disabled, and durable/research/shadow gates disabled. No hosted flag or order behavior changed in this unit.
 
 ### Phase 4.1 Structured Agent Runs
 

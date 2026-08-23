@@ -705,8 +705,8 @@
 - **User story:** As the operator, I can verify that private Worker health agrees with API/dashboard kill-switch state.
 - **Implemented:** Added `globalKillSwitchActive` to the shared Worker health contract and resolved it through the server-side configuration guard.
 - **Safety boundary:** Health is read-only and cannot toggle or bypass the kill switch; startup and execution guards remain independent enforcement points.
-- **Verification:** 161 tests, typecheck, lint, production build, secret-surface audit, and diff checks pass.
-- **Next smallest unit:** Deploy the Worker and verify private health reports the default inactive kill-switch state; keep all execution gates disabled.
+- **Verification:** 161 tests, typecheck, lint, production build, secret-surface audit, and diff checks pass. Worker deployment `8823b09e-16c8-4773-874e-903321c23474` reached `SUCCESS`; private `/health` returned HTTP 200 with `globalKillSwitchActive:false`, `operatingMode:"observe"`, configured integrations, broker disabled, and all optional gates disabled.
+- **Next smallest unit:** Obtain explicit approval for the one-run paper reconciliation; keep the kill switch and all execution gates disabled.
 
 ## Completed Build Unit — Phase 4.1
 
@@ -1028,7 +1028,7 @@
 | Phase 6.28 Paper Autopilot runtime freshness readiness | Pass | Added guarded PostgreSQL-only freshness classification and configuration/freshness composition; 158 tests and full static verification pass; worker deployment `3ac368fd-c5b3-4443-989b-354d2b16195f` verified hosted `status=disabled` with fresh reconciliation; no Alpaca, scheduler, approval, or order action added |
 | Phase 6.29 global kill-switch runtime guard | Pass | Added `GLOBAL_KILL_SWITCH_ACTIVE` fail-closed checks to readiness, Worker startup, and paper execution; 161 tests and full static verification pass; deployment `726c5b3b-8dfb-4b3f-9f4f-9511935f7f43` verified hosted inactive/default-safe state; no hosted flag change or order action occurred |
 | Phase 6.30 operator-visible kill-switch status | Pass | Authenticated API/dashboard expose read-only `globalKillSwitchActive`; 161 tests and full static verification pass; API deployment `ceb8f9fb-1723-43d0-8d8d-3e9344c72c1d` and protected Vercel preview `dpl_GGphneUFTQm7wviXF7w8HRsGphrz` verified; no browser control, execution, scheduler, or configuration mutation added |
-| Phase 6.31 Worker kill-switch health consistency | Pass | Shared Worker health now reports the same server-resolved kill-switch state; 161 tests and full static verification pass; no hosted flag or order behavior changed |
+| Phase 6.31 Worker kill-switch health consistency | Pass | Shared Worker health now reports the same server-resolved kill-switch state; 161 tests and full static verification pass; deployment `8823b09e-16c8-4773-874e-903321c23474` verified private health consistency; no hosted flag or order behavior changed |
 | Phase 4.1 structured agent runs | Pass | Added immutable run lifecycle/orchestrator and versioned artifact contracts with provenance; 106 tests, typecheck, lint, and production build pass; no external calls or financial authority added |
 | Phase 4.2 read-only research agents | Pass | Added deterministic stock/crypto watchlist handlers with bounded, validated artifacts; 109 tests, typecheck, lint, and production build pass; no external calls or financial authority added |
 | Phase 4.3 agent-run persistence/read view | Pass | Added migration 0008, Drizzle/repository lifecycle enforcement, and authenticated metadata-only `/v1/agent-runs`; 110 tests, typecheck, lint, and production build pass; hosted migration not yet applied |
