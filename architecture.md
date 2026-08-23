@@ -481,6 +481,7 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 
 - Added the combined read-only `daily-reconciliation-readiness` command. It composes paper credentials/database/broker/handler/scheduler gates with migration `0009` structural readiness, so daily server activation has one bounded status contract.
 - The command reports `disabled` when prerequisites are structurally ready but the recurring scheduler flag is off, and `blocked` when migration or runtime prerequisites are missing. It never enables the scheduler, contacts Alpaca, or writes PostgreSQL.
+- Worker deployment `b1440657-b6aa-4497-97ab-6c6004723569` reached `SUCCESS`. The private Railway check returned `blocked` with the clean reasons `migration_not_recorded`, `migration_audit_table_missing`, and `migration_audit_columns_missing`; scheduler status remained `disabled`. No SQL mutation occurred.
 
 ### Phase 4.1 Structured Agent Runs
 
