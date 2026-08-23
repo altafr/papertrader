@@ -29,7 +29,7 @@ For a database-only probe, run the separate guarded command first. It performs
 only `SELECT 1` and does not contact Alpaca or start a queue:
 
 ```sh
-DATABASE_STATUS=true pnpm --filter @momentum/worker database-status
+env DATABASE_STATUS=true pnpm --filter @momentum/worker database-status
 ```
 
 Expected output is `{"databaseReachable":true}`. The command must not be

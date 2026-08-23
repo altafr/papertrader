@@ -340,6 +340,8 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - The Worker now exposes `database-status`, guarded by the command-scoped `DATABASE_STATUS=true` flag, to run a single read-only `SELECT 1` through the configured PostgreSQL pool.
 - The command requires the existing paper-only runtime and `DATABASE_URL`, returns only `{"databaseReachable":true}` on success, and replaces all database/provider failures with a generic message.
 - It closes the pool before exit and has no Alpaca, queue, scheduler, strategy, risk, or order authority. The flag is never a persistent Railway setting.
+- Worker deployment `d28e267c-42cd-4cfa-b364-9f30c8468bca` reached `SUCCESS`; Railway SSH returned `{"databaseReachable":true}` with `env DATABASE_STATUS=true pnpm --filter @momentum/worker database-status`.
+- Post-deployment checks confirmed `BROKER_CONNECTION_ENABLED=false`; research, durable-scheduler, daily-handler, and Paper Autopilot flags remain unset. No broker request or order action occurred.
 
 ### Phase 4.1 Structured Agent Runs
 

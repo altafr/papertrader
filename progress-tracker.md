@@ -591,7 +591,8 @@
 - **Implemented:** Added the guarded `database-status` Worker command and `verifyDatabaseConnectivity` probe. It requires `DATABASE_STATUS=true`, paper-only runtime, and `DATABASE_URL`, executes only `SELECT 1`, closes the pool, and emits no connection details.
 - **Safety boundary:** The command is one-shot and command-scoped. It cannot start scheduling, call Alpaca, write application state, submit orders, or enable Paper Autopilot; provider failures are redacted to a generic error.
 - **Verification:** `pnpm test` passes 147 tests; typecheck, lint, and production build pass. The command is ready for a hosted disabled-by-default deployment check.
-- **Next smallest unit:** Deploy the tested Worker revision, run `DATABASE_STATUS=true` once in Railway, then obtain explicit approval for the one-run paper reconciliation.
+- **Hosted verification:** Worker deployment `d28e267c-42cd-4cfa-b364-9f30c8468bca` reached `SUCCESS`; Railway SSH returned `{"databaseReachable":true}` using `env DATABASE_STATUS=true pnpm --filter @momentum/worker database-status`. Persistent broker, research, durable-scheduler, daily-handler, and Paper Autopilot flags remain disabled or unset.
+- **Next smallest unit:** Obtain explicit approval for the one-run paper reconciliation.
 
 ## Completed Build Unit — Phase 4.1
 
@@ -899,7 +900,7 @@
 | Phase 6.14 hosted reconciliation runbook | Pass | Added and linked the guarded Railway runbook with command-scoped gates, expected evidence, persistent-variable checks, and failure handling; no hosted state changed |
 | Phase 6.15 paper-only CI verification | Pass | GitHub Actions workflow added for locked install, lint, tests, typecheck, and build with read-only repository permissions and no runtime secrets; local equivalent checks pass |
 | Phase 6.16 Railway database connectivity | Pass | CLI confirmed non-empty `DATABASE_URL` on API and Worker; Worker private host reachability and PostgreSQL `SELECT 1` passed; deployed Worker `durable-status` also confirmed both queues present with zero queued/active/failed jobs; no secrets printed |
-| Phase 6.17 guarded database status command | Pass | Added command-scoped `DATABASE_STATUS=true` probe with generic failure output and pool cleanup; 147 tests, typecheck, lint, and production build pass; hosted deployment check pending |
+| Phase 6.17 guarded database status command | Pass | Added command-scoped `DATABASE_STATUS=true` probe with generic failure output and pool cleanup; 147 tests, typecheck, lint, and production build pass; Worker deployment `d28e267c-42cd-4cfa-b364-9f30c8468bca` succeeded and hosted probe returned `databaseReachable=true` with persistent activation flags unchanged |
 | Phase 4.1 structured agent runs | Pass | Added immutable run lifecycle/orchestrator and versioned artifact contracts with provenance; 106 tests, typecheck, lint, and production build pass; no external calls or financial authority added |
 | Phase 4.2 read-only research agents | Pass | Added deterministic stock/crypto watchlist handlers with bounded, validated artifacts; 109 tests, typecheck, lint, and production build pass; no external calls or financial authority added |
 | Phase 4.3 agent-run persistence/read view | Pass | Added migration 0008, Drizzle/repository lifecycle enforcement, and authenticated metadata-only `/v1/agent-runs`; 110 tests, typecheck, lint, and production build pass; hosted migration not yet applied |
