@@ -1320,6 +1320,7 @@
 - **Implemented:** Added `DAILY_RECONCILIATION_ACTIVATION_PREFLIGHT=true` support through `daily-reconciliation-activation-preflight`; it overlays broker/handler/scheduler gates in memory and requires the activation reference.
 - **Verification:** 194 tests passed; typecheck, lint, production build, secret-surface audit, and diff checks passed. No queue, broker, scheduler, or reconciliation side effect occurred locally.
 - **Next smallest unit:** Deploy the rehearsal and run it once over Railway's private network, then record the bounded result and confirm persistent defaults remain disabled.
+- **Hosted verification:** Deployment `c586472f-32f6-4297-89e5-3196c678d688` succeeded. The command-scoped rehearsal returned `status:"ready"`; the normal readiness check returned `disabled`, health remained healthy observe mode, and persistent broker/handler/scheduler/autopilot gates stayed disabled.
 
 ## Completed Build Unit — Phase 6.67
 

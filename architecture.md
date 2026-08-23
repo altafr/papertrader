@@ -653,6 +653,7 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - Added `daily-reconciliation-activation-preflight`, a read-only rehearsal that overlays the scheduler, handler, and broker gates only in memory and requires a non-secret activation reference.
 - The rehearsal combines the simulated scheduler readiness with live migration structure checks but never creates a pg-boss client, enqueues a job, reads Alpaca, writes reconciliation state, or changes Railway variables.
 - Paper order approval behavior is unchanged: the activation reference is for persistent scheduler operations, not individual paper orders.
+- Worker deployment `c586472f-32f6-4297-89e5-3196c678d688` reached `SUCCESS`; the hosted rehearsal returned `status:"ready"`, while a normal readiness check immediately afterward remained `disabled` and persistent gates were unchanged.
 
 ### Phase 4.1 Structured Agent Runs
 
