@@ -1320,6 +1320,7 @@
 - **Implemented:** Added runtime validation for the exact daily-preparation kind/version and bounded optional run/provenance fields; wired it into both recurring and one-run handlers.
 - **Verification:** 192 tests passed; typecheck, lint, production build, secret-surface audit, and diff checks passed. No hosted queue, broker, database-write, scheduler, or Paper Autopilot action occurred.
 - **Next smallest unit:** Deploy the validation boundary and verify worker health/queue state; obtain fresh approval before any one-run execution.
+- **Hosted verification:** Worker deployment `cd9dab8d-cc3a-41c8-8517-c2c8d25dcefd` reached `SUCCESS`; private health is healthy observe mode, queues are present and drained, and persistent broker/scheduler/autopilot gates remain disabled.
 
 ## Completed Build Unit — Phase 6.64
 
