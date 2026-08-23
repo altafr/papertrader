@@ -1,11 +1,11 @@
-import { FOUNDATION_STATUS, OPERATING_MODES } from "@momentum/domain";
+import { OPERATING_MODES } from "@momentum/domain";
 import Link from "next/link";
 
 const boundaries = [
-  ["Dashboard", "Vercel", "Scaffolded"],
-  ["Authenticated API", "Railway", "Not provisioned"],
-  ["Database", "Railway PostgreSQL", "Not provisioned"],
-  ["Background worker", "Railway", "Scaffolded; inactive"],
+  ["Dashboard", "Vercel", "Deployed; authenticated"],
+  ["Authenticated API", "Railway", "Healthy; protected"],
+  ["Database", "Railway PostgreSQL", "Private; connected"],
+  ["Background worker", "Railway", "Online; execution gated"],
 ] as const;
 
 export default function Home() {
@@ -15,18 +15,18 @@ export default function Home() {
         <div className="brand">Momentum Autopilot</div>
         <div className="status-items" aria-label="System status">
           <span className="badge paper">Paper</span>
-          <span className="badge neutral">Read-only foundation</span>
-          <span className="badge neutral">No broker connection</span>
+          <span className="badge neutral">{OPERATING_MODES.observe}</span>
+          <span className="badge neutral">Broker access gated</span>
         </div>
       </header>
 
       <section className="hero" aria-labelledby="page-title">
-        <p className="eyebrow">Phase 0.1 · Source foundation</p>
-        <h1 id="page-title">Safe boundaries before trading behavior.</h1>
+        <p className="eyebrow">Phase 6.21 · Paper operations foundation</p>
+        <h1 id="page-title">Paper operations with explicit safety gates.</h1>
         <p className="lede">
-          The dashboard, API, worker, and shared contracts now have separate homes. No
-          credentials, market data, database connection, or order capability exists in this
-          build.
+          The dashboard, authenticated API, PostgreSQL read model, and background worker are
+          deployed as separate services. The system is in Observe mode; order authority remains
+          disabled until every deterministic paper gate is satisfied.
         </p>
       </section>
 
@@ -35,11 +35,11 @@ export default function Home() {
           <div className="card-heading">
             <div>
               <p className="label">Workspace state</p>
-              <h2>{FOUNDATION_STATUS.label}</h2>
+                <h2>Paper foundation ready</h2>
             </div>
             <span className="dot" aria-label="Healthy scaffold" />
           </div>
-          <p>{FOUNDATION_STATUS.description}</p>
+          <p>Server-side paper infrastructure is available while broker reads, scheduling, and execution remain explicitly gated.</p>
           <dl className="facts">
             <div>
               <dt>Current mode</dt>
@@ -71,8 +71,8 @@ export default function Home() {
           <p className="label">Safety invariant</p>
           <h2>Browser code has no broker credentials or order authority.</h2>
           <p>
-            Future Alpaca access belongs only in server-side Railway services and remains
-            unavailable until the relevant paper-trading phases are implemented and verified.
+            Alpaca access belongs only in server-side Railway services. The public page is
+            informational and cannot enable broker access, scheduling, risk approval, or orders.
           </p>
           <p>
             <Link href="/dashboard">Open authenticated dashboard</Link>

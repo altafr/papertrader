@@ -362,6 +362,12 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - If the authenticated operations-health response is unavailable, the bar displays `Mode unavailable`; it never infers or fabricates a mode. The detailed health card continues to show all activation gates.
 - Vercel preview deployment `dpl_CQua9HGsqECuzwatPiKrU8CgWsaj` reached `Ready` at `https://papertrader-ecg4e2ftb-altafrs-projects.vercel.app`; the deployment remains protected and unauthenticated HTTP returned the expected redirect.
 
+### Phase 6.21 Truthful Public Foundation Status
+
+- Updated the public foundation page to describe the current deployed paper infrastructure: Vercel dashboard, protected Railway API, private connected PostgreSQL, and an online but execution-gated worker.
+- The page now shows `Observe` and `Broker access gated`, states that order authority is disabled, and avoids claiming that credentials, database connectivity, or server-side paper adapters do not exist.
+- It remains informational only; no browser credential, broker call, mode-changing control, scheduler, or order authority was added. Vercel preview `dpl_BgZVSWj78ASLQtrBBTedh98DQK5c` reached `Ready` and remains deployment-protected.
+
 ### Phase 4.1 Structured Agent Runs
 
 - `packages/domain/src/agent-runs.ts` defines versioned, structured agent-run requests and artifacts for the orchestrator, stock/crypto research, macro advisory, strategy, risk explanation, execution, and reconciliation roles.

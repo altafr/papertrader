@@ -2,8 +2,8 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.20 — dashboard mode visibility.
-- **Status:** Agent runs have deterministic contracts, reviewed PostgreSQL persistence, authenticated list/detail reads, a dashboard health surface, a paper-only market-data run-once boundary, a disabled-by-default daily research readiness surface, a separately named validated queue boundary, an explicit stock/crypto preparation planner, a fail-closed queue-handler composition, a readiness-gated scheduler registration boundary, safe runtime health reporting, explicit opt-in worker composition, a guarded local/CI readiness command, verified hosted disabled readiness, a separate approval/reference guard, bounded research-run preflight validation, non-secret approval provenance, bounded explicit/latest persisted-run verification, deployed hosted tooling, deterministic source bar-integrity checks with duplicate/out-of-order distinctions, verified deployed integrity code, a guarded read-only database probe, an automated source/browser credential-value audit, an explicit paper operating-mode contract, and persistent dashboard mode visibility; Railway migration `0008` is applied, `DATABASE_URL` is verified on the backend services with private-host reachability and read-only PostgreSQL connectivity, while research scheduling, durable reconciliation, and Paper Autopilot remain disabled.
+- **Phase:** Phase 6.21 — truthful public foundation status.
+- **Status:** Agent runs have deterministic contracts, reviewed PostgreSQL persistence, authenticated list/detail reads, a dashboard health surface, a paper-only market-data run-once boundary, a disabled-by-default daily research readiness surface, a separately named validated queue boundary, an explicit stock/crypto preparation planner, a fail-closed queue-handler composition, a readiness-gated scheduler registration boundary, safe runtime health reporting, explicit opt-in worker composition, a guarded local/CI readiness command, verified hosted disabled readiness, a separate approval/reference guard, bounded research-run preflight validation, non-secret approval provenance, bounded explicit/latest persisted-run verification, deployed hosted tooling, deterministic source bar-integrity checks with duplicate/out-of-order distinctions, verified deployed integrity code, a guarded read-only database probe, an automated source/browser credential-value audit, an explicit paper operating-mode contract, persistent dashboard mode visibility, and a truthful public foundation status; Railway migration `0008` is applied, `DATABASE_URL` is verified on the backend services with private-host reachability and read-only PostgreSQL connectivity, while research scheduling, durable reconciliation, and Paper Autopilot remain disabled.
 - **Current operating mode:** Paper only; order submission not yet enabled.
 - **Current goal:** Run the separately approved one-run paper reconciliation using the reviewed runbook, then verify its result in the authenticated dashboard.
 - **Last updated:** 2026-08-23.
@@ -620,6 +620,14 @@
 - **Hosted preview:** Vercel preview deployment `dpl_CQua9HGsqECuzwatPiKrU8CgWsaj` reached `Ready`; unauthenticated HTTP returned `302` to deployment protection. Authenticated visual review remains an operator-browser step.
 - **Next smallest unit:** Obtain explicit approval for the one-run paper reconciliation.
 
+## Completed Build Unit — Phase 6.21
+
+- **User story:** As an operator or reviewer, I see an accurate public description of what is deployed without confusing the initial scaffold with the current paper-only infrastructure.
+- **Implemented:** Updated the public foundation page's phase label, mode/broker badges, deployment-boundary states, copy, and safety description to match the current Vercel/Railway architecture.
+- **Safety boundary:** The page remains informational and exposes no secrets, database access, Alpaca calls, controls, scheduler authority, risk approval, or order methods.
+- **Verification:** 149 tests, typecheck, lint, production build, secret-surface audit, and diff checks pass. Vercel preview `dpl_BgZVSWj78ASLQtrBBTedh98DQK5c` is Ready; unauthenticated HTTP returns `302` due to deployment protection.
+- **Next smallest unit:** Obtain explicit approval for the one-run paper reconciliation.
+
 ## Completed Build Unit — Phase 4.1
 
 - **User story:** As the orchestrator, I can create and track structured research-agent runs with provenance and concise evidence without granting any agent financial authority.
@@ -930,6 +938,7 @@
 | Phase 6.18 secret-surface CI audit | Pass | Added source/browser credential-value scan and CI step after build; fresh build, audit, 147 tests, typecheck, lint, and diff checks pass; no secret values printed |
 | Phase 6.19 explicit paper operating-mode contract | Pass | Added observe/recommend/paper_autopilot resolution, contradiction fail-closed checks, API/dashboard mode visibility, and tests; 149 tests, typecheck, lint, build, audit, and diff checks pass; API deployment `5bae4605-c1e8-4115-bbdc-90982aab61ad` succeeded with hosted mode safely resolving to observe |
 | Phase 6.20 dashboard mode visibility | Pass | Dashboard status bar now renders the server-resolved mode or `Mode unavailable`; production build, 149 tests, typecheck, lint, audit, and diff checks pass; Vercel preview `dpl_CQua9HGsqECuzwatPiKrU8CgWsaj` is Ready and protected |
+| Phase 6.21 truthful public foundation status | Pass | Public page now reflects deployed paper infrastructure and gated Observe mode without claiming missing services; 149 tests, typecheck, lint, build, audit, and diff checks pass; Vercel preview `dpl_BgZVSWj78ASLQtrBBTedh98DQK5c` is Ready and protected |
 | Phase 4.1 structured agent runs | Pass | Added immutable run lifecycle/orchestrator and versioned artifact contracts with provenance; 106 tests, typecheck, lint, and production build pass; no external calls or financial authority added |
 | Phase 4.2 read-only research agents | Pass | Added deterministic stock/crypto watchlist handlers with bounded, validated artifacts; 109 tests, typecheck, lint, and production build pass; no external calls or financial authority added |
 | Phase 4.3 agent-run persistence/read view | Pass | Added migration 0008, Drizzle/repository lifecycle enforcement, and authenticated metadata-only `/v1/agent-runs`; 110 tests, typecheck, lint, and production build pass; hosted migration not yet applied |
