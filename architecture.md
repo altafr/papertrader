@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 4.25 deterministic market-bar integrity checks added; Railway database connectivity is verified, while research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
+- **Stage:** Phase 4.26 duplicate market-bar rejection clarified; Railway database connectivity is verified, while research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -481,6 +481,11 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - The paper market-data source now rejects fewer-than-two bars, unrequested symbols, invalid/future timestamps, per-symbol out-of-order bars, non-positive OHLCV values, and inconsistent OHLC ranges before producing `ResearchAgentInput`.
 - The source accepts an injected clock for deterministic tests and captures the validated source time; the existing research handlers remain responsible for their own artifact-level validation.
 - These checks are read-only and fail closed. They do not alter broker requests, submit orders, write database state, or enable scheduling.
+
+### Phase 4.26 Duplicate Market-Bar Rejection
+
+- The integrity boundary distinguishes exact duplicate timestamps from older out-of-order rows, producing explicit safe failure categories for operator diagnosis.
+- Both cases remain fail-closed before agent input creation; no provider payload or credential is emitted.
 
 ### Phase 6.13 Dashboard Operations Health Surface
 

@@ -23,7 +23,8 @@ export function validateResearchBars(input: {
     if (Number.isNaN(timestamp)) throw new Error("Research source returned an invalid bar timestamp.");
     if (timestamp > input.now.getTime() + 5 * 60 * 1_000) throw new Error("Research source returned a future bar.");
     const previous = latestBySymbol.get(bar.symbol);
-    if (previous !== undefined && timestamp <= previous) throw new Error("Research source returned out-of-order bars.");
+    if (previous !== undefined && timestamp === previous) throw new Error("Research source returned duplicate bars.");
+    if (previous !== undefined && timestamp < previous) throw new Error("Research source returned out-of-order bars.");
     latestBySymbol.set(bar.symbol, timestamp);
     const open = positiveNumber(bar.open, "open");
     const high = positiveNumber(bar.high, "high");

@@ -27,5 +27,6 @@ describe("Alpaca research input source", () => {
     expect(() => validateResearchBars({ bars: [{ ...bar, symbol: "BBB" }, { ...bar, symbol: "BBB", timestamp: "2026-08-23T01:30:00.000Z" }], now, symbols: ["AAA"] })).toThrow("unrequested");
     expect(() => validateResearchBars({ bars: [bar, { ...bar, timestamp: "2026-08-23T00:30:00.000Z" }], now, symbols: ["AAA"] })).toThrow("out-of-order");
     expect(() => validateResearchBars({ bars: [{ ...bar, high: "90" }, { ...bar, timestamp: "2026-08-23T01:30:00.000Z" }], now, symbols: ["AAA"] })).toThrow("inconsistent");
+    expect(() => validateResearchBars({ bars: [bar, { ...bar }], now, symbols: ["AAA"] })).toThrow("duplicate");
   });
 });
