@@ -477,6 +477,11 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - If the tracking table is absent, the plan reports that fact explicitly and does not infer that any migration is safe to apply. The command emits only bounded filenames, versions, booleans, and status.
 - Worker deployment `7b78fe6a-f6f9-4d51-9984-d7bb7cc70647` reached `SUCCESS`. The private Railway plan reported exactly one pending migration, `0009_durable_one_run_audits.sql`, with `approvalRequired:true`; `schema_migrations` is present. No SQL mutation occurred.
 
+### Phase 6.40 Daily Reconciliation Readiness
+
+- Added the combined read-only `daily-reconciliation-readiness` command. It composes paper credentials/database/broker/handler/scheduler gates with migration `0009` structural readiness, so daily server activation has one bounded status contract.
+- The command reports `disabled` when prerequisites are structurally ready but the recurring scheduler flag is off, and `blocked` when migration or runtime prerequisites are missing. It never enables the scheduler, contacts Alpaca, or writes PostgreSQL.
+
 ### Phase 4.1 Structured Agent Runs
 
 - `packages/domain/src/agent-runs.ts` defines versioned, structured agent-run requests and artifacts for the orchestrator, stock/crypto research, macro advisory, strategy, risk explanation, execution, and reconciliation roles.

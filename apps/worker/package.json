@@ -18,6 +18,7 @@
     "database-migrate": "tsx src/database-migration-command.ts",
     "database-migration-readiness": "tsx src/database-migration-readiness-command.ts",
     "database-migration-plan": "tsx src/database-migration-plan-command.ts",
+    "daily-reconciliation-readiness": "tsx src/daily-reconciliation-readiness-command.ts",
     "database-status": "tsx src/database-status-command.ts",
     "reconcile": "tsx src/reconcile-command.ts",
     "research-run-once": "tsx src/research-run-once-command.ts",
