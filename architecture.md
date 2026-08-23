@@ -495,6 +495,11 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - The target is command-scoped metadata only; it does not alter the database, scheduler, broker, or approval records.
 - Worker deployment `cd79e69e-1a31-438c-ba47-c4480ae1b82a` reached `SUCCESS`; private health remained healthy with observe mode, broker access disabled, durable scheduler disabled, and the global kill switch inactive. No migration command or SQL mutation was run.
 
+### Phase 6.43 Scheduler Migration Probe Tests
+
+- Added direct tests for the scheduler migration probe: complete schema readiness, missing `schema_migrations` fail-closed behavior, and assertion rejection of incomplete state.
+- This verifies the actual query-contract path used at startup, not just the pure error assertion. No hosted state or runtime behavior was changed.
+
 ### Phase 4.1 Structured Agent Runs
 
 - `packages/domain/src/agent-runs.ts` defines versioned, structured agent-run requests and artifacts for the orchestrator, stock/crypto research, macro advisory, strategy, risk explanation, execution, and reconciliation roles.
