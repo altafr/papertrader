@@ -340,6 +340,12 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - The in-process run store enforces `queued → running → succeeded|failed`, immutable snapshots, unique run IDs, timestamp ordering, concise rationale, evidence references, and redacted failure codes.
 - The deterministic orchestrator dispatches only registered handlers and validates returned artifacts. It does not call an LLM, broker, database, or order method; model/provider and prompt-template fields are provenance metadata only.
 
+### Phase 4.2 Read-Only Research Agents
+
+- `packages/domain/src/research-agents.ts` adds deterministic stock and crypto research handlers that consume fresh, validated Alpaca bar inputs and produce bounded momentum watchlist artifacts.
+- Each artifact carries the asset class, capture time, source evidence reference, average volume, point-in-time return, and source-bar timestamp. Candidate output is capped at 20 symbols and is explicitly research evidence, not an order recommendation.
+- Invalid/stale input, non-positive prices/volumes, and malformed timestamps fail closed. The handlers have no credentials, persistence, strategy-stage, risk, or order authority and remain disabled until a later worker/API wiring unit.
+
 ### Phase 6.13 Dashboard Operations Health Surface
 
 - The authenticated dashboard consumes only the redacted `/v1/operations-health` response and displays reconciliation freshness plus scheduler, broker-read, and Paper Autopilot gates.

@@ -103,7 +103,7 @@
 ### Phase 4 — Research Agents and Daily Preparation
 
 - [x] Implement orchestrator and structured agent-run records.
-- [ ] Add stock and crypto research agents with read-only tools.
+- [x] Add stock and crypto research agents with read-only tools.
 - [ ] Add macro advisory and economic-event context.
 - [ ] Produce persisted daily stock and continuous crypto plans.
 - [ ] Add agent health, evidence, and audit views.
@@ -592,6 +592,14 @@
 - **Verification:** `pnpm test` passes 106 tests; `pnpm typecheck`, `pnpm lint`, and `pnpm build` pass across the workspace.
 - **Next smallest unit:** Add read-only stock and crypto research agents that consume validated market inputs and emit bounded artifacts through this orchestrator.
 
+## Completed Build Unit — Phase 4.2
+
+- **User story:** As the research layer, I can rank fresh stock and crypto bar inputs into bounded watchlist evidence without placing orders or changing strategy state.
+- **Implemented:** Added deterministic `runStockResearch` and `runCryptoResearch` handlers with positive-price/volume and timestamp validation, point-in-time momentum/average-volume calculations, asset-class separation, 20-candidate output bounds, and source evidence references.
+- **Safety boundary:** The handlers are read-only domain functions. They do not call Alpaca, PostgreSQL, an LLM, a scheduler, a risk engine, or an order method; their output is explicitly not an order recommendation.
+- **Verification:** `pnpm test` passes 109 tests; `pnpm typecheck`, `pnpm lint`, and `pnpm build` pass across the workspace.
+- **Next smallest unit:** Add authenticated, read-only worker/API wiring for persisted agent-run health and research artifacts, keeping the handlers disabled by default.
+
 ## Decisions Made
 
 | Date | Decision | Reason |
@@ -686,6 +694,7 @@
 | Phase 6.15 paper-only CI verification | Pass | GitHub Actions workflow added for locked install, lint, tests, typecheck, and build with read-only repository permissions and no runtime secrets; local equivalent checks pass |
 | Phase 6.16 Railway database connectivity | Pass | CLI confirmed non-empty `DATABASE_URL` on API and Worker; deployed Worker `durable-status` read-only query succeeded with both queues present and zero queued/active/failed jobs; no secrets printed |
 | Phase 4.1 structured agent runs | Pass | Added immutable run lifecycle/orchestrator and versioned artifact contracts with provenance; 106 tests, typecheck, lint, and production build pass; no external calls or financial authority added |
+| Phase 4.2 read-only research agents | Pass | Added deterministic stock/crypto watchlist handlers with bounded, validated artifacts; 109 tests, typecheck, lint, and production build pass; no external calls or financial authority added |
 | Browser/preview | Partial | Production page HTTP check passed; visual/responsive review deferred beyond source scaffold |
 | Security review | Partial | No credential files, Alpaca client, database connection, or order code added; full review remains required |
 
