@@ -459,6 +459,11 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - The guarded one-run queue payload now carries its run ID and approval reference; reconciliation writes the audit row in the same transaction as the account snapshot. The verifier requires and checks the persisted audit row before reporting `verified`.
 - Recurring daily jobs remain unchanged and do not create one-run audit rows. No live capability, browser authority, or automatic approval was added.
 
+### Phase 6.37 Migration Readiness Check
+
+- Added the guarded, read-only `database-migration-readiness` command. It checks the reviewed `0009` migration file, the `schema_migrations` record, the audit table, and all required columns without creating or changing database state.
+- A `ready` result means the hosted database is structurally prepared for the persisted one-run audit contract; a `blocked` result reports only bounded reason codes. The command does not apply migrations or enable any worker gate.
+
 ### Phase 4.1 Structured Agent Runs
 
 - `packages/domain/src/agent-runs.ts` defines versioned, structured agent-run requests and artifacts for the orchestrator, stock/crypto research, macro advisory, strategy, risk explanation, execution, and reconciliation roles.
