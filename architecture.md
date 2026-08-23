@@ -660,6 +660,7 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - Durable scheduler readiness now exposes `activationApprovalReferencePresent` as a boolean check alongside the existing broker, handler, database, paper-mode, and scheduler checks.
 - Missing or malformed activation references still produce the bounded `scheduler_activation_approval_reference_missing` reason; no reference value is emitted.
 - This improves operator/audit visibility without changing activation semantics or requiring approval for individual paper orders.
+- Worker deployment `25318526-4866-45ad-969e-55ef885aecdf` reached `SUCCESS`; hosted default readiness reported `activationApprovalReferencePresent:true` with scheduler `disabled`, while the command-scoped rehearsal reported `ready` with the same check true.
 
 ### Phase 4.1 Structured Agent Runs
 

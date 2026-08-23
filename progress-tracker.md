@@ -1320,6 +1320,7 @@
 - **Implemented:** Added `activationApprovalReferencePresent` to durable scheduler readiness checks and covered both valid and missing-reference paths.
 - **Verification:** 194 tests passed; typecheck, lint, production build, secret-surface audit, and diff checks passed. No persistent Railway setting or scheduler behavior changed.
 - **Next smallest unit:** Deploy the explicit readiness check and verify hosted output remains safe and disabled by default.
+- **Hosted verification:** Deployment `25318526-4866-45ad-969e-55ef885aecdf` succeeded. Default readiness is `disabled` with the explicit boolean check true-by-default while scheduling is off; command-scoped rehearsal is `ready`, and worker health remains healthy observe mode.
 
 ## Completed Build Unit — Phase 6.68
 
