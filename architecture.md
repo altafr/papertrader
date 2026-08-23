@@ -360,6 +360,7 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 
 - The authenticated dashboard's persistent status bar now renders the server-resolved operating mode (`Observe`, `Recommend`, or `Paper Autopilot`) instead of a generic read-only label.
 - If the authenticated operations-health response is unavailable, the bar displays `Mode unavailable`; it never infers or fabricates a mode. The detailed health card continues to show all activation gates.
+- Vercel preview deployment `dpl_CQua9HGsqECuzwatPiKrU8CgWsaj` reached `Ready` at `https://papertrader-ecg4e2ftb-altafrs-projects.vercel.app`; the deployment remains protected and unauthenticated HTTP returned the expected redirect.
 
 ### Phase 4.1 Structured Agent Runs
 
