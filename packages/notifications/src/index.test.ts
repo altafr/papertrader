@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 
-import { formatTelegramAlert, getTelegramNotificationConfig, sendTelegramAlert, type TelegramAlertSeverity } from "./index.js";
+import { formatTelegramAlert, getTelegramNotificationConfig, getTelegramNotificationReadiness, sendTelegramAlert, type TelegramAlertSeverity } from "./index.js";
 
 describe("Telegram notifications", () => {
   it("defaults disabled without reading or returning credentials", () => {
@@ -9,6 +9,12 @@ describe("Telegram notifications", () => {
   it("requires a bounded server-side configuration when enabled", () => {
     expect(() => getTelegramNotificationConfig({ TELEGRAM_ALERTS_ENABLED: "true" })).toThrow(/bot token and chat ID/);
     expect(getTelegramNotificationConfig({ TELEGRAM_ALERTS_ENABLED: "true", TELEGRAM_BOT_TOKEN: "123456:ABC_def-123", TELEGRAM_CHAT_ID: "-1001234567890" }).enabled).toBe(true);
+  });
+  it("reports safe readiness without returning secret values", () => {
+    expect(getTelegramNotificationReadiness({})).toMatchObject({ status: "disabled", blockedReasons: [] });
+    expect(getTelegramNotificationReadiness({ TELEGRAM_ALERTS_ENABLED: "true" })).toMatchObject({ status: "blocked", blockedReasons: ["telegram_bot_token_missing", "telegram_chat_id_missing"] });
+    expect(getTelegramNotificationReadiness({ TELEGRAM_ALERTS_ENABLED: "true", TELEGRAM_BOT_TOKEN: "123456:ABC_def-123", TELEGRAM_CHAT_ID: "-1001234567890" })).toMatchObject({ status: "ready", blockedReasons: [] });
+    expect(getTelegramNotificationReadiness({ TELEGRAM_ALERTS_ENABLED: "maybe", TELEGRAM_BOT_TOKEN: "secret", TELEGRAM_CHAT_ID: "123" })).toMatchObject({ status: "blocked", blockedReasons: ["telegram_alerts_flag_invalid"] });
   });
   it("formats and redacts alert content", () => {
     const value = formatTelegramAlert({ code: "stale_data", message: "api_key=hidden 123456:ABCDEFGHIJKLMNOPQRSTUVWXYZ_1234567890 https://example.test", occurredAt: "2026-08-24T00:00:00.000Z", severity: "critical" });

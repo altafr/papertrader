@@ -16,6 +16,18 @@ export type TelegramNotificationConfig = {
   readonly enabled: boolean;
 };
 
+export type TelegramNotificationReadiness = {
+  readonly status: "disabled" | "blocked" | "ready";
+  readonly checks: {
+    readonly enabled: boolean;
+    readonly botTokenConfigured: boolean;
+    readonly chatIdConfigured: boolean;
+    readonly botTokenFormatValid: boolean;
+    readonly chatIdFormatValid: boolean;
+  };
+  readonly blockedReasons: readonly string[];
+};
+
 type TelegramFetch = (input: string, init?: RequestInit) => Promise<Response>;
 
 const boundedField = /^[A-Za-z0-9][A-Za-z0-9._:/-]{0,127}$/;
@@ -25,6 +37,34 @@ function parseEnabled(environment: NodeJS.ProcessEnv): boolean {
   const raw = environment.TELEGRAM_ALERTS_ENABLED ?? "false";
   if (raw !== "true" && raw !== "false") throw new Error("TELEGRAM_ALERTS_ENABLED must be exactly true or false.");
   return raw === "true";
+}
+
+export function getTelegramNotificationReadiness(environment: NodeJS.ProcessEnv = process.env): TelegramNotificationReadiness {
+  const rawEnabled = environment.TELEGRAM_ALERTS_ENABLED ?? "false";
+  if (rawEnabled !== "true" && rawEnabled !== "false") {
+    return {
+      status: "blocked",
+      checks: { enabled: false, botTokenConfigured: false, chatIdConfigured: false, botTokenFormatValid: false, chatIdFormatValid: false },
+      blockedReasons: ["telegram_alerts_flag_invalid"],
+    };
+  }
+  const enabled = rawEnabled === "true";
+  const botToken = environment.TELEGRAM_BOT_TOKEN?.trim() ?? "";
+  const chatId = environment.TELEGRAM_CHAT_ID?.trim() ?? "";
+  const botTokenConfigured = botToken.length > 0;
+  const chatIdConfigured = chatId.length > 0;
+  const botTokenFormatValid = botTokenConfigured && boundedField.test(botToken);
+  const chatIdFormatValid = chatIdConfigured && chatIdPattern.test(chatId);
+  if (!enabled) {
+    return { status: "disabled", checks: { enabled, botTokenConfigured: false, chatIdConfigured: false, botTokenFormatValid: false, chatIdFormatValid: false }, blockedReasons: [] };
+  }
+  const blockedReasons = [
+    ...(!botTokenConfigured ? ["telegram_bot_token_missing"] : []),
+    ...(botTokenConfigured && !botTokenFormatValid ? ["telegram_bot_token_invalid"] : []),
+    ...(!chatIdConfigured ? ["telegram_chat_id_missing"] : []),
+    ...(chatIdConfigured && !chatIdFormatValid ? ["telegram_chat_id_invalid"] : []),
+  ];
+  return { status: blockedReasons.length === 0 ? "ready" : "blocked", checks: { enabled, botTokenConfigured, chatIdConfigured, botTokenFormatValid, chatIdFormatValid }, blockedReasons };
 }
 
 export function getTelegramNotificationConfig(environment: NodeJS.ProcessEnv = process.env): TelegramNotificationConfig {

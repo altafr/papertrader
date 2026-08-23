@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.75 bounded Telegram alerts wired to durable-scheduler failures; Railway API/worker health is verified, while research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
+- **Stage:** Phase 6.76 read-only Telegram alert readiness; Railway API/worker health is verified, while alert enablement, research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -704,6 +704,12 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - Notification delivery failures are swallowed at the alert boundary and cannot change scheduler failure semantics; raw exceptions, provider responses, credentials, and account values are never included.
 - No Telegram configuration is present in Railway, so no alert was sent and no scheduler/trading behavior changed.
 - Worker deployment `19d282d4-cf94-4d93-9f48-e5a6ecdc7340` reached `SUCCESS`; private health remains healthy observe mode, queues are present and drained, and Telegram variables remain absent.
+
+### Phase 6.76 Telegram Alert Readiness
+
+- Added a no-send readiness contract that reports only enablement, configuration presence/format checks, and bounded block reasons; bot tokens and chat IDs are never returned.
+- Added a command-scoped worker check requiring `TELEGRAM_ALERT_READINESS=true`; it performs no network request and exits non-zero only when configuration is blocked.
+- Railway remains Telegram-disabled and unconfigured, so no message was sent and no trading, scheduler, or reconciliation behavior changed.
 
 ### Phase 4.1 Structured Agent Runs
 
