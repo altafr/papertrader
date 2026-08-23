@@ -9,6 +9,7 @@ export type OperationsHealth = {
   readonly runtime: {
     readonly brokerConnectionEnabled: boolean;
     readonly dailyPreparationHandlerEnabled: boolean;
+    readonly operatingMode: "observe" | "recommend" | "paper_autopilot";
     readonly paperAutopilotEnabled: boolean;
     readonly scheduler: { readonly enabled: boolean; readonly status: "blocked" | "disabled" | "ready" };
   };
@@ -46,6 +47,7 @@ export function parseOperationsHealth(value: unknown): OperationsHealth | undefi
   const scheduler = runtime.scheduler;
   if (!(["delayed", "fresh", "stale", "unavailable"] as const).includes(reconciliation.status as OperationsHealth["reconciliation"]["status"])) return undefined;
   if (!(["blocked", "disabled", "ready"] as const).includes(scheduler.status as OperationsHealth["runtime"]["scheduler"]["status"])) return undefined;
+  if (!( ["observe", "recommend", "paper_autopilot"] as const).includes(runtime.operatingMode as OperationsHealth["runtime"]["operatingMode"])) return undefined;
   if (typeof scheduler.enabled !== "boolean" || typeof runtime.brokerConnectionEnabled !== "boolean" || typeof runtime.dailyPreparationHandlerEnabled !== "boolean" || typeof runtime.paperAutopilotEnabled !== "boolean") return undefined;
   if (reconciliation.ageSeconds !== undefined && typeof reconciliation.ageSeconds !== "number") return undefined;
   if (reconciliation.capturedAt !== undefined && typeof reconciliation.capturedAt !== "string") return undefined;
@@ -58,6 +60,7 @@ export function parseOperationsHealth(value: unknown): OperationsHealth | undefi
     runtime: {
       brokerConnectionEnabled: runtime.brokerConnectionEnabled,
       dailyPreparationHandlerEnabled: runtime.dailyPreparationHandlerEnabled,
+      operatingMode: runtime.operatingMode as OperationsHealth["runtime"]["operatingMode"],
       paperAutopilotEnabled: runtime.paperAutopilotEnabled,
       scheduler: { enabled: scheduler.enabled, status: scheduler.status as OperationsHealth["runtime"]["scheduler"]["status"] },
     },

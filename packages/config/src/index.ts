@@ -15,6 +15,8 @@ export type PaperAutopilotConfig = {
   readonly mode: "paper_autopilot" | "disabled";
 };
 
+export type PaperOperatingMode = "observe" | "recommend" | "paper_autopilot";
+
 export type ClerkRuntimeConfig = {
   authorizedParties: string[];
   operatorUserId: string;
@@ -99,6 +101,22 @@ export function getPaperAutopilotConfig(environment = process.env): PaperAutopil
   const paper = getPaperOnlyRuntimeConfig(environment);
   if (!paper.brokerConnectionEnabled) throw new Error("PAPER_AUTOPILOT_ENABLED=true requires BROKER_CONNECTION_ENABLED=true.");
   return { enabled: true, mode: "paper_autopilot" };
+}
+
+/** Resolves the explicit paper operating mode and rejects contradictory flags. */
+export function getPaperOperatingMode(environment = process.env): PaperOperatingMode {
+  const autopilot = getPaperAutopilotConfig(environment);
+  const rawMode = environment.OPERATING_MODE ?? (autopilot.enabled ? "paper_autopilot" : "observe");
+  if (rawMode !== "observe" && rawMode !== "recommend" && rawMode !== "paper_autopilot") {
+    throw new Error("OPERATING_MODE must be observe, recommend, or paper_autopilot.");
+  }
+  if (rawMode === "paper_autopilot" && !autopilot.enabled) {
+    throw new Error("OPERATING_MODE=paper_autopilot requires PAPER_AUTOPILOT_ENABLED=true.");
+  }
+  if (rawMode !== "paper_autopilot" && autopilot.enabled) {
+    throw new Error("PAPER_AUTOPILOT_ENABLED=true conflicts with the selected operating mode.");
+  }
+  return rawMode;
 }
 
 /**

@@ -14,6 +14,7 @@ import { createAccountStateRepository, createAgentRunRepository, createDatabase,
 import {
   getClerkRuntimeConfig,
   getPaperOnlyRuntimeConfig,
+  getPaperOperatingMode,
   getServerPort,
 } from "@momentum/config";
 
@@ -305,6 +306,7 @@ async function readOperationsHealth(request: IncomingMessage) {
       runtime: {
         brokerConnectionEnabled,
         dailyPreparationHandlerEnabled: handlerEnabled,
+        operatingMode: getPaperOperatingMode(),
         paperAutopilotEnabled: readBooleanEnvironmentFlag("PAPER_AUTOPILOT_ENABLED"),
         scheduler: {
           enabled: schedulerEnabled,

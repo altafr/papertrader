@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { getClerkRuntimeConfig, getPaperAutopilotConfig, getPaperOnlyRuntimeConfig, getServerPort } from "./index.js";
+import { getClerkRuntimeConfig, getPaperAutopilotConfig, getPaperOnlyRuntimeConfig, getPaperOperatingMode, getServerPort } from "./index.js";
 
 describe("server configuration", () => {
   it("uses a safe local default", () => {
@@ -56,6 +56,17 @@ describe("server configuration", () => {
   it("keeps paper autopilot disabled unless explicitly enabled with broker opt-in", () => {
     expect(getPaperAutopilotConfig({ TRADING_MODE: "paper", ALPACA_PAPER_TRADE: "true", BROKER_CONNECTION_ENABLED: "false" })).toEqual({ enabled: false, mode: "disabled" });
     expect(() => getPaperAutopilotConfig({ PAPER_AUTOPILOT_ENABLED: "true", TRADING_MODE: "paper", ALPACA_PAPER_TRADE: "true", BROKER_CONNECTION_ENABLED: "false" })).toThrow(/BROKER_CONNECTION_ENABLED/);
+  });
+
+  it("defaults the explicit operating mode to observe", () => {
+    expect(getPaperOperatingMode({ TRADING_MODE: "paper", ALPACA_PAPER_TRADE: "true", BROKER_CONNECTION_ENABLED: "false" })).toBe("observe");
+    expect(getPaperOperatingMode({ OPERATING_MODE: "recommend", TRADING_MODE: "paper", ALPACA_PAPER_TRADE: "true" })).toBe("recommend");
+  });
+
+  it("rejects contradictory or unsupported operating modes", () => {
+    expect(() => getPaperOperatingMode({ OPERATING_MODE: "paper_autopilot", TRADING_MODE: "paper", ALPACA_PAPER_TRADE: "true", BROKER_CONNECTION_ENABLED: "false" })).toThrow(/PAPER_AUTOPILOT_ENABLED/);
+    expect(() => getPaperOperatingMode({ OPERATING_MODE: "observe", PAPER_AUTOPILOT_ENABLED: "true", TRADING_MODE: "paper", ALPACA_PAPER_TRADE: "true", BROKER_CONNECTION_ENABLED: "true", ALPACA_API_KEY: "key", ALPACA_SECRET_KEY: "secret" })).toThrow(/conflicts/);
+    expect(() => getPaperOperatingMode({ OPERATING_MODE: "live", TRADING_MODE: "paper" })).toThrow(/OPERATING_MODE/);
   });
 
   it("treats absent Clerk configuration as not provisioned", () => {

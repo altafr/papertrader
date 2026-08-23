@@ -349,6 +349,12 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - The audit reports filenames only on failure and never prints matching values. Public variable-name references from dependencies are not treated as leaked credentials.
 - GitHub CI runs the audit after the production build. The current source and browser output pass with no credential-like values found.
 
+### Phase 6.19 Explicit Paper Operating-Mode Contract
+
+- `packages/config` now resolves `OPERATING_MODE` as `observe`, `recommend`, or `paper_autopilot`, defaulting safely to `observe` when Paper Autopilot is disabled.
+- Contradictory settings fail closed: `paper_autopilot` requires `PAPER_AUTOPILOT_ENABLED=true`, while `observe`/`recommend` reject an enabled Paper Autopilot flag. Live mode remains unavailable.
+- Authenticated operations health exposes the resolved mode, and the dashboard renders it alongside broker, scheduler, and Paper Autopilot gates. No mode-changing control or persistent configuration mutation was added.
+
 ### Phase 4.1 Structured Agent Runs
 
 - `packages/domain/src/agent-runs.ts` defines versioned, structured agent-run requests and artifacts for the orchestrator, stock/crypto research, macro advisory, strategy, risk explanation, execution, and reconciliation roles.

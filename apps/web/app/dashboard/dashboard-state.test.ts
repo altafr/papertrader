@@ -22,6 +22,7 @@ describe("dashboard state", () => {
       runtime: {
         brokerConnectionEnabled: false,
         dailyPreparationHandlerEnabled: false,
+        operatingMode: "observe",
         paperAutopilotEnabled: false,
         scheduler: { enabled: false, status: "disabled" },
       },
