@@ -52,11 +52,13 @@ railway ssh \
   -- 'DURABLE_SCHEDULER_ONCE=true DURABLE_SCHEDULER_APPROVAL_REFERENCE=ticket-123 DURABLE_SCHEDULER_ENABLED=false BROKER_CONNECTION_ENABLED=true DAILY_PREPARATION_HANDLER_ENABLED=true PAPER_AUTOPILOT_ENABLED=false pnpm --filter @momentum/worker durable-one-run'
 ```
 
-Expected success output is the generic line:
+Expected success output is bounded JSON metadata:
 
 ```text
-Durable one-run paper reconciliation completed.
+{"approvalReference":"ticket-123","runId":"run-2026-08-23","status":"completed"}
 ```
+
+The operator-facing `runId` is retained in the payload and audit provenance; the internal pg-boss job identifier is a deterministic UUID derived from it.
 
 The process provisions the already-reviewed queues, consumes one immediate job, waits for completion, and shuts down. It does not create a recurring schedule.
 

@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.64 pg-boss UUID enqueue boundary corrected; Railway API/worker health is verified, while research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
+- **Stage:** Phase 6.65 runtime validation added at the durable queue boundary; Railway API/worker health is verified, while research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -627,6 +627,12 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - Added a deterministic UUID mapping derived from the bounded run ID, preserving idempotency while keeping the original run ID and approval reference in the job payload and audit provenance.
 - Added focused UUID format, determinism, and differentiation tests. The change does not enable recurring scheduling, broker access, Paper Autopilot, or any automatic retry.
 - Worker deployment `fcc3c0ac-7bbd-4261-8e39-3e6f6f2f9b71` reached `SUCCESS`; private health remained healthy in observe mode and both durable queues remained present and drained.
+
+### Phase 6.65 Durable Queue Payload Validation
+
+- Added runtime validation for pg-boss daily-preparation payloads before they reach reconciliation, checking the exact job kind/version and bounded optional provenance fields.
+- Both the recurring daily scheduler and guarded one-run handler now fail closed on malformed or unexpected queue data; valid operator run IDs and approval references remain separate from the UUID job identifier.
+- Added focused malformed-payload coverage. No queue, broker, scheduler, or Paper Autopilot activation occurred during this unit.
 
 ### Phase 4.1 Structured Agent Runs
 

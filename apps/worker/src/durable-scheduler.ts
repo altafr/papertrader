@@ -114,6 +114,25 @@ export interface DurableDailyJob {
   readonly runId?: string;
 }
 
+const boundedJobField = /^[A-Za-z0-9][A-Za-z0-9._:/-]{0,127}$/;
+
+/** Validate data loaded from pg-boss before handing it to reconciliation code. */
+export function parseDurableDailyJob(input: unknown): DurableDailyJob {
+  if (!input || typeof input !== "object") throw new Error("Durable daily job payload is invalid.");
+  const value = input as Record<string, unknown>;
+  if (value.kind !== "daily_preparation" || value.version !== 1) throw new Error("Durable daily job payload is invalid.");
+  for (const field of ["approvalReference", "runId"] as const) {
+    const candidate = value[field];
+    if (candidate !== undefined && (typeof candidate !== "string" || !boundedJobField.test(candidate))) throw new Error("Durable daily job payload is invalid.");
+  }
+  return {
+    kind: "daily_preparation",
+    version: 1,
+    ...(typeof value.approvalReference === "string" ? { approvalReference: value.approvalReference } : {}),
+    ...(typeof value.runId === "string" ? { runId: value.runId } : {}),
+  };
+}
+
 export interface DurableQueueClient {
   start(): Promise<unknown>;
   stop(): Promise<void>;
@@ -232,7 +251,7 @@ export function createDurableScheduler(input: {
           if (jobs.length === 0) return;
           setDurableSchedulerHealth({ ...getDurableSchedulerHealth(), status: "running" });
           try {
-            for (const job of jobs) await input.runDailyPreparation(job.data);
+            for (const job of jobs) await input.runDailyPreparation(parseDurableDailyJob(job.data));
             const nextRunAt = nextDailyRunAt(now(), input.config.cron);
             setDurableSchedulerHealth({ ...getDurableSchedulerHealth(), lastRunAt: now().toISOString(), ...(nextRunAt ? { nextRunAt } : {}), status: "ready" });
           } catch (error) {

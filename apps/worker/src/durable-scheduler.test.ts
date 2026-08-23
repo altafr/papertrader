@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { DAILY_PREPARATION_QUEUE, createDurableScheduler, enqueueDailyPreparation, getDailyPreparationJobId, getDurableOneRunJobId, getDurableSchedulerConfig, getDurableSchedulerHealth, getDurableSchedulerReadiness, inspectDurableQueues, provisionDurableQueues, validateDurableOneRunId, validateDurableSchedulerApprovalReference, validateDurableSchedulerOneRun } from "./durable-scheduler.js";
+import { DAILY_PREPARATION_QUEUE, createDurableScheduler, enqueueDailyPreparation, getDailyPreparationJobId, getDurableOneRunJobId, getDurableSchedulerConfig, getDurableSchedulerHealth, getDurableSchedulerReadiness, inspectDurableQueues, parseDurableDailyJob, provisionDurableQueues, validateDurableOneRunId, validateDurableSchedulerApprovalReference, validateDurableSchedulerOneRun } from "./durable-scheduler.js";
 
 describe("durable scheduler", () => {
   it("is disabled by default and validates bounded retry configuration", () => {
@@ -45,6 +45,13 @@ describe("durable scheduler", () => {
   it("requires a bounded non-secret one-run identifier", () => {
     expect(() => validateDurableOneRunId({})).toThrow("DURABLE_ONE_RUN_ID");
     expect(validateDurableOneRunId({ DURABLE_ONE_RUN_ID: "run-2026-08-23" })).toBe("run-2026-08-23");
+  });
+
+  it("validates queue payloads before scheduler handlers receive them", () => {
+    expect(parseDurableDailyJob({ kind: "daily_preparation", version: 1, runId: "run-1" })).toEqual({ kind: "daily_preparation", version: 1, runId: "run-1" });
+    expect(() => parseDurableDailyJob({ kind: "unexpected", version: 1 })).toThrow("payload is invalid");
+    expect(() => parseDurableDailyJob({ kind: "daily_preparation", version: 2 })).toThrow("payload is invalid");
+    expect(() => parseDurableDailyJob({ kind: "daily_preparation", version: 1, runId: "bad value" })).toThrow("payload is invalid");
   });
 
   it("creates a UTC schedule and marks failed jobs degraded while preserving the queue boundary", async () => {

@@ -7,6 +7,7 @@ import { createAccountStateRepository, createDatabase } from "@momentum/db";
 import {
   DAILY_PREPARATION_QUEUE,
   getDurableOneRunJobId,
+  parseDurableDailyJob,
   type DurableDailyJob,
   getDurableSchedulerConfig,
   provisionDurableQueues,
@@ -50,7 +51,8 @@ try {
   await boss.work<DurableDailyJob>(DAILY_PREPARATION_QUEUE, async (jobs) => {
     try {
       for (const job of jobs) {
-        if (job.data.runId !== runId || job.data.approvalReference !== approvalReference) throw new Error("Guarded one-run provenance did not match the queued job.");
+        const data = parseDurableDailyJob(job.data);
+        if (data.runId !== runId || data.approvalReference !== approvalReference) throw new Error("Guarded one-run provenance did not match the queued job.");
         failureStage = "reconciliation";
         await reconcilePaperAccount(reader, repository, { approvalReference, runId });
       }
