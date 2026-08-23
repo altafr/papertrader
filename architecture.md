@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.73 paper execution approval semantics made explicit; Railway API/worker health is verified, while research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
+- **Stage:** Phase 6.74 guarded Telegram alert channel boundary completed; Railway API/worker health is verified, while research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -690,6 +690,12 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - Documented in the order contract that `approval` is a server-generated deterministic risk approval, not a per-order human confirmation or scheduler activation reference.
 - Existing execution-time mode, freshness/risk approval, kill-switch, idempotency, broker, and reconciliation checks remain unchanged; Paper Autopilot stays disabled by default.
 - The latest successful Worker deployment `1c0b43a2-fbe0-4d86-9fd0-3a22720a0945` is healthy in observe mode; hosted Paper Autopilot readiness remains `disabled` and both queues remain present and drained.
+
+### Phase 6.74 Guarded Telegram Alert Channel Boundary
+
+- Added a server-only Telegram Bot API adapter with disabled-by-default configuration, numeric chat-ID validation, bounded/redacted message formatting, and injected transport tests.
+- Added a guarded worker `telegram-alert-test` command requiring a command-scoped non-secret test reference; it emits only generic success/failure output and never logs Telegram credentials or provider responses.
+- Raw bot-token-shaped text, credential-like key/value text, URLs, invalid severities, and oversized messages are rejected or redacted at the notification boundary. No Telegram message was sent from this workspace.
 
 ### Phase 4.1 Structured Agent Runs
 
