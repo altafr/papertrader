@@ -10,12 +10,14 @@ const orderSchema = z.object({
 });
 
 export interface PaperOrderApproval {
+  /** Deterministic risk approval; Paper Autopilot does not require an operator confirmation field. */
   readonly approvalId: string;
   readonly intentId: string;
   readonly status: "approved" | "rejected";
 }
 
 export interface PaperOrderSubmissionRequest {
+  /** The approval is produced by the server-side risk engine, not by a per-order human prompt. */
   readonly approval: PaperOrderApproval;
   readonly assetClass: "crypto" | "us_equity";
   readonly clientOrderId: string;

@@ -2,7 +2,7 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.72 — Paper Autopilot readiness aligned with scheduler activation-reference readiness.
+- **Phase:** Phase 6.73 — paper execution approval semantics made explicit.
 - **Status:** Agent runs have deterministic contracts, reviewed PostgreSQL persistence, authenticated list/detail reads, a dashboard health surface, a paper-only market-data run-once boundary, a disabled-by-default daily research readiness surface, a separately named validated queue boundary, an explicit stock/crypto preparation planner, a fail-closed queue-handler composition, a readiness-gated scheduler registration boundary, safe runtime health reporting, explicit opt-in worker composition, guarded local/CI readiness commands, verified hosted disabled readiness, separate approval/reference guards, bounded research-run preflight validation, non-secret approval provenance, bounded explicit/latest persisted-run verification, deployed hosted tooling, deterministic source bar-integrity checks with duplicate/out-of-order distinctions, verified deployed integrity code, a guarded read-only database probe, an automated source/browser credential-value audit, an explicit paper operating-mode contract, persistent dashboard mode visibility, a truthful public foundation status, worker mode health, worker integration configuration including the global kill-switch state, a command-scoped approval reference for the durable one-run, explicit paper baseline/single-trade risk invariants, authenticated operator-visible risk policy metadata, guarded Paper Autopilot configuration readiness, persisted reconciliation freshness readiness, a server-side global kill-switch guard, authenticated operator-visible kill-switch status, a verified command-scoped kill-switch exercise, a client-free durable one-run readiness preflight, a bounded durable one-run post-run verifier, persisted one-run audit provenance, a read-only migration readiness check, an explicit approval guard for pending migration `0009`, a no-write migration plan, a combined daily reconciliation readiness contract, a fail-closed migration guard at scheduler startup, an explicit target guard for migration `0009`, direct migration-probe tests, migration preflight ordering, dashboard migration-readiness visibility, dashboard migration block reasons, an extracted API migration probe contract, a bounded browser/API migration reason union, a fresh hosted daily-reconciliation readiness recheck, read-only research-schedule readiness visibility, an explicit paper-mode gate for research readiness, the guarded application of migration `0009` with reference `MIGRATION-0009-123`, a clean repository/browser secret-surface and quality audit, a linked Vercel environment-name audit, a hosted client-free one-run preflight returning ready, a hosted PostgreSQL connectivity probe returning `databaseReachable:true`, a refreshed Ready Vercel preview deployment `dpl_3jRuQ8ph9653U1MJ7DhzyqEm4zLi`, a private deployed-worker health response reporting healthy observe mode with broker, durable scheduler, research scheduler, and shadow evaluation disabled, a read-only one-run verifier confirming no persisted provenance for the preflight ID, a contained failed approved one-run attempt with no audit row, a deployed redacted one-run failure-code classifier, and stage-aware failure output; Railway migration `0008` and `0009` are applied, deployed API `0be9a305-3ce5-4031-8fee-4c922fb46899` is healthy, deployed worker `195298d5-789d-4fb2-acbe-7e4309400507` is healthy with migration readiness `ready`, combined daily reconciliation readiness `disabled`, and zero queued/active/failed jobs, while research scheduling, durable reconciliation, and Paper Autopilot remain disabled. Vercel environment inspection found only Clerk/authentication variables and `NEXT_PUBLIC_API_BASE_URL`; no Alpaca or database variable is present, and unauthenticated routes correctly return deployment-protection redirects.
 - **Current operating mode:** Paper only; order submission not yet enabled.
 - **Current goal:** Diagnose the queue-enqueue failure safely; do not retry again without a new explicit approval/reference and unique run ID.
@@ -51,7 +51,7 @@
 - [ ] Review and approve Version 1 scope and the initial paper risk policy.
 - [ ] Decide the default emergency-stop response before implementing paper execution.
 - [ ] Select the Alpaca market-data subscription/feed.
-- [ ] Select critical alert providers and at least two eventual critical-alert paths.
+- [x] Select Telegram Bot API as the primary critical-alert provider; a secondary critical-alert path remains open.
 
 #### 0.6 Phase 0 verification
 
@@ -239,7 +239,7 @@
 | --- | --- | --- | --- |
 | P1 | Which Alpaca market-data subscription/feed will be used? | Coverage, latency, entitlements, and tests | Operator |
 | P1 | What exact cancel/liquidate action should the global emergency stop perform by default? | Loss containment and operational safety | Operator |
-| P2 | Which alert channels should receive critical incidents? | Response time | Operator |
+| P2 | Which secondary alert path should complement Telegram for critical incidents? | Response time and redundancy | Operator |
 | P2 | What stock and crypto universe/liquidity thresholds should be used for initial research? | Strategy capacity and data usage | Operator |
 | P2 | Which macro/news sources supplement Alpaca news, if any? | Advisory coverage and external cost | Operator |
 
@@ -1314,6 +1314,13 @@
 | P1 | Broker/internal state diverges | Alpaca treated as truth with scheduled/event-driven reconciliation |
 | P1 | Strategy overfits historical data | Holdout periods, multiple regimes, paper-forward validation, versioning |
 
+## Completed Build Unit — Phase 6.73
+
+- **User story:** As the paper-trading operator, I can run Paper Autopilot without a human confirmation prompt for each order while retaining deterministic server-side risk approval.
+- **Implemented:** Added the explicit `executePaperAutopilotOrder` entry point and documented the deterministic `PaperOrderApproval` contract; retained the compatibility alias without adding a human-approval field.
+- **Verification:** 198 tests passed; typecheck, lint, production build, secret-surface audit, and diff checks passed. No broker request, paper order, scheduler activation, or persistent variable change occurred.
+- **Next smallest unit:** Deploy the semantic contract if needed by runtime callers, then continue with controlled paper account verification before any Paper Autopilot activation.
+
 ## Completed Build Unit — Phase 6.72
 
 - **User story:** As the paper-autopilot readiness gate, I cannot report `ready` when the required durable scheduler lacks its activation reference.
@@ -1409,6 +1416,13 @@
 - **Data-flow coverage:** Arrows distinguish identity/session, structured evidence, normalized signals, immutable intents, freshness-checked inputs, risk decisions, idempotent paper orders, broker events, reconciliation, and audit persistence.
 - **Safety boundary:** The diagram represents the current paper-only design and does not add runtime behavior, credentials, external calls, or live-trading capability.
 - **Verification:** JSON parses successfully; element IDs are unique; bindings resolve to existing elements; the file is saved outside the checked-out application as an editable `.excalidraw` artifact.
+
+## Completed Build Unit — Telegram Alert Channel Boundary
+
+- **User-visible outcome:** Telegram Bot API is now the selected primary notification provider, with a server-only Railway worker adapter and a guarded one-shot channel test command.
+- **Implemented:** Added `@momentum/notifications`, strict enablement/configuration checks, numeric chat-ID validation, 4,096-character message bounds, URL/credential-like text redaction, injected-transport tests, and `telegram-alert-test` requiring a command-scoped non-secret approval reference.
+- **Safety boundary:** The adapter is disabled by default, never runs in browser code, never logs bot tokens/chat IDs/provider responses, and does not alter Alpaca, risk, scheduler, or Paper Autopilot behavior. No Telegram message was sent from this workspace because the Railway secret boundary is not accessible here.
+- **Verification:** 198 tests passed; typecheck, lint, and production build passed. Railway activation still requires a guarded command-scoped test with the configured secret variables.
 
 ## Session Handoff
 

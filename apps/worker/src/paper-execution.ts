@@ -14,7 +14,8 @@ export interface PaperExecutionResult {
   readonly status: "reconciled";
 }
 
-export async function executeApprovedPaperOrder(input: {
+/** Submit a deterministic-risk-approved paper order without a per-order operator confirmation. */
+export async function executePaperAutopilotOrder(input: {
   readonly autopilot?: PaperAutopilotConfig;
   readonly order: PaperOrderSubmissionRequest;
   readonly persistence: PaperSubmissionPersistence;
@@ -36,3 +37,6 @@ export async function executeApprovedPaperOrder(input: {
     throw error;
   }
 }
+
+/** @deprecated Use executePaperAutopilotOrder; retained for internal compatibility. */
+export const executeApprovedPaperOrder = executePaperAutopilotOrder;

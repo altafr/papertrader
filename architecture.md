@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.72 Paper Autopilot readiness aligned with scheduler activation-reference readiness; Railway API/worker health is verified, while research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
+- **Stage:** Phase 6.73 paper execution approval semantics made explicit; Railway API/worker health is verified, while research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -25,7 +25,7 @@
 | Trading integration | Alpaca Trading API | Account, orders, positions, portfolio and activity |
 | Market data | Alpaca Market Data REST/WebSocket APIs | Historical and real-time stocks/crypto data |
 | MCP | Alpaca MCP server in an authorized MCP client | Research/operator tooling; not assumed available to published runtime |
-| Notifications | [Select provider] | Critical operational and risk alerts |
+| Notifications | Telegram Bot API (server-side Railway worker) | Critical operational and risk alerts; disabled until guarded channel test passes |
 
 Do not run the continuous trading loop in the browser or Vercel functions. Vercel hosts the dashboard; Railway hosts broker access, durable jobs, and the supervised continuous worker.
 
@@ -683,6 +683,12 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - The check is configuration-only and does not add human approval to individual paper orders; deterministic risk approval, freshness, kill-switch, and paper-mode checks remain mandatory.
 - Missing references produce the bounded `scheduler_activation_approval_reference_missing` reason without exposing values.
 - Worker deployment `e940dae6-7cf3-4559-98c0-b472bfc3b33e` reached `SUCCESS`; hosted Paper Autopilot readiness is safely `disabled` with paper risk policy valid, and worker health remains healthy observe mode with all activation gates off.
+
+### Phase 6.73 Approval-Free Paper Autopilot Semantics
+
+- Renamed the primary worker execution entry point to `executePaperAutopilotOrder`; the compatibility alias remains internal-safe for existing callers.
+- Documented in the order contract that `approval` is a server-generated deterministic risk approval, not a per-order human confirmation or scheduler activation reference.
+- Existing execution-time mode, freshness/risk approval, kill-switch, idempotency, broker, and reconciliation checks remain unchanged; Paper Autopilot stays disabled by default.
 
 ### Phase 4.1 Structured Agent Runs
 
