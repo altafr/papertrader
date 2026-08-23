@@ -67,12 +67,14 @@ describe("durable scheduler", () => {
 
   it("creates a UTC schedule and marks failed jobs degraded while preserving the queue boundary", async () => {
     const calls: string[] = [];
+    const alerts: string[] = [];
     let handler: ((jobs: { data: { kind: "daily_preparation"; version: 1 } }[]) => Promise<unknown>) | undefined;
     const scheduler = createDurableScheduler({
       config: { cron: "0 0 * * *", enabled: true, retryDelaySeconds: 10, retryLimit: 2 },
       connectionString: "postgres://redacted",
       now: () => new Date("2026-08-22T12:00:00.000Z"),
       runDailyPreparation: async () => { throw new Error("controlled failure"); },
+      notify: async (alert) => { alerts.push(alert.code); },
       bossFactory: () => ({
         async start() { calls.push("start"); },
         async stop() { calls.push("stop"); },
@@ -86,6 +88,7 @@ describe("durable scheduler", () => {
     expect(getDurableSchedulerHealth()).toMatchObject({ enabled: true, nextRunAt: "2026-08-23T00:00:00.000Z", status: "scheduled" });
     await expect(handler?.([{ data: { kind: "daily_preparation", version: 1 } }])).rejects.toThrow("controlled failure");
     expect(getDurableSchedulerHealth()).toMatchObject({ status: "degraded" });
+    expect(alerts).toEqual(["durable_scheduler_runtime_failed"]);
     await scheduler.stop();
     expect(calls).toContain("stop");
   });

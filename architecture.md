@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.74 guarded Telegram alert channel boundary completed; Railway API/worker health is verified, while research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
+- **Stage:** Phase 6.75 bounded Telegram alerts wired to durable-scheduler failures; Railway API/worker health is verified, while research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -697,6 +697,12 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - Added a guarded worker `telegram-alert-test` command requiring a command-scoped non-secret test reference; it emits only generic success/failure output and never logs Telegram credentials or provider responses.
 - Raw bot-token-shaped text, credential-like key/value text, URLs, invalid severities, and oversized messages are rejected or redacted at the notification boundary. No Telegram message was sent from this workspace.
 - Worker deployment `c83e71c6-4885-4d8b-8858-b3f592a35391` reached `SUCCESS`; private health remains healthy observe mode, queues remain present and drained, and no Telegram variables are configured in Railway.
+
+### Phase 6.75 Durable-Scheduler Alert Wiring
+
+- Wired the disabled-by-default Telegram adapter to durable-scheduler startup and runtime failure callbacks using bounded generic codes/messages (`durable_scheduler_start_failed` and `durable_scheduler_runtime_failed`).
+- Notification delivery failures are swallowed at the alert boundary and cannot change scheduler failure semantics; raw exceptions, provider responses, credentials, and account values are never included.
+- No Telegram configuration is present in Railway, so no alert was sent and no scheduler/trading behavior changed.
 
 ### Phase 4.1 Structured Agent Runs
 

@@ -3,6 +3,7 @@ import { createServer } from "node:http";
 import { createPaperAccountReader, createPaperMarketDataReader } from "@momentum/alpaca";
 import { getPaperAutopilotConfig, getPaperOperatingMode, getPaperOnlyRuntimeConfig, getServerPort, isGlobalKillSwitchActive } from "@momentum/config";
 import { createAccountStateRepository, createDatabase, createShadowObservationRepository } from "@momentum/db";
+import { getTelegramNotificationConfig, sendTelegramAlert } from "@momentum/notifications";
 
 import { getWorkerHealth } from "./app.js";
 import { startPaperMarketStream } from "./market-stream-runner.js";
@@ -42,6 +43,7 @@ if (autopilotConfiguration.enabled && !process.env.DATABASE_URL?.trim()) throw n
 if (autopilotConfiguration.enabled && isGlobalKillSwitchActive()) throw new Error("PAPER_AUTOPILOT_ENABLED=true is blocked by GLOBAL_KILL_SWITCH_ACTIVE=true.");
 const shadowConfiguration = getShadowEvaluationConfig();
 const durableConfiguration = getDurableSchedulerConfig();
+const telegramNotificationConfig = getTelegramNotificationConfig();
 if (shadowConfiguration.enabled) {
   if (process.env.BROKER_CONNECTION_ENABLED !== "true") throw new Error("SHADOW_EVALUATION_ENABLED=true requires BROKER_CONNECTION_ENABLED=true.");
   if (!process.env.DATABASE_URL?.trim()) throw new Error("SHADOW_EVALUATION_ENABLED=true requires DATABASE_URL.");
@@ -70,6 +72,7 @@ if (durableConfiguration.enabled) {
   const durableScheduler = createDurableScheduler({
     config: durableConfiguration,
     connectionString: process.env.DATABASE_URL,
+    notify: (alert) => sendTelegramAlert(telegramNotificationConfig, { ...alert, occurredAt: new Date().toISOString() }),
     runDailyPreparation: async () => {
       const { db, pool } = createDatabase(process.env.DATABASE_URL);
       try {

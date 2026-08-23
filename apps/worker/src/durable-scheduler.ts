@@ -22,6 +22,12 @@ export interface DurableSchedulerConfig {
   readonly retryLimit: number;
 }
 
+export interface DurableSchedulerAlert {
+  readonly code: "durable_scheduler_runtime_failed" | "durable_scheduler_start_failed";
+  readonly message: string;
+  readonly severity: "critical" | "warning";
+}
+
 export type DurableSchedulerReadinessStatus = "blocked" | "disabled" | "ready";
 
 export interface DurableSchedulerReadiness {
@@ -245,6 +251,7 @@ export function createDurableScheduler(input: {
   readonly connectionString: string;
   readonly now?: () => Date;
   readonly runDailyPreparation: (job: DurableDailyJob) => Promise<void>;
+  readonly notify?: (alert: DurableSchedulerAlert) => Promise<void> | void;
   readonly bossFactory?: BossFactory;
 }) {
   const now = input.now ?? (() => new Date());
@@ -252,6 +259,14 @@ export function createDurableScheduler(input: {
   let boss: DurableQueueClient | undefined;
   let workerId: string | undefined;
   let stopped = true;
+  const notify = (alert: DurableSchedulerAlert): void => {
+    try {
+      const result = input.notify?.(alert);
+      if (result instanceof Promise) void result.catch(() => undefined);
+    } catch {
+      // Notification failure must never change scheduler failure semantics.
+    }
+  };
   return {
     async start() {
       if (!input.config.enabled || !stopped) return;
@@ -271,6 +286,7 @@ export function createDurableScheduler(input: {
             setDurableSchedulerHealth({ ...getDurableSchedulerHealth(), lastRunAt: now().toISOString(), ...(nextRunAt ? { nextRunAt } : {}), status: "ready" });
           } catch (error) {
             setDurableSchedulerHealth({ ...getDurableSchedulerHealth(), lastRunAt: now().toISOString(), status: "degraded" });
+            notify({ code: "durable_scheduler_runtime_failed", message: "Durable daily reconciliation scheduler encountered a bounded job failure.", severity: "critical" });
             throw error;
           }
         });
@@ -279,6 +295,7 @@ export function createDurableScheduler(input: {
       } catch (error) {
         stopped = true;
         setDurableSchedulerHealth({ enabled: true, status: "degraded" });
+        notify({ code: "durable_scheduler_start_failed", message: "Durable daily reconciliation scheduler failed to start.", severity: "critical" });
         if (boss) await boss.stop().catch(() => undefined);
         boss = undefined;
         throw error;
