@@ -1,7 +1,7 @@
 import { createServer } from "node:http";
 
 import { createPaperAccountReader, createPaperMarketDataReader } from "@momentum/alpaca";
-import { getPaperAutopilotConfig, getPaperOnlyRuntimeConfig, getServerPort } from "@momentum/config";
+import { getPaperAutopilotConfig, getPaperOperatingMode, getPaperOnlyRuntimeConfig, getServerPort } from "@momentum/config";
 import { createAccountStateRepository, createDatabase, createShadowObservationRepository } from "@momentum/db";
 
 import { getWorkerHealth } from "./app.js";
@@ -30,6 +30,7 @@ const server = createServer((request, response) => {
 });
 
 getPaperOnlyRuntimeConfig();
+getPaperOperatingMode();
 if (getResearchScheduleReadiness().status === "blocked" && process.env.RESEARCH_SCHEDULER_ENABLED === "true") {
   throw new Error("RESEARCH_SCHEDULER_ENABLED=true requires paper database, broker, credentials, and handler gates.");
 }

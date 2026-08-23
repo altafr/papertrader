@@ -7,6 +7,7 @@ export const OPERATING_MODES = {
 } as const;
 
 export type OperatingMode = (typeof OPERATING_MODES)[keyof typeof OPERATING_MODES];
+export type RuntimeOperatingMode = "observe" | "recommend" | "paper_autopilot";
 
 export type HealthState = "degraded" | "healthy" | "paused" | "stopped";
 
@@ -26,6 +27,7 @@ export interface WorkerHealth {
     readonly nextRunAt?: string;
     readonly status: "degraded" | "disabled" | "ready" | "running" | "scheduled";
   };
+  readonly operatingMode: RuntimeOperatingMode;
   readonly researchSchedule: {
     readonly enabled: boolean;
     readonly handlerEnabled: boolean;
