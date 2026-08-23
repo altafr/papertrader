@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 4.23 latest-run research verification added; Railway database connectivity is verified, while research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
+- **Stage:** Phase 4.24 latest research tooling deployed and preflight verified; Railway database connectivity is verified, while research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -469,6 +469,12 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 
 - The read-only verifier can now select the most recent supported stock/crypto run carrying the requested approval reference when `RESEARCH_RUN_ID` is omitted; an explicit ID remains supported for deterministic checks.
 - Selection is bounded to the latest 100 persisted runs and returns the same metadata-only success contract. No artifact payload or rationale is loaded into output.
+
+### Phase 4.24 Hosted Research Tooling Deployment
+
+- Worker deployment `9467848b-f63a-4598-a783-2bc65c65715c` reached `SUCCESS` through the Railway CLI with the tested research tooling.
+- Railway SSH verified `research-readiness` as `disabled` with database/paper credentials configured and broker, handler, and scheduler gates off. A command-scoped hosted preflight returned bounded paper configuration metadata for one stock symbol without constructing a market-data or database client.
+- No hosted research run, agent-run write, queue start, persistent variable change, or order action occurred.
 
 ### Phase 6.13 Dashboard Operations Health Surface
 
