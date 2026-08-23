@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { combineDailyReconciliationReadiness, getDailyReconciliationActivationSchedulerReadiness } from "./daily-reconciliation-readiness.js";
 
 const migration = { blockedReasons: [], checks: { auditTablePresent: true, migrationFilePresent: true, requiredColumnsPresent: true, schemaMigrationRecorded: true }, status: "ready" as const };
-const scheduler = { blockedReasons: [], checks: { brokerConnectionEnabled: true, dailyPreparationHandlerEnabled: true, databaseConfigured: true, paperCredentialsConfigured: true, paperMode: true, schedulerEnabled: false }, status: "disabled" as const };
+const scheduler = { blockedReasons: [], checks: { activationApprovalReferencePresent: true, brokerConnectionEnabled: true, dailyPreparationHandlerEnabled: true, databaseConfigured: true, paperCredentialsConfigured: true, paperMode: true, schedulerEnabled: false }, status: "disabled" as const };
 
 describe("daily reconciliation readiness", () => {
   it("reports disabled when structural prerequisites are ready but scheduler is off", () => {

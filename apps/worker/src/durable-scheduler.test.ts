@@ -13,6 +13,7 @@ describe("durable scheduler", () => {
     expect(getDurableSchedulerReadiness({ DURABLE_SCHEDULER_ACTIVATION_APPROVAL_REFERENCE: "scheduler-review-123", DURABLE_SCHEDULER_ENABLED: "true", TRADING_MODE: "paper", ALPACA_PAPER_TRADE: "true" })).toMatchObject({
       status: "blocked",
       blockedReasons: ["database_not_configured", "broker_connection_disabled", "paper_credentials_not_configured", "daily_preparation_handler_disabled"],
+      checks: { activationApprovalReferencePresent: true },
     });
     const ready = getDurableSchedulerReadiness({
       ALPACA_API_KEY: "secret-key",
@@ -42,6 +43,7 @@ describe("durable scheduler", () => {
     expect(() => validateDurableSchedulerActivation({ DURABLE_SCHEDULER_ENABLED: "true" })).toThrow("ACTIVATION_APPROVAL_REFERENCE");
     expect(validateDurableSchedulerActivation({ DURABLE_SCHEDULER_ENABLED: "true", DURABLE_SCHEDULER_ACTIVATION_APPROVAL_REFERENCE: "scheduler-review-123" })).toBe("scheduler-review-123");
     expect(getDurableSchedulerReadiness({ DURABLE_SCHEDULER_ENABLED: "true", TRADING_MODE: "paper", ALPACA_PAPER_TRADE: "true" }).blockedReasons).toContain("scheduler_activation_approval_reference_missing");
+    expect(getDurableSchedulerReadiness({ DURABLE_SCHEDULER_ENABLED: "true", TRADING_MODE: "paper", ALPACA_PAPER_TRADE: "true" }).checks.activationApprovalReferencePresent).toBe(false);
     expect(getDurableSchedulerConfig({ DURABLE_SCHEDULER_ENABLED: "true", DURABLE_SCHEDULER_ACTIVATION_APPROVAL_REFERENCE: "scheduler-review-123" })).toMatchObject({ enabled: true, activationApprovalReference: "scheduler-review-123" });
   });
 

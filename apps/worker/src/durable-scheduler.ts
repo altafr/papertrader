@@ -27,6 +27,7 @@ export type DurableSchedulerReadinessStatus = "blocked" | "disabled" | "ready";
 export interface DurableSchedulerReadiness {
   readonly blockedReasons: readonly string[];
   readonly checks: {
+    readonly activationApprovalReferencePresent: boolean;
     readonly brokerConnectionEnabled: boolean;
     readonly dailyPreparationHandlerEnabled: boolean;
     readonly databaseConfigured: boolean;
@@ -60,7 +61,7 @@ export function getDurableSchedulerReadiness(environment: NodeJS.ProcessEnv = pr
   const status = !schedulerEnabled ? "disabled" : blockedReasons.length === 0 ? "ready" : "blocked";
   return {
     blockedReasons: status === "disabled" ? [] : blockedReasons,
-    checks: { brokerConnectionEnabled, dailyPreparationHandlerEnabled, databaseConfigured, paperCredentialsConfigured, paperMode, schedulerEnabled },
+    checks: { activationApprovalReferencePresent, brokerConnectionEnabled, dailyPreparationHandlerEnabled, databaseConfigured, paperCredentialsConfigured, paperMode, schedulerEnabled },
     status,
   };
 }

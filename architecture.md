@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.68 command-scoped scheduler activation rehearsal added; Railway API/worker health is verified, while research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
+- **Stage:** Phase 6.69 explicit scheduler activation-reference readiness check added; Railway API/worker health is verified, while research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -654,6 +654,12 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - The rehearsal combines the simulated scheduler readiness with live migration structure checks but never creates a pg-boss client, enqueues a job, reads Alpaca, writes reconciliation state, or changes Railway variables.
 - Paper order approval behavior is unchanged: the activation reference is for persistent scheduler operations, not individual paper orders.
 - Worker deployment `c586472f-32f6-4297-89e5-3196c678d688` reached `SUCCESS`; the hosted rehearsal returned `status:"ready"`, while a normal readiness check immediately afterward remained `disabled` and persistent gates were unchanged.
+
+### Phase 6.69 Explicit Activation-Reference Readiness Check
+
+- Durable scheduler readiness now exposes `activationApprovalReferencePresent` as a boolean check alongside the existing broker, handler, database, paper-mode, and scheduler checks.
+- Missing or malformed activation references still produce the bounded `scheduler_activation_approval_reference_missing` reason; no reference value is emitted.
+- This improves operator/audit visibility without changing activation semantics or requiring approval for individual paper orders.
 
 ### Phase 4.1 Structured Agent Runs
 
