@@ -469,6 +469,7 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 
 - Hardened the guarded application migration command so pending migration `0009` requires `DATABASE_MIGRATION_APPROVAL_REFERENCE`, a bounded non-secret operator reference. Earlier migrations retain their existing guarded behavior.
 - Added deterministic validation tests. The guard does not expose or persist the reference, apply SQL by itself, or alter hosted configuration.
+- Worker deployment `332fe1c9-1e55-4c53-8336-d20b08835d94` reached `SUCCESS`; private `/health` remained healthy with observe mode, broker/scheduler/research/shadow gates disabled, and the global kill switch inactive. The hosted readiness check remained blocked only by the unapplied `0009` schema state.
 
 ### Phase 4.1 Structured Agent Runs
 
