@@ -428,6 +428,11 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - Worker health is observational and contains no secret values or controls. A mismatch cannot enable execution; startup and order-path guards remain authoritative.
 - Local tests, typecheck, lint, production build, secret-surface audit, and diff checks pass. Worker deployment `8823b09e-16c8-4773-874e-903321c23474` reached `SUCCESS`; private `/health` returned HTTP 200 with `operatingMode:"observe"`, `globalKillSwitchActive:false`, configured integrations, broker disabled, and durable/research/shadow gates disabled. No hosted flag or order behavior changed in this unit.
 
+### Phase 6.32 Hosted Kill-Switch Exercise
+
+- Exercised `GLOBAL_KILL_SWITCH_ACTIVE=true` only as a command-scoped value in the guarded Railway readiness command, with all other Autopilot gates supplied only to that client-free process. The command exited non-zero with `status:"blocked"` and the sole reason `global_kill_switch_active`.
+- The exercise did not construct Alpaca/PostgreSQL clients, start the scheduler, submit orders, or persist any setting. A secret-safe persistent-variable audit afterward confirmed broker access is explicitly `false`; handler, scheduler, kill-switch, and Autopilot variables remain absent or disabled.
+
 ### Phase 4.1 Structured Agent Runs
 
 - `packages/domain/src/agent-runs.ts` defines versioned, structured agent-run requests and artifacts for the orchestrator, stock/crypto research, macro advisory, strategy, risk explanation, execution, and reconciliation roles.
