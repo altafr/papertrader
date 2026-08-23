@@ -374,6 +374,12 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - Worker deployment `06735237-cbfa-4bc0-8004-cd4e899b53ba` reached `SUCCESS`; its private health endpoint returned HTTP 200 with `operatingMode:"observe"`, healthy status, and durable/research/shadow gates disabled.
 - The health field is observational only; it does not enable a mode, contact Alpaca, write PostgreSQL, or submit orders.
 
+### Phase 6.23 Worker Integration Configuration Health
+
+- Worker health now distinguishes configured paper integration prerequisites (`alpaca:"configured"` and `database:"configured"`) from execution authority (`brokerConnectionEnabled:false`). Configuration status is derived from server-side variables and never includes their values.
+- Deployment `af3ef28a-174d-4a63-bd5c-b5d5ac046201` reached `SUCCESS`; the private health endpoint returned HTTP 200 with `status:"healthy"`, `operatingMode:"observe"`, configured Alpaca/database status, broker access disabled, and durable/research/shadow gates disabled.
+- This is an observational verification only. It does not call Alpaca, write application state, start a scheduler, enable Paper Autopilot, or submit orders.
+
 ### Phase 4.1 Structured Agent Runs
 
 - `packages/domain/src/agent-runs.ts` defines versioned, structured agent-run requests and artifacts for the orchestrator, stock/crypto research, macro advisory, strategy, risk explanation, execution, and reconciliation roles.
