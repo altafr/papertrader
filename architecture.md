@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 4.19 separate approval guard for hosted research runs added; Railway database connectivity is verified, while research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
+- **Stage:** Phase 4.20 hosted research preflight added; Railway database connectivity is verified, while research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -446,6 +446,12 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - `research-market-run-once` now requires both `RESEARCH_MARKET_RUN_ONCE=true` and a separate command-scoped `RESEARCH_MARKET_OPERATOR_APPROVAL=true`, plus a bounded non-secret `RESEARCH_MARKET_APPROVAL_REFERENCE`.
 - The guard runs before paper credentials, database, or market-data clients are constructed. Invalid, missing, or unsafe references fail closed without revealing values.
 - [`docs/railway-research-runbook.md`](docs/railway-research-runbook.md) documents the future one-run process. No hosted research command was executed in this unit.
+
+### Phase 4.20 Hosted Research Preflight
+
+- `research-market-preflight` validates the separate approval/reference, paper-only runtime, explicit broker/database prerequisites, agent type, symbol count, timeframe, bar limit, and candidate bound without constructing Alpaca, PostgreSQL, or queue clients.
+- It prints bounded metadata only and is a required local/hosted step before `research-market-run-once`; malformed or incomplete configuration fails closed.
+- The preflight does not read market data, write agent runs, start a scheduler, or submit orders. Hosted research execution remains pending explicit operator approval.
 
 ### Phase 6.13 Dashboard Operations Health Surface
 

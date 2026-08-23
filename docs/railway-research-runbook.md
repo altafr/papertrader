@@ -21,6 +21,14 @@ The approval reference is recorded only as provenance if a future persistence fl
 
 ## Guarded command
 
+Before the one-run command, validate the complete command-scoped configuration without constructing clients:
+
+```sh
+RESEARCH_MARKET_PREFLIGHT=true RESEARCH_MARKET_RUN_ONCE=true RESEARCH_MARKET_OPERATOR_APPROVAL=true RESEARCH_MARKET_APPROVAL_REFERENCE=ticket-123 BROKER_CONNECTION_ENABLED=true TRADING_MODE=paper ALPACA_PAPER_TRADE=true RESEARCH_AGENT_TYPE=stock_research RESEARCH_SYMBOLS=AAPL RESEARCH_TIMEFRAME=1Day RESEARCH_LIMIT=20 RESEARCH_MAX_CANDIDATES=5 pnpm --filter @momentum/worker research-market-preflight
+```
+
+The preflight prints bounded metadata only. It must pass before the one-run command below is considered.
+
 Run once from the deployed worker after explicit operator approval. Replace IDs only if the Railway project/environment/service changes:
 
 ```sh

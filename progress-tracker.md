@@ -2,8 +2,8 @@
 
 ## Snapshot
 
-- **Phase:** Phase 4.19 — separate approval guard for hosted research runs added.
-- **Status:** Agent runs have deterministic contracts, reviewed PostgreSQL persistence, authenticated list/detail reads, a dashboard health surface, a paper-only market-data run-once boundary, a disabled-by-default daily research readiness surface, a separately named validated queue boundary, an explicit stock/crypto preparation planner, a fail-closed queue-handler composition, a readiness-gated scheduler registration boundary, safe runtime health reporting, explicit opt-in worker composition, a guarded local/CI readiness command, verified hosted disabled readiness, and a separate approval/reference guard for future research execution; Railway migration `0008` is applied, while research scheduling, durable reconciliation, and Paper Autopilot remain disabled.
+- **Phase:** Phase 4.20 — hosted research preflight added.
+- **Status:** Agent runs have deterministic contracts, reviewed PostgreSQL persistence, authenticated list/detail reads, a dashboard health surface, a paper-only market-data run-once boundary, a disabled-by-default daily research readiness surface, a separately named validated queue boundary, an explicit stock/crypto preparation planner, a fail-closed queue-handler composition, a readiness-gated scheduler registration boundary, safe runtime health reporting, explicit opt-in worker composition, a guarded local/CI readiness command, verified hosted disabled readiness, a separate approval/reference guard, and bounded research-run preflight validation; Railway migration `0008` is applied, while research scheduling, durable reconciliation, and Paper Autopilot remain disabled.
 - **Current operating mode:** Paper only; order submission not yet enabled.
 - **Current goal:** Run the separately approved one-run paper reconciliation using the reviewed runbook, then verify its result in the authenticated dashboard.
 - **Last updated:** 2026-08-23.
@@ -736,6 +736,14 @@
 - **Verification:** `pnpm test` passes 137 tests; `pnpm typecheck`, `pnpm lint`, and `pnpm build` pass. Hosted research execution remains unperformed.
 - **Next smallest unit:** Obtain explicit operator approval for one bounded hosted paper research run, then verify the persisted metadata and disabled persistent flags.
 
+## Completed Build Unit — Phase 4.20
+
+- **User story:** As the operator, I can validate every bounded input and activation prerequisite for a future hosted research run without contacting Alpaca, PostgreSQL, or the queue.
+- **Implemented:** Added the guarded `research-market-preflight` command and pure validation contract for approval, paper mode, broker/database prerequisites, agent type, symbols, timeframe, bar limit, and candidate bound.
+- **Safety boundary:** Preflight is read-only and prints only bounded metadata. It cannot fetch market data, persist artifacts, start recurring research, approve risk, or submit orders.
+- **Verification:** A complete local preflight returned safe metadata; incomplete approval/database/symbol cases fail closed; `pnpm test` passes 139 tests, and typecheck/lint/build pass. No hosted research run was performed.
+- **Next smallest unit:** Obtain explicit operator approval for one bounded hosted paper research run and execute the documented preflight first.
+
 ## Decisions Made
 
 | Date | Decision | Reason |
@@ -848,6 +856,7 @@
 | Phase 4.17 guarded research readiness verification | Pass | Added guarded `research-readiness` command and CI default-disabled check; verified disabled and blocked exit behavior with safe reason codes; 135 tests, typecheck, lint, and production build pass |
 | Phase 4.18 hosted research readiness evidence | Pass | Worker deployment `5290f522-99da-4b71-b1bf-2e2b4d9f8c86` reached `SUCCESS`; Railway SSH readiness returned disabled with database/paper credentials configured and all research/durable/autopilot gates off; no broker or research execution performed |
 | Phase 4.19 separate research run approval guard | Pass | Added separate command-scoped approval/reference validation and hosted runbook; 137 tests, typecheck, lint, and production build pass; no hosted research execution performed |
+| Phase 4.20 hosted research preflight | Pass | Added bounded no-client preflight command and runbook step for approval, paper, database, broker, symbol, timeframe, and limit checks; 139 tests, typecheck, lint, and production build pass; no hosted research execution performed |
 | Browser/preview | Partial | Production page HTTP check passed; visual/responsive review deferred beyond source scaffold |
 | Security review | Partial | No credential files, Alpaca client, database connection, or order code added; full review remains required |
 
