@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 4.21 research approval provenance added; Railway database connectivity is verified, while research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
+- **Stage:** Phase 4.22 read-only research run verification added; Railway database connectivity is verified, while research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -458,6 +458,12 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - The guarded one-run command now adds `operator-approval:<reference>` alongside the market-data evidence reference in the persisted `agent_runs.input_refs` field.
 - The reference is bounded and non-secret; credentials and account values are never placed in provenance. This gives a future hosted artifact an auditable link to the approved run without granting approval authority to the artifact itself.
 - No hosted command was executed for this change; the persisted write remains behind the separate approval guard and paper/broker/database gates.
+
+### Phase 4.22 Read-Only Research Run Verification
+
+- `research-run-verify` loads one persisted agent run by ID and returns only bounded metadata after checking succeeded status, artifact presence, supported agent type, and the expected approval provenance.
+- The command is guarded by `RESEARCH_RUN_VERIFY=true`, uses PostgreSQL read-only repository methods, never contacts Alpaca, and prints no artifact payload, rationale, account value, or credential.
+- It exists to close out a future approved hosted run; no run ID is currently verified by this command.
 
 ### Phase 6.13 Dashboard Operations Health Surface
 

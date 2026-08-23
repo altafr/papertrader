@@ -16,6 +16,7 @@
     "research-run-once": "tsx src/research-run-once-command.ts",
     "research-market-run-once": "tsx src/research-market-run-once-command.ts",
     "research-market-preflight": "tsx src/research-market-preflight-command.ts",
+    "research-run-verify": "tsx src/research-run-verify-command.ts",
     "research-readiness": "tsx src/research-readiness-command.ts",
     "shadow-evaluate": "tsx src/shadow-evaluation-command.ts",
     "start": "node dist/index.js",
