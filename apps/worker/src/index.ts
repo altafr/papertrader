@@ -11,6 +11,7 @@ import { createAlpacaShadowBarSource, createShadowEvaluationScheduler, runShadow
 import { createDurableScheduler, getDurableSchedulerConfig } from "./durable-scheduler.js";
 import { reconcilePaperAccount } from "./reconcile.js";
 import { getResearchScheduleReadiness } from "./research-scheduler.js";
+import { createResearchSchedulerFromEnvironment } from "./research-scheduler-runtime.js";
 
 const streamEnabled = process.env.MARKET_STREAM_ENABLED;
 if (streamEnabled !== undefined && streamEnabled !== "true" && streamEnabled !== "false") {
@@ -32,6 +33,8 @@ getPaperOnlyRuntimeConfig();
 if (getResearchScheduleReadiness().status === "blocked" && process.env.RESEARCH_SCHEDULER_ENABLED === "true") {
   throw new Error("RESEARCH_SCHEDULER_ENABLED=true requires paper database, broker, credentials, and handler gates.");
 }
+const researchScheduler = createResearchSchedulerFromEnvironment();
+if (researchScheduler) void researchScheduler.start().catch(() => { /* health endpoint reports degraded state */ });
 const autopilotConfiguration = getPaperAutopilotConfig();
 if (autopilotConfiguration.enabled && !process.env.DATABASE_URL?.trim()) throw new Error("PAPER_AUTOPILOT_ENABLED=true requires DATABASE_URL.");
 const shadowConfiguration = getShadowEvaluationConfig();

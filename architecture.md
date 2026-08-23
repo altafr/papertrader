@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 4.15 research scheduler runtime health exposed; Railway database connectivity is verified, while research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
+- **Stage:** Phase 4.16 guarded worker startup composition added; Railway database connectivity is verified, while research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -422,6 +422,12 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - `WorkerHealth.researchSchedule` now includes optional last/next run timestamps and runtime states for `scheduled`, `running`, `degraded`, and `disabled`, while retaining `blocked` for readiness failure.
 - `apps/worker/src/app.ts` combines static readiness with scheduler runtime state: an enabled but not-yet-started, fully gated scheduler reports `ready`; blocked configuration reports `blocked`; runtime failures remain visible as `degraded` without exposing queue details or credentials.
 - The `/health` response remains read-only. No scheduler is instantiated by this change and no Railway persistent flag or external service state changes.
+
+### Phase 4.16 Guarded Worker Startup Composition
+
+- `research-scheduler-runtime.ts` composes the paper market-data reader, PostgreSQL agent-run repository, deterministic preparation handler, and gated scheduler factory only when `RESEARCH_SCHEDULER_ENABLED=true` and readiness is complete.
+- `apps/worker/src/index.ts` invokes that composition at startup behind the existing fail-closed check. With the default disabled flag, no database client, Alpaca reader, queue client, or scheduler is constructed for research.
+- Startup failures are contained in the scheduler promise so the worker health endpoint can report degraded state; no live endpoint, order path, risk override, or persistent variable mutation is introduced.
 
 ### Phase 6.13 Dashboard Operations Health Surface
 
