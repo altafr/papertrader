@@ -354,6 +354,7 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - `packages/config` now resolves `OPERATING_MODE` as `observe`, `recommend`, or `paper_autopilot`, defaulting safely to `observe` when Paper Autopilot is disabled.
 - Contradictory settings fail closed: `paper_autopilot` requires `PAPER_AUTOPILOT_ENABLED=true`, while `observe`/`recommend` reject an enabled Paper Autopilot flag. Live mode remains unavailable.
 - Authenticated operations health exposes the resolved mode, and the dashboard renders it alongside broker, scheduler, and Paper Autopilot gates. No mode-changing control or persistent configuration mutation was added.
+- API deployment `5bae4605-c1e8-4115-bbdc-90982aab61ad` reached `SUCCESS`; public health returned HTTP 200 and unauthenticated operations health returned HTTP 401. Hosted `OPERATING_MODE` is unset, so the safe resolved mode is `observe`; broker, scheduler, handler, and Paper Autopilot flags remain disabled or unset.
 
 ### Phase 4.1 Structured Agent Runs
 

@@ -608,6 +608,7 @@
 - **Implemented:** Added strict `getPaperOperatingMode` configuration resolution, contradiction checks, API operations-health mode output, dashboard parsing/rendering, and configuration/dashboard tests.
 - **Safety boundary:** Defaults remain `observe`; live modes are impossible; Paper Autopilot still requires its existing broker, paper, risk, freshness, and execution gates. No mode-changing route or persistent Railway variable was added.
 - **Verification:** 149 tests, typecheck, lint, production build, secret-surface audit, and diff checks pass.
+- **Hosted verification:** API deployment `5bae4605-c1e8-4115-bbdc-90982aab61ad` reached `SUCCESS`; `/health` returned HTTP 200 and unauthenticated `/v1/operations-health` returned HTTP 401. `OPERATING_MODE` is unset in Railway, resolving to safe `observe`; broker, scheduler, handler, and Paper Autopilot flags remain disabled or unset.
 - **Next smallest unit:** Obtain explicit approval for the one-run paper reconciliation.
 
 ## Completed Build Unit — Phase 4.1
@@ -918,7 +919,7 @@
 | Phase 6.16 Railway database connectivity | Pass | CLI confirmed non-empty `DATABASE_URL` on API and Worker; Worker private host reachability and PostgreSQL `SELECT 1` passed; deployed Worker `durable-status` also confirmed both queues present with zero queued/active/failed jobs; no secrets printed |
 | Phase 6.17 guarded database status command | Pass | Added command-scoped `DATABASE_STATUS=true` probe with generic failure output and pool cleanup; 147 tests, typecheck, lint, and production build pass; Worker deployment `d28e267c-42cd-4cfa-b364-9f30c8468bca` succeeded and hosted probe returned `databaseReachable=true` with persistent activation flags unchanged |
 | Phase 6.18 secret-surface CI audit | Pass | Added source/browser credential-value scan and CI step after build; fresh build, audit, 147 tests, typecheck, lint, and diff checks pass; no secret values printed |
-| Phase 6.19 explicit paper operating-mode contract | Pass | Added observe/recommend/paper_autopilot resolution, contradiction fail-closed checks, API/dashboard mode visibility, and tests; 149 tests, typecheck, lint, build, audit, and diff checks pass |
+| Phase 6.19 explicit paper operating-mode contract | Pass | Added observe/recommend/paper_autopilot resolution, contradiction fail-closed checks, API/dashboard mode visibility, and tests; 149 tests, typecheck, lint, build, audit, and diff checks pass; API deployment `5bae4605-c1e8-4115-bbdc-90982aab61ad` succeeded with hosted mode safely resolving to observe |
 | Phase 4.1 structured agent runs | Pass | Added immutable run lifecycle/orchestrator and versioned artifact contracts with provenance; 106 tests, typecheck, lint, and production build pass; no external calls or financial authority added |
 | Phase 4.2 read-only research agents | Pass | Added deterministic stock/crypto watchlist handlers with bounded, validated artifacts; 109 tests, typecheck, lint, and production build pass; no external calls or financial authority added |
 | Phase 4.3 agent-run persistence/read view | Pass | Added migration 0008, Drizzle/repository lifecycle enforcement, and authenticated metadata-only `/v1/agent-runs`; 110 tests, typecheck, lint, and production build pass; hosted migration not yet applied |
