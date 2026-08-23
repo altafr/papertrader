@@ -2,8 +2,8 @@
 
 ## Snapshot
 
-- **Phase:** Phase 4.1 — structured agent-run boundary added.
-- **Status:** Agent runs now have a deterministic, validated, append-only in-process orchestration boundary; Railway database connectivity is verified, while durable scheduler and Paper Autopilot remain disabled.
+- **Phase:** Phase 4.3 — agent-run persistence and authenticated read view added.
+- **Status:** Agent runs now have deterministic contracts, reviewed PostgreSQL persistence, and an authenticated metadata view; the new migration remains unapplied in hosted environments, while durable scheduler and Paper Autopilot remain disabled.
 - **Current operating mode:** Paper only; order submission not yet enabled.
 - **Current goal:** Run the separately approved one-run paper reconciliation using the reviewed runbook, then verify its result in the authenticated dashboard.
 - **Last updated:** 2026-08-23.
@@ -105,6 +105,7 @@
 - [x] Implement orchestrator and structured agent-run records.
 - [x] Add stock and crypto research agents with read-only tools.
 - [ ] Add macro advisory and economic-event context.
+- [x] Persist agent-run records and expose an authenticated read-only health/audit view.
 - [ ] Produce persisted daily stock and continuous crypto plans.
 - [ ] Add agent health, evidence, and audit views.
 
@@ -600,6 +601,14 @@
 - **Verification:** `pnpm test` passes 109 tests; `pnpm typecheck`, `pnpm lint`, and `pnpm build` pass across the workspace.
 - **Next smallest unit:** Add authenticated, read-only worker/API wiring for persisted agent-run health and research artifacts, keeping the handlers disabled by default.
 
+## Completed Build Unit — Phase 4.3
+
+- **User story:** As the operator, I can inspect recent research-agent run status and provenance through an authenticated API without exposing private artifact contents or granting control authority.
+- **Implemented:** Added migration `0008_agent_runs.sql`, Drizzle `agent_runs` schema, transactional status repository, and authenticated `GET /v1/agent-runs?limit=50`. The response is metadata-only and bounded to 1–100 records.
+- **Safety boundary:** The migration is not applied automatically; no agent invocation, broker call, order action, risk approval, scheduler activation, or configuration mutation was added. Missing database/auth configuration fails closed, and artifact payload/rationale are omitted from the read view.
+- **Verification:** `pnpm test` passes 110 tests; `pnpm typecheck`, `pnpm lint`, and `pnpm build` pass across the workspace. Hosted migration and endpoint verification remain pending the controlled Railway process and authenticated operator session.
+- **Next smallest unit:** Add the macro advisory/economic-event read-only artifact contract, then wire bounded research runs through the durable worker only after migration review.
+
 ## Decisions Made
 
 | Date | Decision | Reason |
@@ -695,6 +704,7 @@
 | Phase 6.16 Railway database connectivity | Pass | CLI confirmed non-empty `DATABASE_URL` on API and Worker; deployed Worker `durable-status` read-only query succeeded with both queues present and zero queued/active/failed jobs; no secrets printed |
 | Phase 4.1 structured agent runs | Pass | Added immutable run lifecycle/orchestrator and versioned artifact contracts with provenance; 106 tests, typecheck, lint, and production build pass; no external calls or financial authority added |
 | Phase 4.2 read-only research agents | Pass | Added deterministic stock/crypto watchlist handlers with bounded, validated artifacts; 109 tests, typecheck, lint, and production build pass; no external calls or financial authority added |
+| Phase 4.3 agent-run persistence/read view | Pass | Added migration 0008, Drizzle/repository lifecycle enforcement, and authenticated metadata-only `/v1/agent-runs`; 110 tests, typecheck, lint, and production build pass; hosted migration not yet applied |
 | Browser/preview | Partial | Production page HTTP check passed; visual/responsive review deferred beyond source scaffold |
 | Security review | Partial | No credential files, Alpaca client, database connection, or order code added; full review remains required |
 

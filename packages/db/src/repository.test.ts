@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { Database } from "./client.js";
-import { createPaperOrderRepository, createShadowObservationRepository, createStrategyLifecycleRepository, type PersistedPaperOrderSubmission, type PersistedShadowObservation, type PersistedShadowObservationOutcome, type PersistedStrategyLifecycleEvent } from "./repository.js";
-import { paperOrderSubmissions, shadowObservationOutcomes, shadowObservations } from "./schema.js";
+import { createAgentRunRepository, createPaperOrderRepository, createShadowObservationRepository, createStrategyLifecycleRepository, type PersistedAgentArtifact, type PersistedAgentRun, type PersistedPaperOrderSubmission, type PersistedShadowObservation, type PersistedShadowObservationOutcome, type PersistedStrategyLifecycleEvent } from "./repository.js";
+import { agentRuns, paperOrderSubmissions, shadowObservationOutcomes, shadowObservations } from "./schema.js";
 
 const event = (revision: number): PersistedStrategyLifecycleEvent => ({
   actorId: "operator-1", approvedAt: new Date("2026-01-10T00:00:00Z"), approvedBy: "operator-1", approvalNote: "Reviewed.", evidenceKey: "cross-sectional-momentum@1.0.0", eventId: `event-${revision}`, fromStage: "disabled", reason: "Replay approval.", requestedAt: new Date("2026-01-10T00:00:00Z"), revision, strategyKey: "cross-sectional-momentum", strategyVersion: "1.0.0", toStage: "replay",
@@ -50,6 +50,24 @@ describe("strategy lifecycle repository", () => {
     };
     const database = { transaction: async <T>(callback: (value: never) => Promise<T>) => callback(transaction as never) } as unknown as Database;
     await expect(createStrategyLifecycleRepository(database).appendShadowToPaper({ ...event(2), fromStage: "shadow", toStage: "paper", evidenceKey: "cross-sectional-momentum@1.0.0:paper" })).resolves.toMatchObject({ toStage: "paper", revision: 2 });
+  });
+});
+
+describe("agent run repository", () => {
+  it("enforces queued, running, terminal persistence transitions", async () => {
+    const stored = new Map<string, PersistedAgentRun & Record<string, unknown>>();
+    const database = {
+      insert: () => ({ values: (value: PersistedAgentRun) => ({ returning: async () => { const row = { ...value }; stored.set(value.runId, row); return [row]; } }) }),
+      update: () => ({ set: (value: Record<string, unknown>) => ({ where: (condition: unknown) => ({ returning: async () => { void condition; const row = stored.get("agent-1"); if (!row || (value.status === "running" && row.status !== "queued") || (value.status === "succeeded" && row.status !== "running") || (value.status === "failed" && row.status !== "running")) return []; Object.assign(row, value); return [row]; } }) }) }),
+      select: () => ({ from: (table: unknown) => ({ where: () => ({ limit: async () => table === agentRuns && stored.has("agent-1") ? [stored.get("agent-1")] : [] }) }) }),
+    } as unknown as Database;
+    const repository = createAgentRunRepository(database);
+    const run: PersistedAgentRun = { agentType: "stock_research", createdAt: new Date("2026-08-23T00:00:00Z"), inputRefs: ["bars:1"], promptVersion: "stock@1", runId: "agent-1", status: "queued", task: "Rank stocks." };
+    await expect(repository.enqueue(run)).resolves.toMatchObject({ status: "queued" });
+    await expect(repository.start(run.runId, new Date("2026-08-23T00:00:01Z"))).resolves.toMatchObject({ status: "running" });
+    const artifact: PersistedAgentArtifact = { artifactConfidence: "not_calibrated", artifactEvidenceRefs: ["bars:1"], artifactPayload: { symbols: ["AAA"] }, artifactRationale: "Research only.", artifactSchemaVersion: "1", artifactType: "watchlist" };
+    await expect(repository.succeed(run.runId, new Date("2026-08-23T00:00:02Z"), artifact)).resolves.toMatchObject({ status: "succeeded", artifactType: "watchlist" });
+    await expect(repository.start(run.runId, new Date("2026-08-23T00:00:03Z"))).rejects.toThrow("Queued agent run");
   });
 });
 

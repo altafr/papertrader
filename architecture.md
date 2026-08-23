@@ -346,6 +346,13 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - Each artifact carries the asset class, capture time, source evidence reference, average volume, point-in-time return, and source-bar timestamp. Candidate output is capped at 20 symbols and is explicitly research evidence, not an order recommendation.
 - Invalid/stale input, non-positive prices/volumes, and malformed timestamps fail closed. The handlers have no credentials, persistence, strategy-stage, risk, or order authority and remain disabled until a later worker/API wiring unit.
 
+### Phase 4.3 Agent-Run Persistence and Read View
+
+- `packages/db/migrations/0008_agent_runs.sql` and the matching Drizzle schema persist agent-run provenance, lifecycle status, redacted error codes, and structured artifact metadata/payloads with status and non-empty-field constraints.
+- `createAgentRunRepository` enforces queued → running → succeeded/failed updates and bounded recent-run queries. Migration application remains a controlled operation; application startup never migrates automatically.
+- Authenticated `GET /v1/agent-runs?limit=50` returns recent run metadata, statuses, timestamps, input references, and artifact provenance. It intentionally omits artifact rationale and payload contents from this read view to keep the operational surface bounded.
+- No agent is invoked automatically by this unit. The endpoint has no broker, order, risk-approval, or configuration mutation authority and fails closed when `DATABASE_URL` or Clerk authentication is unavailable.
+
 ### Phase 6.13 Dashboard Operations Health Surface
 
 - The authenticated dashboard consumes only the redacted `/v1/operations-health` response and displays reconciliation freshness plus scheduler, broker-read, and Paper Autopilot gates.

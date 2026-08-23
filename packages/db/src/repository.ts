@@ -1,7 +1,27 @@
 import { and, asc, desc, eq } from "drizzle-orm";
 
 import type { Database } from "./client.js";
-import { accountSnapshots, activities, orders, paperOrderSubmissions, positions, shadowObservationOutcomes, shadowObservations, strategyLifecycleEvents, strategyPaperEvidence } from "./schema.js";
+import { accountSnapshots, activities, agentRuns, orders, paperOrderSubmissions, positions, shadowObservationOutcomes, shadowObservations, strategyLifecycleEvents, strategyPaperEvidence } from "./schema.js";
+
+export interface PersistedAgentArtifact {
+  readonly artifactConfidence: string;
+  readonly artifactEvidenceRefs: readonly string[];
+  readonly artifactPayload: Readonly<Record<string, unknown>>;
+  readonly artifactRationale: string;
+  readonly artifactSchemaVersion: string;
+  readonly artifactType: string;
+}
+
+export interface PersistedAgentRun {
+  readonly agentType: string;
+  readonly createdAt: Date;
+  readonly inputRefs: readonly string[];
+  readonly modelProvider?: string;
+  readonly promptVersion: string;
+  readonly runId: string;
+  readonly status: "failed" | "queued" | "running" | "succeeded";
+  readonly task: string;
+}
 
 export interface PersistedPaperOrderSubmission {
   readonly alpacaOrderId?: string;
@@ -207,6 +227,52 @@ export function createAccountStateRepository(db: Database) {
         }
         return snapshot;
       });
+    },
+  };
+}
+
+export function createAgentRunRepository(db: Database) {
+  return {
+    async enqueue(run: PersistedAgentRun) {
+      const [row] = await db.insert(agentRuns).values(run).returning();
+      return row;
+    },
+
+    async start(runId: string, startedAt: Date) {
+      const [row] = await db.update(agentRuns).set({ startedAt, status: "running" }).where(and(eq(agentRuns.runId, runId), eq(agentRuns.status, "queued"))).returning();
+      if (!row) throw new Error("Queued agent run was not found.");
+      return row;
+    },
+
+    async succeed(runId: string, finishedAt: Date, artifact: PersistedAgentArtifact) {
+      const [row] = await db.update(agentRuns).set({
+        artifactConfidence: artifact.artifactConfidence,
+        artifactEvidenceRefs: artifact.artifactEvidenceRefs,
+        artifactPayload: artifact.artifactPayload,
+        artifactRationale: artifact.artifactRationale,
+        artifactSchemaVersion: artifact.artifactSchemaVersion,
+        artifactType: artifact.artifactType,
+        finishedAt,
+        status: "succeeded",
+      }).where(and(eq(agentRuns.runId, runId), eq(agentRuns.status, "running"))).returning();
+      if (!row) throw new Error("Running agent run was not found.");
+      return row;
+    },
+
+    async fail(runId: string, finishedAt: Date, errorCode: string) {
+      const [row] = await db.update(agentRuns).set({ errorCode, finishedAt, status: "failed" }).where(and(eq(agentRuns.runId, runId), eq(agentRuns.status, "running"))).returning();
+      if (!row) throw new Error("Running agent run was not found.");
+      return row;
+    },
+
+    async get(runId: string) {
+      const [row] = await db.select().from(agentRuns).where(eq(agentRuns.runId, runId)).limit(1);
+      return row;
+    },
+
+    async listRecent(limit = 50) {
+      if (!Number.isSafeInteger(limit) || limit < 1 || limit > 100) throw new Error("Agent run limit must be an integer from 1 to 100.");
+      return db.select().from(agentRuns).orderBy(desc(agentRuns.createdAt)).limit(limit);
     },
   };
 }

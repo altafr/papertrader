@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm";
-import { check, index, integer, numeric, pgTable, text, timestamp, unique, uuid } from "drizzle-orm/pg-core";
+import { check, index, integer, jsonb, numeric, pgTable, text, timestamp, unique, uuid } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 
 export const accountSnapshots = pgTable("account_snapshots", {
@@ -126,6 +126,35 @@ export const paperOrderSubmissions = pgTable(
     index("paper_order_submissions_status_updated_idx").on(table.status, table.updatedAt),
     check("paper_order_submissions_non_empty_text", sql`length(${table.intentId}) > 0 AND length(${table.approvalId}) > 0 AND length(${table.clientOrderId}) > 0 AND length(${table.symbol}) > 0`),
     check("paper_order_submissions_quantity_positive", sql`${table.quantity} > 0`),
+  ],
+);
+
+export const agentRuns = pgTable(
+  "agent_runs",
+  {
+    agentType: text("agent_type").notNull(),
+    artifactConfidence: text("artifact_confidence"),
+    artifactEvidenceRefs: jsonb("artifact_evidence_refs").$type<readonly string[]>(),
+    artifactPayload: jsonb("artifact_payload").$type<Readonly<Record<string, unknown>>>(),
+    artifactRationale: text("artifact_rationale"),
+    artifactSchemaVersion: text("artifact_schema_version"),
+    artifactType: text("artifact_type"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull(),
+    errorCode: text("error_code"),
+    finishedAt: timestamp("finished_at", { withTimezone: true }),
+    inputRefs: jsonb("input_refs").$type<readonly string[]>().notNull(),
+    modelProvider: text("model_provider"),
+    promptVersion: text("prompt_version").notNull(),
+    runId: text("run_id").primaryKey(),
+    startedAt: timestamp("started_at", { withTimezone: true }),
+    status: text("status").notNull(),
+    task: text("task").notNull(),
+  },
+  (table) => [
+    index("agent_runs_status_created_idx").on(table.status, table.createdAt),
+    check("agent_runs_non_empty_text", sql`length(${table.runId}) > 0 AND length(${table.agentType}) > 0 AND length(${table.promptVersion}) > 0 AND length(${table.task}) > 0`),
+    check("agent_runs_status_valid", sql`${table.status} IN ('queued', 'running', 'succeeded', 'failed')`),
+    check("agent_runs_artifact_pairing", sql`(${table.status} = 'succeeded' AND ${table.artifactType} IS NOT NULL AND ${table.artifactRationale} IS NOT NULL) OR (${table.status} <> 'succeeded')`),
   ],
 );
 

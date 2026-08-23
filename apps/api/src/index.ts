@@ -10,7 +10,7 @@ import {
   type MarketAssetClass,
   type MarketBarTimeframe,
 } from "@momentum/alpaca";
-import { createAccountStateRepository, createDatabase, createShadowObservationRepository, createStrategyLifecycleRepository } from "@momentum/db";
+import { createAccountStateRepository, createAgentRunRepository, createDatabase, createShadowObservationRepository, createStrategyLifecycleRepository } from "@momentum/db";
 import {
   getClerkRuntimeConfig,
   getPaperOnlyRuntimeConfig,
@@ -23,6 +23,7 @@ import { compareReconciliationAccounts } from "./reconciliation-status.js";
 import { approveDisabledToReplay, approveReplayToShadow, approveShadowToPaper } from "./lifecycle-command.js";
 
 let readModelRepository: ReturnType<typeof createAccountStateRepository> | undefined;
+let agentRunRepository: ReturnType<typeof createAgentRunRepository> | undefined;
 let strategyLifecycleRepository: ReturnType<typeof createStrategyLifecycleRepository> | undefined;
 let shadowObservationRepository: ReturnType<typeof createShadowObservationRepository> | undefined;
 
@@ -314,6 +315,43 @@ async function readOperationsHealth(request: IncomingMessage) {
   } as const;
 }
 
+function parseAgentRunLimit(request: IncomingMessage): number {
+  const url = new URL(request.url ?? "/", `http://${request.headers.host ?? "localhost"}`);
+  const limit = Number(url.searchParams.get("limit") ?? "50");
+  if (!Number.isSafeInteger(limit) || limit < 1 || limit > 100) throw new Error("invalid_agent_run_limit");
+  return limit;
+}
+
+async function readAgentRuns(request: IncomingMessage) {
+  const authentication = await authenticateOperator(request);
+  if (authentication.status !== 200) return authentication;
+  if (!process.env.DATABASE_URL?.trim()) return { body: { error: "db_not_configured" }, status: 503 } as const;
+  if (!agentRunRepository) {
+    const { db } = createDatabase();
+    agentRunRepository = createAgentRunRepository(db);
+  }
+  const rows = await agentRunRepository.listRecent(parseAgentRunLimit(request));
+  return {
+    body: {
+      runs: rows.map((row) => ({
+        agentType: row.agentType,
+        artifact: row.artifactType ? { confidence: row.artifactConfidence, evidenceRefs: row.artifactEvidenceRefs, schemaVersion: row.artifactSchemaVersion, type: row.artifactType } : undefined,
+        createdAt: row.createdAt,
+        errorCode: row.errorCode,
+        finishedAt: row.finishedAt,
+        inputRefs: row.inputRefs,
+        modelProvider: row.modelProvider,
+        promptVersion: row.promptVersion,
+        runId: row.runId,
+        startedAt: row.startedAt,
+        status: row.status,
+        task: row.task,
+      })),
+    },
+    status: 200,
+  } as const;
+}
+
 async function approveStrategyReplay(request: IncomingMessage) {
   const authentication = await authenticateOperator(request);
   if (authentication.status !== 200) return authentication;
@@ -463,6 +501,20 @@ const server = createServer((request, response) => {
       .catch(() => {
         response.writeHead(503, { "content-type": "application/json" });
         response.end(JSON.stringify({ error: "operations_health_unavailable" }));
+      });
+    return;
+  }
+
+  if (request.method === "GET" && request.url?.startsWith("/v1/agent-runs")) {
+    readAgentRuns(request)
+      .then(({ body, status }) => {
+        response.writeHead(status, { "content-type": "application/json" });
+        response.end(JSON.stringify(body));
+      })
+      .catch((error: unknown) => {
+        const status = error instanceof Error && error.message === "invalid_agent_run_limit" ? 400 : 503;
+        response.writeHead(status, { "content-type": "application/json" });
+        response.end(JSON.stringify({ error: status === 400 ? "invalid_agent_run_limit" : "agent_runs_unavailable" }));
       });
     return;
   }
