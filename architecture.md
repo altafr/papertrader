@@ -597,7 +597,7 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 ### Phase 6.60 Guarded Paper Reconciliation Failure Contained
 
 - With explicit approval reference `PAPER-RECONCILIATION-123` and unique run ID `paper-reconciliation-20260823-01`, the guarded one-run command executed once and exited through its generic failure path. No provider, account, SQL, or credential details were emitted.
-- The post-run verifier found both queues present and drained, no persisted audit provenance for the run ID, and no completed one-run record. The failure cause is intentionally not inferred from the redacted command output; the run must not be retried blindly.
+- The post-run verifier found both queues present and drained, no persisted audit provenance for the run ID, and no completed one-run record. A bounded Railway log query returned zero worker log lines for the observation window, so the failure cause is intentionally not inferred from the redacted command output; the run must not be retried blindly.
 - Persistent Railway flags remained safe (`BROKER_CONNECTION_ENABLED=false`; command-scoped handler/scheduler/autopilot flags were not persisted). A follow-up private health probe remained healthy in observe mode with durable/research/shadow schedulers disabled and the global kill switch inactive.
 - This is a contained failed attempt, not evidence of successful reconciliation. Any retry requires operator review of the failure and a new explicit approval/reference plus a new unique run ID.
 

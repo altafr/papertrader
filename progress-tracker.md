@@ -928,7 +928,7 @@
 
 - **User story:** As the operator, I can attempt one approved paper reconciliation without allowing a failure to enable recurring execution or leave an ambiguous audit record.
 - **Execution evidence:** The command-scoped run used approval reference `PAPER-RECONCILIATION-123` and run ID `paper-reconciliation-20260823-01`. It exited with the generic `Durable one-run paper reconciliation failed.` result.
-- **Post-run evidence:** The read-only verifier returned `status:"incomplete"` with no persisted provenance for that run ID; work and dead-letter queues were present and fully drained. Persistent variables remained safe (`BROKER_CONNECTION_ENABLED=false`; handler/scheduler/autopilot flags absent or false), and the private worker health probe remained healthy in observe mode.
+- **Post-run evidence:** The read-only verifier returned `status:"incomplete"` with no persisted provenance for that run ID; work and dead-letter queues were present and fully drained. A bounded Railway log query returned zero worker log lines for the observation window, so no cause is inferred. Persistent variables remained safe (`BROKER_CONNECTION_ENABLED=false`; handler/scheduler/autopilot flags absent or false), and the private worker health probe remained healthy in observe mode.
 - **Safety boundary:** No credentials, account values, provider responses, SQL, or order actions were emitted. The run was not retried. A retry requires diagnosis and a new explicit approval/reference plus a new unique run ID.
 - **Next smallest unit:** Review bounded Railway/runtime failure evidence and, only if the cause is understood and the operator reauthorizes it, run one new guarded reconciliation attempt.
 
