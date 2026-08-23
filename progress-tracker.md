@@ -2,8 +2,8 @@
 
 ## Snapshot
 
-- **Phase:** Phase 4.17 — guarded research readiness verification added.
-- **Status:** Agent runs have deterministic contracts, reviewed PostgreSQL persistence, authenticated list/detail reads, a dashboard health surface, a paper-only market-data run-once boundary, a disabled-by-default daily research readiness surface, a separately named validated queue boundary, an explicit stock/crypto preparation planner, a fail-closed queue-handler composition, a readiness-gated scheduler registration boundary, safe runtime health reporting, explicit opt-in worker composition, and a guarded local/CI readiness command; Railway migration `0008` is applied, while research scheduling, durable reconciliation, and Paper Autopilot remain disabled.
+- **Phase:** Phase 4.18 — hosted research readiness evidence recorded.
+- **Status:** Agent runs have deterministic contracts, reviewed PostgreSQL persistence, authenticated list/detail reads, a dashboard health surface, a paper-only market-data run-once boundary, a disabled-by-default daily research readiness surface, a separately named validated queue boundary, an explicit stock/crypto preparation planner, a fail-closed queue-handler composition, a readiness-gated scheduler registration boundary, safe runtime health reporting, explicit opt-in worker composition, a guarded local/CI readiness command, and verified hosted disabled readiness; Railway migration `0008` is applied, while research scheduling, durable reconciliation, and Paper Autopilot remain disabled.
 - **Current operating mode:** Paper only; order submission not yet enabled.
 - **Current goal:** Run the separately approved one-run paper reconciliation using the reviewed runbook, then verify its result in the authenticated dashboard.
 - **Last updated:** 2026-08-23.
@@ -721,6 +721,13 @@
 - **Hosted check:** Railway SSH reached the deployed worker, but the current deployment predates this command and reported no `research-readiness` script. No deployment, variable, scheduler, broker, or research state was changed.
 - **Next smallest unit:** Add operator-facing hosted readiness evidence for the composed research scheduler without enabling persistent Railway flags.
 
+## Completed Operations Unit — Phase 4.18
+
+- **User story:** As the operator, I can verify the deployed worker contains the guarded research readiness command and remains safely disabled before any hosted research activation.
+- **Verified:** Railway deployment `5290f522-99da-4b71-b1bf-2e2b4d9f8c86` reached `SUCCESS`. SSH readiness returned `status: "disabled"`, with paper mode, database, and paper credentials configured; broker, research handler, and research scheduler gates remained off.
+- **Safety boundary:** The verification did not call Alpaca, provision queues, start a scheduler, write agent runs, change variables, or submit orders. Secret values were never printed.
+- **Next smallest unit:** Review a separately approved single hosted paper market-data research run, keeping recurring research scheduling and Paper Autopilot disabled.
+
 ## Decisions Made
 
 | Date | Decision | Reason |
@@ -831,6 +838,7 @@
 | Phase 4.15 research scheduler runtime health | Pass | Extended worker health with safe research scheduler readiness/runtime states and optional run timestamps; 133 tests, typecheck, lint, and production build pass; no scheduler or hosted research execution performed |
 | Phase 4.16 guarded worker startup composition | Pass | Added disabled-by-default worker composition for paper market source, PostgreSQL agent persistence, deterministic handler, and gated scheduler; 135 tests, typecheck, lint, and production build pass; no hosted scheduler or research execution performed |
 | Phase 4.17 guarded research readiness verification | Pass | Added guarded `research-readiness` command and CI default-disabled check; verified disabled and blocked exit behavior with safe reason codes; 135 tests, typecheck, lint, and production build pass |
+| Phase 4.18 hosted research readiness evidence | Pass | Worker deployment `5290f522-99da-4b71-b1bf-2e2b4d9f8c86` reached `SUCCESS`; Railway SSH readiness returned disabled with database/paper credentials configured and all research/durable/autopilot gates off; no broker or research execution performed |
 | Browser/preview | Partial | Production page HTTP check passed; visual/responsive review deferred beyond source scaffold |
 | Security review | Partial | No credential files, Alpaca client, database connection, or order code added; full review remains required |
 
