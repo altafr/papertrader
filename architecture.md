@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 4.20 hosted research preflight added; Railway database connectivity is verified, while research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
+- **Stage:** Phase 4.21 research approval provenance added; Railway database connectivity is verified, while research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -452,6 +452,12 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - `research-market-preflight` validates the separate approval/reference, paper-only runtime, explicit broker/database prerequisites, agent type, symbol count, timeframe, bar limit, and candidate bound without constructing Alpaca, PostgreSQL, or queue clients.
 - It prints bounded metadata only and is a required local/hosted step before `research-market-run-once`; malformed or incomplete configuration fails closed.
 - The preflight does not read market data, write agent runs, start a scheduler, or submit orders. Hosted research execution remains pending explicit operator approval.
+
+### Phase 4.21 Research Approval Provenance
+
+- The guarded one-run command now adds `operator-approval:<reference>` alongside the market-data evidence reference in the persisted `agent_runs.input_refs` field.
+- The reference is bounded and non-secret; credentials and account values are never placed in provenance. This gives a future hosted artifact an auditable link to the approved run without granting approval authority to the artifact itself.
+- No hosted command was executed for this change; the persisted write remains behind the separate approval guard and paper/broker/database gates.
 
 ### Phase 6.13 Dashboard Operations Health Surface
 

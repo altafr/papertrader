@@ -4,9 +4,9 @@ import { createAgentRunRepository, createDatabase } from "@momentum/db";
 import { createCryptoResearchAgent, createStockResearchAgent, type AgentRunRequest, type ResearchAgentInput } from "@momentum/domain";
 import { executeResearchRun } from "./research-runner.js";
 import { createAlpacaResearchInputSource } from "./research-market-source.js";
-import { validateResearchMarketRunOnce } from "./research-market-run-once-guard.js";
+import { getResearchMarketInputRefs, validateResearchMarketRunOnce } from "./research-market-run-once-guard.js";
 
-validateResearchMarketRunOnce();
+const approval = validateResearchMarketRunOnce();
 const runtime = getPaperOnlyRuntimeConfig();
 if (!runtime.brokerConnectionEnabled) throw new Error("RESEARCH_MARKET_RUN_ONCE requires command-scoped BROKER_CONNECTION_ENABLED=true.");
 if (!process.env.DATABASE_URL?.trim()) throw new Error("DATABASE_URL is required for the market research command.");
@@ -23,7 +23,7 @@ const persistence = { ...repository, enqueue: (run: AgentRunRequest) => reposito
 try {
   const reader = createPaperMarketDataReader({ apiKey: process.env.ALPACA_API_KEY ?? "", secretKey: process.env.ALPACA_SECRET_KEY ?? "" });
   const input = await createAlpacaResearchInputSource(reader).read({ assetClass, limit, maxCandidates, symbols, timeframe });
-  const request: AgentRunRequest = { agentType, createdAt: new Date().toISOString(), inputRefs: [`alpaca-market:${assetClass}:${input.capturedAt}`], promptVersion: "research-market-boundary@1", runId: `research-market-${Date.now()}`, task: `Read and rank ${assetClass} market bars once.` };
+  const request: AgentRunRequest = { agentType, createdAt: new Date().toISOString(), inputRefs: getResearchMarketInputRefs(assetClass, input.capturedAt, approval.reference), promptVersion: "research-market-boundary@1", runId: `research-market-${Date.now()}`, task: `Read and rank ${assetClass} market bars once.` };
   const handler = agentType === "stock_research" ? createStockResearchAgent(input as ResearchAgentInput & { assetClass: "us_equity" }) : createCryptoResearchAgent(input as ResearchAgentInput & { assetClass: "crypto" });
   const result = await executeResearchRun({ handler, persistence, request });
   if (result.status !== "succeeded") throw new Error("research_market_run_failed");

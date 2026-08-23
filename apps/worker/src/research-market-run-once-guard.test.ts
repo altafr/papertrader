@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { validateResearchMarketRunOnce } from "./research-market-run-once-guard.js";
+import { getResearchMarketInputRefs, validateResearchMarketRunOnce } from "./research-market-run-once-guard.js";
 
 describe("research market one-run approval guard", () => {
   it("requires separate command-scoped approval and a bounded reference", () => {
@@ -11,5 +11,9 @@ describe("research market one-run approval guard", () => {
   it("rejects unsafe or oversized approval references", () => {
     expect(() => validateResearchMarketRunOnce({ RESEARCH_MARKET_RUN_ONCE: "true", RESEARCH_MARKET_OPERATOR_APPROVAL: "true", RESEARCH_MARKET_APPROVAL_REFERENCE: "secret value" })).toThrow("bounded");
     expect(() => validateResearchMarketRunOnce({ RESEARCH_MARKET_RUN_ONCE: "true", RESEARCH_MARKET_OPERATOR_APPROVAL: "true", RESEARCH_MARKET_APPROVAL_REFERENCE: "x".repeat(129) })).toThrow("bounded");
+  });
+
+  it("creates auditable non-secret input references", () => {
+    expect(getResearchMarketInputRefs("us_equity", "2026-08-23T00:00:00.000Z", "ticket-123")).toEqual(["alpaca-market:us_equity:2026-08-23T00:00:00.000Z", "operator-approval:ticket-123"]);
   });
 });
