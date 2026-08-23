@@ -398,6 +398,12 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - The dashboard validates the expanded redacted contract and displays the baseline and maximum single-trade risk beside the existing mode, scheduler, broker, and Paper Autopilot gates.
 - This is read-only metadata. The browser cannot change the policy, approve a trade, contact Alpaca, write PostgreSQL, or enable any execution gate. Local tests, typecheck, lint, production build, secret-surface audit, and diff checks pass. API deployment `c4c0901c-f9ea-4638-95af-add7ca2227fd` reached `SUCCESS`; `/health` returned HTTP 200 and unauthenticated operations health returned HTTP 401. Vercel preview `dpl_E378eJz2ZU3AauLptSPJeogFqhCW` reached `Ready` and remains deployment-protected with unauthenticated HTTP 302.
 
+### Phase 6.27 Paper Autopilot Readiness Report
+
+- Added the guarded `paper-autopilot-readiness` command and pure readiness contract. It reports disabled, blocked, or configuration-ready state from paper mode, server-side credentials, broker/database gates, durable scheduler/handler gates, operating mode, and the fixed risk-policy invariants.
+- Readiness output contains only booleans, bounded reason codes, and non-secret policy constants. It never constructs Alpaca/PostgreSQL clients, reads account state, starts queues, changes variables, or submits orders.
+- A `ready` result is explicitly configuration readiness only; `runtimeFreshnessGateRequired:true` remains present, so reconciliation freshness, kill switch, deterministic risk approval, and other runtime checks must still pass before any order path can run. Local tests, typecheck, lint, production build, secret-surface audit, and diff checks pass.
+
 ### Phase 4.1 Structured Agent Runs
 
 - `packages/domain/src/agent-runs.ts` defines versioned, structured agent-run requests and artifacts for the orchestrator, stock/crypto research, macro advisory, strategy, risk explanation, execution, and reconciliation roles.

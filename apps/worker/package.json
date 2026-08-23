@@ -10,6 +10,7 @@
     "durable-status": "tsx src/durable-status-command.ts",
     "durable-run-once": "tsx src/durable-run-once-command.ts",
     "durable-readiness": "tsx src/durable-readiness-command.ts",
+    "paper-autopilot-readiness": "tsx src/paper-autopilot-readiness-command.ts",
     "durable-one-run": "tsx src/durable-one-run-command.ts",
     "database-migrate": "tsx src/database-migration-command.ts",
     "database-status": "tsx src/database-status-command.ts",
