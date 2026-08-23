@@ -511,6 +511,7 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - Added read-only audit-migration metadata to authenticated operations health and the dashboard. The UI shows `Ready` or `Blocked` alongside scheduler state and does not expose database details or controls.
 - The API checks only bounded schema booleans/reason codes and closes its temporary metadata pool. No endpoint can apply migration SQL, enable scheduling, or alter broker state.
 - API deployment `ecc32524-c11f-49b0-bac0-c191f75f88a9` reached `SUCCESS`; private `/health` returned healthy. The authenticated operations-health response now carries migration status/reasons for the dashboard; no migration or scheduler control was added.
+- Vercel preview deployment `dpl_Coim3aCAv7mRqduqRCaBXD1ZAtHn` reached `Ready` for the current branch, confirming the dashboard build containing the read-only migration status. No browser control or persistent configuration was added.
 
 ### Phase 4.1 Structured Agent Runs
 
