@@ -9,3 +9,9 @@ export function validateDatabaseMigrationApprovalReference(environment: NodeJS.P
 export function migrationRequiresApproval(version: string): boolean {
   return version === "0009";
 }
+
+export function validateDatabaseMigrationTarget(version: string, environment: NodeJS.ProcessEnv = process.env): void {
+  if (environment.DATABASE_MIGRATION_TARGET !== version) {
+    throw new Error(`DATABASE_MIGRATION_TARGET must be exactly ${version} for this pending migration.`);
+  }
+}

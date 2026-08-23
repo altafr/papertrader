@@ -489,6 +489,11 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - The guard closes its temporary database pool and does not enable the scheduler, call Alpaca, or write PostgreSQL. The current default-disabled worker path is unchanged.
 - Worker deployment `34e9c4f9-a76c-4590-9e9e-d41c68067a36` reached `SUCCESS`; private health remained healthy with `durableScheduler.enabled:false`, broker access disabled, observe mode, and the global kill switch inactive. Combined readiness continued to report the three bounded migration reasons. No SQL mutation occurred.
 
+### Phase 6.42 Explicit Migration Target Guard
+
+- Hardened the guarded migration command so a pending `0009` requires both `DATABASE_MIGRATION_TARGET=0009` and the bounded approval reference. This prevents a generic “apply all” invocation from being treated as authorization for the reviewed audit migration.
+- The target is command-scoped metadata only; it does not alter the database, scheduler, broker, or approval records.
+
 ### Phase 4.1 Structured Agent Runs
 
 - `packages/domain/src/agent-runs.ts` defines versioned, structured agent-run requests and artifacts for the orchestrator, stock/crypto research, macro advisory, strategy, risk explanation, execution, and reconciliation roles.

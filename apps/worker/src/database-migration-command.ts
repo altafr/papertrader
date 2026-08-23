@@ -4,7 +4,7 @@ import { join } from "node:path";
 import { getPaperOnlyRuntimeConfig } from "@momentum/config";
 import { createDatabase } from "@momentum/db";
 
-import { migrationRequiresApproval, validateDatabaseMigrationApprovalReference } from "./database-migration-guard.js";
+import { migrationRequiresApproval, validateDatabaseMigrationApprovalReference, validateDatabaseMigrationTarget } from "./database-migration-guard.js";
 
 if (process.env.DATABASE_MIGRATE !== "true") {
   throw new Error("DATABASE_MIGRATE must be exactly true for the guarded application migration command.");
@@ -43,7 +43,10 @@ try {
     if (!version) throw new Error(`Migration filename has no version: ${file}`);
     const existing = await pool.query("SELECT 1 FROM schema_migrations WHERE version = $1", [version]);
     if (existing.rowCount) continue;
-    if (migrationRequiresApproval(version)) validateDatabaseMigrationApprovalReference();
+    if (migrationRequiresApproval(version)) {
+      validateDatabaseMigrationTarget(version);
+      validateDatabaseMigrationApprovalReference();
+    }
     const sql = await readFile(join(migrationDirectory, file), "utf8");
     const client = await pool.connect();
     try {
