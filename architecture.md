@@ -396,7 +396,7 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 
 - Authenticated `GET /v1/operations-health` now returns the non-secret active paper risk policy: the USD 1,000 initial baseline, the USD 100 absolute single-trade ceiling, and the 0.25% equity limit.
 - The dashboard validates the expanded redacted contract and displays the baseline and maximum single-trade risk beside the existing mode, scheduler, broker, and Paper Autopilot gates.
-- This is read-only metadata. The browser cannot change the policy, approve a trade, contact Alpaca, write PostgreSQL, or enable any execution gate. Local tests, typecheck, lint, production build, secret-surface audit, and diff checks pass.
+- This is read-only metadata. The browser cannot change the policy, approve a trade, contact Alpaca, write PostgreSQL, or enable any execution gate. Local tests, typecheck, lint, production build, secret-surface audit, and diff checks pass. API deployment `c4c0901c-f9ea-4638-95af-add7ca2227fd` reached `SUCCESS`; `/health` returned HTTP 200 and unauthenticated operations health returned HTTP 401. Vercel preview `dpl_E378eJz2ZU3AauLptSPJeogFqhCW` reached `Ready` and remains deployment-protected with unauthenticated HTTP 302.
 
 ### Phase 4.1 Structured Agent Runs
 
