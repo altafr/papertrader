@@ -119,6 +119,13 @@ function OperationsHealthCard({ health }: { readonly health: OperationsHealth | 
   );
 }
 
+function operatingModeLabel(health: OperationsHealth | undefined): string {
+  if (!health) return "Mode unavailable";
+  if (health.runtime.operatingMode === "paper_autopilot") return "Paper Autopilot";
+  if (health.runtime.operatingMode === "recommend") return "Recommend";
+  return "Observe";
+}
+
 function AgentRunsCard({ runs }: { readonly runs: readonly AgentRunSummary[] | undefined }) {
   return (
     <article className="card full-width agent-runs-card" aria-label="Agent run health">
@@ -152,7 +159,7 @@ export default async function DashboardPage() {
         <div className="brand">Momentum Autopilot</div>
         <div className="status-items" aria-label="Authenticated system status">
           <span className="badge paper">Paper</span>
-          <span className="badge neutral">Read-only</span>
+          <span className="badge neutral">{operatingModeLabel(operationsHealth)}</span>
           <span className={`badge ${freshness === "fresh" ? "healthy" : "warning"}`}>{freshnessLabel}</span>
           <UserButton />
         </div>

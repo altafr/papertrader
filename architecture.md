@@ -356,6 +356,11 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - Authenticated operations health exposes the resolved mode, and the dashboard renders it alongside broker, scheduler, and Paper Autopilot gates. No mode-changing control or persistent configuration mutation was added.
 - API deployment `5bae4605-c1e8-4115-bbdc-90982aab61ad` reached `SUCCESS`; public health returned HTTP 200 and unauthenticated operations health returned HTTP 401. Hosted `OPERATING_MODE` is unset, so the safe resolved mode is `observe`; broker, scheduler, handler, and Paper Autopilot flags remain disabled or unset.
 
+### Phase 6.20 Dashboard Mode Visibility
+
+- The authenticated dashboard's persistent status bar now renders the server-resolved operating mode (`Observe`, `Recommend`, or `Paper Autopilot`) instead of a generic read-only label.
+- If the authenticated operations-health response is unavailable, the bar displays `Mode unavailable`; it never infers or fabricates a mode. The detailed health card continues to show all activation gates.
+
 ### Phase 4.1 Structured Agent Runs
 
 - `packages/domain/src/agent-runs.ts` defines versioned, structured agent-run requests and artifacts for the orchestrator, stock/crypto research, macro advisory, strategy, risk explanation, execution, and reconciliation roles.
