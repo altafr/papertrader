@@ -44,5 +44,8 @@ jobs:
       - name: Typecheck
         run: pnpm typecheck
 
+      - name: Check default research readiness
+        run: RESEARCH_SCHEDULE_READINESS=true pnpm --filter @momentum/worker research-readiness
+
       - name: Build
         run: pnpm build

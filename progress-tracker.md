@@ -2,8 +2,8 @@
 
 ## Snapshot
 
-- **Phase:** Phase 4.16 — guarded worker startup composition added.
-- **Status:** Agent runs have deterministic contracts, reviewed PostgreSQL persistence, authenticated list/detail reads, a dashboard health surface, a paper-only market-data run-once boundary, a disabled-by-default daily research readiness surface, a separately named validated queue boundary, an explicit stock/crypto preparation planner, a fail-closed queue-handler composition, a readiness-gated scheduler registration boundary, safe runtime health reporting, and explicit opt-in worker composition; Railway migration `0008` is applied, while research scheduling, durable reconciliation, and Paper Autopilot remain disabled.
+- **Phase:** Phase 4.17 — guarded research readiness verification added.
+- **Status:** Agent runs have deterministic contracts, reviewed PostgreSQL persistence, authenticated list/detail reads, a dashboard health surface, a paper-only market-data run-once boundary, a disabled-by-default daily research readiness surface, a separately named validated queue boundary, an explicit stock/crypto preparation planner, a fail-closed queue-handler composition, a readiness-gated scheduler registration boundary, safe runtime health reporting, explicit opt-in worker composition, and a guarded local/CI readiness command; Railway migration `0008` is applied, while research scheduling, durable reconciliation, and Paper Autopilot remain disabled.
 - **Current operating mode:** Paper only; order submission not yet enabled.
 - **Current goal:** Run the separately approved one-run paper reconciliation using the reviewed runbook, then verify its result in the authenticated dashboard.
 - **Last updated:** 2026-08-23.
@@ -712,6 +712,14 @@
 - **Verification:** `pnpm test` passes 135 tests; `pnpm typecheck`, `pnpm lint`, and `pnpm build` pass across the workspace. Disabled and blocked startup paths are covered; no hosted scheduler or research execution was performed.
 - **Next smallest unit:** Add a guarded local/CI startup readiness check for the composed worker, then review hosted activation without changing persistent defaults.
 
+## Completed Build Unit — Phase 4.17
+
+- **User story:** As a maintainer, I can verify research scheduler readiness locally and in CI without credentials, database access, queue startup, or market-data calls.
+- **Implemented:** Added the guarded `research-readiness` worker command and CI step. Default execution reports `disabled`; explicitly enabled incomplete configuration reports safe blocked reasons and exits 1.
+- **Safety boundary:** The command is read-only configuration inspection. It never prints secret values, constructs external clients, mutates Railway, starts a scheduler, or reaches an order path.
+- **Verification:** Default readiness returned `status: "disabled"`; incomplete enabled readiness returned `status: "blocked"` with exit code 1; `pnpm test` passes 135 tests, and typecheck/lint/build pass.
+- **Next smallest unit:** Add operator-facing hosted readiness evidence for the composed research scheduler without enabling persistent Railway flags.
+
 ## Decisions Made
 
 | Date | Decision | Reason |
@@ -821,6 +829,7 @@
 | Phase 4.14 gated research scheduler registration | Pass | Added readiness-before-client-creation, queue/cron registration, bounded failure health, and validated handler dispatch; 132 tests, typecheck, lint, and production build pass; no hosted queue or research execution performed |
 | Phase 4.15 research scheduler runtime health | Pass | Extended worker health with safe research scheduler readiness/runtime states and optional run timestamps; 133 tests, typecheck, lint, and production build pass; no scheduler or hosted research execution performed |
 | Phase 4.16 guarded worker startup composition | Pass | Added disabled-by-default worker composition for paper market source, PostgreSQL agent persistence, deterministic handler, and gated scheduler; 135 tests, typecheck, lint, and production build pass; no hosted scheduler or research execution performed |
+| Phase 4.17 guarded research readiness verification | Pass | Added guarded `research-readiness` command and CI default-disabled check; verified disabled and blocked exit behavior with safe reason codes; 135 tests, typecheck, lint, and production build pass |
 | Browser/preview | Partial | Production page HTTP check passed; visual/responsive review deferred beyond source scaffold |
 | Security review | Partial | No credential files, Alpaca client, database connection, or order code added; full review remains required |
 
