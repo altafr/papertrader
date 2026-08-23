@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.56 hosted PostgreSQL connectivity verified; Railway API deployment is verified, while the dashboard deployment is pending Vercel's free-tier quota reset and research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
+- **Stage:** Phase 6.57 hosted dashboard deployment refreshed; Railway API deployment is verified, while research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -575,6 +575,12 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 
 - The deployed worker's guarded `database-status` command returned `databaseReachable:true` using the server-side Railway connection; the connection string and database values were not printed.
 - This was a read-only `SELECT 1` probe. It did not contact Alpaca, start queues, apply migrations, alter persistent variables, or enable any execution path.
+
+### Phase 6.57 Hosted Dashboard Deployment Refresh
+
+- Vercel preview deployment `dpl_3jRuQ8ph9653U1MJ7DhzyqEm4zLi` for the current branch reached `Ready`; the deployment is protected by the configured authentication gate.
+- Unauthenticated HTTP checks for `/` and `/dashboard` returned `302`, confirming deployment protection rather than an unprotected or fabricated dashboard response. No frontend credentials, broker authority, scheduler, or execution gate changed.
+- The authenticated dashboard still requires a valid Clerk operator session to inspect persisted account/reconciliation data; the paper one-run remains separately approved and not yet executed.
 
 ### Phase 4.1 Structured Agent Runs
 
