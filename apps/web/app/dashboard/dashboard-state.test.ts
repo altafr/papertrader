@@ -28,10 +28,11 @@ describe("dashboard state", () => {
         migration: { blockedReasons: [], status: "ready" },
         riskPolicy: { initialEquityBaseline: "1000", maxSingleTradeRiskPercent: "0.25", maxSingleTradeRiskUsd: "100" },
         researchSchedule: { enabled: false, handlerEnabled: false, status: "disabled" },
-        scheduler: { enabled: false, status: "disabled" },
+        scheduler: { activationApprovalReferencePresent: true, enabled: false, status: "disabled" },
       },
     });
     expect(health?.runtime.scheduler.status).toBe("disabled");
+    expect(health?.runtime.scheduler.activationApprovalReferencePresent).toBe(true);
     expect(parseOperationsHealth({ reconciliation: { status: "fresh" }, runtime: {} })).toBeUndefined();
     expect(parseOperationsHealth({
       reconciliation: { status: "fresh" },
@@ -44,7 +45,7 @@ describe("dashboard state", () => {
         migration: { blockedReasons: ["unexpected_reason"], status: "blocked" },
         riskPolicy: { initialEquityBaseline: "1000", maxSingleTradeRiskPercent: "0.25", maxSingleTradeRiskUsd: "100" },
         researchSchedule: { enabled: false, handlerEnabled: false, status: "disabled" },
-        scheduler: { enabled: false, status: "disabled" },
+        scheduler: { activationApprovalReferencePresent: true, enabled: false, status: "disabled" },
       },
     })).toBeUndefined();
   });

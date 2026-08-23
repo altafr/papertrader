@@ -295,6 +295,7 @@ async function readOperationsHealth(request: IncomingMessage) {
   const reconciliation = assessReconciliationHealth(model?.freshness.capturedAt);
   const brokerConnectionEnabled = readBooleanEnvironmentFlag("BROKER_CONNECTION_ENABLED");
   const schedulerEnabled = readBooleanEnvironmentFlag("DURABLE_SCHEDULER_ENABLED");
+  const activationApprovalReferencePresent = !schedulerEnabled || Boolean(process.env.DURABLE_SCHEDULER_ACTIVATION_APPROVAL_REFERENCE?.trim() && /^[A-Za-z0-9][A-Za-z0-9._:/-]{0,127}$/.test(process.env.DURABLE_SCHEDULER_ACTIVATION_APPROVAL_REFERENCE.trim()));
   const handlerEnabled = readBooleanEnvironmentFlag("DAILY_PREPARATION_HANDLER_ENABLED");
   const researchSchedulerEnabled = readBooleanEnvironmentFlag("RESEARCH_SCHEDULER_ENABLED");
   const researchHandlerEnabled = readBooleanEnvironmentFlag("RESEARCH_HANDLER_ENABLED");
@@ -324,6 +325,7 @@ async function readOperationsHealth(request: IncomingMessage) {
           maxSingleTradeRiskUsd: MAX_SINGLE_TRADE_RISK_USD,
         },
         scheduler: {
+          activationApprovalReferencePresent,
           enabled: schedulerEnabled,
           status: schedulerStatus,
         },

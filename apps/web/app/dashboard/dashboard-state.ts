@@ -21,7 +21,7 @@ export type OperationsHealth = {
       readonly maxSingleTradeRiskUsd: string;
     };
     readonly researchSchedule: { readonly enabled: boolean; readonly handlerEnabled: boolean; readonly status: ResearchScheduleStatus };
-    readonly scheduler: { readonly enabled: boolean; readonly status: "blocked" | "disabled" | "ready" };
+    readonly scheduler: { readonly activationApprovalReferencePresent: boolean; readonly enabled: boolean; readonly status: "blocked" | "disabled" | "ready" };
   };
 };
 
@@ -64,7 +64,7 @@ export function parseOperationsHealth(value: unknown): OperationsHealth | undefi
   if (!(["blocked", "disabled", "ready"] as const).includes(scheduler.status as OperationsHealth["runtime"]["scheduler"]["status"])) return undefined;
   if (!( ["observe", "recommend", "paper_autopilot"] as const).includes(runtime.operatingMode as OperationsHealth["runtime"]["operatingMode"])) return undefined;
   if (!( ["blocked", "disabled", "ready"] as const).includes(researchSchedule.status as ResearchScheduleStatus)) return undefined;
-  if (typeof scheduler.enabled !== "boolean" || typeof researchSchedule.enabled !== "boolean" || typeof researchSchedule.handlerEnabled !== "boolean" || typeof runtime.brokerConnectionEnabled !== "boolean" || typeof runtime.dailyPreparationHandlerEnabled !== "boolean" || typeof runtime.globalKillSwitchActive !== "boolean" || typeof runtime.paperAutopilotEnabled !== "boolean") return undefined;
+  if (typeof scheduler.activationApprovalReferencePresent !== "boolean" || typeof scheduler.enabled !== "boolean" || typeof researchSchedule.enabled !== "boolean" || typeof researchSchedule.handlerEnabled !== "boolean" || typeof runtime.brokerConnectionEnabled !== "boolean" || typeof runtime.dailyPreparationHandlerEnabled !== "boolean" || typeof runtime.globalKillSwitchActive !== "boolean" || typeof runtime.paperAutopilotEnabled !== "boolean") return undefined;
   if (!(runtime.migration.status === "blocked" || runtime.migration.status === "ready")) return undefined;
   if (typeof riskPolicy.initialEquityBaseline !== "string" || typeof riskPolicy.maxSingleTradeRiskPercent !== "string" || typeof riskPolicy.maxSingleTradeRiskUsd !== "string") return undefined;
   if (reconciliation.ageSeconds !== undefined && typeof reconciliation.ageSeconds !== "number") return undefined;
@@ -88,7 +88,7 @@ export function parseOperationsHealth(value: unknown): OperationsHealth | undefi
         maxSingleTradeRiskUsd: riskPolicy.maxSingleTradeRiskUsd,
       },
       researchSchedule: { enabled: researchSchedule.enabled, handlerEnabled: researchSchedule.handlerEnabled, status: researchSchedule.status as ResearchScheduleStatus },
-      scheduler: { enabled: scheduler.enabled, status: scheduler.status as OperationsHealth["runtime"]["scheduler"]["status"] },
+      scheduler: { activationApprovalReferencePresent: scheduler.activationApprovalReferencePresent, enabled: scheduler.enabled, status: scheduler.status as OperationsHealth["runtime"]["scheduler"]["status"] },
     },
   };
 }

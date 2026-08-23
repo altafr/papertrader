@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.69 explicit scheduler activation-reference readiness check added; Railway API/worker health is verified, while research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
+- **Stage:** Phase 6.70 operator health exposes scheduler activation-reference readiness; Railway API/worker health is verified, while research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -661,6 +661,12 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - Missing or malformed activation references still produce the bounded `scheduler_activation_approval_reference_missing` reason; no reference value is emitted.
 - This improves operator/audit visibility without changing activation semantics or requiring approval for individual paper orders.
 - Worker deployment `25318526-4866-45ad-969e-55ef885aecdf` reached `SUCCESS`; hosted default readiness reported `activationApprovalReferencePresent:true` with scheduler `disabled`, while the command-scoped rehearsal reported `ready` with the same check true.
+
+### Phase 6.70 Operator Health Activation Visibility
+
+- The authenticated API operations-health contract now carries only the boolean `activationApprovalReferencePresent`; it never returns the reference value.
+- The protected dashboard displays a scheduler activation-review state (`Recorded`/`Missing`) alongside scheduler status, allowing operators to distinguish disabled-by-choice from incomplete activation configuration.
+- Parsing remains fail-closed for malformed or older responses; no browser authority, scheduler mutation, broker access, or order behavior was added.
 
 ### Phase 4.1 Structured Agent Runs
 
