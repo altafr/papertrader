@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.76 read-only Telegram alert readiness; Railway API/worker health is verified, while alert enablement, research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
+- **Stage:** Phase 6.77 non-secret Telegram readiness in private worker health; Railway API/worker health is verified, while alert delivery, research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -710,6 +710,12 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - Added a no-send readiness contract that reports only enablement, configuration presence/format checks, and bounded block reasons; bot tokens and chat IDs are never returned.
 - Added a command-scoped worker check requiring `TELEGRAM_ALERT_READINESS=true`; it performs no network request and exits non-zero only when configuration is blocked.
 - Railway readiness returned `status:"ready"` without returning secret values; the command made no network request, sent no message, and changed no trading, scheduler, or reconciliation behavior.
+
+### Phase 6.77 Worker Health Alert Readiness
+
+- Extended the private `WorkerHealth` contract with `telegramAlerts.enabled` and a bounded `disabled`/`blocked`/`ready` status.
+- The health projection derives readiness from server-side configuration and never returns bot tokens, chat IDs, provider responses, or message content.
+- This is observational only: it does not enable delivery, contact Telegram, change scheduler/trading gates, or alter Paper Autopilot behavior.
 
 ### Phase 4.1 Structured Agent Runs
 

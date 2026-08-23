@@ -1,5 +1,6 @@
 import { FOUNDATION_STATUS, type WorkerHealth } from "@momentum/domain";
 import { getPaperOperatingMode, isGlobalKillSwitchActive } from "@momentum/config";
+import { getTelegramNotificationReadiness } from "@momentum/notifications";
 import { getShadowEvaluationConfig, getShadowScheduleHealth } from "./shadow-evaluation.js";
 import { getDurableSchedulerConfig, getDurableSchedulerHealth } from "./durable-scheduler.js";
 import { getResearchScheduleConfig, getResearchScheduleReadiness, getResearchSchedulerHealth } from "./research-scheduler.js";
@@ -15,6 +16,7 @@ export function getWorkerHealth(now = new Date(), environment: NodeJS.ProcessEnv
   const researchRuntime = getResearchSchedulerHealth();
   const researchStatus: WorkerHealth["researchSchedule"]["status"] = researchReadiness.status === "blocked" ? "blocked" : researchRuntime.enabled ? researchRuntime.status : research.enabled ? "ready" : "disabled";
   const paperCredentialsConfigured = Boolean(environment.ALPACA_API_KEY?.trim() && environment.ALPACA_SECRET_KEY?.trim() && environment.ALPACA_PAPER_TRADE !== "false");
+  const telegram = getTelegramNotificationReadiness(environment);
   return {
     alpaca: paperCredentialsConfigured ? "configured" : "not_configured",
     asOf: now.toISOString(),
@@ -27,5 +29,6 @@ export function getWorkerHealth(now = new Date(), environment: NodeJS.ProcessEnv
     shadowEvaluation: { ...shadow, ...schedule, status: shadow.enabled ? schedule.status : "disabled" },
     service: "worker",
     status: FOUNDATION_STATUS.health,
+    telegramAlerts: { enabled: telegram.checks.enabled, status: telegram.status },
   };
 }

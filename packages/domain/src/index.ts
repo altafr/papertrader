@@ -47,6 +47,10 @@ export interface WorkerHealth {
     readonly sourceConfigured: boolean;
     readonly status: "degraded" | "disabled" | "ready" | "running" | "scheduled";
   };
+  readonly telegramAlerts: {
+    readonly enabled: boolean;
+    readonly status: "blocked" | "disabled" | "ready";
+  };
   readonly service: "worker";
   readonly status: HealthState;
 }
