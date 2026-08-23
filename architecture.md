@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.65 runtime validation added at the durable queue boundary; Railway API/worker health is verified, while research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
+- **Stage:** Phase 6.66 hosted daily-reconciliation readiness rechecked after queue-boundary hardening; Railway API/worker health is verified, while research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -634,6 +634,12 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - Both the recurring daily scheduler and guarded one-run handler now fail closed on malformed or unexpected queue data; valid operator run IDs and approval references remain separate from the UUID job identifier.
 - Added focused malformed-payload coverage. No queue, broker, scheduler, or Paper Autopilot activation occurred during this unit.
 - Worker deployment `cd9dab8d-cc3a-41c8-8517-c2c8d25dcefd` reached `SUCCESS`; private health remained healthy in observe mode and durable queues remained present and drained.
+
+### Phase 6.66 Hosted Daily-Reconciliation Readiness Recheck
+
+- Railway SSH ran the guarded read-only `daily-reconciliation-readiness` command after the queue payload deployment. Migration `0009` and its audit table/columns remain `ready`; combined daily reconciliation remains safely `disabled` because persistent scheduler, handler, and broker gates are off.
+- The private worker health response remains `healthy`/`observe`, with the global kill switch inactive and research, durable, and shadow schedulers disabled. Durable work and dead-letter queues are present and fully drained.
+- No queue enqueue, Alpaca read, PostgreSQL reconciliation write, scheduler activation, Paper Autopilot activation, or persistent variable mutation occurred.
 
 ### Phase 4.1 Structured Agent Runs
 
