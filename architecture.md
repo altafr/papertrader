@@ -646,6 +646,7 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - Persistent `DURABLE_SCHEDULER_ENABLED=true` now requires a bounded non-secret `DURABLE_SCHEDULER_ACTIVATION_APPROVAL_REFERENCE`; missing or malformed references fail closed in both readiness and startup configuration.
 - This reference authorizes the operational scheduler activation only. It does not create per-order approval requirements: paper orders remain governed by deterministic risk/execution checks and the existing paper-only mode gates.
 - The hosted scheduler remains disabled; no Railway variable was added or changed in this unit.
+- Worker deployment `f0fd4349-c156-4548-ad3d-4660882c432a` reached `SUCCESS`; hosted readiness remains `disabled`, private health is healthy observe mode, and no activation-reference variable is present.
 
 ### Phase 4.1 Structured Agent Runs
 

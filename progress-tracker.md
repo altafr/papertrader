@@ -1320,6 +1320,7 @@
 - **Implemented:** Added `DURABLE_SCHEDULER_ACTIVATION_APPROVAL_REFERENCE` validation for enabled scheduling; readiness reports a bounded missing-reference reason and startup fails closed on invalid configuration.
 - **Verification:** 193 tests passed; typecheck, lint, production build, secret-surface audit, and diff checks passed. Railway persistent scheduler, handler, and broker gates remain disabled.
 - **Next smallest unit:** Deploy the activation guard, rerun hosted readiness, and only then review a separately authorized scheduler activation.
+- **Hosted verification:** Worker deployment `f0fd4349-c156-4548-ad3d-4660882c432a` reached `SUCCESS`; combined readiness remains `disabled`, health is healthy observe mode, and persistent broker/handler/scheduler/autopilot gates plus the activation reference remain unset/disabled.
 
 ## Completed Verification Unit — Phase 6.66
 
