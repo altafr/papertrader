@@ -1320,6 +1320,7 @@
 - **Implemented:** Added the boolean activation-reference state to the Railway API operations-health response, strict dashboard parser, and protected dashboard card.
 - **Verification:** 194 tests passed; typecheck, lint, production build, secret-surface audit, and diff checks passed. No browser authority or persistent runtime gate changed.
 - **Next smallest unit:** Deploy API and dashboard changes, then verify the protected route/health contract while keeping scheduler gates disabled.
+- **Hosted verification:** API deployment `e96f4386-5570-4eaf-a490-42f182dc70bf` reached `SUCCESS` with private health `status:"healthy"`; durable queues remain present and drained and Railway broker gate remains false. Vercel deployment was rejected by the free-tier daily limit, so the previous protected preview remains the latest deployed dashboard.
 
 ## Completed Build Unit — Phase 6.69
 

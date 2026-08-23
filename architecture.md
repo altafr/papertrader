@@ -667,6 +667,7 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - The authenticated API operations-health contract now carries only the boolean `activationApprovalReferencePresent`; it never returns the reference value.
 - The protected dashboard displays a scheduler activation-review state (`Recorded`/`Missing`) alongside scheduler status, allowing operators to distinguish disabled-by-choice from incomplete activation configuration.
 - Parsing remains fail-closed for malformed or older responses; no browser authority, scheduler mutation, broker access, or order behavior was added.
+- API deployment `e96f4386-5570-4eaf-a490-42f182dc70bf` reached `SUCCESS` and private API health is healthy. Vercel preview deployment was attempted but rejected by the free-tier daily deployment limit; the prior protected preview remains unchanged until quota resets.
 
 ### Phase 4.1 Structured Agent Runs
 
