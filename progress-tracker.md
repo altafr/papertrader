@@ -1321,6 +1321,7 @@
 - **Post-run evidence:** The read-only verifier found both queues present and drained, no persisted audit provenance for the retry ID, and the existing reconciliation read model fresh. Worker health remained healthy observe mode; persistent broker, scheduler, handler, and Paper Autopilot gates remained disabled.
 - **Implemented:** Added a bounded `queue_enqueue_error` fallback category for future opaque failures at the enqueue boundary, with focused coverage.
 - **Verification:** 190 tests passed; typecheck, lint, production build, secret-surface audit, and diff checks passed. No further retry is authorized by this unit.
+- **Hosted verification:** Worker deployment `458e21a5-f6c5-4d28-8e26-1b085de888bd` reached `SUCCESS`; private health returned `status:"healthy"`, `operatingMode:"observe"`, configured paper/database surfaces, and disabled broker/scheduler gates.
 - **Next smallest unit:** Inspect the enqueue boundary implementation and deployment/runtime evidence, then obtain a new approval/reference before any additional one-run attempt.
 
 ## Session Handoff
