@@ -158,6 +158,23 @@ export const agentRuns = pgTable(
   ],
 );
 
+export const durableOneRunAudits = pgTable(
+  "durable_one_run_audits",
+  {
+    accountSnapshotId: uuid("account_snapshot_id").notNull().references(() => accountSnapshots.id, { onDelete: "restrict" }),
+    approvalReference: text("approval_reference").notNull(),
+    capturedAt: timestamp("captured_at", { withTimezone: true }).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    runId: text("run_id").primaryKey(),
+    status: text("status").notNull(),
+  },
+  (table) => [
+    index("durable_one_run_audits_captured_idx").on(table.capturedAt),
+    check("durable_one_run_audits_non_empty_text", sql`length(${table.runId}) > 0 AND length(${table.approvalReference}) > 0`),
+    check("durable_one_run_audits_status_valid", sql`${table.status} = 'completed'`),
+  ],
+);
+
 export const shadowObservations = pgTable(
   "shadow_observations",
   {

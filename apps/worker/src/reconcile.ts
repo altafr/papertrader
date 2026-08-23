@@ -1,11 +1,12 @@
 import type { AlpacaAccountReader } from "@momentum/alpaca";
-import type { createAccountStateRepository } from "@momentum/db";
+import type { createAccountStateRepository, PersistedDurableOneRunProvenance } from "@momentum/db";
 
 type AccountStateRepository = ReturnType<typeof createAccountStateRepository>;
 
 export async function reconcilePaperAccount(
   reader: AlpacaAccountReader,
   repository: AccountStateRepository,
+  provenance?: PersistedDurableOneRunProvenance,
 ) {
   const state = await reader.readAccountState();
   return repository.reconcile({
@@ -43,5 +44,5 @@ export async function reconcilePaperAccount(
       ...(order.updatedAt !== undefined ? { updatedAt: new Date(order.updatedAt) } : {}),
     })),
     positions: state.positions,
-  });
+  }, provenance);
 }

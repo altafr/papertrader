@@ -21,8 +21,10 @@ const database = createDatabase(databaseUrl);
 try {
   await boss.start();
   const queues = await inspectDurableQueues(boss);
-  const model = await createAccountStateRepository(database.db).getLatestReadModel();
-  const verification = assessDurableOneRunVerification({ approvalReference, queues, runId, ...(model?.freshness.capturedAt ? { capturedAt: model.freshness.capturedAt } : {}) });
+  const repository = createAccountStateRepository(database.db);
+  const model = await repository.getLatestReadModel();
+  const persistedProvenance = await repository.getDurableOneRunAudit(runId);
+  const verification = assessDurableOneRunVerification({ approvalReference, queues, runId, ...(persistedProvenance ? { persistedProvenance } : {}), ...(model?.freshness.capturedAt ? { capturedAt: model.freshness.capturedAt } : {}) });
   console.log(JSON.stringify(verification));
   if (verification.status === "incomplete") process.exitCode = 1;
 } catch {

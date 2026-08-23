@@ -6,6 +6,7 @@ import { createAccountStateRepository, createDatabase } from "@momentum/db";
 
 import {
   DAILY_PREPARATION_QUEUE,
+  type DurableDailyJob,
   getDurableSchedulerConfig,
   provisionDurableQueues,
   validateDurableSchedulerApprovalReference,
@@ -40,16 +41,19 @@ try {
   let resolveCompleted: (() => void) | undefined;
   let rejectCompleted: ((error: unknown) => void) | undefined;
   const completed = new Promise<void>((resolve, reject) => { resolveCompleted = resolve; rejectCompleted = reject; });
-  await boss.work(DAILY_PREPARATION_QUEUE, async (jobs) => {
+  await boss.work<DurableDailyJob>(DAILY_PREPARATION_QUEUE, async (jobs) => {
     try {
-      for (let index = 0; index < jobs.length; index += 1) await reconcilePaperAccount(reader, repository);
+      for (const job of jobs) {
+        if (job.data.runId !== runId || job.data.approvalReference !== approvalReference) throw new Error("Guarded one-run provenance did not match the queued job.");
+        await reconcilePaperAccount(reader, repository, { approvalReference, runId });
+      }
       resolveCompleted?.();
     } catch (error) {
       rejectCompleted?.(error);
       throw error;
     }
   });
-  const sentId = await boss.send(DAILY_PREPARATION_QUEUE, { kind: "daily_preparation", version: 1, approvalReference }, { id: runId });
+  const sentId = await boss.send(DAILY_PREPARATION_QUEUE, { kind: "daily_preparation", version: 1, approvalReference, runId }, { id: runId });
   if (!sentId) throw new Error("The guarded one-run job was not queued.");
   let timeout: ReturnType<typeof setTimeout> | undefined;
   await Promise.race([

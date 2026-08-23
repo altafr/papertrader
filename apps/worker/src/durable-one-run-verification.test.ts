@@ -6,13 +6,13 @@ const queues = { deadLetterQueue: { activeCount: 0, failedCount: 0, present: tru
 
 describe("durable one-run verification", () => {
   it("verifies drained queues and fresh persisted reconciliation", () => {
-    expect(assessDurableOneRunVerification({ approvalReference: "ticket-123", queues, runId: "run-1", capturedAt: "2026-08-23T00:00:00.000Z", now: new Date("2026-08-23T01:00:00.000Z") })).toMatchObject({ blockedReasons: [], provenance: { approvalReference: "ticket-123", runId: "run-1" }, reconciliation: { status: "fresh" }, status: "verified" });
+    expect(assessDurableOneRunVerification({ approvalReference: "ticket-123", persistedProvenance: { approvalReference: "ticket-123", capturedAt: "2026-08-23T00:00:00.000Z", runId: "run-1" }, queues, runId: "run-1", capturedAt: "2026-08-23T00:00:00.000Z", now: new Date("2026-08-23T01:00:00.000Z") })).toMatchObject({ blockedReasons: [], provenance: { approvalReference: "ticket-123", persisted: true, runId: "run-1" }, reconciliation: { status: "fresh" }, status: "verified" });
   });
 
   it("fails closed when queues or reconciliation are incomplete", () => {
     const result = assessDurableOneRunVerification({ queues: { ...queues, workQueue: { ...queues.workQueue, queuedCount: 1 }, deadLetterQueue: { ...queues.deadLetterQueue, failedCount: 1 } }, now: new Date("2026-08-23T01:00:00.000Z") });
     expect(result.status).toBe("incomplete");
-    expect(result.blockedReasons).toEqual(expect.arrayContaining(["work_queue_not_drained", "dead_letter_queue_not_empty", "reconciliation_unavailable"]));
+    expect(result.blockedReasons).toEqual(expect.arrayContaining(["work_queue_not_drained", "dead_letter_queue_not_empty", "reconciliation_unavailable", "provenance_audit_missing"]));
   });
 
   it("rejects stale reconciliation even when queues are drained", () => {

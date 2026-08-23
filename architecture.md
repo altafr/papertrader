@@ -453,6 +453,12 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - This is provenance supplied by the operator, not a persisted causal audit event: the verifier still confirms current queue/database state only and does not claim that the referenced run caused the snapshot until durable audit persistence is added.
 - Added readiness, validation, verification, and secret-surface tests. No hosted command, broker request, scheduler enablement, or one-run reconciliation was executed.
 
+### Phase 6.36 Durable One-Run Audit Persistence
+
+- Added reviewed migration `0009_durable_one_run_audits.sql` and a PostgreSQL audit table keyed by the bounded run ID, linked to the resulting account snapshot and carrying the approval reference, capture time, and completed status.
+- The guarded one-run queue payload now carries its run ID and approval reference; reconciliation writes the audit row in the same transaction as the account snapshot. The verifier requires and checks the persisted audit row before reporting `verified`.
+- Recurring daily jobs remain unchanged and do not create one-run audit rows. No live capability, browser authority, or automatic approval was added.
+
 ### Phase 4.1 Structured Agent Runs
 
 - `packages/domain/src/agent-runs.ts` defines versioned, structured agent-run requests and artifacts for the orchestrator, stock/crypto research, macro advisory, strategy, risk explanation, execution, and reconciliation roles.

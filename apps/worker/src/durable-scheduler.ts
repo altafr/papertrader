@@ -100,6 +100,8 @@ export function validateDurableOneRunId(environment: NodeJS.ProcessEnv = process
 export interface DurableDailyJob {
   readonly kind: "daily_preparation";
   readonly version: 1;
+  readonly approvalReference?: string;
+  readonly runId?: string;
 }
 
 export interface DurableQueueClient {

@@ -1,7 +1,7 @@
 import { and, asc, desc, eq } from "drizzle-orm";
 
 import type { Database } from "./client.js";
-import { accountSnapshots, activities, agentRuns, orders, paperOrderSubmissions, positions, shadowObservationOutcomes, shadowObservations, strategyLifecycleEvents, strategyPaperEvidence } from "./schema.js";
+import { accountSnapshots, activities, agentRuns, durableOneRunAudits, orders, paperOrderSubmissions, positions, shadowObservationOutcomes, shadowObservations, strategyLifecycleEvents, strategyPaperEvidence } from "./schema.js";
 
 export interface PersistedAgentArtifact {
   readonly artifactConfidence: string;
@@ -138,6 +138,11 @@ export interface ReconciliationState {
   }[];
 }
 
+export interface PersistedDurableOneRunProvenance {
+  readonly approvalReference: string;
+  readonly runId: string;
+}
+
 export function createAccountStateRepository(db: Database) {
   return {
     async getLatest(accountId: string) {
@@ -191,7 +196,7 @@ export function createAccountStateRepository(db: Database) {
       return row;
     },
 
-    async reconcile(state: ReconciliationState) {
+    async reconcile(state: ReconciliationState, provenance?: PersistedDurableOneRunProvenance) {
       return db.transaction(async (transaction) => {
         const [snapshot] = await transaction.insert(accountSnapshots).values(state.account).returning();
         if (!snapshot?.id) {
@@ -225,8 +230,16 @@ export function createAccountStateRepository(db: Database) {
         if (state.activities.length > 0) {
           await transaction.insert(activities).values([...state.activities]).onConflictDoNothing();
         }
+        if (provenance) {
+          await transaction.insert(durableOneRunAudits).values({ accountSnapshotId: snapshot.id, approvalReference: provenance.approvalReference, capturedAt: state.account.capturedAt, runId: provenance.runId, status: "completed" });
+        }
         return snapshot;
       });
+    },
+
+    async getDurableOneRunAudit(runId: string) {
+      const [row] = await db.select().from(durableOneRunAudits).where(eq(durableOneRunAudits.runId, runId)).limit(1);
+      return row;
     },
   };
 }
