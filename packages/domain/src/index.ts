@@ -29,7 +29,9 @@ export interface WorkerHealth {
   readonly researchSchedule: {
     readonly enabled: boolean;
     readonly handlerEnabled: boolean;
-    readonly status: "blocked" | "disabled" | "ready";
+    readonly lastRunAt?: string;
+    readonly nextRunAt?: string;
+    readonly status: "blocked" | "degraded" | "disabled" | "ready" | "running" | "scheduled";
   };
   readonly shadowEvaluation: {
     readonly enabled: boolean;

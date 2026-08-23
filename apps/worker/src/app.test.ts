@@ -25,4 +25,17 @@ describe("worker health", () => {
       TRADING_MODE: "paper",
     }).researchSchedule).toEqual({ enabled: true, handlerEnabled: false, status: "blocked" });
   });
+
+  it("reports a fully gated but not-yet-started research schedule as ready", () => {
+    expect(getWorkerHealth(new Date("2026-08-21T00:00:00.000Z"), {
+      ALPACA_API_KEY: "paper-key",
+      ALPACA_SECRET_KEY: "paper-secret",
+      ALPACA_PAPER_TRADE: "true",
+      BROKER_CONNECTION_ENABLED: "true",
+      DATABASE_URL: "postgres://private",
+      RESEARCH_HANDLER_ENABLED: "true",
+      RESEARCH_SCHEDULER_ENABLED: "true",
+      TRADING_MODE: "paper",
+    }).researchSchedule).toEqual({ enabled: true, handlerEnabled: true, status: "ready" });
+  });
 });

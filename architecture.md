@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 4.14 gated research scheduler registration added; Railway database connectivity is verified, while research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
+- **Stage:** Phase 4.15 research scheduler runtime health exposed; Railway database connectivity is verified, while research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -416,6 +416,12 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - `createResearchScheduler` registers the research queue, UTC cron, and validated job handler only after `getResearchScheduleReadiness` returns `ready`; blocked environments never create a queue client.
 - Queue lifecycle failures and handler failures set a bounded runtime health state (`scheduled`, `running`, `degraded`, or `disabled`) and stop the client after startup failure. The schedule uses a stable key and bounded retry/dead-letter settings.
 - This registration is an opt-in library boundary. The deployed worker still does not instantiate it while `RESEARCH_SCHEDULER_ENABLED=false`; no hosted queue or market-data action was performed.
+
+### Phase 4.15 Research Scheduler Runtime Health
+
+- `WorkerHealth.researchSchedule` now includes optional last/next run timestamps and runtime states for `scheduled`, `running`, `degraded`, and `disabled`, while retaining `blocked` for readiness failure.
+- `apps/worker/src/app.ts` combines static readiness with scheduler runtime state: an enabled but not-yet-started, fully gated scheduler reports `ready`; blocked configuration reports `blocked`; runtime failures remain visible as `degraded` without exposing queue details or credentials.
+- The `/health` response remains read-only. No scheduler is instantiated by this change and no Railway persistent flag or external service state changes.
 
 ### Phase 6.13 Dashboard Operations Health Surface
 

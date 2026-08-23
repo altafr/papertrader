@@ -2,8 +2,8 @@
 
 ## Snapshot
 
-- **Phase:** Phase 4.14 — gated research scheduler registration added.
-- **Status:** Agent runs have deterministic contracts, reviewed PostgreSQL persistence, authenticated list/detail reads, a dashboard health surface, a paper-only market-data run-once boundary, a disabled-by-default daily research readiness surface, a separately named validated queue boundary, an explicit stock/crypto preparation planner, a fail-closed queue-handler composition, and a readiness-gated scheduler registration boundary; Railway migration `0008` is applied, while research scheduling, durable reconciliation, and Paper Autopilot remain disabled.
+- **Phase:** Phase 4.15 — research scheduler runtime health exposed.
+- **Status:** Agent runs have deterministic contracts, reviewed PostgreSQL persistence, authenticated list/detail reads, a dashboard health surface, a paper-only market-data run-once boundary, a disabled-by-default daily research readiness surface, a separately named validated queue boundary, an explicit stock/crypto preparation planner, a fail-closed queue-handler composition, a readiness-gated scheduler registration boundary, and safe runtime health reporting; Railway migration `0008` is applied, while research scheduling, durable reconciliation, and Paper Autopilot remain disabled.
 - **Current operating mode:** Paper only; order submission not yet enabled.
 - **Current goal:** Run the separately approved one-run paper reconciliation using the reviewed runbook, then verify its result in the authenticated dashboard.
 - **Last updated:** 2026-08-23.
@@ -696,6 +696,14 @@
 - **Verification:** `pnpm test` passes 132 tests; `pnpm typecheck`, `pnpm lint`, and `pnpm build` pass across the workspace. Blocked and ready scheduler registration paths are covered; no hosted queue or research execution was performed.
 - **Next smallest unit:** Expose the scheduler runtime health in the worker health contract, then review the explicit activation sequence without changing persistent Railway flags.
 
+## Completed Build Unit — Phase 4.15
+
+- **User story:** As the operator, I can distinguish a disabled, blocked, ready, scheduled, running, or degraded research scheduler from the worker health endpoint without seeing secrets or gaining control authority.
+- **Implemented:** Extended the shared worker-health contract with optional research last/next run timestamps and runtime states, and combined readiness/runtime state in `getWorkerHealth` with strict fail-closed precedence.
+- **Safety boundary:** Health reporting is read-only and does not instantiate the scheduler, access Alpaca, mutate PostgreSQL, alter Railway variables, approve risk, or submit orders.
+- **Verification:** `pnpm test` passes 133 tests; `pnpm typecheck`, `pnpm lint`, and `pnpm build` pass across the workspace. Disabled, blocked, and fully gated-ready health cases are covered.
+- **Next smallest unit:** Add a guarded worker startup composition that can instantiate the scheduler only when explicitly enabled, without changing persistent Railway defaults.
+
 ## Decisions Made
 
 | Date | Decision | Reason |
@@ -803,6 +811,7 @@
 | Phase 4.12 deterministic research-preparation planner | Pass | Added bounded stock/crypto plan parsing, deterministic run IDs, injected market-input read, deterministic handler dispatch, and persistence handoff; 128 tests, typecheck, lint, and production build pass; no hosted research execution performed |
 | Phase 4.13 gated research-preparation queue handler | Pass | Added readiness-gated queue composition for sequential stock/crypto preparation and persistence; 130 tests, typecheck, lint, and production build pass; no hosted research execution performed |
 | Phase 4.14 gated research scheduler registration | Pass | Added readiness-before-client-creation, queue/cron registration, bounded failure health, and validated handler dispatch; 132 tests, typecheck, lint, and production build pass; no hosted queue or research execution performed |
+| Phase 4.15 research scheduler runtime health | Pass | Extended worker health with safe research scheduler readiness/runtime states and optional run timestamps; 133 tests, typecheck, lint, and production build pass; no scheduler or hosted research execution performed |
 | Browser/preview | Partial | Production page HTTP check passed; visual/responsive review deferred beyond source scaffold |
 | Security review | Partial | No credential files, Alpaca client, database connection, or order code added; full review remains required |
 
