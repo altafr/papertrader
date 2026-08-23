@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.57 hosted dashboard deployment refreshed; Railway API deployment is verified, while research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
+- **Stage:** Phase 6.58 deployed worker health verified; Railway API deployment is verified, while research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -581,6 +581,12 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - Vercel preview deployment `dpl_3jRuQ8ph9653U1MJ7DhzyqEm4zLi` for the current branch reached `Ready`; the deployment is protected by the configured authentication gate.
 - Unauthenticated HTTP checks for `/` and `/dashboard` returned `302`, confirming deployment protection rather than an unprotected or fabricated dashboard response. No frontend credentials, broker authority, scheduler, or execution gate changed.
 - The authenticated dashboard still requires a valid Clerk operator session to inspect persisted account/reconciliation data; the paper one-run remains separately approved and not yet executed.
+
+### Phase 6.58 Deployed Worker Health Verification
+
+- A server-side Node health probe against the private worker returned `status:"healthy"`, `operatingMode:"observe"`, paper credentials/database configured, and `globalKillSwitchActive:false`.
+- The same health response confirmed `brokerConnectionEnabled:false`, durable scheduler `disabled`, research schedule `disabled`, and shadow evaluation `disabled`. No credential values were emitted.
+- This confirms the worker is running safely in its default observation state; it does not authorize the paper reconciliation one-run or recurring scheduling.
 
 ### Phase 4.1 Structured Agent Runs
 
