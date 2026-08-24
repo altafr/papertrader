@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.90 daily-run result visibility; Railway API/worker health is verified, while alert delivery, research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
+- **Stage:** Phase 6.91 daily activation rehearsal verified; Railway API/worker health is verified, while alert delivery, research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -805,6 +805,12 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - The dashboard now shows whether a completed daily run exists and when its persisted snapshot was captured, alongside reconciliation freshness; no approval reference, run ID, account value, or credential is exposed in this new card.
 - Added strict browser contract validation and tests. This remains observational and cannot start a queue, contact Alpaca, change flags, or submit orders.
 - API deployment `6037be24-09de-489a-a3e7-2edf05dec855` reached `SUCCESS`; Vercel production deployment `dpl_Ch1McJGMxPc8NzCBdQjRwFYrfmbJ` is `Ready` at `https://papertrader-j16kyb2o1-altafrs-projects.vercel.app`. The API health endpoint is healthy and unauthenticated Operations Health correctly returns `401`.
+
+### Phase 6.91 Daily Activation Rehearsal
+
+- Ran the guarded `daily-reconciliation-activation-preflight` in Railway with command-scoped scheduler, handler, broker, and activation-reference values.
+- The rehearsal returned `status:"ready"`: migration `0009`, audit table/columns, database, paper credentials, paper mode, broker gate, handler gate, scheduler gate, and activation reference all passed.
+- No persistent Railway variable changed, no queue started, no Alpaca request or reconciliation ran, and Paper Autopilot/live trading remain disabled. Recurring activation still requires separate explicit operator approval.
 
 ### Phase 4.1 Structured Agent Runs
 
