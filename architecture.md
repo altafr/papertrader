@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.89 first verified paper end-to-end slice; Railway API/worker health is verified, while alert delivery, research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
+- **Stage:** Phase 6.90 daily-run result visibility; Railway API/worker health is verified, while alert delivery, research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -798,6 +798,12 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - After the queue-boundary correction, the guarded Worker command completed exactly one paper reconciliation using approval reference `PAPER-RECONCILIATION-RETRY-124` and run ID `paper-reconciliation-retry-20260824-01`.
 - The read-only verifier confirmed persisted audit provenance, a fresh reconciliation captured at `2026-08-24T00:41:10.115Z`, both durable queues present and drained, and no dead-letter jobs. The public API health endpoint returned healthy; persistent broker, scheduler, handler, and Paper Autopilot flags remain disabled.
 - This proves the Railway Worker → PostgreSQL reconciliation path. The authenticated Vercel dashboard remains the next operator-observed verification surface; no dashboard credentials or broker secrets were exposed.
+
+### Phase 6.90 Daily-Run Result Visibility
+
+- Added a read-only latest durable-run audit query and exposed bounded `dailyReconciliation` status/capture metadata through authenticated Operations Health.
+- The dashboard now shows whether a completed daily run exists and when its persisted snapshot was captured, alongside reconciliation freshness; no approval reference, run ID, account value, or credential is exposed in this new card.
+- Added strict browser contract validation and tests. This remains observational and cannot start a queue, contact Alpaca, change flags, or submit orders.
 
 ### Phase 4.1 Structured Agent Runs
 

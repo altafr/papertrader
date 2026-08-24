@@ -22,6 +22,7 @@ describe("dashboard state", () => {
       runtime: {
         brokerConnectionEnabled: false,
         dailyPreparationHandlerEnabled: false,
+        dailyReconciliation: { capturedAt: "2026-08-23T00:00:00.000Z", status: "completed" },
         globalKillSwitchActive: false,
         operatingMode: "observe",
         paperAutopilotEnabled: false,
@@ -42,6 +43,7 @@ describe("dashboard state", () => {
       runtime: {
         brokerConnectionEnabled: false,
         dailyPreparationHandlerEnabled: false,
+        dailyReconciliation: { status: "unavailable" },
         globalKillSwitchActive: false,
         operatingMode: "observe",
         paperAutopilotEnabled: false,

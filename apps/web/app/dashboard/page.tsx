@@ -113,6 +113,7 @@ function OperationsHealthCard({ health }: { readonly health: OperationsHealth | 
       <div className="card-heading"><div><p className="label">Operations health</p><h2>Server-side safeguards</h2></div><span className={`state-badge ${health.reconciliation.status === "fresh" ? "fresh" : "degraded"}`}>{reconciliationLabel}</span></div>
       <div className="operations-health-grid">
         <div><span className="label">Reconciliation</span><strong>{health.reconciliation.ageSeconds === undefined ? "Unavailable" : `${health.reconciliation.ageSeconds}s old`}</strong></div>
+        <div><span className="label">Last daily run</span><strong>{health.runtime.dailyReconciliation.status === "completed" ? "Completed" : "Unavailable"}</strong><small className="provenance">{health.runtime.dailyReconciliation.capturedAt ? `Captured ${formatUtc(health.runtime.dailyReconciliation.capturedAt)}` : "No completed run"}</small></div>
         <div><span className="label">Operating mode</span><strong>{health.runtime.operatingMode === "paper_autopilot" ? "Paper Autopilot" : health.runtime.operatingMode === "recommend" ? "Recommend" : "Observe"}</strong></div>
         <div><span className="label">Scheduler</span><strong>{schedulerLabel}</strong></div>
         <div><span className="label">Daily schedule</span><strong>{health.runtime.scheduler.cron} UTC</strong></div>

@@ -13,6 +13,7 @@ export type OperationsHealth = {
   readonly runtime: {
     readonly brokerConnectionEnabled: boolean;
     readonly dailyPreparationHandlerEnabled: boolean;
+    readonly dailyReconciliation: { readonly capturedAt?: string; readonly status: "completed" | "unavailable" };
     readonly globalKillSwitchActive: boolean;
     readonly operatingMode: "observe" | "recommend" | "paper_autopilot";
     readonly paperAutopilotEnabled: boolean;
@@ -58,11 +59,13 @@ export function parseOperationsHealth(value: unknown): OperationsHealth | undefi
   const reconciliation = value.reconciliation;
   const runtime = value.runtime;
   if (!isRecord(runtime.scheduler)) return undefined;
+  if (!isRecord(runtime.dailyReconciliation)) return undefined;
   if (!isRecord(runtime.researchSchedule)) return undefined;
   if (!isRecord(runtime.telegramAlerts)) return undefined;
   if (!isRecord(runtime.telegramAlertTest)) return undefined;
   if (!isRecord(runtime.migration) || !Array.isArray(runtime.migration.blockedReasons) || runtime.migration.blockedReasons.some((reason) => !( ["audit_columns_missing", "audit_table_missing", "migration_not_recorded"] as const).includes(reason as MigrationBlockedReason))) return undefined;
   const scheduler = runtime.scheduler;
+  const dailyReconciliation = runtime.dailyReconciliation;
   const researchSchedule = runtime.researchSchedule;
   const telegramAlerts = runtime.telegramAlerts;
   const telegramAlertTest = runtime.telegramAlertTest;
@@ -75,7 +78,8 @@ export function parseOperationsHealth(value: unknown): OperationsHealth | undefi
   if (!( ["blocked", "disabled", "ready"] as const).includes(telegramAlerts.status as TelegramAlertReadinessStatus)) return undefined;
   if (telegramAlerts.deliveryVerification !== "unverified") return undefined;
   if (!( ["blocked", "ready"] as const).includes(telegramAlertTest.status as TelegramAlertTestStatus)) return undefined;
-  if (typeof scheduler.activationApprovalReferencePresent !== "boolean" || typeof scheduler.cron !== "string" || scheduler.cron.trim().length === 0 || scheduler.cron.length > 120 || typeof scheduler.enabled !== "boolean" || scheduler.timezone !== "UTC" || typeof researchSchedule.enabled !== "boolean" || typeof researchSchedule.handlerEnabled !== "boolean" || typeof telegramAlerts.enabled !== "boolean" || typeof telegramAlertTest.approvalReferencePresent !== "boolean" || typeof runtime.brokerConnectionEnabled !== "boolean" || typeof runtime.dailyPreparationHandlerEnabled !== "boolean" || typeof runtime.globalKillSwitchActive !== "boolean" || typeof runtime.paperAutopilotEnabled !== "boolean") return undefined;
+  if (!( ["completed", "unavailable"] as const).includes(dailyReconciliation.status as OperationsHealth["runtime"]["dailyReconciliation"]["status"])) return undefined;
+  if (typeof scheduler.activationApprovalReferencePresent !== "boolean" || typeof scheduler.cron !== "string" || scheduler.cron.trim().length === 0 || scheduler.cron.length > 120 || typeof scheduler.enabled !== "boolean" || scheduler.timezone !== "UTC" || typeof researchSchedule.enabled !== "boolean" || typeof researchSchedule.handlerEnabled !== "boolean" || typeof telegramAlerts.enabled !== "boolean" || typeof telegramAlertTest.approvalReferencePresent !== "boolean" || typeof runtime.brokerConnectionEnabled !== "boolean" || typeof runtime.dailyPreparationHandlerEnabled !== "boolean" || typeof runtime.globalKillSwitchActive !== "boolean" || typeof runtime.paperAutopilotEnabled !== "boolean" || (dailyReconciliation.capturedAt !== undefined && typeof dailyReconciliation.capturedAt !== "string")) return undefined;
   if (!(runtime.migration.status === "blocked" || runtime.migration.status === "ready")) return undefined;
   if (typeof riskPolicy.initialEquityBaseline !== "string" || typeof riskPolicy.maxSingleTradeRiskPercent !== "string" || typeof riskPolicy.maxSingleTradeRiskUsd !== "string") return undefined;
   if (reconciliation.ageSeconds !== undefined && typeof reconciliation.ageSeconds !== "number") return undefined;
@@ -89,6 +93,7 @@ export function parseOperationsHealth(value: unknown): OperationsHealth | undefi
     runtime: {
       brokerConnectionEnabled: runtime.brokerConnectionEnabled,
       dailyPreparationHandlerEnabled: runtime.dailyPreparationHandlerEnabled,
+      dailyReconciliation: { ...(typeof dailyReconciliation.capturedAt === "string" ? { capturedAt: dailyReconciliation.capturedAt } : {}), status: dailyReconciliation.status as OperationsHealth["runtime"]["dailyReconciliation"]["status"] },
       globalKillSwitchActive: runtime.globalKillSwitchActive,
       operatingMode: runtime.operatingMode as OperationsHealth["runtime"]["operatingMode"],
       paperAutopilotEnabled: runtime.paperAutopilotEnabled,

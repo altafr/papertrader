@@ -295,6 +295,7 @@ async function readOperationsHealth(request: IncomingMessage) {
     readModelRepository = createAccountStateRepository(db);
   }
   const model = await readModelRepository.getLatestReadModel();
+  const lastDailyRun = await readModelRepository.getLatestDurableOneRunAudit();
   const reconciliation = assessReconciliationHealth(model?.freshness.capturedAt);
   const brokerConnectionEnabled = readBooleanEnvironmentFlag("BROKER_CONNECTION_ENABLED");
   const schedulerEnabled = readBooleanEnvironmentFlag("DURABLE_SCHEDULER_ENABLED");
@@ -322,6 +323,10 @@ async function readOperationsHealth(request: IncomingMessage) {
       runtime: {
         brokerConnectionEnabled,
         dailyPreparationHandlerEnabled: handlerEnabled,
+        dailyReconciliation: {
+          status: lastDailyRun?.status === "completed" ? "completed" : "unavailable",
+          ...(lastDailyRun?.capturedAt ? { capturedAt: lastDailyRun.capturedAt.toISOString() } : {}),
+        },
         globalKillSwitchActive: isGlobalKillSwitchActive(),
         operatingMode: getPaperOperatingMode(),
         paperAutopilotEnabled: readBooleanEnvironmentFlag("PAPER_AUTOPILOT_ENABLED"),
