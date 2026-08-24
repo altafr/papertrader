@@ -116,7 +116,7 @@ function OperationsHealthCard({ health }: { readonly health: OperationsHealth | 
         <div><span className="label">Scheduler</span><strong>{schedulerLabel}</strong></div>
         <div><span className="label">Scheduler activation review</span><strong>{health.runtime.scheduler.activationApprovalReferencePresent ? "Recorded" : "Missing"}</strong></div>
         <div><span className="label">Research schedule</span><strong>{researchScheduleLabel}</strong></div>
-        <div><span className="label">Telegram alerts</span><strong>{telegramLabel}</strong></div>
+        <div><span className="label">Telegram alerts</span><strong>{telegramLabel}</strong><small className="provenance">Delivery unverified</small></div>
         <div><span className="label">Audit migration</span><strong>{migrationLabel}</strong></div>
         <div><span className="label">Broker read gate</span><strong>{health.runtime.brokerConnectionEnabled ? "Enabled" : "Disabled"}</strong></div>
         <div><span className="label">Paper Autopilot</span><strong>{health.runtime.paperAutopilotEnabled ? "Enabled" : "Disabled"}</strong></div>

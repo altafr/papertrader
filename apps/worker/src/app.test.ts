@@ -17,7 +17,7 @@ describe("worker health", () => {
       researchSchedule: { enabled: false, handlerEnabled: false, status: "disabled" },
       shadowEvaluation: { enabled: false, intervalSeconds: 3600, sourceConfigured: false, status: "disabled" },
       service: "worker",
-      telegramAlerts: { enabled: false, status: "disabled" },
+      telegramAlerts: { deliveryVerification: "unverified", enabled: false, status: "disabled" },
       status: "healthy",
     });
   });
@@ -39,10 +39,10 @@ describe("worker health", () => {
       TELEGRAM_ALERTS_ENABLED: "true",
       TELEGRAM_BOT_TOKEN: "123456:ABC_def-123",
       TELEGRAM_CHAT_ID: "-1001234567890",
-    }).telegramAlerts).toEqual({ enabled: true, status: "ready" });
+    }).telegramAlerts).toEqual({ deliveryVerification: "unverified", enabled: true, status: "ready" });
     expect(getWorkerHealth(new Date("2026-08-21T00:00:00.000Z"), {
       TELEGRAM_ALERTS_ENABLED: "true",
-    }).telegramAlerts).toEqual({ enabled: true, status: "blocked" });
+    }).telegramAlerts).toEqual({ deliveryVerification: "unverified", enabled: true, status: "blocked" });
   });
 
   it("reports an enabled research schedule as blocked until every gate is explicit", () => {

@@ -29,7 +29,7 @@ describe("dashboard state", () => {
         riskPolicy: { initialEquityBaseline: "1000", maxSingleTradeRiskPercent: "0.25", maxSingleTradeRiskUsd: "100" },
         researchSchedule: { enabled: false, handlerEnabled: false, status: "disabled" },
         scheduler: { activationApprovalReferencePresent: true, enabled: false, status: "disabled" },
-        telegramAlerts: { enabled: false, status: "disabled" },
+        telegramAlerts: { deliveryVerification: "unverified", enabled: false, status: "disabled" },
       },
     });
     expect(health?.runtime.scheduler.status).toBe("disabled");
@@ -47,7 +47,7 @@ describe("dashboard state", () => {
         riskPolicy: { initialEquityBaseline: "1000", maxSingleTradeRiskPercent: "0.25", maxSingleTradeRiskUsd: "100" },
         researchSchedule: { enabled: false, handlerEnabled: false, status: "disabled" },
         scheduler: { activationApprovalReferencePresent: true, enabled: false, status: "disabled" },
-        telegramAlerts: { enabled: false, status: "disabled" },
+        telegramAlerts: { deliveryVerification: "unverified", enabled: false, status: "disabled" },
       },
     })).toBeUndefined();
   });

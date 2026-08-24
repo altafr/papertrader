@@ -11,9 +11,9 @@ describe("Telegram notifications", () => {
     expect(getTelegramNotificationConfig({ TELEGRAM_ALERTS_ENABLED: "true", TELEGRAM_BOT_TOKEN: "123456:ABC_def-123", TELEGRAM_CHAT_ID: "-1001234567890" }).enabled).toBe(true);
   });
   it("reports safe readiness without returning secret values", () => {
-    expect(getTelegramNotificationReadiness({})).toMatchObject({ status: "disabled", blockedReasons: [] });
-    expect(getTelegramNotificationReadiness({ TELEGRAM_ALERTS_ENABLED: "true" })).toMatchObject({ status: "blocked", blockedReasons: ["telegram_bot_token_missing", "telegram_chat_id_missing"] });
-    expect(getTelegramNotificationReadiness({ TELEGRAM_ALERTS_ENABLED: "true", TELEGRAM_BOT_TOKEN: "123456:ABC_def-123", TELEGRAM_CHAT_ID: "-1001234567890" })).toMatchObject({ status: "ready", blockedReasons: [] });
+    expect(getTelegramNotificationReadiness({})).toMatchObject({ deliveryVerification: "unverified", status: "disabled", blockedReasons: [] });
+    expect(getTelegramNotificationReadiness({ TELEGRAM_ALERTS_ENABLED: "true" })).toMatchObject({ deliveryVerification: "unverified", status: "blocked", blockedReasons: ["telegram_bot_token_missing", "telegram_chat_id_missing"] });
+    expect(getTelegramNotificationReadiness({ TELEGRAM_ALERTS_ENABLED: "true", TELEGRAM_BOT_TOKEN: "123456:ABC_def-123", TELEGRAM_CHAT_ID: "-1001234567890" })).toMatchObject({ deliveryVerification: "unverified", status: "ready", blockedReasons: [] });
     expect(getTelegramNotificationReadiness({ TELEGRAM_ALERTS_ENABLED: "maybe", TELEGRAM_BOT_TOKEN: "secret", TELEGRAM_CHAT_ID: "123" })).toMatchObject({ status: "blocked", blockedReasons: ["telegram_alerts_flag_invalid"] });
   });
   it("formats and redacts alert content", () => {

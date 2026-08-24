@@ -23,7 +23,7 @@ export type OperationsHealth = {
     };
     readonly researchSchedule: { readonly enabled: boolean; readonly handlerEnabled: boolean; readonly status: ResearchScheduleStatus };
     readonly scheduler: { readonly activationApprovalReferencePresent: boolean; readonly enabled: boolean; readonly status: "blocked" | "disabled" | "ready" };
-    readonly telegramAlerts: { readonly enabled: boolean; readonly status: TelegramAlertReadinessStatus };
+    readonly telegramAlerts: { readonly deliveryVerification: "unverified"; readonly enabled: boolean; readonly status: TelegramAlertReadinessStatus };
   };
 };
 
@@ -69,6 +69,7 @@ export function parseOperationsHealth(value: unknown): OperationsHealth | undefi
   if (!( ["observe", "recommend", "paper_autopilot"] as const).includes(runtime.operatingMode as OperationsHealth["runtime"]["operatingMode"])) return undefined;
   if (!( ["blocked", "disabled", "ready"] as const).includes(researchSchedule.status as ResearchScheduleStatus)) return undefined;
   if (!( ["blocked", "disabled", "ready"] as const).includes(telegramAlerts.status as TelegramAlertReadinessStatus)) return undefined;
+  if (telegramAlerts.deliveryVerification !== "unverified") return undefined;
   if (typeof scheduler.activationApprovalReferencePresent !== "boolean" || typeof scheduler.enabled !== "boolean" || typeof researchSchedule.enabled !== "boolean" || typeof researchSchedule.handlerEnabled !== "boolean" || typeof telegramAlerts.enabled !== "boolean" || typeof runtime.brokerConnectionEnabled !== "boolean" || typeof runtime.dailyPreparationHandlerEnabled !== "boolean" || typeof runtime.globalKillSwitchActive !== "boolean" || typeof runtime.paperAutopilotEnabled !== "boolean") return undefined;
   if (!(runtime.migration.status === "blocked" || runtime.migration.status === "ready")) return undefined;
   if (typeof riskPolicy.initialEquityBaseline !== "string" || typeof riskPolicy.maxSingleTradeRiskPercent !== "string" || typeof riskPolicy.maxSingleTradeRiskUsd !== "string") return undefined;
@@ -94,7 +95,7 @@ export function parseOperationsHealth(value: unknown): OperationsHealth | undefi
       },
       researchSchedule: { enabled: researchSchedule.enabled, handlerEnabled: researchSchedule.handlerEnabled, status: researchSchedule.status as ResearchScheduleStatus },
       scheduler: { activationApprovalReferencePresent: scheduler.activationApprovalReferencePresent, enabled: scheduler.enabled, status: scheduler.status as OperationsHealth["runtime"]["scheduler"]["status"] },
-      telegramAlerts: { enabled: telegramAlerts.enabled, status: telegramAlerts.status as TelegramAlertReadinessStatus },
+      telegramAlerts: { deliveryVerification: "unverified", enabled: telegramAlerts.enabled, status: telegramAlerts.status as TelegramAlertReadinessStatus },
     },
   };
 }

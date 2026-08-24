@@ -336,7 +336,7 @@ async function readOperationsHealth(request: IncomingMessage) {
           handlerEnabled: researchHandlerEnabled,
           status: assessResearchScheduleActivation({ brokerConnectionEnabled, databaseConfigured: true, handlerEnabled: researchHandlerEnabled, paperCredentialsConfigured, paperMode, schedulerEnabled: researchSchedulerEnabled }),
         },
-        telegramAlerts: { enabled: telegram.checks.enabled, status: telegram.status },
+        telegramAlerts: { deliveryVerification: telegram.deliveryVerification, enabled: telegram.checks.enabled, status: telegram.status },
         migration,
       },
     },

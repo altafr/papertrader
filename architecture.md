@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.78 authenticated dashboard Telegram readiness visibility; Railway API/worker health is verified, while alert delivery, research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
+- **Stage:** Phase 6.79 truthful Telegram delivery-verification state; Railway API/worker health is verified, while alert delivery, research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -724,6 +724,12 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - The browser receives only `enabled` plus `disabled`/`blocked`/`ready`; no bot token, chat ID, provider response, message content, or control action is exposed.
 - The dashboard remains observational and cannot enable alerts, send a test, change trading mode, activate schedulers, or modify risk policy.
 - API deployment `43f841c9-b29a-4f00-bbea-8f54925575af` reached `SUCCESS` and private API health returned healthy. Vercel preview `https://papertrader-iti0ribm2-altafrs-projects.vercel.app` completed successfully; unauthenticated dashboard access returned the expected deployment-protection HTTP 302.
+
+### Phase 6.79 Telegram Delivery Verification State
+
+- Added an explicit non-secret `deliveryVerification:"unverified"` field to notification readiness, worker health, API operations health, and dashboard parsing.
+- Configuration readiness remains separate from proof of message delivery; the dashboard labels delivery unverified until a separately approved channel test succeeds and is recorded.
+- No Telegram request, database write, trading action, scheduler activation, or Paper Autopilot change was added in this phase.
 
 ### Phase 4.1 Structured Agent Runs
 
