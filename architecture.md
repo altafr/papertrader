@@ -48,6 +48,7 @@ Do not run the continuous trading loop in the browser or Vercel functions. Verce
 - Added `DURABLE_SCHEDULE_AUDIT_MIGRATE=true` migration execution tooling requiring `DATABASE_MIGRATION_TARGET=0010` and a bounded `DATABASE_MIGRATION_APPROVAL_REFERENCE`, and refusing any unexpected pending migration. It was run with approval reference `SCHEDULER-AUDIT-0010-123`.
 - Worker deployment `d4f8adcb-9caa-45a9-bf00-9fab909b854e` is `SUCCESS`; the migration command was invoked with the bounded approval reference and completed successfully.
 - A hosted invocation with `DURABLE_SCHEDULE_AUDIT_MIGRATE=false` exited before database access with the expected gate error, confirming the migration command fails closed by default. The authorized invocation then completed successfully; readiness now returns `ready:true` with no blocked reasons and migration planning returns `pending:[]`.
+- Post-migration hosted verification returned `DURABLE_SCHEDULE_AUDIT_READINESS=true` with `ready:true`, migration planning with `pending:[]`, and Worker Health `healthy` with the daily scheduler still `scheduled` for `0 0 * * *` UTC. `DURABLE_SCHEDULER_AUDIT_ENABLED` remains unset, so no scheduled-run audit rows are being written yet.
 - PITR presence is not a restore drill. `RECOVERY_DRILL_VERIFIED` remains unset, so recovery status stays `unverified` until an isolated restore is completed and its reference/timestamp are recorded.
 
 ### Deployment Recommendation
