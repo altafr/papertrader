@@ -6,7 +6,13 @@ export type RecoveryVerificationStatus = "unverified" | "verified";
 
 /** Operator-recorded only; infrastructure presence must never imply verified recovery. */
 export function getRecoveryVerificationStatus(environment = process.env): RecoveryVerificationStatus {
-  return environment.RECOVERY_DRILL_VERIFIED === "true" ? "verified" : "unverified";
+  if (environment.RECOVERY_DRILL_VERIFIED !== "true") return "unverified";
+  const reference = environment.RECOVERY_DRILL_APPROVAL_REFERENCE?.trim() ?? "";
+  const capturedAt = environment.RECOVERY_DRILL_VERIFIED_AT?.trim() ?? "";
+  if (!/^[A-Za-z0-9][A-Za-z0-9._:/-]{0,127}$/.test(reference)) return "unverified";
+  const parsed = new Date(capturedAt);
+  if (!capturedAt || Number.isNaN(parsed.getTime()) || !capturedAt.endsWith("Z")) return "unverified";
+  return "verified";
 }
 
 export const PAPER_TRADING_API_BASE_URL = "https://paper-api.alpaca.markets";

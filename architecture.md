@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.96 recovery verification visibility; API/worker health is verified, while backup execution, alert delivery, research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
+- **Stage:** Phase 6.97 auditable recovery verification contract; API/worker health is verified, while backup execution, alert delivery, research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -840,6 +840,11 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - The status cannot be inferred from a database connection, volume presence, or deployment health; it must be set only after the documented PITR/restore evidence exists.
 - Verified 209 tests, build, typecheck, lint, secret-surface audit, and diff checks. No Railway variable, PITR setting, database, queue, broker, scheduler, Telegram, or trading state changed.
 - API deployment `392decbc-015d-4fd0-a75b-a6f6fb4aef72` reached `SUCCESS`; Vercel production deployment `dpl_NAt8esJQUk5aNxiQapUBx2s7TmTw` is `Ready`. Hosted recovery status remains unverified because PITR is disabled and no restore drill has been recorded.
+
+### Phase 6.97 Auditable Recovery Verification Contract
+
+- Tightened recovery verification so `RECOVERY_DRILL_VERIFIED=true` counts only with a bounded `RECOVERY_DRILL_APPROVAL_REFERENCE` and valid UTC `RECOVERY_DRILL_VERIFIED_AT`; missing or malformed evidence remains `unverified`.
+- Added focused configuration coverage. No hosted variable, PITR setting, database, scheduler, queue, broker, Telegram, or trading state changed.
 
 ### Phase 4.1 Structured Agent Runs
 

@@ -17,7 +17,9 @@ describe("server configuration", () => {
   it("keeps recovery verification unverified until explicitly recorded", () => {
     expect(getRecoveryVerificationStatus({})).toBe("unverified");
     expect(getRecoveryVerificationStatus({ RECOVERY_DRILL_VERIFIED: "false" })).toBe("unverified");
-    expect(getRecoveryVerificationStatus({ RECOVERY_DRILL_VERIFIED: "true" })).toBe("verified");
+    expect(getRecoveryVerificationStatus({ RECOVERY_DRILL_VERIFIED: "true" })).toBe("unverified");
+    expect(getRecoveryVerificationStatus({ RECOVERY_DRILL_VERIFIED: "true", RECOVERY_DRILL_APPROVAL_REFERENCE: "restore-drill-123", RECOVERY_DRILL_VERIFIED_AT: "2026-08-24T00:00:00.000Z" })).toBe("verified");
+    expect(getRecoveryVerificationStatus({ RECOVERY_DRILL_VERIFIED: "true", RECOVERY_DRILL_APPROVAL_REFERENCE: "bad reference", RECOVERY_DRILL_VERIFIED_AT: "2026-08-24T00:00:00.000Z" })).toBe("unverified");
   });
 
   it("rejects an invalid port", () => {

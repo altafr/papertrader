@@ -49,4 +49,4 @@ If any restore check fails, stop the recovered Worker, keep all persistent execu
 - Queue and dead-letter counts verified as present/drained.
 - Paper reconciliation and audit provenance verified after restore.
 - API/Worker health verified with execution gates disabled.
-- Recovery owner, rollback decision, and next drill date recorded.
+- Recovery owner, rollback decision, and next drill date recorded. Only then may the operator set `RECOVERY_DRILL_VERIFIED=true` together with bounded `RECOVERY_DRILL_APPROVAL_REFERENCE` and UTC `RECOVERY_DRILL_VERIFIED_AT` values.
