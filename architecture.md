@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.119 approval-gated scheduler-audit migration command prepared; migration execution and audit activation remain separately gated, while restore-drill verification, alert delivery, and Paper Autopilot activation remain separate steps.
+- **Stage:** Phase 6.120 approval-gated scheduler-audit migration command deployed; migration execution and audit activation remain separately gated, while restore-drill verification, alert delivery, and Paper Autopilot activation remain separate steps.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -46,6 +46,7 @@ Do not run the continuous trading loop in the browser or Vercel functions. Verce
 - Added `DURABLE_SCHEDULE_AUDIT_READINESS=true pnpm --filter @momentum/worker durable-schedule-audit-readiness`, a read-only fail-closed check for migration `0010`, its table, and required columns.
 - Worker deployment `3131b4a4-31d8-4d69-81a7-eb39b3188296` is `SUCCESS`. Hosted readiness correctly returns `migration_not_recorded`, `schedule_runs_table_missing`, and `schedule_runs_columns_missing`; no SQL mutation occurred.
 - Added `DURABLE_SCHEDULE_AUDIT_MIGRATE=true` migration execution tooling requiring `DATABASE_MIGRATION_TARGET=0010` and a bounded `DATABASE_MIGRATION_APPROVAL_REFERENCE`, and refusing any unexpected pending migration. It has not been run.
+- Worker deployment `d4f8adcb-9caa-45a9-bf00-9fab909b854e` is `SUCCESS`; the migration command is available but remains uninvoked.
 - PITR presence is not a restore drill. `RECOVERY_DRILL_VERIFIED` remains unset, so recovery status stays `unverified` until an isolated restore is completed and its reference/timestamp are recorded.
 
 ### Deployment Recommendation
