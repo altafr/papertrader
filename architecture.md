@@ -839,6 +839,7 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - Added an operator-recorded `RECOVERY_DRILL_VERIFIED` contract, defaulting to `unverified`, and exposed it as bounded recovery status in authenticated Operations Health and the dashboard.
 - The status cannot be inferred from a database connection, volume presence, or deployment health; it must be set only after the documented PITR/restore evidence exists.
 - Verified 209 tests, build, typecheck, lint, secret-surface audit, and diff checks. No Railway variable, PITR setting, database, queue, broker, scheduler, Telegram, or trading state changed.
+- API deployment `392decbc-015d-4fd0-a75b-a6f6fb4aef72` reached `SUCCESS`; Vercel production deployment `dpl_NAt8esJQUk5aNxiQapUBx2s7TmTw` is `Ready`. Hosted recovery status remains unverified because PITR is disabled and no restore drill has been recorded.
 
 ### Phase 4.1 Structured Agent Runs
 
