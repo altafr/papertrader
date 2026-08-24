@@ -175,6 +175,25 @@ export const durableOneRunAudits = pgTable(
   ],
 );
 
+export const durableScheduleRuns = pgTable(
+  "durable_schedule_runs",
+  {
+    accountSnapshotId: uuid("account_snapshot_id").references(() => accountSnapshots.id, { onDelete: "restrict" }),
+    completedAt: timestamp("completed_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    failureCode: text("failure_code"),
+    runId: text("run_id").primaryKey(),
+    scheduledAt: timestamp("scheduled_at", { withTimezone: true }).notNull(),
+    startedAt: timestamp("started_at", { withTimezone: true }).notNull(),
+    status: text("status").notNull(),
+  },
+  (table) => [
+    index("durable_schedule_runs_scheduled_idx").on(table.scheduledAt),
+    check("durable_schedule_runs_non_empty_text", sql`length(${table.runId}) > 0`),
+    check("durable_schedule_runs_status_valid", sql`${table.status} IN ('running', 'completed', 'failed')`),
+  ],
+);
+
 export const shadowObservations = pgTable(
   "shadow_observations",
   {

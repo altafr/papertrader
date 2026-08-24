@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.106 read-only scheduled-cycle verifier deployed; the paper-only scheduler remains scheduled for its first UTC cycle, while restore-drill verification, alert delivery, and Paper Autopilot activation remain separate gated steps.
+- **Stage:** Phase 6.112 durable scheduler-run audit contract prepared; migration application and runtime audit activation remain separately gated, while restore-drill verification, alert delivery, and Paper Autopilot activation remain separate steps.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -38,6 +38,7 @@ Do not run the continuous trading loop in the browser or Vercel functions. Verce
 - The existing guarded paper reconciliation provenance remains verified: run `paper-reconciliation-retry-20260824-01` with reference `PAPER-RECONCILIATION-RETRY-124` has persisted provenance, fresh reconciliation, and drained queues. This is pre-cycle evidence, not evidence that the recurring schedule has fired.
 - Added the guarded `DAILY_CYCLE_VERIFY=true` Worker command. Given an operator-supplied RFC3339 `DAILY_CYCLE_STARTED_AT`, it reads only the latest persisted reconciliation and queue counts, then verifies the capture is after the cycle start and both queues are drained. It never contacts Alpaca, writes PostgreSQL, starts a scheduler, or changes any gate.
 - Worker deployment `110d2323-36ec-4700-a2bc-655488b8728a` is `SUCCESS`. A hosted pre-cycle verification correctly returned `status:"incomplete"` with only `reconciliation_before_cycle`; queue presence and drain checks passed.
+- Added migration `0010_durable_schedule_runs.sql` and a typed repository contract for running, completed, and failed recurring-cycle records. The migration is not applied and the current hosted Worker does not use this contract, so the existing scheduler behavior is unchanged until a separately approved migration and activation unit.
 - PITR presence is not a restore drill. `RECOVERY_DRILL_VERIFIED` remains unset, so recovery status stays `unverified` until an isolated restore is completed and its reference/timestamp are recorded.
 
 ### Deployment Recommendation

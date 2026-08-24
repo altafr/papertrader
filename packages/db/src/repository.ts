@@ -1,7 +1,7 @@
 import { and, asc, desc, eq } from "drizzle-orm";
 
 import type { Database } from "./client.js";
-import { accountSnapshots, activities, agentRuns, durableOneRunAudits, orders, paperOrderSubmissions, positions, shadowObservationOutcomes, shadowObservations, strategyLifecycleEvents, strategyPaperEvidence } from "./schema.js";
+import { accountSnapshots, activities, agentRuns, durableOneRunAudits, durableScheduleRuns, orders, paperOrderSubmissions, positions, shadowObservationOutcomes, shadowObservations, strategyLifecycleEvents, strategyPaperEvidence } from "./schema.js";
 
 export interface PersistedAgentArtifact {
   readonly artifactConfidence: string;
@@ -141,6 +141,40 @@ export interface ReconciliationState {
 export interface PersistedDurableOneRunProvenance {
   readonly approvalReference: string;
   readonly runId: string;
+}
+
+export interface PersistedDurableScheduleRun {
+  readonly accountSnapshotId?: string;
+  readonly completedAt?: Date;
+  readonly failureCode?: string;
+  readonly runId: string;
+  readonly scheduledAt: Date;
+  readonly startedAt: Date;
+  readonly status: "completed" | "failed" | "running";
+}
+
+export function createDurableScheduleRunRepository(db: Database) {
+  return {
+    async start(run: Pick<PersistedDurableScheduleRun, "runId" | "scheduledAt" | "startedAt">) {
+      const [row] = await db.insert(durableScheduleRuns).values({ runId: run.runId, scheduledAt: run.scheduledAt, startedAt: run.startedAt, status: "running" }).returning();
+      if (!row) throw new Error("Durable schedule run insert did not return a row.");
+      return row;
+    },
+    async complete(runId: string, completedAt: Date, accountSnapshotId: string) {
+      const [row] = await db.update(durableScheduleRuns).set({ accountSnapshotId, completedAt, status: "completed" }).where(eq(durableScheduleRuns.runId, runId)).returning();
+      if (!row) throw new Error("Durable schedule run was not found.");
+      return row;
+    },
+    async fail(runId: string, completedAt: Date, failureCode: string) {
+      const [row] = await db.update(durableScheduleRuns).set({ completedAt, failureCode, status: "failed" }).where(eq(durableScheduleRuns.runId, runId)).returning();
+      if (!row) throw new Error("Durable schedule run was not found.");
+      return row;
+    },
+    async getLatest() {
+      const [row] = await db.select().from(durableScheduleRuns).orderBy(desc(durableScheduleRuns.scheduledAt)).limit(1);
+      return row;
+    },
+  };
 }
 
 export function createAccountStateRepository(db: Database) {
