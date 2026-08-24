@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.83 centralized daily schedule contract; Railway API/worker health is verified, while alert delivery, research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
+- **Stage:** Phase 6.84 daily handler gate visibility; Railway API/worker health is verified, while alert delivery, research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -758,6 +758,12 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - Moved the default daily cron and UTC timezone into the shared server configuration package; worker and API now consume the same validated cron helper and timezone constant.
 - Invalid empty or oversized cron values fail at the configuration boundary; the dashboard parser remains fail-closed for malformed schedule metadata.
 - This is configuration alignment only. No scheduler activation, queue operation, broker request, database write, or trading authority was added.
+
+### Phase 6.84 Daily Handler Gate Visibility
+
+- Added the daily preparation handler gate to the dashboard operations-health card alongside scheduler status, schedule cadence, and broker read gate.
+- This prevents a disabled handler from being mistaken for a fully activated daily workflow; the card remains observational and has no controls.
+- No scheduler, queue, broker, database, or trading behavior changed.
 - Worker deployment `d30ac49d-9846-42c2-b146-5f8cf9dd0fec` and API deployment `640a2429-d1c0-4b78-9687-5be739ab798e` reached `SUCCESS`; worker/API health is healthy, queues are present and drained, and Vercel preview `https://papertrader-3th8iyjvs-altafrs-projects.vercel.app` remains deployment-protected.
 
 ### Phase 4.1 Structured Agent Runs

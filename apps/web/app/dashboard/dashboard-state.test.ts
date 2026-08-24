@@ -34,6 +34,7 @@ describe("dashboard state", () => {
     });
     expect(health?.runtime.scheduler.status).toBe("disabled");
     expect(health?.runtime.scheduler.activationApprovalReferencePresent).toBe(true);
+    expect(health?.runtime.dailyPreparationHandlerEnabled).toBe(false);
     expect(parseOperationsHealth({ reconciliation: { status: "fresh" }, runtime: {} })).toBeUndefined();
     expect(parseOperationsHealth({
       reconciliation: { status: "fresh" },
