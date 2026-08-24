@@ -11,4 +11,9 @@ describe("database migration plan", () => {
     const result = buildDatabaseMigrationPlan({ appliedVersions: new Set(), files: ["0009_durable_one_run_audits.sql"], schemaMigrationsTablePresent: false });
     expect(result).toMatchObject({ pending: [{ approvalRequired: true }], schemaMigrationsTablePresent: false, status: "plan" });
   });
+
+  it("marks the scheduler-run audit migration as approval-gated", () => {
+    const result = buildDatabaseMigrationPlan({ appliedVersions: new Set(["0009"]), files: ["0010_durable_schedule_runs.sql"], schemaMigrationsTablePresent: true });
+    expect(result.pending).toEqual([{ approvalRequired: true, file: "0010_durable_schedule_runs.sql", version: "0010" }]);
+  });
 });

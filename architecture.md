@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.114 guarded durable scheduler-run audit wiring deployed; migration application and audit activation remain separately gated, while restore-drill verification, alert delivery, and Paper Autopilot activation remain separate steps.
+- **Stage:** Phase 6.115 migration plan now marks scheduler-run audit migration approval-gated; migration application and audit activation remain separately gated, while restore-drill verification, alert delivery, and Paper Autopilot activation remain separate steps.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -41,6 +41,7 @@ Do not run the continuous trading loop in the browser or Vercel functions. Verce
 - Added migration `0010_durable_schedule_runs.sql` and a typed repository contract for running, completed, and failed recurring-cycle records. The migration is not applied and the current hosted Worker does not use this contract, so the existing scheduler behavior is unchanged until a separately approved migration and activation unit.
 - Added optional scheduler start/complete/fail callbacks behind `DURABLE_SCHEDULER_AUDIT_ENABLED`. When enabled, Worker startup requires migration `0010`; when absent (the current hosted state), no audit database is opened and scheduler behavior is unchanged. Audit failures use the generic `reconciliation_failed` code and cannot expose provider data.
 - Worker deployment `a7047f5d-1f2c-4b4b-8319-113a8b2c1698` reached `SUCCESS`; private Worker Health remains healthy with the durable scheduler scheduled. The audit flag remains unset and migration `0010` remains unapplied.
+- The read-only migration planner now classifies `0010_durable_schedule_runs.sql` as requiring an explicit bounded migration approval reference. The guarded migration writer still targets only the previously reviewed `0009`, so `0010` cannot be applied accidentally.
 - PITR presence is not a restore drill. `RECOVERY_DRILL_VERIFIED` remains unset, so recovery status stays `unverified` until an isolated restore is completed and its reference/timestamp are recorded.
 
 ### Deployment Recommendation
