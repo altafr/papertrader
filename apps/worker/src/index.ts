@@ -2,7 +2,7 @@ import { createServer } from "node:http";
 
 import { createPaperAccountReader, createPaperMarketDataReader } from "@momentum/alpaca";
 import { getPaperAutopilotConfig, getPaperOperatingMode, getPaperOnlyRuntimeConfig, getServerPort, isGlobalKillSwitchActive } from "@momentum/config";
-import { createAccountStateRepository, createDatabase, createShadowObservationRepository } from "@momentum/db";
+import { createAccountStateRepository, createDatabase, createDurableScheduleRunRepository, createShadowObservationRepository } from "@momentum/db";
 import { getTelegramNotificationConfig, sendTelegramAlert } from "@momentum/notifications";
 
 import { getWorkerHealth } from "./app.js";
@@ -10,7 +10,7 @@ import { startPaperMarketStream } from "./market-stream-runner.js";
 import { getShadowEvaluationConfig } from "./shadow-evaluation.js";
 import { createAlpacaShadowBarSource, createShadowEvaluationScheduler, runShadowEvaluationOnce } from "./shadow-evaluation-service.js";
 import { createDurableScheduler, getDurableSchedulerConfig } from "./durable-scheduler.js";
-import { assertDurableSchedulerMigrationReady, readDurableSchedulerMigrationState } from "./durable-scheduler-migration-guard.js";
+import { assertDurableScheduleRunMigrationReady, assertDurableSchedulerMigrationReady, readDurableScheduleRunMigrationState, readDurableSchedulerMigrationState } from "./durable-scheduler-migration-guard.js";
 import { reconcilePaperAccount } from "./reconcile.js";
 import { getResearchScheduleReadiness } from "./research-scheduler.js";
 import { createResearchSchedulerFromEnvironment } from "./research-scheduler-runtime.js";
@@ -59,6 +59,8 @@ if (streamEnabled === "true") {
   }
   startPaperMarketStream();
 }
+const schedulerAuditEnabled = process.env.DURABLE_SCHEDULER_AUDIT_ENABLED;
+if (schedulerAuditEnabled !== undefined && schedulerAuditEnabled !== "true" && schedulerAuditEnabled !== "false") throw new Error("DURABLE_SCHEDULER_AUDIT_ENABLED must be exactly true or false.");
 if (durableConfiguration.enabled) {
   if (!process.env.DATABASE_URL?.trim()) throw new Error("DURABLE_SCHEDULER_ENABLED=true requires DATABASE_URL.");
   if (process.env.DAILY_PREPARATION_HANDLER_ENABLED !== "true") throw new Error("DURABLE_SCHEDULER_ENABLED=true requires the verified daily preparation handler.");
@@ -66,20 +68,30 @@ if (durableConfiguration.enabled) {
   const migrationDatabase = createDatabase(process.env.DATABASE_URL);
   try {
     assertDurableSchedulerMigrationReady(await readDurableSchedulerMigrationState(migrationDatabase.pool));
+    if (schedulerAuditEnabled === "true") assertDurableScheduleRunMigrationReady(await readDurableScheduleRunMigrationState(migrationDatabase.pool));
   } finally {
     await migrationDatabase.pool.end();
   }
+  const scheduleAuditDatabase = schedulerAuditEnabled === "true" ? createDatabase(process.env.DATABASE_URL) : undefined;
+  const scheduleAudit = scheduleAuditDatabase ? createDurableScheduleRunRepository(scheduleAuditDatabase.db) : undefined;
+  const scheduleAuditCallbacks = scheduleAudit ? {
+    start: (runId: string, scheduledAt: Date, startedAt: Date) => scheduleAudit.start({ runId, scheduledAt, startedAt }).then(() => undefined),
+    complete: (runId: string, completedAt: Date, accountSnapshotId: string) => scheduleAudit.complete(runId, completedAt, accountSnapshotId).then(() => undefined),
+    fail: (runId: string, completedAt: Date, failureCode: string) => scheduleAudit.fail(runId, completedAt, failureCode).then(() => undefined),
+  } : undefined;
   const durableScheduler = createDurableScheduler({
     config: durableConfiguration,
     connectionString: process.env.DATABASE_URL,
     notify: (alert) => sendTelegramAlert(telegramNotificationConfig, { ...alert, occurredAt: new Date().toISOString() }),
+    ...(scheduleAuditCallbacks ? { audit: scheduleAuditCallbacks } : {}),
     runDailyPreparation: async () => {
       const { db, pool } = createDatabase(process.env.DATABASE_URL);
       try {
-        await reconcilePaperAccount(
+        const snapshot = await reconcilePaperAccount(
           createPaperAccountReader({ apiKey: process.env.ALPACA_API_KEY ?? "", secretKey: process.env.ALPACA_SECRET_KEY ?? "" }),
           createAccountStateRepository(db),
         );
+        return { accountSnapshotId: snapshot.id };
       } finally {
         await pool.end();
       }

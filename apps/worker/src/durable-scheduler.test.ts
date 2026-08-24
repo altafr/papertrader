@@ -95,6 +95,28 @@ describe("durable scheduler", () => {
     expect(calls).toContain("stop");
   });
 
+  it("records optional scheduled-run audit transitions without changing the queue contract", async () => {
+    const audit: string[] = [];
+    let handler: ((jobs: { data: { kind: "daily_preparation"; version: 1 } }[]) => Promise<unknown>) | undefined;
+    const scheduler = createDurableScheduler({
+      audit: {
+        async start(runId) { audit.push(`start:${runId}`); },
+        async complete(runId, _completedAt, snapshotId) { audit.push(`complete:${runId}:${snapshotId}`); },
+        async fail(runId, _completedAt, code) { audit.push(`fail:${runId}:${code}`); },
+      },
+      config: { cron: "0 0 * * *", enabled: true, retryDelaySeconds: 10, retryLimit: 2 },
+      connectionString: "postgres://redacted",
+      now: () => new Date("2026-08-25T00:00:03.000Z"),
+      runDailyPreparation: async () => ({ accountSnapshotId: "snapshot-1" }),
+      bossFactory: () => ({
+        async start() {}, async stop() {}, async createQueue() {}, async getQueue(name) { return { name }; }, async getQueueStats() { return [{ activeCount: 0, failedCount: 0, queuedCount: 0 }]; }, async schedule() {}, async work(_name, nextHandler) { handler = nextHandler as typeof handler; return "worker-1"; },
+      }),
+    });
+    await scheduler.start();
+    await handler?.([{ data: { kind: "daily_preparation", version: 1 } }]);
+    expect(audit).toEqual(["start:scheduled-daily-preparation-2026-08-25", "complete:scheduled-daily-preparation-2026-08-25:snapshot-1"]);
+  });
+
   it("can be stopped and started again without losing the durable queue registration", async () => {
     let starts = 0;
     let schedules = 0;

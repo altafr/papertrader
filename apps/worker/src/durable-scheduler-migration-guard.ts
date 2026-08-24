@@ -34,3 +34,29 @@ export async function readDurableSchedulerMigrationState(client: MigrationQueryC
 export function assertDurableSchedulerMigrationReady(state: DurableSchedulerMigrationState): void {
   if (!state.ready) throw new Error(`DURABLE_SCHEDULER_ENABLED=true requires migration 0009 readiness: ${state.blockedReasons.join(",")}.`);
 }
+
+export interface DurableScheduleRunMigrationState {
+  readonly blockedReasons: readonly string[];
+  readonly ready: boolean;
+}
+
+export async function readDurableScheduleRunMigrationState(client: MigrationQueryClient): Promise<DurableScheduleRunMigrationState> {
+  let schemaMigrationRecorded = false;
+  try {
+    const result = await client.query<{ readonly recorded: boolean }>("SELECT EXISTS (SELECT 1 FROM schema_migrations WHERE version = $1) AS recorded", ["0010"]);
+    schemaMigrationRecorded = result.rows[0]?.recorded === true;
+  } catch (error) {
+    if ((error as { readonly code?: string }).code !== "42P01") throw error;
+  }
+  const result = await client.query<{ readonly table_present: boolean; readonly required_columns_present: boolean }>("SELECT to_regclass('public.durable_schedule_runs') IS NOT NULL AS table_present, (SELECT COUNT(*) FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'durable_schedule_runs' AND column_name = ANY($1::text[])) = 8 AS required_columns_present", [["run_id", "scheduled_at", "started_at", "completed_at", "account_snapshot_id", "failure_code", "created_at", "status"]]);
+  const blockedReasons = [
+    ...(schemaMigrationRecorded ? [] : ["migration_not_recorded"]),
+    ...(result.rows[0]?.table_present ? [] : ["schedule_runs_table_missing"]),
+    ...(result.rows[0]?.required_columns_present ? [] : ["schedule_runs_columns_missing"]),
+  ];
+  return { blockedReasons, ready: blockedReasons.length === 0 };
+}
+
+export function assertDurableScheduleRunMigrationReady(state: DurableScheduleRunMigrationState): void {
+  if (!state.ready) throw new Error(`DURABLE_SCHEDULER_AUDIT_ENABLED=true requires migration 0010 readiness: ${state.blockedReasons.join(",")}.`);
+}

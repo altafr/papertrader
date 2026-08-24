@@ -29,6 +29,12 @@ export interface DurableSchedulerAlert {
   readonly severity: "critical" | "warning";
 }
 
+export interface DurableScheduleRunAudit {
+  readonly start: (runId: string, scheduledAt: Date, startedAt: Date) => Promise<void>;
+  readonly complete: (runId: string, completedAt: Date, accountSnapshotId: string) => Promise<void>;
+  readonly fail: (runId: string, completedAt: Date, failureCode: string) => Promise<void>;
+}
+
 export type DurableSchedulerReadinessStatus = "blocked" | "disabled" | "ready";
 
 export interface DurableSchedulerReadiness {
@@ -175,6 +181,10 @@ export function getDailyPreparationJobId(now = new Date()): string {
   return `manual-daily-preparation-${now.toISOString().slice(0, 10)}`;
 }
 
+export function getScheduledDailyRunId(now = new Date()): string {
+  return `scheduled-daily-preparation-${now.toISOString().slice(0, 10)}`;
+}
+
 export async function enqueueDailyPreparation(sender: DurableQueueSender, now = new Date()): Promise<{ readonly jobId: string; readonly queued: boolean }> {
   const jobId = getDailyPreparationJobId(now);
   const sentId = await sender.send(DAILY_PREPARATION_QUEUE, { kind: "daily_preparation", version: 1 }, { id: jobId });
@@ -268,7 +278,8 @@ export function createDurableScheduler(input: {
   readonly config: DurableSchedulerConfig;
   readonly connectionString: string;
   readonly now?: () => Date;
-  readonly runDailyPreparation: (job: DurableDailyJob) => Promise<void>;
+  readonly runDailyPreparation: (job: DurableDailyJob) => Promise<{ readonly accountSnapshotId?: string } | void>;
+  readonly audit?: DurableScheduleRunAudit;
   readonly notify?: (alert: DurableSchedulerAlert) => Promise<void> | void;
   readonly bossFactory?: BossFactory;
 }) {
@@ -299,7 +310,18 @@ export function createDurableScheduler(input: {
           if (jobs.length === 0) return;
           setDurableSchedulerHealth({ ...getDurableSchedulerHealth(), status: "running" });
           try {
-            for (const job of jobs) await input.runDailyPreparation(parseDurableDailyJob(job.data));
+            for (const job of jobs) {
+              const startedAt = now();
+              const runId = getScheduledDailyRunId(startedAt);
+              await input.audit?.start(runId, startedAt, startedAt);
+              try {
+                const result = await input.runDailyPreparation(parseDurableDailyJob(job.data));
+                if (result?.accountSnapshotId) await input.audit?.complete(runId, now(), result.accountSnapshotId);
+              } catch (error) {
+                await input.audit?.fail(runId, now(), "reconciliation_failed");
+                throw error;
+              }
+            }
             const nextRunAt = nextDailyRunAt(now(), input.config.cron);
             setDurableSchedulerHealth({ ...getDurableSchedulerHealth(), lastRunAt: now().toISOString(), ...(nextRunAt ? { nextRunAt } : {}), status: "ready" });
           } catch (error) {
