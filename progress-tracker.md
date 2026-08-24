@@ -1855,3 +1855,4 @@
 
 - Recovery verification now requires the explicit boolean, bounded evidence reference, and UTC verification timestamp; incomplete evidence remains unverified.
 - Verified 209 tests, typecheck, lint, build, secret-surface audit, and diff checks. No hosted state changed.
+- API deployment `471f72e5-8c1a-4b94-9370-b4d3732c7f39` succeeded; hosted recovery remains unverified with the evidence variables unset.

@@ -845,6 +845,7 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 
 - Tightened recovery verification so `RECOVERY_DRILL_VERIFIED=true` counts only with a bounded `RECOVERY_DRILL_APPROVAL_REFERENCE` and valid UTC `RECOVERY_DRILL_VERIFIED_AT`; missing or malformed evidence remains `unverified`.
 - Added focused configuration coverage. No hosted variable, PITR setting, database, scheduler, queue, broker, Telegram, or trading state changed.
+- API deployment `471f72e5-8c1a-4b94-9370-b4d3732c7f39` reached `SUCCESS`; hosted recovery remains `unverified` because the required evidence variables are unset.
 
 ### Phase 4.1 Structured Agent Runs
 
