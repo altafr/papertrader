@@ -789,8 +789,8 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 
 ### Phase 6.88 Idempotent Queue Reuse for Guarded Reconciliation
 
-- Updated the one-run command to inspect the reviewed work and dead-letter queues and reuse them when both are already present; queue provisioning now runs only when a queue is missing.
-- This removes a redundant queue-creation failure from the one-run path while preserving the durable queue boundary and all command-scoped broker/handler gates.
+- Updated the one-run command to require the reviewed work and dead-letter queues to be present and reuse them without attempting queue creation; queue provisioning remains exclusively in the separately guarded migration command.
+- This removes a redundant queue-creation failure from the one-run path while preserving the durable queue boundary and all command-scoped broker/handler gates. Missing queues fail closed with a bounded migration message.
 - Added focused coverage for the no-reprovision path. No scheduler activation, Telegram send, order submission, or live capability was added.
 
 ### Phase 4.1 Structured Agent Runs

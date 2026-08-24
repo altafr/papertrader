@@ -1805,6 +1805,6 @@
 
 ### 2026-08-24 — Phase 6.88 idempotent queue reuse for guarded reconciliation complete
 
-- Updated the guarded one-run command to reuse both existing durable queues and provision only missing queues.
+- Updated the guarded one-run command to require and reuse both existing durable queues; queue creation remains exclusively in the separately guarded migration command.
 - Observed the prior hosted failure at `queue_provision` while the queues were already present and drained; added a regression test for the reuse path.
 - Verified 208 tests and worker build. The retry remains pending a fresh deployment; no second reconciliation attempt was made.
