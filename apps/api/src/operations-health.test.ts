@@ -1,10 +1,14 @@
 import { describe, expect, it } from "vitest";
 
-import { assessAuditMigrationReadiness, assessReconciliationHealth, assessResearchScheduleActivation, assessSchedulerActivation, readAuditMigrationReadiness } from "./operations-health.js";
+import { assessAuditMigrationReadiness, assessReconciliationHealth, assessResearchScheduleActivation, assessSchedulerActivation, readAuditMigrationReadiness, serializeDurableScheduleRunHealth } from "./operations-health.js";
 
 const now = new Date("2026-08-23T00:00:00.000Z");
 
 describe("reconciliation health", () => {
+  it("serializes the latest recurring scheduler run without exposing database values", () => {
+    expect(serializeDurableScheduleRunHealth({ runId: "scheduled-daily-preparation-2026-08-25", scheduledAt: new Date("2026-08-25T00:00:00.000Z"), startedAt: new Date("2026-08-25T00:00:03.000Z"), status: "completed", completedAt: new Date("2026-08-25T00:00:10.000Z") })).toEqual({ completedAt: "2026-08-25T00:00:10.000Z", runId: "scheduled-daily-preparation-2026-08-25", scheduledAt: "2026-08-25T00:00:00.000Z", startedAt: "2026-08-25T00:00:03.000Z", status: "completed" });
+    expect(serializeDurableScheduleRunHealth(undefined)).toEqual({ status: "unavailable" });
+  });
   it("reports unavailable when no persisted capture exists", () => {
     expect(assessReconciliationHealth(undefined, now)).toEqual({ status: "unavailable" });
   });

@@ -10,7 +10,7 @@ import {
   type MarketAssetClass,
   type MarketBarTimeframe,
 } from "@momentum/alpaca";
-import { createAccountStateRepository, createAgentRunRepository, createDatabase, createShadowObservationRepository, createStrategyLifecycleRepository } from "@momentum/db";
+import { createAccountStateRepository, createAgentRunRepository, createDatabase, createDurableScheduleRunRepository, createShadowObservationRepository, createStrategyLifecycleRepository } from "@momentum/db";
 import {
   getClerkRuntimeConfig,
   getDailyPreparationCron,
@@ -25,12 +25,13 @@ import { MAX_SINGLE_TRADE_RISK_PERCENT_OF_EQUITY, MAX_SINGLE_TRADE_RISK_USD, PAP
 import { getTelegramAlertTestReadiness, getTelegramNotificationReadiness } from "@momentum/notifications";
 
 import { getApiHealth } from "./app.js";
-import { assessReconciliationHealth, assessResearchScheduleActivation, assessSchedulerActivation, readAuditMigrationReadiness } from "./operations-health.js";
+import { assessReconciliationHealth, assessResearchScheduleActivation, assessSchedulerActivation, readAuditMigrationReadiness, serializeDurableScheduleRunHealth } from "./operations-health.js";
 import { compareReconciliationAccounts } from "./reconciliation-status.js";
 import { approveDisabledToReplay, approveReplayToShadow, approveShadowToPaper } from "./lifecycle-command.js";
 import { toAgentRunDetail } from "./agent-run-detail.js";
 
 let readModelRepository: ReturnType<typeof createAccountStateRepository> | undefined;
+let durableScheduleRunRepository: ReturnType<typeof createDurableScheduleRunRepository> | undefined;
 let agentRunRepository: ReturnType<typeof createAgentRunRepository> | undefined;
 let strategyLifecycleRepository: ReturnType<typeof createStrategyLifecycleRepository> | undefined;
 let shadowObservationRepository: ReturnType<typeof createShadowObservationRepository> | undefined;
@@ -297,6 +298,16 @@ async function readOperationsHealth(request: IncomingMessage) {
   }
   const model = await readModelRepository.getLatestReadModel();
   const lastDailyRun = await readModelRepository.getLatestDurableOneRunAudit();
+  let latestSchedulerRun;
+  try {
+    if (!durableScheduleRunRepository) {
+      const { db } = createDatabase();
+      durableScheduleRunRepository = createDurableScheduleRunRepository(db);
+    }
+    latestSchedulerRun = await durableScheduleRunRepository.getLatest();
+  } catch {
+    latestSchedulerRun = undefined;
+  }
   const reconciliation = assessReconciliationHealth(model?.freshness.capturedAt);
   const brokerConnectionEnabled = readBooleanEnvironmentFlag("BROKER_CONNECTION_ENABLED");
   const schedulerEnabled = readBooleanEnvironmentFlag("DURABLE_SCHEDULER_ENABLED");
@@ -328,6 +339,7 @@ async function readOperationsHealth(request: IncomingMessage) {
           status: lastDailyRun?.status === "completed" ? "completed" : "unavailable",
           ...(lastDailyRun?.capturedAt ? { capturedAt: lastDailyRun.capturedAt.toISOString() } : {}),
         },
+        schedulerAudit: serializeDurableScheduleRunHealth(latestSchedulerRun),
         recovery: { status: getRecoveryVerificationStatus() },
         globalKillSwitchActive: isGlobalKillSwitchActive(),
         operatingMode: getPaperOperatingMode(),

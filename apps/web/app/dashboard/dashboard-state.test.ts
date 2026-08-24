@@ -23,6 +23,7 @@ describe("dashboard state", () => {
         brokerConnectionEnabled: false,
         dailyPreparationHandlerEnabled: false,
         dailyReconciliation: { capturedAt: "2026-08-23T00:00:00.000Z", status: "completed" },
+        schedulerAudit: { completedAt: "2026-08-23T00:00:10.000Z", runId: "run-1", scheduledAt: "2026-08-23T00:00:00.000Z", startedAt: "2026-08-23T00:00:01.000Z", status: "completed" },
         recovery: { status: "unverified" },
         globalKillSwitchActive: false,
         operatingMode: "observe",
@@ -38,6 +39,7 @@ describe("dashboard state", () => {
     expect(health?.runtime.scheduler.status).toBe("disabled");
     expect(health?.runtime.scheduler.activationApprovalReferencePresent).toBe(true);
     expect(health?.runtime.dailyPreparationHandlerEnabled).toBe(false);
+    expect(health?.runtime.schedulerAudit.status).toBe("completed");
     expect(parseOperationsHealth({ reconciliation: { status: "fresh" }, runtime: {} })).toBeUndefined();
     expect(parseOperationsHealth({
       reconciliation: { status: "fresh" },
@@ -45,6 +47,7 @@ describe("dashboard state", () => {
         brokerConnectionEnabled: false,
         dailyPreparationHandlerEnabled: false,
         dailyReconciliation: { status: "unavailable" },
+        schedulerAudit: { status: "unavailable" },
         recovery: { status: "unverified" },
         globalKillSwitchActive: false,
         operatingMode: "observe",

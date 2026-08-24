@@ -3,6 +3,38 @@ export type SchedulerActivationStatus = "blocked" | "disabled" | "ready";
 export type ResearchScheduleActivationStatus = "blocked" | "disabled" | "ready";
 export type MigrationReadinessStatus = "blocked" | "ready";
 export type MigrationBlockedReason = "audit_columns_missing" | "audit_table_missing" | "migration_not_recorded";
+export type DurableScheduleRunHealthStatus = "completed" | "failed" | "running" | "unavailable";
+
+export interface DurableScheduleRunHealthInput {
+  readonly completedAt?: Date | null;
+  readonly failureCode?: string | null;
+  readonly runId: string;
+  readonly scheduledAt: Date;
+  readonly startedAt: Date;
+  readonly status: string;
+}
+
+export interface DurableScheduleRunHealth {
+  readonly completedAt?: string;
+  readonly failureCode?: string;
+  readonly runId?: string;
+  readonly scheduledAt?: string;
+  readonly startedAt?: string;
+  readonly status: DurableScheduleRunHealthStatus;
+}
+
+export function serializeDurableScheduleRunHealth(run: DurableScheduleRunHealthInput | undefined): DurableScheduleRunHealth {
+  if (!run) return { status: "unavailable" };
+  if (!( ["completed", "failed", "running"] as const).includes(run.status as "completed" | "failed" | "running")) return { status: "unavailable" };
+  return {
+    ...(run.completedAt ? { completedAt: run.completedAt.toISOString() } : {}),
+    ...(run.failureCode ? { failureCode: run.failureCode } : {}),
+    runId: run.runId,
+    scheduledAt: run.scheduledAt.toISOString(),
+    startedAt: run.startedAt.toISOString(),
+    status: run.status as DurableScheduleRunHealthStatus,
+  };
+}
 
 export interface MigrationReadiness {
   readonly blockedReasons: readonly MigrationBlockedReason[];

@@ -4,6 +4,7 @@ export type ResearchScheduleStatus = "blocked" | "disabled" | "ready";
 export type TelegramAlertReadinessStatus = "blocked" | "disabled" | "ready";
 export type TelegramAlertTestStatus = "blocked" | "ready";
 export type RecoveryVerificationStatus = "unverified" | "verified";
+export type SchedulerAuditStatus = "completed" | "failed" | "running" | "unavailable";
 
 export type OperationsHealth = {
   readonly reconciliation: {
@@ -15,6 +16,7 @@ export type OperationsHealth = {
     readonly brokerConnectionEnabled: boolean;
     readonly dailyPreparationHandlerEnabled: boolean;
     readonly dailyReconciliation: { readonly capturedAt?: string; readonly status: "completed" | "unavailable" };
+    readonly schedulerAudit: { readonly completedAt?: string; readonly failureCode?: string; readonly runId?: string; readonly scheduledAt?: string; readonly startedAt?: string; readonly status: SchedulerAuditStatus };
     readonly recovery: { readonly status: RecoveryVerificationStatus };
     readonly globalKillSwitchActive: boolean;
     readonly operatingMode: "observe" | "recommend" | "paper_autopilot";
@@ -62,6 +64,7 @@ export function parseOperationsHealth(value: unknown): OperationsHealth | undefi
   const runtime = value.runtime;
   if (!isRecord(runtime.scheduler)) return undefined;
   if (!isRecord(runtime.dailyReconciliation)) return undefined;
+  if (!isRecord(runtime.schedulerAudit)) return undefined;
   if (!isRecord(runtime.recovery)) return undefined;
   if (!isRecord(runtime.researchSchedule)) return undefined;
   if (!isRecord(runtime.telegramAlerts)) return undefined;
@@ -69,6 +72,7 @@ export function parseOperationsHealth(value: unknown): OperationsHealth | undefi
   if (!isRecord(runtime.migration) || !Array.isArray(runtime.migration.blockedReasons) || runtime.migration.blockedReasons.some((reason) => !( ["audit_columns_missing", "audit_table_missing", "migration_not_recorded"] as const).includes(reason as MigrationBlockedReason))) return undefined;
   const scheduler = runtime.scheduler;
   const dailyReconciliation = runtime.dailyReconciliation;
+  const schedulerAudit = runtime.schedulerAudit;
   const recovery = runtime.recovery;
   const researchSchedule = runtime.researchSchedule;
   const telegramAlerts = runtime.telegramAlerts;
@@ -83,8 +87,10 @@ export function parseOperationsHealth(value: unknown): OperationsHealth | undefi
   if (telegramAlerts.deliveryVerification !== "unverified") return undefined;
   if (!( ["blocked", "ready"] as const).includes(telegramAlertTest.status as TelegramAlertTestStatus)) return undefined;
   if (!( ["completed", "unavailable"] as const).includes(dailyReconciliation.status as OperationsHealth["runtime"]["dailyReconciliation"]["status"])) return undefined;
+  if (!( ["completed", "failed", "running", "unavailable"] as const).includes(schedulerAudit.status as SchedulerAuditStatus)) return undefined;
   if (!( ["unverified", "verified"] as const).includes(recovery.status as RecoveryVerificationStatus)) return undefined;
   if (typeof scheduler.activationApprovalReferencePresent !== "boolean" || typeof scheduler.cron !== "string" || scheduler.cron.trim().length === 0 || scheduler.cron.length > 120 || typeof scheduler.enabled !== "boolean" || scheduler.timezone !== "UTC" || typeof researchSchedule.enabled !== "boolean" || typeof researchSchedule.handlerEnabled !== "boolean" || typeof telegramAlerts.enabled !== "boolean" || typeof telegramAlertTest.approvalReferencePresent !== "boolean" || typeof runtime.brokerConnectionEnabled !== "boolean" || typeof runtime.dailyPreparationHandlerEnabled !== "boolean" || typeof runtime.globalKillSwitchActive !== "boolean" || typeof runtime.paperAutopilotEnabled !== "boolean" || (dailyReconciliation.capturedAt !== undefined && typeof dailyReconciliation.capturedAt !== "string")) return undefined;
+  for (const key of ["completedAt", "failureCode", "runId", "scheduledAt", "startedAt"] as const) if (schedulerAudit[key] !== undefined && typeof schedulerAudit[key] !== "string") return undefined;
   if (!(runtime.migration.status === "blocked" || runtime.migration.status === "ready")) return undefined;
   if (typeof recovery.status !== "string" || typeof riskPolicy.initialEquityBaseline !== "string" || typeof riskPolicy.maxSingleTradeRiskPercent !== "string" || typeof riskPolicy.maxSingleTradeRiskUsd !== "string") return undefined;
   if (reconciliation.ageSeconds !== undefined && typeof reconciliation.ageSeconds !== "number") return undefined;
@@ -99,6 +105,7 @@ export function parseOperationsHealth(value: unknown): OperationsHealth | undefi
       brokerConnectionEnabled: runtime.brokerConnectionEnabled,
       dailyPreparationHandlerEnabled: runtime.dailyPreparationHandlerEnabled,
       dailyReconciliation: { ...(typeof dailyReconciliation.capturedAt === "string" ? { capturedAt: dailyReconciliation.capturedAt } : {}), status: dailyReconciliation.status as OperationsHealth["runtime"]["dailyReconciliation"]["status"] },
+      schedulerAudit: { ...(typeof schedulerAudit.completedAt === "string" ? { completedAt: schedulerAudit.completedAt } : {}), ...(typeof schedulerAudit.failureCode === "string" ? { failureCode: schedulerAudit.failureCode } : {}), ...(typeof schedulerAudit.runId === "string" ? { runId: schedulerAudit.runId } : {}), ...(typeof schedulerAudit.scheduledAt === "string" ? { scheduledAt: schedulerAudit.scheduledAt } : {}), ...(typeof schedulerAudit.startedAt === "string" ? { startedAt: schedulerAudit.startedAt } : {}), status: schedulerAudit.status as SchedulerAuditStatus },
       recovery: { status: recovery.status as RecoveryVerificationStatus },
       globalKillSwitchActive: runtime.globalKillSwitchActive,
       operatingMode: runtime.operatingMode as OperationsHealth["runtime"]["operatingMode"],
