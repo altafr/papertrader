@@ -1375,7 +1375,8 @@
 - **User story:** As the operator, I can rely on one validated schedule definition across worker, API, and dashboard.
 - **Implemented:** Centralized the default cron and UTC timezone in `@momentum/config`; worker scheduling and API health consume the shared helper/constants.
 - **Verification:** 204 tests, build, typecheck, lint, secret-surface audit, and diff checks passed. Invalid empty/oversized cron values are rejected; no scheduler or external side effect occurred.
-- **Next smallest unit:** Deploy the shared schedule contract and verify hosted health remains disabled and paper-only.
+- **Hosted verification:** Worker deployment `d30ac49d-9846-42c2-b146-5f8cf9dd0fec` and API deployment `640a2429-d1c0-4b78-9687-5be739ab798e` succeeded. Worker/API health is healthy; worker reports the shared `0 0 * * *` UTC schedule, queues are present and drained, and Vercel preview `https://papertrader-3th8iyjvs-altafrs-projects.vercel.app` returns deployment-protection HTTP 302.
+- **Next smallest unit:** Keep scheduler and broker gates disabled until separately authorized.
 
 ## Completed Build Unit — Phase 6.75
 
