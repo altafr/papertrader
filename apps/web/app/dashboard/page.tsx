@@ -105,6 +105,7 @@ function OperationsHealthCard({ health }: { readonly health: OperationsHealth | 
   const schedulerLabel = health.runtime.scheduler.status === "ready" ? "Ready" : health.runtime.scheduler.status === "blocked" ? "Blocked" : "Disabled";
   const researchScheduleLabel = health.runtime.researchSchedule.status === "ready" ? "Ready" : health.runtime.researchSchedule.status === "blocked" ? "Blocked" : "Disabled";
   const telegramLabel = health.runtime.telegramAlerts.status === "ready" ? "Ready" : health.runtime.telegramAlerts.status === "blocked" ? "Blocked" : "Disabled";
+  const telegramTestLabel = health.runtime.telegramAlertTest.status === "ready" ? "Ready" : "Blocked";
   const migrationLabel = health.runtime.migration.status === "ready" ? "Ready" : "Blocked";
   const reconciliationLabel = health.reconciliation.status === "fresh" ? "Fresh" : health.reconciliation.status === "delayed" ? "Delayed" : health.reconciliation.status === "stale" ? "Stale" : "Unavailable";
   return (
@@ -119,6 +120,7 @@ function OperationsHealthCard({ health }: { readonly health: OperationsHealth | 
         <div><span className="label">Scheduler activation review</span><strong>{health.runtime.scheduler.activationApprovalReferencePresent ? "Recorded" : "Missing"}</strong></div>
         <div><span className="label">Research schedule</span><strong>{researchScheduleLabel}</strong></div>
         <div><span className="label">Telegram alerts</span><strong>{telegramLabel}</strong><small className="provenance">Delivery unverified</small></div>
+        <div><span className="label">Telegram test preflight</span><strong>{telegramTestLabel}</strong><small className="provenance">No-send check</small></div>
         <div><span className="label">Audit migration</span><strong>{migrationLabel}</strong></div>
         <div><span className="label">Broker read gate</span><strong>{health.runtime.brokerConnectionEnabled ? "Enabled" : "Disabled"}</strong></div>
         <div><span className="label">Paper Autopilot</span><strong>{health.runtime.paperAutopilotEnabled ? "Enabled" : "Disabled"}</strong></div>

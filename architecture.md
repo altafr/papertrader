@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.84 daily handler gate visibility; Railway API/worker health is verified, while alert delivery, research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
+- **Stage:** Phase 6.85 Telegram test-preflight visibility; Railway API/worker health is verified, while alert delivery, research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -765,6 +765,12 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - This prevents a disabled handler from being mistaken for a fully activated daily workflow; the card remains observational and has no controls.
 - No scheduler, queue, broker, database, or trading behavior changed.
 - Vercel preview `https://papertrader-93lkx2zng-altafrs-projects.vercel.app` completed successfully; unauthenticated dashboard access remains deployment-protected with HTTP 302.
+
+### Phase 6.85 Telegram Test-Preflight Visibility
+
+- Added non-secret Telegram channel-test preflight metadata to authenticated API operations health and the dashboard.
+- The dashboard shows only `Ready`/`Blocked`, a boolean approval-reference-presence flag remains server-side, and no reference value or send control is exposed.
+- This is observational only; the real Telegram test remains separately guarded and delivery remains unverified.
 - Worker deployment `d30ac49d-9846-42c2-b146-5f8cf9dd0fec` and API deployment `640a2429-d1c0-4b78-9687-5be739ab798e` reached `SUCCESS`; worker/API health is healthy, queues are present and drained, and Vercel preview `https://papertrader-3th8iyjvs-altafrs-projects.vercel.app` remains deployment-protected.
 
 ### Phase 4.1 Structured Agent Runs

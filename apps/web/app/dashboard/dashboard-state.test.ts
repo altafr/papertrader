@@ -30,6 +30,7 @@ describe("dashboard state", () => {
         researchSchedule: { enabled: false, handlerEnabled: false, status: "disabled" },
         scheduler: { activationApprovalReferencePresent: true, cron: "0 0 * * *", enabled: false, status: "disabled", timezone: "UTC" },
         telegramAlerts: { deliveryVerification: "unverified", enabled: false, status: "disabled" },
+        telegramAlertTest: { approvalReferencePresent: false, status: "blocked" },
       },
     });
     expect(health?.runtime.scheduler.status).toBe("disabled");
@@ -49,6 +50,7 @@ describe("dashboard state", () => {
         researchSchedule: { enabled: false, handlerEnabled: false, status: "disabled" },
         scheduler: { activationApprovalReferencePresent: true, cron: "0 0 * * *", enabled: false, status: "disabled", timezone: "UTC" },
         telegramAlerts: { deliveryVerification: "unverified", enabled: false, status: "disabled" },
+        telegramAlertTest: { approvalReferencePresent: false, status: "blocked" },
       },
     })).toBeUndefined();
   });

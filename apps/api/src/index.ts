@@ -21,7 +21,7 @@ import {
   isGlobalKillSwitchActive,
 } from "@momentum/config";
 import { MAX_SINGLE_TRADE_RISK_PERCENT_OF_EQUITY, MAX_SINGLE_TRADE_RISK_USD, PAPER_INITIAL_EQUITY_BASELINE } from "@momentum/domain";
-import { getTelegramNotificationReadiness } from "@momentum/notifications";
+import { getTelegramAlertTestReadiness, getTelegramNotificationReadiness } from "@momentum/notifications";
 
 import { getApiHealth } from "./app.js";
 import { assessReconciliationHealth, assessResearchScheduleActivation, assessSchedulerActivation, readAuditMigrationReadiness } from "./operations-health.js";
@@ -305,6 +305,7 @@ async function readOperationsHealth(request: IncomingMessage) {
   const paperCredentialsConfigured = Boolean(process.env.ALPACA_API_KEY?.trim() && process.env.ALPACA_SECRET_KEY?.trim() && process.env.ALPACA_PAPER_TRADE !== "false");
   const paperMode = (process.env.TRADING_MODE ?? "paper") === "paper" && (process.env.ALPACA_PAPER_TRADE ?? "true") === "true";
   const telegram = getTelegramNotificationReadiness();
+  const telegramTest = getTelegramAlertTestReadiness();
   const schedulerStatus = assessSchedulerActivation({
     brokerConnectionEnabled,
     dailyPreparationHandlerEnabled: handlerEnabled,
@@ -342,6 +343,7 @@ async function readOperationsHealth(request: IncomingMessage) {
           status: assessResearchScheduleActivation({ brokerConnectionEnabled, databaseConfigured: true, handlerEnabled: researchHandlerEnabled, paperCredentialsConfigured, paperMode, schedulerEnabled: researchSchedulerEnabled }),
         },
         telegramAlerts: { deliveryVerification: telegram.deliveryVerification, enabled: telegram.checks.enabled, status: telegram.status },
+        telegramAlertTest: { approvalReferencePresent: telegramTest.approvalReferencePresent, status: telegramTest.status },
         migration,
       },
     },

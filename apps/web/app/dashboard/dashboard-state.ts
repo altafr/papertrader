@@ -2,6 +2,7 @@ export type FreshnessState = "delayed" | "fresh" | "stale";
 export type MigrationBlockedReason = "audit_columns_missing" | "audit_table_missing" | "migration_not_recorded";
 export type ResearchScheduleStatus = "blocked" | "disabled" | "ready";
 export type TelegramAlertReadinessStatus = "blocked" | "disabled" | "ready";
+export type TelegramAlertTestStatus = "blocked" | "ready";
 
 export type OperationsHealth = {
   readonly reconciliation: {
@@ -24,6 +25,7 @@ export type OperationsHealth = {
     readonly researchSchedule: { readonly enabled: boolean; readonly handlerEnabled: boolean; readonly status: ResearchScheduleStatus };
     readonly scheduler: { readonly activationApprovalReferencePresent: boolean; readonly cron: string; readonly enabled: boolean; readonly status: "blocked" | "disabled" | "ready"; readonly timezone: "UTC" };
     readonly telegramAlerts: { readonly deliveryVerification: "unverified"; readonly enabled: boolean; readonly status: TelegramAlertReadinessStatus };
+    readonly telegramAlertTest: { readonly approvalReferencePresent: boolean; readonly status: TelegramAlertTestStatus };
   };
 };
 
@@ -58,10 +60,12 @@ export function parseOperationsHealth(value: unknown): OperationsHealth | undefi
   if (!isRecord(runtime.scheduler)) return undefined;
   if (!isRecord(runtime.researchSchedule)) return undefined;
   if (!isRecord(runtime.telegramAlerts)) return undefined;
+  if (!isRecord(runtime.telegramAlertTest)) return undefined;
   if (!isRecord(runtime.migration) || !Array.isArray(runtime.migration.blockedReasons) || runtime.migration.blockedReasons.some((reason) => !( ["audit_columns_missing", "audit_table_missing", "migration_not_recorded"] as const).includes(reason as MigrationBlockedReason))) return undefined;
   const scheduler = runtime.scheduler;
   const researchSchedule = runtime.researchSchedule;
   const telegramAlerts = runtime.telegramAlerts;
+  const telegramAlertTest = runtime.telegramAlertTest;
   if (!isRecord(runtime.riskPolicy)) return undefined;
   const riskPolicy = runtime.riskPolicy;
   if (!(["delayed", "fresh", "stale", "unavailable"] as const).includes(reconciliation.status as OperationsHealth["reconciliation"]["status"])) return undefined;
@@ -70,7 +74,8 @@ export function parseOperationsHealth(value: unknown): OperationsHealth | undefi
   if (!( ["blocked", "disabled", "ready"] as const).includes(researchSchedule.status as ResearchScheduleStatus)) return undefined;
   if (!( ["blocked", "disabled", "ready"] as const).includes(telegramAlerts.status as TelegramAlertReadinessStatus)) return undefined;
   if (telegramAlerts.deliveryVerification !== "unverified") return undefined;
-  if (typeof scheduler.activationApprovalReferencePresent !== "boolean" || typeof scheduler.cron !== "string" || scheduler.cron.trim().length === 0 || scheduler.cron.length > 120 || typeof scheduler.enabled !== "boolean" || scheduler.timezone !== "UTC" || typeof researchSchedule.enabled !== "boolean" || typeof researchSchedule.handlerEnabled !== "boolean" || typeof telegramAlerts.enabled !== "boolean" || typeof runtime.brokerConnectionEnabled !== "boolean" || typeof runtime.dailyPreparationHandlerEnabled !== "boolean" || typeof runtime.globalKillSwitchActive !== "boolean" || typeof runtime.paperAutopilotEnabled !== "boolean") return undefined;
+  if (!( ["blocked", "ready"] as const).includes(telegramAlertTest.status as TelegramAlertTestStatus)) return undefined;
+  if (typeof scheduler.activationApprovalReferencePresent !== "boolean" || typeof scheduler.cron !== "string" || scheduler.cron.trim().length === 0 || scheduler.cron.length > 120 || typeof scheduler.enabled !== "boolean" || scheduler.timezone !== "UTC" || typeof researchSchedule.enabled !== "boolean" || typeof researchSchedule.handlerEnabled !== "boolean" || typeof telegramAlerts.enabled !== "boolean" || typeof telegramAlertTest.approvalReferencePresent !== "boolean" || typeof runtime.brokerConnectionEnabled !== "boolean" || typeof runtime.dailyPreparationHandlerEnabled !== "boolean" || typeof runtime.globalKillSwitchActive !== "boolean" || typeof runtime.paperAutopilotEnabled !== "boolean") return undefined;
   if (!(runtime.migration.status === "blocked" || runtime.migration.status === "ready")) return undefined;
   if (typeof riskPolicy.initialEquityBaseline !== "string" || typeof riskPolicy.maxSingleTradeRiskPercent !== "string" || typeof riskPolicy.maxSingleTradeRiskUsd !== "string") return undefined;
   if (reconciliation.ageSeconds !== undefined && typeof reconciliation.ageSeconds !== "number") return undefined;
@@ -96,6 +101,7 @@ export function parseOperationsHealth(value: unknown): OperationsHealth | undefi
       researchSchedule: { enabled: researchSchedule.enabled, handlerEnabled: researchSchedule.handlerEnabled, status: researchSchedule.status as ResearchScheduleStatus },
       scheduler: { activationApprovalReferencePresent: scheduler.activationApprovalReferencePresent, cron: scheduler.cron, enabled: scheduler.enabled, status: scheduler.status as OperationsHealth["runtime"]["scheduler"]["status"], timezone: "UTC" },
       telegramAlerts: { deliveryVerification: "unverified", enabled: telegramAlerts.enabled, status: telegramAlerts.status as TelegramAlertReadinessStatus },
+      telegramAlertTest: { approvalReferencePresent: telegramAlertTest.approvalReferencePresent, status: telegramAlertTest.status as TelegramAlertTestStatus },
     },
   };
 }
