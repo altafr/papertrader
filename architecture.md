@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.97 auditable recovery verification contract; API/worker health is verified, while backup execution, alert delivery, research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
+- **Stage:** Phase 6.98 guarded recovery readiness command; API/worker health is verified, while backup execution, alert delivery, research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -846,6 +846,12 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - Tightened recovery verification so `RECOVERY_DRILL_VERIFIED=true` counts only with a bounded `RECOVERY_DRILL_APPROVAL_REFERENCE` and valid UTC `RECOVERY_DRILL_VERIFIED_AT`; missing or malformed evidence remains `unverified`.
 - Added focused configuration coverage. No hosted variable, PITR setting, database, scheduler, queue, broker, Telegram, or trading state changed.
 - API deployment `471f72e5-8c1a-4b94-9370-b4d3732c7f39` reached `SUCCESS`; hosted recovery remains `unverified` because the required evidence variables are unset.
+
+### Phase 6.98 Guarded Recovery Readiness Command
+
+- Added `pnpm --filter @momentum/worker recovery-readiness`, a no-database/no-queue command that emits only the recovery evidence booleans and `verified`/`unverified` status.
+- It requires `RECOVERY_READINESS=true` and exits non-zero until the explicit flag, bounded reference, and UTC timestamp satisfy the shared contract.
+- Verified 209 tests, typecheck, lint, build, secret-surface audit, and diff checks. No hosted variable or infrastructure state changed.
 
 ### Phase 4.1 Structured Agent Runs
 
