@@ -1383,7 +1383,8 @@
 - **User story:** As the operator, I can distinguish an enabled daily scheduler from an enabled daily preparation handler.
 - **Implemented:** Added the daily handler gate to the dashboard operations-health card; parsing and the API contract remain read-only and fail closed.
 - **Verification:** 204 tests, build, typecheck, lint, secret-surface audit, and diff checks passed. No scheduler or external side effect occurred.
-- **Next smallest unit:** Deploy the dashboard visibility change and verify the protected preview while keeping all activation gates disabled.
+- **Hosted verification:** Vercel preview `https://papertrader-93lkx2zng-altafrs-projects.vercel.app` completed successfully; unauthenticated `/dashboard` returns deployment-protection HTTP 302. Scheduler, handler, and broker gates remain disabled.
+- **Next smallest unit:** Keep all activation gates disabled until separately authorized; the handler indicator is observational only.
 
 ## Completed Build Unit — Phase 6.75
 
