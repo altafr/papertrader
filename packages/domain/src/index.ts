@@ -54,6 +54,10 @@ export interface WorkerHealth {
     readonly enabled: boolean;
     readonly status: "blocked" | "disabled" | "ready";
   };
+  readonly telegramAlertTest: {
+    readonly approvalReferencePresent: boolean;
+    readonly status: "blocked" | "ready";
+  };
   readonly service: "worker";
   readonly status: HealthState;
 }

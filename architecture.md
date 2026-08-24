@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.85 Telegram test-preflight visibility; Railway API/worker health is verified, while alert delivery, research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
+- **Stage:** Phase 6.86 consistent worker/API Telegram preflight health; Railway API/worker health is verified, while alert delivery, research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -772,6 +772,12 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - The dashboard shows only `Ready`/`Blocked`, a boolean approval-reference-presence flag remains server-side, and no reference value or send control is exposed.
 - This is observational only; the real Telegram test remains separately guarded and delivery remains unverified.
 - API deployment `c148935e-7ac7-4b73-811b-9eb3ffa334ff` reached `SUCCESS` and private API health returned healthy. Vercel preview `https://papertrader-2h7vwewgb-altafrs-projects.vercel.app` completed; unauthenticated dashboard access remains deployment-protected with HTTP 302.
+
+### Phase 6.86 Worker/API Telegram Preflight Consistency
+
+- Extended private `WorkerHealth` with the same bounded Telegram test-preflight status used by API operations health: approval-reference presence plus `blocked`/`ready`.
+- Neither surface returns the reference value, credentials, provider response, or send authority; delivery remains explicitly unverified.
+- This is observational contract alignment only and does not contact Telegram or change any scheduler/trading gate.
 - Worker deployment `d30ac49d-9846-42c2-b146-5f8cf9dd0fec` and API deployment `640a2429-d1c0-4b78-9687-5be739ab798e` reached `SUCCESS`; worker/API health is healthy, queues are present and drained, and Vercel preview `https://papertrader-3th8iyjvs-altafrs-projects.vercel.app` remains deployment-protected.
 
 ### Phase 4.1 Structured Agent Runs

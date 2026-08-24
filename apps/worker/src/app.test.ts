@@ -18,6 +18,7 @@ describe("worker health", () => {
       shadowEvaluation: { enabled: false, intervalSeconds: 3600, sourceConfigured: false, status: "disabled" },
       service: "worker",
       telegramAlerts: { deliveryVerification: "unverified", enabled: false, status: "disabled" },
+      telegramAlertTest: { approvalReferencePresent: false, status: "blocked" },
       status: "healthy",
     });
   });
@@ -47,6 +48,15 @@ describe("worker health", () => {
     expect(getWorkerHealth(new Date("2026-08-21T00:00:00.000Z"), {
       TELEGRAM_ALERTS_ENABLED: "true",
     }).telegramAlerts).toEqual({ deliveryVerification: "unverified", enabled: true, status: "blocked" });
+  });
+
+  it("reports the no-send Telegram test preflight without exposing its reference", () => {
+    expect(getWorkerHealth(new Date("2026-08-21T00:00:00.000Z"), {
+      TELEGRAM_ALERTS_ENABLED: "true",
+      TELEGRAM_BOT_TOKEN: "123456:ABC_def-123",
+      TELEGRAM_CHAT_ID: "-1001234567890",
+      TELEGRAM_ALERT_TEST_APPROVAL_REFERENCE: "telegram-review-123",
+    }).telegramAlertTest).toEqual({ approvalReferencePresent: true, status: "ready" });
   });
 
   it("reports an enabled research schedule as blocked until every gate is explicit", () => {
