@@ -852,6 +852,7 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - Added `pnpm --filter @momentum/worker recovery-readiness`, a no-database/no-queue command that emits only the recovery evidence booleans and `verified`/`unverified` status.
 - It requires `RECOVERY_READINESS=true` and exits non-zero until the explicit flag, bounded reference, and UTC timestamp satisfy the shared contract.
 - Verified 209 tests, typecheck, lint, build, secret-surface audit, and diff checks. No hosted variable or infrastructure state changed.
+- Worker deployment `02b6a8bd-7f6e-4ff3-988f-9f365958889b` reached `SUCCESS`; hosted `recovery-readiness` returned `status:"unverified"` with approval-reference, timestamp, and verified-flag checks all false, as expected.
 
 ### Phase 4.1 Structured Agent Runs
 

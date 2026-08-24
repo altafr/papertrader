@@ -1860,4 +1860,5 @@
 
 - Added the guarded Worker `recovery-readiness` command for no-side-effect validation of the recovery evidence contract.
 - Verified 209 tests, typecheck, lint, build, secret-surface audit, and diff checks. No hosted variable, PITR, queue, broker, scheduler, or trading state changed.
+- Worker deployment `02b6a8bd-7f6e-4ff3-988f-9f365958889b` succeeded; hosted recovery readiness returned the expected safe `unverified` result with all evidence checks false.
 - API deployment `471f72e5-8c1a-4b94-9370-b4d3732c7f39` succeeded; hosted recovery remains unverified with the evidence variables unset.
