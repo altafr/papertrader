@@ -25,7 +25,9 @@ export interface WorkerHealth {
   readonly database: IntegrationConfigStatus;
   readonly durableScheduler: {
     readonly activationApprovalReferencePresent: boolean;
+    readonly cron: string;
     readonly enabled: boolean;
+    readonly timezone: "UTC";
     readonly lastRunAt?: string;
     readonly nextRunAt?: string;
     readonly status: "degraded" | "disabled" | "ready" | "running" | "scheduled";

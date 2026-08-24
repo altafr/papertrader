@@ -22,7 +22,7 @@ export function getWorkerHealth(now = new Date(), environment: NodeJS.ProcessEnv
     asOf: now.toISOString(),
     brokerConnectionEnabled: environment.BROKER_CONNECTION_ENABLED === "true",
     database: environment.DATABASE_URL?.trim() ? "configured" : "not_configured",
-    durableScheduler: { ...durable, activationApprovalReferencePresent, enabled: durableConfig.enabled },
+    durableScheduler: { ...durable, activationApprovalReferencePresent, cron: durableConfig.cron, enabled: durableConfig.enabled, timezone: "UTC" },
     globalKillSwitchActive: isGlobalKillSwitchActive(environment),
     operatingMode: getPaperOperatingMode(environment),
     researchSchedule: { enabled: research.enabled, handlerEnabled: research.handlerEnabled, ...(researchRuntime.lastRunAt ? { lastRunAt: researchRuntime.lastRunAt } : {}), ...(researchRuntime.nextRunAt ? { nextRunAt: researchRuntime.nextRunAt } : {}), status: researchStatus },

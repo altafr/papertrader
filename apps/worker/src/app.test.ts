@@ -11,7 +11,7 @@ describe("worker health", () => {
       asOf: "2026-08-21T00:00:00.000Z",
       brokerConnectionEnabled: false,
       database: "not_configured",
-      durableScheduler: { activationApprovalReferencePresent: true, enabled: false, status: "disabled" },
+      durableScheduler: { activationApprovalReferencePresent: true, cron: "0 0 * * *", enabled: false, status: "disabled", timezone: "UTC" },
       globalKillSwitchActive: false,
       operatingMode: "observe",
       researchSchedule: { enabled: false, handlerEnabled: false, status: "disabled" },
@@ -32,6 +32,10 @@ describe("worker health", () => {
       TRADING_MODE: "paper",
     });
     expect(health).toMatchObject({ alpaca: "configured", brokerConnectionEnabled: false, database: "configured", operatingMode: "observe" });
+  });
+
+  it("reports the configured daily UTC schedule without activating it", () => {
+    expect(getWorkerHealth(new Date("2026-08-21T00:00:00.000Z"), { DAILY_PREPARATION_CRON: "30 2 * * *" }).durableScheduler).toMatchObject({ cron: "30 2 * * *", enabled: false, status: "disabled", timezone: "UTC" });
   });
 
   it("reports Telegram readiness without exposing configuration values", () => {

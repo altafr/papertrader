@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.80 no-send Telegram channel-test preflight; Railway API/worker health is verified, while alert delivery, research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
+- **Stage:** Phase 6.81 explicit daily UTC schedule observability; Railway API/worker health is verified, while alert delivery, research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -738,6 +738,12 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - The preflight reports only boolean/configuration readiness and bounded reason codes; it never returns credentials, sends a message, writes PostgreSQL, or changes any activation gate.
 - A real channel test remains separately guarded by `TELEGRAM_ALERT_TEST=true` and requires explicit operator authorization.
 - Worker deployment `4e06994a-ca98-428a-ade9-8ea32a9e9cab` reached `SUCCESS`; hosted preflight correctly blocked without a reference and returned `ready` with a synthetic bounded reference, while queues remained present and drained. No Telegram request occurred.
+
+### Phase 6.81 Daily UTC Schedule Observability
+
+- Extended private `WorkerHealth.durableScheduler` with the configured cron expression and explicit `UTC` timezone.
+- The health response reports the daily schedule even when the durable scheduler is disabled, allowing operators to verify the intended server-side cadence without activating a queue or handler.
+- This is observational only; no Railway flag, queue, broker read, reconciliation write, or Paper Autopilot behavior changed.
 
 ### Phase 4.1 Structured Agent Runs
 
