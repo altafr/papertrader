@@ -1391,7 +1391,8 @@
 - **User story:** As the operator, I can see whether the no-send Telegram test preflight is ready without exposing the approval reference or a send control.
 - **Implemented:** Added bounded Telegram test-preflight metadata to API operations health, strict browser parsing, and the dashboard health card.
 - **Verification:** 204 tests, build, typecheck, lint, secret-surface audit, and diff checks passed. No Telegram request or state mutation occurred.
-- **Next smallest unit:** Deploy API/dashboard changes and verify the protected preview; obtain explicit authorization before any real channel test.
+- **Hosted verification:** API deployment `c148935e-7ac7-4b73-811b-9eb3ffa334ff` succeeded and private `/health` returned healthy. Vercel preview `https://papertrader-2h7vwewgb-altafrs-projects.vercel.app` completed; unauthenticated `/dashboard` returned deployment-protection HTTP 302. No Telegram request occurred.
+- **Next smallest unit:** Obtain explicit authorization before any real channel test; the dashboard preflight indicator has no send authority.
 
 ## Completed Build Unit — Phase 6.75
 
