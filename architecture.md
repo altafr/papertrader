@@ -804,6 +804,7 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - Added a read-only latest durable-run audit query and exposed bounded `dailyReconciliation` status/capture metadata through authenticated Operations Health.
 - The dashboard now shows whether a completed daily run exists and when its persisted snapshot was captured, alongside reconciliation freshness; no approval reference, run ID, account value, or credential is exposed in this new card.
 - Added strict browser contract validation and tests. This remains observational and cannot start a queue, contact Alpaca, change flags, or submit orders.
+- API deployment `6037be24-09de-489a-a3e7-2edf05dec855` reached `SUCCESS`; Vercel production deployment `dpl_Ch1McJGMxPc8NzCBdQjRwFYrfmbJ` is `Ready` at `https://papertrader-j16kyb2o1-altafrs-projects.vercel.app`. The API health endpoint is healthy and unauthenticated Operations Health correctly returns `401`.
 
 ### Phase 4.1 Structured Agent Runs
 
