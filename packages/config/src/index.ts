@@ -2,6 +2,12 @@ const DEFAULT_API_PORT = 3001;
 
 export const DEFAULT_DAILY_PREPARATION_CRON = "0 0 * * *";
 export const DAILY_PREPARATION_TIMEZONE = "UTC" as const;
+export type RecoveryVerificationStatus = "unverified" | "verified";
+
+/** Operator-recorded only; infrastructure presence must never imply verified recovery. */
+export function getRecoveryVerificationStatus(environment = process.env): RecoveryVerificationStatus {
+  return environment.RECOVERY_DRILL_VERIFIED === "true" ? "verified" : "unverified";
+}
 
 export const PAPER_TRADING_API_BASE_URL = "https://paper-api.alpaca.markets";
 export const ALPACA_MARKET_DATA_BASE_URL = "https://data.alpaca.markets";

@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.95 Railway PITR audit; API/worker health is verified, while backup execution, alert delivery, research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
+- **Stage:** Phase 6.96 recovery verification visibility; API/worker health is verified, while backup execution, alert delivery, research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -833,6 +833,12 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 
 - Read-only Railway CLI inspection confirmed the PostgreSQL volume is `Ready`, but PostgreSQL point-in-time recovery is currently `enabled:false` and `bucketWired:false`.
 - PITR enablement is an operator/infrastructure decision with storage and cost implications; it was not changed by this phase. The recovery runbook remains accurate but its backup/PITR acceptance gate is not yet passed.
+
+### Phase 6.96 Recovery Verification Visibility
+
+- Added an operator-recorded `RECOVERY_DRILL_VERIFIED` contract, defaulting to `unverified`, and exposed it as bounded recovery status in authenticated Operations Health and the dashboard.
+- The status cannot be inferred from a database connection, volume presence, or deployment health; it must be set only after the documented PITR/restore evidence exists.
+- Verified 209 tests, build, typecheck, lint, secret-surface audit, and diff checks. No Railway variable, PITR setting, database, queue, broker, scheduler, Telegram, or trading state changed.
 
 ### Phase 4.1 Structured Agent Runs
 

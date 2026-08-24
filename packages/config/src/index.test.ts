@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { getClerkRuntimeConfig, getDailyPreparationCron, getPaperAutopilotConfig, getPaperOnlyRuntimeConfig, getPaperOperatingMode, getServerPort, isGlobalKillSwitchActive } from "./index.js";
+import { getClerkRuntimeConfig, getDailyPreparationCron, getPaperAutopilotConfig, getPaperOnlyRuntimeConfig, getPaperOperatingMode, getRecoveryVerificationStatus, getServerPort, isGlobalKillSwitchActive } from "./index.js";
 
 describe("server configuration", () => {
   it("uses a safe local default", () => {
@@ -12,6 +12,12 @@ describe("server configuration", () => {
     expect(getDailyPreparationCron({ DAILY_PREPARATION_CRON: "30 2 * * *" })).toBe("30 2 * * *");
     expect(() => getDailyPreparationCron({ DAILY_PREPARATION_CRON: " " })).toThrow(/DAILY_PREPARATION_CRON/);
     expect(() => getDailyPreparationCron({ DAILY_PREPARATION_CRON: "x".repeat(121) })).toThrow(/DAILY_PREPARATION_CRON/);
+  });
+
+  it("keeps recovery verification unverified until explicitly recorded", () => {
+    expect(getRecoveryVerificationStatus({})).toBe("unverified");
+    expect(getRecoveryVerificationStatus({ RECOVERY_DRILL_VERIFIED: "false" })).toBe("unverified");
+    expect(getRecoveryVerificationStatus({ RECOVERY_DRILL_VERIFIED: "true" })).toBe("verified");
   });
 
   it("rejects an invalid port", () => {
