@@ -778,6 +778,7 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - Extended private `WorkerHealth` with the same bounded Telegram test-preflight status used by API operations health: approval-reference presence plus `blocked`/`ready`.
 - Neither surface returns the reference value, credentials, provider response, or send authority; delivery remains explicitly unverified.
 - This is observational contract alignment only and does not contact Telegram or change any scheduler/trading gate.
+- Worker deployment `54a1858e-0c36-409a-a7a1-806bbd0532d6` reached `SUCCESS`; private health reports Telegram test preflight `blocked` with no approval reference, while observe mode, disabled scheduler gates, and drained queues remain safe.
 - Worker deployment `d30ac49d-9846-42c2-b146-5f8cf9dd0fec` and API deployment `640a2429-d1c0-4b78-9687-5be739ab798e` reached `SUCCESS`; worker/API health is healthy, queues are present and drained, and Vercel preview `https://papertrader-3th8iyjvs-altafrs-projects.vercel.app` remains deployment-protected.
 
 ### Phase 4.1 Structured Agent Runs

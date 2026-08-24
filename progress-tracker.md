@@ -1399,7 +1399,8 @@
 - **User story:** As the operator, I see the same no-send Telegram test-preflight state from private worker health and authenticated API health.
 - **Implemented:** Added bounded `telegramAlertTest` metadata to the shared worker health contract and worker projection, with no approval-reference value returned.
 - **Verification:** 205 tests, build, typecheck, lint, secret-surface audit, and diff checks passed. No Telegram request or state mutation occurred.
-- **Next smallest unit:** Deploy the worker contract and verify hosted health remains paper-only; obtain explicit authorization before any real channel test.
+- **Hosted verification:** Worker deployment `54a1858e-0c36-409a-a7a1-806bbd0532d6` succeeded. Private health reports `telegramAlertTest:{approvalReferencePresent:false,status:"blocked"}`, healthy observe mode, disabled scheduler gates, and both queues present and drained. No Telegram request occurred.
+- **Next smallest unit:** Obtain explicit authorization before any real channel test; the worker health field has no send authority.
 
 ## Completed Build Unit — Phase 6.75
 
