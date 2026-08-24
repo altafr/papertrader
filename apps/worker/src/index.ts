@@ -9,7 +9,7 @@ import { getWorkerHealth } from "./app.js";
 import { startPaperMarketStream } from "./market-stream-runner.js";
 import { getShadowEvaluationConfig } from "./shadow-evaluation.js";
 import { createAlpacaShadowBarSource, createShadowEvaluationScheduler, runShadowEvaluationOnce } from "./shadow-evaluation-service.js";
-import { createDurableScheduler, getDurableSchedulerConfig } from "./durable-scheduler.js";
+import { createDurableScheduler, getDurableSchedulerConfig, validateDurableSchedulerAuditActivation } from "./durable-scheduler.js";
 import { assertDurableScheduleRunMigrationReady, assertDurableSchedulerMigrationReady, readDurableScheduleRunMigrationState, readDurableSchedulerMigrationState } from "./durable-scheduler-migration-guard.js";
 import { reconcilePaperAccount } from "./reconcile.js";
 import { getResearchScheduleReadiness } from "./research-scheduler.js";
@@ -61,6 +61,7 @@ if (streamEnabled === "true") {
 }
 const schedulerAuditEnabled = process.env.DURABLE_SCHEDULER_AUDIT_ENABLED;
 if (schedulerAuditEnabled !== undefined && schedulerAuditEnabled !== "true" && schedulerAuditEnabled !== "false") throw new Error("DURABLE_SCHEDULER_AUDIT_ENABLED must be exactly true or false.");
+validateDurableSchedulerAuditActivation();
 if (durableConfiguration.enabled) {
   if (!process.env.DATABASE_URL?.trim()) throw new Error("DURABLE_SCHEDULER_ENABLED=true requires DATABASE_URL.");
   if (process.env.DAILY_PREPARATION_HANDLER_ENABLED !== "true") throw new Error("DURABLE_SCHEDULER_ENABLED=true requires the verified daily preparation handler.");

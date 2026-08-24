@@ -125,6 +125,16 @@ export function validateDurableSchedulerActivation(environment: NodeJS.ProcessEn
   return reference;
 }
 
+/** Require a separate bounded operator reference before runtime audit writes can start. */
+export function validateDurableSchedulerAuditActivation(environment: NodeJS.ProcessEnv = process.env): string | undefined {
+  if (environment.DURABLE_SCHEDULER_AUDIT_ENABLED !== "true") return undefined;
+  const reference = environment.DURABLE_SCHEDULER_AUDIT_ACTIVATION_APPROVAL_REFERENCE?.trim();
+  if (!reference || !boundedJobField.test(reference)) {
+    throw new Error("DURABLE_SCHEDULER_AUDIT_ACTIVATION_APPROVAL_REFERENCE must be a bounded non-secret reference when scheduler audit is enabled.");
+  }
+  return reference;
+}
+
 /** Map the bounded operator-facing run ID to pg-boss's required UUID job ID. */
 export function getDurableOneRunJobId(runId: string): string {
   const digest = createHash("sha256").update(`momentum:durable-one-run:${runId}`).digest();
