@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.86 consistent worker/API Telegram preflight health; Railway API/worker health is verified, while alert delivery, research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
+- **Stage:** Phase 6.87 unique retry-provenance preflight; Railway API/worker health is verified, while alert delivery, research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -780,6 +780,12 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - This is observational contract alignment only and does not contact Telegram or change any scheduler/trading gate.
 - Worker deployment `54a1858e-0c36-409a-a7a1-806bbd0532d6` reached `SUCCESS`; private health reports Telegram test preflight `blocked` with no approval reference, while observe mode, disabled scheduler gates, and drained queues remain safe.
 - Worker deployment `d30ac49d-9846-42c2-b146-5f8cf9dd0fec` and API deployment `640a2429-d1c0-4b78-9687-5be739ab798e` reached `SUCCESS`; worker/API health is healthy, queues are present and drained, and Vercel preview `https://papertrader-3th8iyjvs-altafrs-projects.vercel.app` remains deployment-protected.
+
+### Phase 6.87 Unique Retry-Provenance Preflight
+
+- Added a read-only retry-readiness contract and guarded worker command that checks the proposed approval reference and run ID are bounded, distinct, and absent from persisted one-run audit provenance before a future retry is attempted.
+- Added a repository lookup by approval reference so a previously consumed approval cannot be reused with a different run ID; output contains only booleans and bounded reason codes.
+- This command does not enqueue work, start a queue, contact Alpaca or Telegram, write PostgreSQL, alter Railway variables, or enable scheduling/Paper Autopilot. It specifically blocks reuse of the previously consumed retry reference.
 
 ### Phase 4.1 Structured Agent Runs
 

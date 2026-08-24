@@ -241,6 +241,10 @@ export function createAccountStateRepository(db: Database) {
       const [row] = await db.select().from(durableOneRunAudits).where(eq(durableOneRunAudits.runId, runId)).limit(1);
       return row;
     },
+
+    async getDurableOneRunAuditByApprovalReference(approvalReference: string) {
+      return db.select().from(durableOneRunAudits).where(eq(durableOneRunAudits.approvalReference, approvalReference)).limit(10);
+    },
   };
 }
 
