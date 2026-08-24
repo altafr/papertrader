@@ -1351,7 +1351,8 @@
 - **User story:** As the operator, I can validate the guarded Telegram test prerequisites without sending a message.
 - **Implemented:** Added `telegram-alert-test-readiness`, requiring a command-scoped preflight flag and reporting approval-reference/configuration checks with bounded reason codes.
 - **Verification:** 202 tests, typecheck, lint, production build, secret-surface audit, and diff checks passed. Synthetic bounded config reported `status:"ready"`; missing local config correctly reported blocked. No network request occurred.
-- **Next smallest unit:** Deploy and verify the no-send preflight; obtain explicit authorization before the actual Telegram channel test.
+- **Hosted verification:** Worker deployment `4e06994a-ca98-428a-ade9-8ea32a9e9cab` succeeded. Hosted preflight blocked without `TELEGRAM_ALERT_TEST_APPROVAL_REFERENCE` and returned `status:"ready"` with a synthetic bounded reference; queues remained present and drained. No Telegram message or network request occurred.
+- **Next smallest unit:** Obtain explicit authorization before the actual Telegram channel test; the preflight does not authorize sending.
 
 ## Completed Build Unit — Phase 6.75
 

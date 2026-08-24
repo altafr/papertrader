@@ -737,6 +737,7 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - Added a guarded `telegram-alert-test-readiness` command requiring `TELEGRAM_ALERT_TEST_READINESS=true`; it validates the bounded non-secret approval reference and Telegram configuration without contacting Telegram.
 - The preflight reports only boolean/configuration readiness and bounded reason codes; it never returns credentials, sends a message, writes PostgreSQL, or changes any activation gate.
 - A real channel test remains separately guarded by `TELEGRAM_ALERT_TEST=true` and requires explicit operator authorization.
+- Worker deployment `4e06994a-ca98-428a-ade9-8ea32a9e9cab` reached `SUCCESS`; hosted preflight correctly blocked without a reference and returned `ready` with a synthetic bounded reference, while queues remained present and drained. No Telegram request occurred.
 
 ### Phase 4.1 Structured Agent Runs
 
