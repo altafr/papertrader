@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.102 pre-cycle scheduler and recovery audit complete; the paper-only scheduler remains scheduled for its first UTC cycle, while restore-drill verification, alert delivery, and Paper Autopilot activation remain separate gated steps.
+- **Stage:** Phase 6.105 read-only scheduled-cycle verifier ready; the paper-only scheduler remains scheduled for its first UTC cycle, while restore-drill verification, alert delivery, and Paper Autopilot activation remain separate gated steps.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -36,6 +36,7 @@ Do not run the continuous trading loop in the browser or Vercel functions. Verce
 - The command-scoped activation rehearsal and hosted `daily-reconciliation-readiness` both returned `status:"ready"` with migration and scheduler blocked-reason lists empty. Worker deployment `8be0f606-d5f0-423d-bd15-802dee009ec7` is `SUCCESS`.
 - Private Worker Health now reports `status:"healthy"`, durable scheduler `status:"scheduled"`, cron `0 0 * * *` in UTC, next run `2026-08-25T00:00:00.000Z`, and `globalKillSwitchActive:false`. Both durable queues are present and drained (`queuedCount:0`, `activeCount:0`, `failedCount:0`).
 - The existing guarded paper reconciliation provenance remains verified: run `paper-reconciliation-retry-20260824-01` with reference `PAPER-RECONCILIATION-RETRY-124` has persisted provenance, fresh reconciliation, and drained queues. This is pre-cycle evidence, not evidence that the recurring schedule has fired.
+- Added the guarded `DAILY_CYCLE_VERIFY=true` Worker command. Given an operator-supplied RFC3339 `DAILY_CYCLE_STARTED_AT`, it reads only the latest persisted reconciliation and queue counts, then verifies the capture is after the cycle start and both queues are drained. It never contacts Alpaca, writes PostgreSQL, starts a scheduler, or changes any gate.
 - PITR presence is not a restore drill. `RECOVERY_DRILL_VERIFIED` remains unset, so recovery status stays `unverified` until an isolated restore is completed and its reference/timestamp are recorded.
 
 ### Deployment Recommendation
