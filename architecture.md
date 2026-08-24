@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.122 scheduler-audit migration `0010` applied and readiness verified; audit activation remains separately gated, while restore-drill verification, alert delivery, and Paper Autopilot activation remain separate steps.
+- **Stage:** Phase 6.124 scheduler-audit activation preflight deployed and verified; audit activation remains separately gated, while restore-drill verification, alert delivery, and Paper Autopilot activation remain separate steps.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -49,6 +49,8 @@ Do not run the continuous trading loop in the browser or Vercel functions. Verce
 - Worker deployment `d4f8adcb-9caa-45a9-bf00-9fab909b854e` is `SUCCESS`; the migration command was invoked with the bounded approval reference and completed successfully.
 - A hosted invocation with `DURABLE_SCHEDULE_AUDIT_MIGRATE=false` exited before database access with the expected gate error, confirming the migration command fails closed by default. The authorized invocation then completed successfully; readiness now returns `ready:true` with no blocked reasons and migration planning returns `pending:[]`.
 - Post-migration hosted verification returned `DURABLE_SCHEDULE_AUDIT_READINESS=true` with `ready:true`, migration planning with `pending:[]`, and Worker Health `healthy` with the daily scheduler still `scheduled` for `0 0 * * *` UTC. `DURABLE_SCHEDULER_AUDIT_ENABLED` remains unset, so no scheduled-run audit rows are being written yet.
+- Worker deployment `ac1e43c3-586b-4f32-ac47-069abb763efd` reached `SUCCESS` with the read-only `durable-schedule-audit-activation-readiness` command. A command-scoped rehearsal returned `status:"ready"` with migration, paper-mode, scheduler, kill-switch, and Paper Autopilot checks satisfied; omitting the audit activation reference failed closed. No persistent variable was changed and no scheduler cycle was triggered.
+- Runtime audit activation now requires the bounded non-secret `DURABLE_SCHEDULER_AUDIT_ACTIVATION_APPROVAL_REFERENCE` whenever `DURABLE_SCHEDULER_AUDIT_ENABLED=true`; the reference is validated but never emitted.
 - PITR presence is not a restore drill. `RECOVERY_DRILL_VERIFIED` remains unset, so recovery status stays `unverified` until an isolated restore is completed and its reference/timestamp are recorded.
 
 ### Deployment Recommendation
