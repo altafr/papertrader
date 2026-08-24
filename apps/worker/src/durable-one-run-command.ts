@@ -10,7 +10,7 @@ import {
   parseDurableDailyJob,
   type DurableDailyJob,
   getDurableSchedulerConfig,
-  provisionDurableQueues,
+  ensureDurableQueues,
   validateDurableSchedulerApprovalReference,
   validateDurableOneRunId,
   validateDurableSchedulerOneRun,
@@ -38,7 +38,7 @@ let failureStage: "database_connect" | "job_enqueue" | "queue_provision" | "queu
 try {
   await boss.start();
   failureStage = "queue_provision";
-  await provisionDurableQueues(boss, getDurableSchedulerConfig({ ...process.env, DURABLE_SCHEDULER_ENABLED: "true" }));
+  await ensureDurableQueues(boss, getDurableSchedulerConfig({ ...process.env, DURABLE_SCHEDULER_ENABLED: "true" }));
   failureStage = "database_connect";
   const database = createDatabase(databaseUrl);
   databasePool = database.pool;

@@ -216,6 +216,16 @@ export async function provisionDurableQueues(boss: DurableQueueClient, config: D
   await boss.createQueue(DAILY_PREPARATION_QUEUE, { ...queueOptions, deadLetter: DAILY_PREPARATION_DEAD_LETTER_QUEUE });
 }
 
+/** Reuse a previously provisioned queue; only create queues that are missing. */
+export async function ensureDurableQueues(boss: DurableQueueClient & DurableQueueInspector, config: DurableSchedulerConfig): Promise<void> {
+  const [workQueue, deadLetterQueue] = await Promise.all([
+    boss.getQueue(DAILY_PREPARATION_QUEUE),
+    boss.getQueue(DAILY_PREPARATION_DEAD_LETTER_QUEUE),
+  ]);
+  if (workQueue && deadLetterQueue) return;
+  await provisionDurableQueues(boss, config);
+}
+
 let schedulerHealth: DurableSchedulerHealth = { enabled: false, status: "disabled" };
 
 export function getDurableSchedulerHealth(): DurableSchedulerHealth { return schedulerHealth; }

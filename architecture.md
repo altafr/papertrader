@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.87 unique retry-provenance preflight; Railway API/worker health is verified, while alert delivery, research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
+- **Stage:** Phase 6.88 idempotent queue reuse for guarded reconciliation; Railway API/worker health is verified, while alert delivery, research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -786,6 +786,12 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - Added a read-only retry-readiness contract and guarded worker command that checks the proposed approval reference and run ID are bounded, distinct, and absent from persisted one-run audit provenance before a future retry is attempted.
 - Added a repository lookup by approval reference so a previously consumed approval cannot be reused with a different run ID; output contains only booleans and bounded reason codes.
 - This command does not enqueue work, start a queue, contact Alpaca or Telegram, write PostgreSQL, alter Railway variables, or enable scheduling/Paper Autopilot. It specifically blocks reuse of the previously consumed retry reference.
+
+### Phase 6.88 Idempotent Queue Reuse for Guarded Reconciliation
+
+- Updated the one-run command to inspect the reviewed work and dead-letter queues and reuse them when both are already present; queue provisioning now runs only when a queue is missing.
+- This removes a redundant queue-creation failure from the one-run path while preserving the durable queue boundary and all command-scoped broker/handler gates.
+- Added focused coverage for the no-reprovision path. No scheduler activation, Telegram send, order submission, or live capability was added.
 
 ### Phase 4.1 Structured Agent Runs
 
