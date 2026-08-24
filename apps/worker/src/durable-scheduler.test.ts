@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { DAILY_PREPARATION_QUEUE, createDurableScheduler, enqueueDailyPreparation, getDailyPreparationJobId, getDurableOneRunJobId, getDurableSchedulerConfig, getDurableSchedulerHealth, getDurableSchedulerReadiness, inspectDurableQueues, parseDurableDailyJob, provisionDurableQueues, validateDurableOneRunId, validateDurableSchedulerActivation, validateDurableSchedulerApprovalReference, validateDurableSchedulerOneRun } from "./durable-scheduler.js";
+import { DAILY_PREPARATION_QUEUE, createDurableScheduler, enqueueDailyPreparation, ensureDurableQueues, getDailyPreparationJobId, getDurableOneRunJobId, getDurableSchedulerConfig, getDurableSchedulerHealth, getDurableSchedulerReadiness, inspectDurableQueues, parseDurableDailyJob, provisionDurableQueues, validateDurableOneRunId, validateDurableSchedulerActivation, validateDurableSchedulerApprovalReference, validateDurableSchedulerOneRun } from "./durable-scheduler.js";
 
 describe("durable scheduler", () => {
   it("is disabled by default and validates bounded retry configuration", () => {
@@ -117,6 +117,17 @@ describe("durable scheduler", () => {
       async start() {}, async stop() {}, async createQueue(name) { queues.push(name); }, async schedule() {}, async work() { return "worker"; },
     }, getDurableSchedulerConfig({}));
     expect(queues).toEqual(["momentum.daily-preparation.dead-letter", "momentum.daily-preparation"]);
+  });
+
+  it("does not reprovision queues that already exist", async () => {
+    const created: string[] = [];
+    const boss = {
+      async createQueue(name: string) { created.push(name); },
+      async getQueue(name: string) { return { name }; },
+      async getQueueStats() { return []; },
+    } as never;
+    await ensureDurableQueues(boss, getDurableSchedulerConfig({}));
+    expect(created).toEqual([]);
   });
 
   it("maps operator run IDs to deterministic UUID job IDs for pg-boss", () => {
