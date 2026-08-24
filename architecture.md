@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.88 idempotent queue reuse for guarded reconciliation; Railway API/worker health is verified, while alert delivery, research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
+- **Stage:** Phase 6.89 first verified paper end-to-end slice; Railway API/worker health is verified, while alert delivery, research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -792,6 +792,12 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - Updated the one-run command to require the reviewed work and dead-letter queues to be present and reuse them without attempting queue creation; queue provisioning remains exclusively in the separately guarded migration command.
 - This removes a redundant queue-creation failure from the one-run path while preserving the durable queue boundary and all command-scoped broker/handler gates. Missing queues fail closed with a bounded migration message.
 - Added focused coverage for the no-reprovision path. No scheduler activation, Telegram send, order submission, or live capability was added.
+
+### Phase 6.89 First Verified Paper End-to-End Slice
+
+- After the queue-boundary correction, the guarded Worker command completed exactly one paper reconciliation using approval reference `PAPER-RECONCILIATION-RETRY-124` and run ID `paper-reconciliation-retry-20260824-01`.
+- The read-only verifier confirmed persisted audit provenance, a fresh reconciliation captured at `2026-08-24T00:41:10.115Z`, both durable queues present and drained, and no dead-letter jobs. The public API health endpoint returned healthy; persistent broker, scheduler, handler, and Paper Autopilot flags remain disabled.
+- This proves the Railway Worker → PostgreSQL reconciliation path. The authenticated Vercel dashboard remains the next operator-observed verification surface; no dashboard credentials or broker secrets were exposed.
 
 ### Phase 4.1 Structured Agent Runs
 
