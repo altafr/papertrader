@@ -1,9 +1,10 @@
 import { PgBoss, type Job, type QueueOptions } from "pg-boss";
 import { createHash } from "node:crypto";
+import { DEFAULT_DAILY_PREPARATION_CRON, DAILY_PREPARATION_TIMEZONE, getDailyPreparationCron } from "@momentum/config";
 
 export const DAILY_PREPARATION_QUEUE = "momentum.daily-preparation";
 export const DAILY_PREPARATION_DEAD_LETTER_QUEUE = "momentum.daily-preparation.dead-letter";
-export const DAILY_PREPARATION_CRON = "0 0 * * *";
+export const DAILY_PREPARATION_CRON = DEFAULT_DAILY_PREPARATION_CRON;
 
 export type DurableSchedulerStatus = "degraded" | "disabled" | "ready" | "running" | "scheduled";
 
@@ -230,8 +231,7 @@ function parseBoolean(name: string, value: string | undefined, defaultValue: boo
 export function getDurableSchedulerConfig(environment = process.env): DurableSchedulerConfig {
   const enabled = parseBoolean("DURABLE_SCHEDULER_ENABLED", environment.DURABLE_SCHEDULER_ENABLED, false);
   const activationApprovalReference = validateDurableSchedulerActivation(environment);
-  const cron = environment.DAILY_PREPARATION_CRON ?? DAILY_PREPARATION_CRON;
-  if (cron.trim().length === 0 || cron.length > 120) throw new Error("DAILY_PREPARATION_CRON must be a non-empty cron expression no longer than 120 characters.");
+  const cron = getDailyPreparationCron(environment);
   const retryLimit = Number(environment.DAILY_PREPARATION_RETRY_LIMIT ?? "3");
   if (!Number.isSafeInteger(retryLimit) || retryLimit < 0 || retryLimit > 10) throw new Error("DAILY_PREPARATION_RETRY_LIMIT must be an integer from 0 to 10.");
   const retryDelaySeconds = Number(environment.DAILY_PREPARATION_RETRY_DELAY_SECONDS ?? "60");
@@ -276,7 +276,7 @@ export function createDurableScheduler(input: {
         boss = createBoss(input.connectionString);
         await boss.start();
         await provisionDurableQueues(boss, input.config);
-        await boss.schedule(DAILY_PREPARATION_QUEUE, input.config.cron, { kind: "daily_preparation", version: 1 }, { key: "daily-preparation", tz: "UTC" });
+        await boss.schedule(DAILY_PREPARATION_QUEUE, input.config.cron, { kind: "daily_preparation", version: 1 }, { key: "daily-preparation", tz: DAILY_PREPARATION_TIMEZONE });
         workerId = await boss.work<DurableDailyJob>(DAILY_PREPARATION_QUEUE, async (jobs) => {
           if (jobs.length === 0) return;
           setDurableSchedulerHealth({ ...getDurableSchedulerHealth(), status: "running" });

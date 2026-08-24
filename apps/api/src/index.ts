@@ -13,6 +13,8 @@ import {
 import { createAccountStateRepository, createAgentRunRepository, createDatabase, createShadowObservationRepository, createStrategyLifecycleRepository } from "@momentum/db";
 import {
   getClerkRuntimeConfig,
+  getDailyPreparationCron,
+  DAILY_PREPARATION_TIMEZONE,
   getPaperOnlyRuntimeConfig,
   getPaperOperatingMode,
   getServerPort,
@@ -308,7 +310,7 @@ async function readOperationsHealth(request: IncomingMessage) {
     dailyPreparationHandlerEnabled: handlerEnabled,
     schedulerEnabled,
   });
-  const dailyPreparationCron = process.env.DAILY_PREPARATION_CRON?.trim() || "0 0 * * *";
+  const dailyPreparationCron = getDailyPreparationCron();
   const migrationDatabase = createDatabase();
   try {
     const migration = await readAuditMigrationReadiness(migrationDatabase.pool);
@@ -332,7 +334,7 @@ async function readOperationsHealth(request: IncomingMessage) {
           cron: dailyPreparationCron,
           enabled: schedulerEnabled,
           status: schedulerStatus,
-          timezone: "UTC",
+          timezone: DAILY_PREPARATION_TIMEZONE,
         },
         researchSchedule: {
           enabled: researchSchedulerEnabled,

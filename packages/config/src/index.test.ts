@@ -1,10 +1,17 @@
 import { describe, expect, it } from "vitest";
 
-import { getClerkRuntimeConfig, getPaperAutopilotConfig, getPaperOnlyRuntimeConfig, getPaperOperatingMode, getServerPort, isGlobalKillSwitchActive } from "./index.js";
+import { getClerkRuntimeConfig, getDailyPreparationCron, getPaperAutopilotConfig, getPaperOnlyRuntimeConfig, getPaperOperatingMode, getServerPort, isGlobalKillSwitchActive } from "./index.js";
 
 describe("server configuration", () => {
   it("uses a safe local default", () => {
     expect(getServerPort({})).toBe(3001);
+  });
+
+  it("centralizes the validated daily preparation cron", () => {
+    expect(getDailyPreparationCron({})).toBe("0 0 * * *");
+    expect(getDailyPreparationCron({ DAILY_PREPARATION_CRON: "30 2 * * *" })).toBe("30 2 * * *");
+    expect(() => getDailyPreparationCron({ DAILY_PREPARATION_CRON: " " })).toThrow(/DAILY_PREPARATION_CRON/);
+    expect(() => getDailyPreparationCron({ DAILY_PREPARATION_CRON: "x".repeat(121) })).toThrow(/DAILY_PREPARATION_CRON/);
   });
 
   it("rejects an invalid port", () => {

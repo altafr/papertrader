@@ -1,7 +1,16 @@
 const DEFAULT_API_PORT = 3001;
 
+export const DEFAULT_DAILY_PREPARATION_CRON = "0 0 * * *";
+export const DAILY_PREPARATION_TIMEZONE = "UTC" as const;
+
 export const PAPER_TRADING_API_BASE_URL = "https://paper-api.alpaca.markets";
 export const ALPACA_MARKET_DATA_BASE_URL = "https://data.alpaca.markets";
+
+export function getDailyPreparationCron(environment = process.env): string {
+  const cron = environment.DAILY_PREPARATION_CRON ?? DEFAULT_DAILY_PREPARATION_CRON;
+  if (cron.trim().length === 0 || cron.length > 120) throw new Error("DAILY_PREPARATION_CRON must be a non-empty cron expression no longer than 120 characters.");
+  return cron;
+}
 
 export type PaperOnlyRuntimeConfig = {
   brokerConnectionEnabled: boolean;

@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.82 authenticated daily UTC schedule visibility; Railway API/worker health is verified, while alert delivery, research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
+- **Stage:** Phase 6.83 centralized daily schedule contract; Railway API/worker health is verified, while alert delivery, research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -752,6 +752,12 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - Browser parsing rejects missing, empty, oversized, or non-UTC schedule metadata; the dashboard displays the cadence as informational text beside scheduler status.
 - No scheduler, queue, broker, database, or trading authority was added; persistent activation gates remain unchanged.
 - API deployment `e80538d6-637e-4df4-82da-700dddab04db` reached `SUCCESS` and private API health returned healthy. Vercel preview `https://papertrader-jqdkttgif-altafrs-projects.vercel.app` completed; unauthenticated dashboard access remains deployment-protected with HTTP 302.
+
+### Phase 6.83 Centralized Daily Schedule Contract
+
+- Moved the default daily cron and UTC timezone into the shared server configuration package; worker and API now consume the same validated cron helper and timezone constant.
+- Invalid empty or oversized cron values fail at the configuration boundary; the dashboard parser remains fail-closed for malformed schedule metadata.
+- This is configuration alignment only. No scheduler activation, queue operation, broker request, database write, or trading authority was added.
 
 ### Phase 4.1 Structured Agent Runs
 
