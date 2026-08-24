@@ -308,6 +308,7 @@ async function readOperationsHealth(request: IncomingMessage) {
     dailyPreparationHandlerEnabled: handlerEnabled,
     schedulerEnabled,
   });
+  const dailyPreparationCron = process.env.DAILY_PREPARATION_CRON?.trim() || "0 0 * * *";
   const migrationDatabase = createDatabase();
   try {
     const migration = await readAuditMigrationReadiness(migrationDatabase.pool);
@@ -328,8 +329,10 @@ async function readOperationsHealth(request: IncomingMessage) {
         },
         scheduler: {
           activationApprovalReferencePresent,
+          cron: dailyPreparationCron,
           enabled: schedulerEnabled,
           status: schedulerStatus,
+          timezone: "UTC",
         },
         researchSchedule: {
           enabled: researchSchedulerEnabled,
