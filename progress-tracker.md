@@ -1343,7 +1343,8 @@
 - **User story:** As the operator, I can distinguish configured Telegram alerts from verified message delivery.
 - **Implemented:** Added the non-secret `deliveryVerification:"unverified"` state across notification readiness, worker/API health, dashboard parsing, and dashboard presentation.
 - **Verification:** 201 tests, typecheck, lint, production build, secret-surface audit, and diff checks passed. No Telegram request or state mutation occurred.
-- **Next smallest unit:** Deploy and verify the explicit unverified state; obtain approval/reference before any channel test.
+- **Hosted verification:** Worker deployment `16f62475-ce15-41af-95da-dcff198aded3` and API deployment `04e7081d-08d7-4b7d-bb8e-b5ff739652d7` succeeded. Worker health reports `telegramAlerts:{enabled:true,status:"ready",deliveryVerification:"unverified"}` in observe mode; both durable queues are present and drained. Vercel preview `https://papertrader-huj93av8q-altafrs-projects.vercel.app` is deployment-protected with HTTP 302. No Telegram message was sent.
+- **Next smallest unit:** Obtain approval/reference before any channel test; a successful test must be recorded before delivery can be called verified.
 
 ## Completed Build Unit — Phase 6.75
 
