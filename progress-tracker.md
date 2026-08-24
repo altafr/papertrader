@@ -1367,7 +1367,8 @@
 - **User story:** As the authenticated operator, I can see the same daily UTC schedule in the dashboard that the worker reports privately.
 - **Implemented:** Added validated `cron` and `timezone:"UTC"` scheduler metadata to API operations health and rendered it in the dashboard health card.
 - **Verification:** 203 tests, typecheck, lint, production build, secret-surface audit, and diff checks passed. No activation or external side effect was added.
-- **Next smallest unit:** Deploy API/dashboard changes and verify the protected preview; keep scheduler gates disabled.
+- **Hosted verification:** API deployment `e80538d6-637e-4df4-82da-700dddab04db` succeeded and private `/health` returned healthy. Vercel preview `https://papertrader-jqdkttgif-altafrs-projects.vercel.app` completed; unauthenticated `/dashboard` returned deployment-protection HTTP 302. Scheduler gates remain disabled.
+- **Next smallest unit:** Keep scheduler gates disabled until separately authorized; the dashboard schedule is informational only.
 
 ## Completed Build Unit — Phase 6.75
 
