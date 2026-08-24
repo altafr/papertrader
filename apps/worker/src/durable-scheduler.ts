@@ -200,7 +200,7 @@ export async function inspectDurableQueues(inspector: DurableQueueInspector): Pr
   return { deadLetterQueue, workQueue };
 }
 
-type BossFactory = (connectionString: string) => DurableQueueClient;
+type BossFactory = (connectionString: string) => DurableQueueClient & DurableQueueInspector;
 
 export async function provisionDurableQueues(boss: DurableQueueClient, config: DurableSchedulerConfig): Promise<void> {
   const queueOptions: QueueOptions = {
@@ -224,6 +224,14 @@ export async function ensureDurableQueues(boss: DurableQueueClient & DurableQueu
   ]);
   if (workQueue && deadLetterQueue) return;
   await provisionDurableQueues(boss, config);
+}
+
+/** Activation never mutates queue schema; it requires the reviewed migration to exist. */
+export async function requireDurableQueues(boss: DurableQueueInspector): Promise<void> {
+  const inspection = await inspectDurableQueues(boss);
+  if (!inspection.workQueue.present || !inspection.deadLetterQueue.present) {
+    throw new Error("Durable queues are not provisioned; run the separately guarded queue migration first.");
+  }
 }
 
 let schedulerHealth: DurableSchedulerHealth = { enabled: false, status: "disabled" };
@@ -266,7 +274,7 @@ export function createDurableScheduler(input: {
 }) {
   const now = input.now ?? (() => new Date());
   const createBoss = input.bossFactory ?? ((connectionString: string) => new PgBoss(connectionString));
-  let boss: DurableQueueClient | undefined;
+  let boss: (DurableQueueClient & DurableQueueInspector) | undefined;
   let workerId: string | undefined;
   let stopped = true;
   const notify = (alert: DurableSchedulerAlert): void => {
@@ -285,7 +293,7 @@ export function createDurableScheduler(input: {
       try {
         boss = createBoss(input.connectionString);
         await boss.start();
-        await provisionDurableQueues(boss, input.config);
+        await requireDurableQueues(boss);
         await boss.schedule(DAILY_PREPARATION_QUEUE, input.config.cron, { kind: "daily_preparation", version: 1 }, { key: "daily-preparation", tz: DAILY_PREPARATION_TIMEZONE });
         workerId = await boss.work<DurableDailyJob>(DAILY_PREPARATION_QUEUE, async (jobs) => {
           if (jobs.length === 0) return;

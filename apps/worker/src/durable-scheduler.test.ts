@@ -79,6 +79,8 @@ describe("durable scheduler", () => {
         async start() { calls.push("start"); },
         async stop() { calls.push("stop"); },
         async createQueue(name) { calls.push(`queue:${name}`); },
+        async getQueue(name) { return { name }; },
+        async getQueueStats() { return [{ activeCount: 0, failedCount: 0, queuedCount: 0 }]; },
         async schedule(name, cron, _data, options) { calls.push(`schedule:${name}:${cron}:${options?.tz ?? ""}`); },
         async work(_name, nextHandler) { handler = nextHandler as typeof handler; return "worker-1"; },
       }),
@@ -100,6 +102,8 @@ describe("durable scheduler", () => {
       async start() { starts += 1; },
       async stop() {},
       async createQueue() {},
+      async getQueue(name: string) { return { name }; },
+      async getQueueStats() { return [{ activeCount: 0, failedCount: 0, queuedCount: 0 }]; },
       async schedule() { schedules += 1; },
       async work() { return "worker"; },
     };

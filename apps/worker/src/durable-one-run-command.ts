@@ -9,7 +9,7 @@ import {
   getDurableOneRunJobId,
   parseDurableDailyJob,
   type DurableDailyJob,
-  inspectDurableQueues,
+  requireDurableQueues,
   validateDurableSchedulerApprovalReference,
   validateDurableOneRunId,
   validateDurableSchedulerOneRun,
@@ -37,10 +37,7 @@ let failureStage: "database_connect" | "job_enqueue" | "queue_provision" | "queu
 try {
   await boss.start();
   failureStage = "queue_provision";
-  const queues = await inspectDurableQueues(boss);
-  if (!queues.workQueue.present || !queues.deadLetterQueue.present) {
-    throw new Error("Durable queues are not provisioned; run the separately guarded queue migration first.");
-  }
+  await requireDurableQueues(boss);
   failureStage = "database_connect";
   const database = createDatabase(databaseUrl);
   databasePool = database.pool;
