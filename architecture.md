@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.93 read-only scheduler queue activation guard; Railway API/worker health is verified, while alert delivery, research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
+- **Stage:** Phase 6.94 recovery runbook added; Railway API/worker health is verified, while backup execution, alert delivery, research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -823,6 +823,11 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - Changed recurring scheduler startup to require the existing reviewed work/dead-letter queues instead of attempting queue-schema creation; missing queues fail closed with a bounded migration message.
 - The guarded one-run path uses the same read-only queue requirement, keeping queue provisioning exclusively in the separate migration command.
 - Verified 208 tests, build, typecheck, lint, secret-surface audit, and diff checks. Worker deployment `0712ec60-a46f-438c-958a-5eaa6193466f` reached `SUCCESS`; hosted queue status remains present and fully drained, with persistent scheduler/handler/broker/Paper Autopilot gates unchanged.
+
+### Phase 6.94 Recovery Runbook
+
+- Added [`docs/railway-recovery-runbook.md`](docs/railway-recovery-runbook.md) covering Railway PostgreSQL backups/PITR, off-platform logical dumps, isolated restore drills, service-variable recovery, queue/migration verification, paper reconciliation after restore, and fail-closed rollback.
+- The runbook explicitly distinguishes documented procedure from completed backup/restore evidence; no backup setting, database, Railway variable, scheduler, broker, Telegram, or trading state was changed.
 
 ### Phase 4.1 Structured Agent Runs
 
