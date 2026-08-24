@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.121 scheduler-audit migration command guard verified; migration execution and audit activation remain separately gated, while restore-drill verification, alert delivery, and Paper Autopilot activation remain separate steps.
+- **Stage:** Phase 6.122 scheduler-audit migration `0010` applied and readiness verified; audit activation remains separately gated, while restore-drill verification, alert delivery, and Paper Autopilot activation remain separate steps.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -38,16 +38,16 @@ Do not run the continuous trading loop in the browser or Vercel functions. Verce
 - The existing guarded paper reconciliation provenance remains verified: run `paper-reconciliation-retry-20260824-01` with reference `PAPER-RECONCILIATION-RETRY-124` has persisted provenance, fresh reconciliation, and drained queues. This is pre-cycle evidence, not evidence that the recurring schedule has fired.
 - Added the guarded `DAILY_CYCLE_VERIFY=true` Worker command. Given an operator-supplied RFC3339 `DAILY_CYCLE_STARTED_AT`, it reads only the latest persisted reconciliation and queue counts, then verifies the capture is after the cycle start and both queues are drained. It never contacts Alpaca, writes PostgreSQL, starts a scheduler, or changes any gate.
 - Worker deployment `110d2323-36ec-4700-a2bc-655488b8728a` is `SUCCESS`. A hosted pre-cycle verification correctly returned `status:"incomplete"` with only `reconciliation_before_cycle`; queue presence and drain checks passed.
-- Added migration `0010_durable_schedule_runs.sql` and a typed repository contract for running, completed, and failed recurring-cycle records. The migration is not applied and the current hosted Worker does not use this contract, so the existing scheduler behavior is unchanged until a separately approved migration and activation unit.
+- Added migration `0010_durable_schedule_runs.sql` and a typed repository contract for running, completed, and failed recurring-cycle records. The migration is applied under bounded approval reference `SCHEDULER-AUDIT-0010-123`; the current hosted Worker does not use the contract until the separate audit activation gate is approved, so scheduler behavior remains unchanged.
 - Added optional scheduler start/complete/fail callbacks behind `DURABLE_SCHEDULER_AUDIT_ENABLED`. When enabled, Worker startup requires migration `0010`; when absent (the current hosted state), no audit database is opened and scheduler behavior is unchanged. Audit failures use the generic `reconciliation_failed` code and cannot expose provider data.
 - Worker deployment `a7047f5d-1f2c-4b4b-8319-113a8b2c1698` reached `SUCCESS`; private Worker Health remains healthy with the durable scheduler scheduled. The audit flag remains unset and migration `0010` remains unapplied.
 - The read-only migration planner now classifies `0010_durable_schedule_runs.sql` as requiring an explicit bounded migration approval reference. The guarded migration writer still targets only the previously reviewed `0009`, so `0010` cannot be applied accidentally.
-- Worker deployment `673d1964-9ed0-429a-ab7f-b3e32b37346a` is `SUCCESS`. Hosted migration planning reports exactly one pending item, `0010_durable_schedule_runs.sql`, with `approvalRequired:true`; no SQL mutation occurred.
+- Worker deployment `673d1964-9ed0-429a-ab7f-b3e32b37346a` is `SUCCESS`. Hosted migration planning previously reported `0010_durable_schedule_runs.sql` with `approvalRequired:true`; it was then applied using bounded approval reference `SCHEDULER-AUDIT-0010-123`.
 - Added `DURABLE_SCHEDULE_AUDIT_READINESS=true pnpm --filter @momentum/worker durable-schedule-audit-readiness`, a read-only fail-closed check for migration `0010`, its table, and required columns.
 - Worker deployment `3131b4a4-31d8-4d69-81a7-eb39b3188296` is `SUCCESS`. Hosted readiness correctly returns `migration_not_recorded`, `schedule_runs_table_missing`, and `schedule_runs_columns_missing`; no SQL mutation occurred.
-- Added `DURABLE_SCHEDULE_AUDIT_MIGRATE=true` migration execution tooling requiring `DATABASE_MIGRATION_TARGET=0010` and a bounded `DATABASE_MIGRATION_APPROVAL_REFERENCE`, and refusing any unexpected pending migration. It has not been run.
-- Worker deployment `d4f8adcb-9caa-45a9-bf00-9fab909b854e` is `SUCCESS`; the migration command is available but remains uninvoked.
-- A hosted invocation with `DURABLE_SCHEDULE_AUDIT_MIGRATE=false` exited before database access with the expected gate error. This confirms the migration command fails closed by default.
+- Added `DURABLE_SCHEDULE_AUDIT_MIGRATE=true` migration execution tooling requiring `DATABASE_MIGRATION_TARGET=0010` and a bounded `DATABASE_MIGRATION_APPROVAL_REFERENCE`, and refusing any unexpected pending migration. It was run with approval reference `SCHEDULER-AUDIT-0010-123`.
+- Worker deployment `d4f8adcb-9caa-45a9-bf00-9fab909b854e` is `SUCCESS`; the migration command was invoked with the bounded approval reference and completed successfully.
+- A hosted invocation with `DURABLE_SCHEDULE_AUDIT_MIGRATE=false` exited before database access with the expected gate error, confirming the migration command fails closed by default. The authorized invocation then completed successfully; readiness now returns `ready:true` with no blocked reasons and migration planning returns `pending:[]`.
 - PITR presence is not a restore drill. `RECOVERY_DRILL_VERIFIED` remains unset, so recovery status stays `unverified` until an isolated restore is completed and its reference/timestamp are recorded.
 
 ### Deployment Recommendation
