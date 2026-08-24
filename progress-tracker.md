@@ -1359,7 +1359,8 @@
 - **User story:** As the operator, I can see the exact daily server schedule and timezone even while activation remains disabled.
 - **Implemented:** Added `cron` and `timezone:"UTC"` to the private durable-scheduler health contract, with coverage for the default and custom cron values.
 - **Verification:** 203 tests, typecheck, lint, production build, secret-surface audit, and diff checks passed. No queue, broker, database, or scheduler action occurred.
-- **Next smallest unit:** Deploy and verify the schedule metadata; keep persistent scheduler/handler/broker gates disabled until separately authorized.
+- **Hosted verification:** Worker deployment `23908ee8-7107-4fd1-96a2-7098cd458f56` succeeded. Private health reports `cron:"0 0 * * *"`, `timezone:"UTC"`, and scheduler `disabled`; both queues are present and drained. Persistent scheduler/handler/broker gates remain unchanged.
+- **Next smallest unit:** Keep persistent scheduler/handler/broker gates disabled until separately authorized; use the explicit UTC schedule when reviewing activation.
 
 ## Completed Build Unit — Phase 6.75
 

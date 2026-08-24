@@ -744,6 +744,7 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - Extended private `WorkerHealth.durableScheduler` with the configured cron expression and explicit `UTC` timezone.
 - The health response reports the daily schedule even when the durable scheduler is disabled, allowing operators to verify the intended server-side cadence without activating a queue or handler.
 - This is observational only; no Railway flag, queue, broker read, reconciliation write, or Paper Autopilot behavior changed.
+- Worker deployment `23908ee8-7107-4fd1-96a2-7098cd458f56` reached `SUCCESS`; private health reports `cron:"0 0 * * *"` and `timezone:"UTC"` with the scheduler disabled, and both queues remain present and drained.
 
 ### Phase 4.1 Structured Agent Runs
 
