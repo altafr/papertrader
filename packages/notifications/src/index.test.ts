@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 
-import { formatTelegramAlert, getTelegramNotificationConfig, getTelegramNotificationReadiness, sendTelegramAlert, type TelegramAlertSeverity } from "./index.js";
+import { formatTelegramAlert, getTelegramAlertTestReadiness, getTelegramNotificationConfig, getTelegramNotificationReadiness, sendTelegramAlert, type TelegramAlertSeverity } from "./index.js";
 
 describe("Telegram notifications", () => {
   it("defaults disabled without reading or returning credentials", () => {
@@ -15,6 +15,10 @@ describe("Telegram notifications", () => {
     expect(getTelegramNotificationReadiness({ TELEGRAM_ALERTS_ENABLED: "true" })).toMatchObject({ deliveryVerification: "unverified", status: "blocked", blockedReasons: ["telegram_bot_token_missing", "telegram_chat_id_missing"] });
     expect(getTelegramNotificationReadiness({ TELEGRAM_ALERTS_ENABLED: "true", TELEGRAM_BOT_TOKEN: "123456:ABC_def-123", TELEGRAM_CHAT_ID: "-1001234567890" })).toMatchObject({ deliveryVerification: "unverified", status: "ready", blockedReasons: [] });
     expect(getTelegramNotificationReadiness({ TELEGRAM_ALERTS_ENABLED: "maybe", TELEGRAM_BOT_TOKEN: "secret", TELEGRAM_CHAT_ID: "123" })).toMatchObject({ status: "blocked", blockedReasons: ["telegram_alerts_flag_invalid"] });
+  });
+  it("preflights the guarded channel test without contacting Telegram", () => {
+    expect(getTelegramAlertTestReadiness({ TELEGRAM_ALERTS_ENABLED: "true", TELEGRAM_BOT_TOKEN: "123456:ABC_def-123", TELEGRAM_CHAT_ID: "-1001234567890" })).toMatchObject({ status: "blocked", blockedReasons: ["telegram_alert_test_approval_reference_missing"] });
+    expect(getTelegramAlertTestReadiness({ TELEGRAM_ALERTS_ENABLED: "true", TELEGRAM_BOT_TOKEN: "123456:ABC_def-123", TELEGRAM_CHAT_ID: "-1001234567890", TELEGRAM_ALERT_TEST_APPROVAL_REFERENCE: "telegram-review-123" })).toMatchObject({ status: "ready", approvalReferencePresent: true });
   });
   it("formats and redacts alert content", () => {
     const value = formatTelegramAlert({ code: "stale_data", message: "api_key=hidden 123456:ABCDEFGHIJKLMNOPQRSTUVWXYZ_1234567890 https://example.test", occurredAt: "2026-08-24T00:00:00.000Z", severity: "critical" });

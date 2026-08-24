@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.79 truthful Telegram delivery-verification state; Railway API/worker health is verified, while alert delivery, research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
+- **Stage:** Phase 6.80 no-send Telegram channel-test preflight; Railway API/worker health is verified, while alert delivery, research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -731,6 +731,12 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - Configuration readiness remains separate from proof of message delivery; the dashboard labels delivery unverified until a separately approved channel test succeeds and is recorded.
 - No Telegram request, database write, trading action, scheduler activation, or Paper Autopilot change was added in this phase.
 - Worker deployment `16f62475-ce15-41af-95da-dcff198aded3` and API deployment `04e7081d-08d7-4b7d-bb8e-b5ff739652d7` reached `SUCCESS`; private health is healthy, worker queues are present and drained, and Vercel preview `https://papertrader-huj93av8q-altafrs-projects.vercel.app` remains deployment-protected.
+
+### Phase 6.80 Telegram Channel-Test Preflight
+
+- Added a guarded `telegram-alert-test-readiness` command requiring `TELEGRAM_ALERT_TEST_READINESS=true`; it validates the bounded non-secret approval reference and Telegram configuration without contacting Telegram.
+- The preflight reports only boolean/configuration readiness and bounded reason codes; it never returns credentials, sends a message, writes PostgreSQL, or changes any activation gate.
+- A real channel test remains separately guarded by `TELEGRAM_ALERT_TEST=true` and requires explicit operator authorization.
 
 ### Phase 4.1 Structured Agent Runs
 

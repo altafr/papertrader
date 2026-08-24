@@ -29,6 +29,13 @@ export type TelegramNotificationReadiness = {
   readonly blockedReasons: readonly string[];
 };
 
+export type TelegramAlertTestReadiness = {
+  readonly approvalReferencePresent: boolean;
+  readonly configuration: TelegramNotificationReadiness;
+  readonly status: "blocked" | "ready";
+  readonly blockedReasons: readonly string[];
+};
+
 type TelegramFetch = (input: string, init?: RequestInit) => Promise<Response>;
 
 const boundedField = /^[A-Za-z0-9][A-Za-z0-9._:/-]{0,127}$/;
@@ -67,6 +74,17 @@ export function getTelegramNotificationReadiness(environment: NodeJS.ProcessEnv 
     ...(chatIdConfigured && !chatIdFormatValid ? ["telegram_chat_id_invalid"] : []),
   ];
   return { deliveryVerification: "unverified", status: blockedReasons.length === 0 ? "ready" : "blocked", checks: { enabled, botTokenConfigured, chatIdConfigured, botTokenFormatValid, chatIdFormatValid }, blockedReasons };
+}
+
+export function getTelegramAlertTestReadiness(environment: NodeJS.ProcessEnv = process.env): TelegramAlertTestReadiness {
+  const configuration = getTelegramNotificationReadiness(environment);
+  const reference = environment.TELEGRAM_ALERT_TEST_APPROVAL_REFERENCE?.trim() ?? "";
+  const approvalReferencePresent = boundedField.test(reference);
+  const blockedReasons = [
+    ...(approvalReferencePresent ? [] : ["telegram_alert_test_approval_reference_missing"]),
+    ...(configuration.status === "ready" ? [] : ["telegram_alert_configuration_blocked"]),
+  ];
+  return { approvalReferencePresent, configuration, status: blockedReasons.length === 0 ? "ready" : "blocked", blockedReasons };
 }
 
 export function getTelegramNotificationConfig(environment: NodeJS.ProcessEnv = process.env): TelegramNotificationConfig {
