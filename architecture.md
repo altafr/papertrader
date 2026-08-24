@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.100 daily scheduler activation with Railway PITR enabled; the paper-only scheduler is running with deterministic readiness gates, while restore-drill verification, alert delivery, and Paper Autopilot activation remain separate gated steps.
+- **Stage:** Phase 6.101 scheduler runtime health verified with Railway PITR enabled; the paper-only scheduler is scheduled for its next UTC run, while restore-drill verification, alert delivery, and Paper Autopilot activation remain separate gated steps.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -34,6 +34,7 @@ Do not run the continuous trading loop in the browser or Vercel functions. Verce
 - Railway PostgreSQL PITR is enabled with the backup bucket wired. The live probe reports one backup, a healthy WAL archiver, and current `latestBackupAt`, `archiverLastArchivedAt`, and `maxRestoreTime` timestamps.
 - The Worker persistent flags are enabled for the daily paper scheduler with bounded reference `USER-REQUEST-20260824`: `DURABLE_SCHEDULER_ENABLED=true`, `DAILY_PREPARATION_HANDLER_ENABLED=true`, and `BROKER_CONNECTION_ENABLED=true`; `PAPER_AUTOPILOT_ENABLED=false` remains explicit.
 - The command-scoped activation rehearsal and hosted `daily-reconciliation-readiness` both returned `status:"ready"` with migration and scheduler blocked-reason lists empty. Worker deployment `8be0f606-d5f0-423d-bd15-802dee009ec7` is `SUCCESS`.
+- Private Worker Health now reports `status:"healthy"`, durable scheduler `status:"scheduled"`, cron `0 0 * * *` in UTC, next run `2026-08-25T00:00:00.000Z`, and `globalKillSwitchActive:false`. Both durable queues are present and drained (`queuedCount:0`, `activeCount:0`, `failedCount:0`).
 - PITR presence is not a restore drill. `RECOVERY_DRILL_VERIFIED` remains unset, so recovery status stays `unverified` until an isolated restore is completed and its reference/timestamp are recorded.
 
 ### Deployment Recommendation
