@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.91 daily activation rehearsal verified; Railway API/worker health is verified, while alert delivery, research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
+- **Stage:** Phase 6.92 activation/rollback runbook hardened; Railway API/worker health is verified, while alert delivery, research scheduling, durable reconciliation, and Paper Autopilot activation remain separate gated steps.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -811,6 +811,12 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 - Ran the guarded `daily-reconciliation-activation-preflight` in Railway with command-scoped scheduler, handler, broker, and activation-reference values.
 - The rehearsal returned `status:"ready"`: migration `0009`, audit table/columns, database, paper credentials, paper mode, broker gate, handler gate, scheduler gate, and activation reference all passed.
 - No persistent Railway variable changed, no queue started, no Alpaca request or reconciliation ran, and Paper Autopilot/live trading remain disabled. Recurring activation still requires separate explicit operator approval.
+
+### Phase 6.92 Activation and Rollback Runbook Hardening
+
+- Updated the Railway reconciliation runbook to match the current one-run behavior: it verifies existing queues rather than reprovisioning them.
+- Added a separate recurring-scheduler activation checklist and fail-closed rollback procedure covering the activation reference, broker/handler/scheduler flags, Paper Autopilot prohibition, Worker restart, health evidence, and preservation of audit/queue data.
+- Documentation-only safety improvement; no Railway variable, queue, broker, Telegram, or trading state changed.
 
 ### Phase 4.1 Structured Agent Runs
 

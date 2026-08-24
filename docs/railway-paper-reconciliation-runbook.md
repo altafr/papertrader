@@ -74,7 +74,7 @@ Expected success output is bounded JSON metadata:
 
 The operator-facing `runId` is retained in the payload and audit provenance; the internal pg-boss job identifier is a deterministic UUID derived from it.
 
-The process provisions the already-reviewed queues, consumes one immediate job, waits for completion, and shuts down. It does not create a recurring schedule.
+The process verifies that the already-reviewed queues are present, consumes one immediate job, waits for completion, and shuts down. Queue creation belongs to the separate guarded migration command; this process does not create a recurring schedule.
 
 ## Verify and close out
 
@@ -94,3 +94,19 @@ DURABLE_QUEUE_STATUS=true pnpm --filter @momentum/worker durable-status
 ## Failure handling
 
 The command has a bounded timeout and exits non-zero on a failed reconciliation. Do not retry repeatedly. Preserve the generic failure output, inspect bounded Railway worker logs for infrastructure symptoms, and leave persistent flags disabled until the cause is reviewed. A failed run does not authorize enabling continuous scheduling or Paper Autopilot.
+
+## Separate recurring-scheduler activation and rollback
+
+Do not activate recurring scheduling as part of a one-run verification. Activation is a separate operator decision and requires the successful rehearsal above plus a new, recorded activation reference.
+
+Before activation, record the current values of these Worker variables and confirm the global kill switch is inactive:
+
+- `DURABLE_SCHEDULER_ACTIVATION_APPROVAL_REFERENCE` — bounded non-secret review reference
+- `DURABLE_SCHEDULER_ENABLED=true`
+- `DAILY_PREPARATION_HANDLER_ENABLED=true`
+- `BROKER_CONNECTION_ENABLED=true`
+- `PAPER_AUTOPILOT_ENABLED=false`
+
+Apply those changes together through the Railway variable UI or an authenticated, reviewed CLI change. Restart the Worker, then verify private Worker Health reports a scheduled/ready durable scheduler, the UTC cron, and no degraded state. Observe one scheduled cycle and confirm the queue, audit provenance, reconciliation freshness, and dashboard result.
+
+Rollback is immediate and fail-closed: set `DURABLE_SCHEDULER_ENABLED=false`, `DAILY_PREPARATION_HANDLER_ENABLED=false`, and `BROKER_CONNECTION_ENABLED=false`, leave `PAPER_AUTOPILOT_ENABLED=false`, restart the Worker, and verify health returns to disabled/observe mode. Do not delete queue or audit data during rollback; preserve it for diagnosis and reconciliation.
