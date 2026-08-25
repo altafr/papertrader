@@ -53,6 +53,12 @@ export function buildDashboardHistoryParams(page: number, range: "7d" | "30d" | 
   return new URLSearchParams({ page: String(page), range, ...(from ? { from } : {}), ...(to ? { to } : {}) });
 }
 
+export function formatAuditDateRange(from?: string, to?: string): string {
+  const start = from?.slice(0, 10) ?? "Beginning";
+  const end = to?.slice(0, 10) ?? "Now";
+  return `${start} → ${end} UTC`;
+}
+
 export function parsePaperPerformance(value: unknown): PaperPerformance | undefined {
   if (!isRecord(value) || typeof value.calendarDays !== "number" || typeof value.consecutiveCalendarDays !== "number" || typeof value.snapshotCount !== "number" || !(value.performanceRange === "7d" || value.performanceRange === "30d" || value.performanceRange === "all") || !isRecord(value.stability) || !Array.isArray(value.stability.blockedReasons) || value.stability.blockedReasons.some((reason) => typeof reason !== "string") || !(value.stability.status === "blocked" || value.stability.status === "ready") || !(value.status === "insufficient_history" || value.status === "ready")) return undefined;
   const metrics = value.metrics;

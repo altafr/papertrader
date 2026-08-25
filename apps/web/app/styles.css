@@ -194,6 +194,12 @@ main {
   text-decoration: none;
 }
 
+.history-window {
+  color: var(--foreground);
+  font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
+}
+
 .history-toolbar > a:hover,
 .history-toolbar > a:focus-visible {
   border-color: var(--paper);

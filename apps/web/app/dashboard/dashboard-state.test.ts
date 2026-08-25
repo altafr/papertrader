@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { buildDashboardHistoryParams, formatUtc, getFreshnessLabel, getFreshnessState, parseAgentRuns, parseOperatorOverview, parseOperationsHealth } from "./dashboard-state";
+import { buildDashboardHistoryParams, formatAuditDateRange, formatUtc, getFreshnessLabel, getFreshnessState, parseAgentRuns, parseOperatorOverview, parseOperationsHealth } from "./dashboard-state";
 
 describe("dashboard state", () => {
   it("classifies persisted data by freshness", () => {
@@ -79,5 +79,10 @@ describe("dashboard state", () => {
 
   it("preserves the selected performance range during audit navigation", () => {
     expect(buildDashboardHistoryParams(2, "30d", "2026-08-01", "2026-08-26").toString()).toBe("page=2&range=30d&from=2026-08-01&to=2026-08-26");
+  });
+
+  it("labels the active audit window in UTC", () => {
+    expect(formatAuditDateRange()).toBe("Beginning → Now UTC");
+    expect(formatAuditDateRange("2026-08-01T00:00:00.000Z", "2026-08-26T23:59:59.999Z")).toBe("2026-08-01 → 2026-08-26 UTC");
   });
 });

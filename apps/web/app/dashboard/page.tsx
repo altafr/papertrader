@@ -1,7 +1,7 @@
 import { UserButton } from "@clerk/nextjs";
 import { auth } from "@clerk/nextjs/server";
 
-import { buildDashboardHistoryParams, formatUtc, getFreshnessLabel, getFreshnessState, parseAgentRuns, parseOperatorOverview, parseOperationsHealth, parsePaperPerformance, type AgentRunSummary, type OperationsHealth, type OperatorOverview, type PaperPerformance } from "./dashboard-state";
+import { buildDashboardHistoryParams, formatAuditDateRange, formatUtc, getFreshnessLabel, getFreshnessState, parseAgentRuns, parseOperatorOverview, parseOperationsHealth, parsePaperPerformance, type AgentRunSummary, type OperationsHealth, type OperatorOverview, type PaperPerformance } from "./dashboard-state";
 import { DashboardRefresh } from "./dashboard-refresh";
 
 type ReadModel = {
@@ -394,6 +394,7 @@ export default async function DashboardPage({ searchParams }: { readonly searchP
 
       <section className="history-toolbar" aria-label="Audit history controls">
         <span className="label">Audit history</span>
+        <span className="history-window">{formatAuditDateRange(historyFrom, historyTo)}</span>
         <span>Page {operatorOverview?.history?.page ?? safeHistoryPage}</span>
         {operatorOverview?.history?.totals && <span className="audit-coverage" aria-label="Audit record totals"><span>{operatorOverview.history.totals.filteredTrades} filtered</span><span>{operatorOverview.history.totals.submissions} execution</span><span>{operatorOverview.history.totals.agents} agents</span><span>{operatorOverview.history.totals.lifecycle} lifecycle</span><span>{operatorOverview.history.totals.schedules} scheduler</span></span>}
         <a className={safeHistoryPage <= 1 ? "disabled-link" : ""} href={`/dashboard?${buildDashboardHistoryParams(Math.max(1, safeHistoryPage - 1), performanceRange, historyFrom, historyTo).toString()}`} aria-disabled={safeHistoryPage <= 1}>Previous</a>
