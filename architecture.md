@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.124 scheduler-audit activation preflight deployed and verified; audit activation remains separately gated, while restore-drill verification, alert delivery, and Paper Autopilot activation remain separate steps.
+- **Stage:** Phase 6.125 scheduler-run audit observability deployed to the API; dashboard rollout is pending Vercel confirmation, while audit activation, restore-drill verification, alert delivery, and Paper Autopilot activation remain separately gated.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -51,6 +51,8 @@ Do not run the continuous trading loop in the browser or Vercel functions. Verce
 - Post-migration hosted verification returned `DURABLE_SCHEDULE_AUDIT_READINESS=true` with `ready:true`, migration planning with `pending:[]`, and Worker Health `healthy` with the daily scheduler still `scheduled` for `0 0 * * *` UTC. `DURABLE_SCHEDULER_AUDIT_ENABLED` remains unset, so no scheduled-run audit rows are being written yet.
 - Worker deployment `ac1e43c3-586b-4f32-ac47-069abb763efd` reached `SUCCESS` with the read-only `durable-schedule-audit-activation-readiness` command. A command-scoped rehearsal returned `status:"ready"` with migration, paper-mode, scheduler, kill-switch, and Paper Autopilot checks satisfied; omitting the audit activation reference failed closed. No persistent variable was changed and no scheduler cycle was triggered.
 - Runtime audit activation now requires the bounded non-secret `DURABLE_SCHEDULER_AUDIT_ACTIVATION_APPROVAL_REFERENCE` whenever `DURABLE_SCHEDULER_AUDIT_ENABLED=true`; the reference is validated but never emitted.
+- Added an authenticated Operations Health scheduler-audit read model. It returns only the latest run's bounded status, run ID, UTC timestamps, and generic failure code, or `unavailable` when no audit row/schema is available; the dashboard renders this as Scheduler audit status.
+- API deployment `2efb3330-8ee5-4b59-a169-834cf11432cd` reached `SUCCESS`; public API health is healthy and unauthenticated Operations Health correctly returns `401`. The Vercel deployment request timed out twice after upload, so the previous protected production dashboard remains the latest confirmed frontend deployment.
 - PITR presence is not a restore drill. `RECOVERY_DRILL_VERIFIED` remains unset, so recovery status stays `unverified` until an isolated restore is completed and its reference/timestamp are recorded.
 
 ### Deployment Recommendation
