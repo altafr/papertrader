@@ -2,7 +2,12 @@
 
 ## Status
 
-- **Stage:** Phase 6.199 Preserved performance-range audit context; multi-day evidence collection continues.
+- **Stage:** Phase 6.200 Manual paper-only verification trigger; multi-day evidence collection continues.
+
+### Manual paper-only verification trigger (2026-08-26)
+
+- The paper-only CI workflow can now be started manually with `workflow_dispatch`, using the same mandatory local quality gates and credential-optional hosted contract verifier.
+- Manual triggering adds no runtime trading authority and does not change deployment, scheduler, risk, or authentication behavior.
 
 ### Preserved performance-range audit context (2026-08-26)
 
