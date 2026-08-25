@@ -192,6 +192,11 @@ export function createAccountStateRepository(db: Database) {
       return row;
     },
 
+    async getInitial(accountId: string) {
+      const [row] = await db.select().from(accountSnapshots).where(eq(accountSnapshots.accountId, accountId)).orderBy(asc(accountSnapshots.capturedAt)).limit(1);
+      return row;
+    },
+
     async getLatestReadModel(accountId?: string) {
       const [snapshot] = accountId
         ? await db

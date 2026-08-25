@@ -41,10 +41,11 @@ try {
   const candidate = rawCandidate as Parameters<typeof assessResearchCandidateRisk>[0]["candidate"];
   const model = await accountRepository.getLatestReadModel();
   if (!model) throw new Error("Paper account read model is unavailable.");
+  const initialSnapshot = await accountRepository.getInitial(snapshot.accountId);
   const now = new Date();
   const candidateAge = now.getTime() - Date.parse(candidate.dataAsOf);
   const state = {
-    accountBaselineVerified: Number(snapshot.equity) === 100000,
+    accountBaselineVerified: Boolean(initialSnapshot && Number(initialSnapshot.equity) === 100000),
     accountFresh: Math.floor((now.getTime() - model.freshness.capturedAt.getTime()) / 1000) <= 172_800,
     dataFresh: Number.isFinite(candidateAge) && candidateAge >= 0 && candidateAge <= 172_800_000,
     killSwitchActive: isGlobalKillSwitchActive(),

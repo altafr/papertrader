@@ -43,10 +43,11 @@ try {
   stage = "risk_assessment";
   const model = await accountRepository.getLatestReadModel();
   if (!model) throw new Error("paper_e2e_account_read_model_missing");
+  const initialSnapshot = await accountRepository.getInitial(snapshot.accountId);
   const now = new Date();
   const accountFresh = Math.floor((now.getTime() - model.freshness.capturedAt.getTime()) / 1000) <= 172_800;
   const state = {
-    accountBaselineVerified: Number(snapshot.equity) === 100000,
+    accountBaselineVerified: Boolean(initialSnapshot && Number(initialSnapshot.equity) === 100000),
     accountFresh,
     dataFresh: marketInput.freshness === "fresh",
     killSwitchActive: isGlobalKillSwitchActive(),
