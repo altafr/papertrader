@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.148 Alpaca USD 100,000 paper baseline and 5% maximum stop-distance policy recorded; Paper Autopilot remains paper-only under deterministic risk gates.
+- **Stage:** Phase 6.149 Invested-notional loss policy deployed; Paper Autopilot remains paper-only under deterministic risk gates.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
