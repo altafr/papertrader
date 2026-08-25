@@ -57,6 +57,7 @@ try {
   const orderRepository = createPaperOrderRepository(db);
   if (approval.status !== "approved") {
     await orderRepository.recordSubmission({ approvalId: approval.approvalId, assetClass: candidate.assetClass, clientOrderId: `${intentId}:rejected`, intentId, quantity, riskDecision: { estimatedLoss: approval.assessment.estimatedLoss, estimatedLossPercent: approval.assessment.estimatedLossPercent, policyVersion: approval.policyVersion, reasons: approval.assessment.reasons }, status: "paper_order_risk_rejected", symbol: candidate.symbol });
+    console.error(JSON.stringify({ approvalStatus: approval.status, estimatedLossPercent: approval.assessment.estimatedLossPercent, reasons: approval.assessment.reasons }));
     throw new Error("Deterministic paper risk approval rejected the order.");
   }
   stage = "order_submit";
