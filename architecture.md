@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.143 startup recovery invariant covered by focused tests; natural scheduler-cycle verification, post-restore reconciliation, recovery sign-off, and persistent Paper Autopilot activation remain separately gated.
+- **Stage:** Phase 6.144 startup recovery invariant tested and deployed; natural scheduler-cycle verification, post-restore reconciliation, recovery sign-off, and persistent Paper Autopilot activation remain separately gated.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -121,6 +121,11 @@ Do not run the continuous trading loop in the browser or Vercel functions. Verce
 
 - Extracted the startup recovery sequencing boundary and added focused tests proving the scheduler starts only after successful reconciliation and remains paused on reconciliation failure.
 - Verification: 232 tests, typecheck, lint, and production build pass. This is a behavior-preserving testability change; the already deployed Phase 6.141 runtime behavior remains unchanged.
+
+### 2026-08-25 — Phase 6.144 startup recovery tests deployed
+
+- Worker deployment `75287072-b5d4-473c-997d-1b9e3f7974e3` reached `SUCCESS`; private Worker Health returned `healthy` with scheduler `scheduled` for `2026-08-26T00:00:00Z`, observe mode, inactive kill switch, and Paper Autopilot disabled.
+- The deployment preserves the startup reconciliation gate and its fail-closed test coverage; no manual scheduler trigger or order action occurred.
 
 ### Deployment Recommendation
 
