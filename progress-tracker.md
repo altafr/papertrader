@@ -2585,3 +2585,10 @@
 - The dry run requires fresh account/data state, verified USD 100,000 paper baseline, inactive kill switch, and all existing exposure/entry limits. It never calls an order submitter and refuses to run with Paper Autopilot enabled.
 - Verification passed: 259 tests, Worker typecheck, lint, and full workspace build. Hosted deployment and one dry-run execution remain next.
 - **Next smallest unit:** deploy the Worker, run one bounded risk dry run, and verify the persisted decision through the protected dashboard read model.
+
+### 2026-08-26 — Phase 6.149 one-shot paper order path
+
+- Added an explicit command-scoped order mode to the paper end-to-end runner. With `PAPER_E2E_ORDER_ONCE=true`, `PAPER_AUTOPILOT_ENABLED=true`, and `OPERATING_MODE=paper_autopilot` supplied only to that SSH process, the runner uses the existing deterministic approval and `executePaperAutopilotOrder`, submits one paper market order, and immediately reconciles the paper account.
+- The command defaults to one share, remains hard-gated to paper mode/broker/database/freshness/baseline/kill-switch/risk checks, uses an idempotent client order ID, and never changes persistent Railway flags. Evidence-only runs still cannot submit orders.
+- Local verification passed: 260 tests, Worker typecheck and lint. Hosted deployment and the single paper order remain to be executed.
+- **Next smallest unit:** deploy and run the one-shot paper order, then verify its broker order ID/status and dashboard row.

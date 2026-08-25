@@ -1,4 +1,4 @@
-import { createPaperAccountReader, createPaperMarketDataReader } from "@momentum/alpaca";
+import { createPaperAccountReader, createPaperMarketDataReader, createPaperOrderSubmitter } from "@momentum/alpaca";
 import { getPaperOnlyRuntimeConfig } from "@momentum/config";
 import { createAgentRunRepository, createAccountStateRepository, createDatabase, createPaperOrderRepository, type PersistedAgentRun } from "@momentum/db";
 import { isGlobalKillSwitchActive } from "@momentum/config";
@@ -10,6 +10,7 @@ import { reconcilePaperAccount } from "./reconcile.js";
 import { getResearchMarketInputRefs } from "./research-market-run-once-guard.js";
 import { validatePaperE2ERunOnce } from "./paper-e2e-run-once.js";
 import { assessResearchCandidateRisk } from "./paper-risk-dry-run.js";
+import { executePaperAutopilotOrder } from "./paper-execution.js";
 
 const config = validatePaperE2ERunOnce();
 getPaperOnlyRuntimeConfig();
@@ -55,8 +56,17 @@ try {
   const quantity = process.env.PAPER_E2E_QUANTITY?.trim() || "1";
   const { approval, intentId } = assessResearchCandidateRisk({ candidate, currentAt: now.toISOString(), equity: snapshot.equity, quantity, state });
   stage = "risk_persist";
-  await createPaperOrderRepository(db).recordSubmission({ approvalId: approval.approvalId, assetClass: candidate.assetClass, clientOrderId: `${intentId}:dry-run`, intentId, ...(candidate.marketSnapshot ? { marketSnapshot: Object.fromEntries(Object.entries(candidate.marketSnapshot).map(([key, value]) => [key, value])) as Readonly<Record<string, string | null>> } : {}), quantity, riskDecision: { estimatedLoss: approval.assessment.estimatedLoss, estimatedLossPercent: approval.assessment.estimatedLossPercent, policyVersion: approval.policyVersion, reasons: approval.assessment.reasons }, status: approval.status === "approved" ? "risk_dry_run_approved" : "risk_dry_run_rejected", symbol: candidate.symbol });
-  console.log(JSON.stringify({ approvalStatus: approval.status, approvalReference: config.approvalReference, capturedAt: snapshot.capturedAt.toISOString(), estimatedLossPercent: approval.assessment.estimatedLossPercent, intentId, researchRunId: request.runId, runId: config.runId, status: "completed" }));
+  if (!config.orderOnce || approval.status !== "approved") {
+    await createPaperOrderRepository(db).recordSubmission({ approvalId: approval.approvalId, assetClass: candidate.assetClass, clientOrderId: `${intentId}:dry-run`, intentId, ...(candidate.marketSnapshot ? { marketSnapshot: Object.fromEntries(Object.entries(candidate.marketSnapshot).map(([key, value]) => [key, value])) as Readonly<Record<string, string | null>> } : {}), quantity, riskDecision: { estimatedLoss: approval.assessment.estimatedLoss, estimatedLossPercent: approval.assessment.estimatedLossPercent, policyVersion: approval.policyVersion, reasons: approval.assessment.reasons }, status: approval.status === "approved" ? "risk_dry_run_approved" : "risk_dry_run_rejected", symbol: candidate.symbol });
+    console.log(JSON.stringify({ approvalStatus: approval.status, approvalReference: config.approvalReference, capturedAt: snapshot.capturedAt.toISOString(), estimatedLossPercent: approval.assessment.estimatedLossPercent, intentId, researchRunId: request.runId, runId: config.runId, status: "completed" }));
+  } else {
+    stage = "order_submit";
+    const orderRepository = createPaperOrderRepository(db);
+    const order = await executePaperAutopilotOrder({ autopilot: { enabled: true, mode: "paper_autopilot" }, order: { approval: { approvalId: approval.approvalId, intentId, riskDecision: { estimatedLoss: approval.assessment.estimatedLoss, estimatedLossPercent: approval.assessment.estimatedLossPercent, policyVersion: approval.policyVersion, reasons: approval.assessment.reasons }, status: "approved" }, assetClass: candidate.assetClass, clientOrderId: `${intentId}-paper`, ...(candidate.marketSnapshot ? { marketSnapshot: Object.fromEntries(Object.entries(candidate.marketSnapshot).map(([key, value]) => [key, value])) as Readonly<Record<string, string | null>> } : {}), quantity, side: "buy", symbol: candidate.symbol, timeInForce: "day", type: "market" }, persistence: orderRepository, submitter: createPaperOrderSubmitter({ apiKey: process.env.ALPACA_API_KEY ?? "", brokerConnectionEnabled: true, secretKey: process.env.ALPACA_SECRET_KEY ?? "" }) });
+    stage = "post_order_reconciliation";
+    await reconcilePaperAccount(reader, accountRepository);
+    console.log(JSON.stringify({ alpacaOrderId: order.brokerOrder.alpacaOrderId, approvalStatus: approval.status, approvalReference: config.approvalReference, capturedAt: snapshot.capturedAt.toISOString(), estimatedLossPercent: approval.assessment.estimatedLossPercent, filledQuantity: order.brokerOrder.filledQuantity ?? null, intentId, researchRunId: request.runId, runId: config.runId, status: "paper_order_reconciled" }));
+  }
 } catch {
   console.error(`Paper end-to-end evidence run failed (stage=${stage}).`);
   process.exitCode = 1;

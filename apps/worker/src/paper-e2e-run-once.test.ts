@@ -6,6 +6,7 @@ const base = {
   DATABASE_URL: "postgresql://redacted",
   PAPER_E2E_APPROVAL_REFERENCE: "PAPER-E2E-001",
   PAPER_E2E_RUN_ONCE: "true",
+  PAPER_E2E_RISK_DRY_RUN: "true",
 };
 
 describe("validatePaperE2ERunOnce", () => {
@@ -19,5 +20,10 @@ describe("validatePaperE2ERunOnce", () => {
 
   it("rejects an unbounded approval reference", () => {
     expect(() => validatePaperE2ERunOnce({ ...base, PAPER_E2E_APPROVAL_REFERENCE: "contains spaces" })).toThrow(/bounded/);
+  });
+
+  it("requires both command-scoped paper-autopilot flags for an order run", () => {
+    expect(() => validatePaperE2ERunOnce({ ...base, PAPER_E2E_ORDER_ONCE: "true" })).toThrow(/PAPER_AUTOPILOT_ENABLED/);
+    expect(validatePaperE2ERunOnce({ ...base, OPERATING_MODE: "paper_autopilot", PAPER_AUTOPILOT_ENABLED: "true", PAPER_E2E_ORDER_ONCE: "true" }).orderOnce).toBe(true);
   });
 });

@@ -14,6 +14,10 @@
 
 - The guarded paper evidence command now feeds the top research candidate into `createImmutablePaperSignal`, `createImmutablePaperTradeIntent`, and `approvePaperTradeIntent`. Its result is persisted as a clearly labelled dry-run decision with deterministic loss, policy, reasons, and point-in-time market snapshot fields; no broker order API is reachable from this path.
 
+### One-shot paper order path (2026-08-26)
+
+- Added a separately gated, command-scoped order path for the first end-to-end paper validation. It can submit only after the same deterministic risk approval used by Autopilot, defaults to one share, uses Alpaca client-order idempotency, and reconciles broker state immediately; persistent Autopilot/scheduler flags remain unchanged.
+
 ### Credential-free hosted auth-boundary verification (2026-08-26)
 
 - Added a credential-free verifier for the protected JSON and CSV operator-overview endpoints and included it in CI.
