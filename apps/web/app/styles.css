@@ -234,6 +234,30 @@ h2 {
   border-color: rgb(230 173 66 / 46%);
 }
 
+.alert-list {
+  display: grid;
+  gap: 0.6rem;
+  margin-top: 1rem;
+}
+
+.alert-row {
+  border: 1px solid var(--border);
+  border-left-width: 3px;
+  border-radius: 10px;
+  display: grid;
+  gap: 0.2rem;
+  padding: 0.7rem 0.85rem;
+}
+
+.alert-row span {
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.alert-row.critical { border-left-color: var(--negative); }
+.alert-row.warning { border-left-color: var(--warning); }
+.alert-row.info { border-left-color: var(--paper); }
+
 .degraded-card {
   background: linear-gradient(145deg, rgb(65 48 24 / 42%), rgb(16 26 36 / 92%));
 }

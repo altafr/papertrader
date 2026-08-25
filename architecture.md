@@ -2,7 +2,12 @@
 
 ## Status
 
-- **Stage:** Phase 6.164 Authenticated audit CSV export added; multi-day evidence collection continues.
+- **Stage:** Phase 6.165 Read-only current-state alert summary added; multi-day evidence collection continues.
+
+### Read-only current-state alert summary (2026-08-26)
+
+- The dashboard now derives compact critical, warning, and informational notices from the authenticated health, freshness, recovery, migration, Telegram-readiness, kill-switch, and paper-stability contracts.
+- Notices are explicitly labeled as current-state health notices, not an immutable alert history and not an action authority. They do not change risk, scheduler, or order behavior.
 
 ### Authenticated audit CSV export (2026-08-26)
 

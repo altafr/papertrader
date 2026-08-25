@@ -218,6 +218,26 @@ function PaperPerformanceCard({ performance }: { readonly performance: PaperPerf
   return <article className="card" id="performance"><p className="label">Paper performance</p><h2>{metrics ? `${metrics.totalReturnPercent}% return` : "Insufficient history"}</h2><p>{performance.snapshotCount} snapshots · {performance.calendarDays} calendar days · {performance.consecutiveCalendarDays} consecutive days</p>{metrics && <p>Max drawdown {metrics.maxDrawdownPercent}% · P/L {metrics.totalPnl}</p>}{points && <div className="equity-chart" aria-label="Paper equity curve"><svg viewBox="0 0 100 100" role="img" aria-label="Equity curve"><polyline points={points} fill="none" stroke="currentColor" strokeWidth="2" vectorEffect="non-scaling-stroke" /></svg><span className="chart-caption">Equity curve · latest {formatUtc(curve[curve.length - 1]!.capturedAt)}</span></div>}<p className="provenance">Stability gate: {performance.stability.status === "ready" ? "Ready" : `Blocked · ${performance.stability.blockedReasons.join(", ")}`}</p></article>;
 }
 
+type AlertItem = { readonly detail: string; readonly severity: "critical" | "info" | "warning"; readonly title: string };
+
+function buildHealthAlerts(health: OperationsHealth | undefined, freshness: "delayed" | "fresh" | "stale", performance: PaperPerformance | undefined): readonly AlertItem[] {
+  const alerts: AlertItem[] = [];
+  if (!health) return [{ detail: "The authenticated operations-health contract could not be read.", severity: "critical", title: "Operations health unavailable" }];
+  if (health.runtime.globalKillSwitchActive) alerts.push({ detail: "New proposals and submissions should remain stopped until the operator completes the safe-resume checklist.", severity: "critical", title: "Global kill switch is active" });
+  if (freshness === "stale") alerts.push({ detail: "The latest reconciled account snapshot is outside the trusted freshness window.", severity: "critical", title: "Account data is stale" });
+  else if (freshness === "delayed") alerts.push({ detail: "The latest reconciled account snapshot is delayed; review freshness before relying on values.", severity: "warning", title: "Account data is delayed" });
+  if (health.runtime.migration.status === "blocked") alerts.push({ detail: health.runtime.migration.blockedReasons.join(", ") || "Migration readiness is not confirmed.", severity: "critical", title: "Database migration gate is blocked" });
+  if (health.runtime.recovery.status !== "verified") alerts.push({ detail: "The latest backup/PITR recovery evidence is not verified in the runtime contract.", severity: "warning", title: "Recovery verification is missing" });
+  if (health.runtime.telegramAlerts.enabled && health.runtime.telegramAlerts.status !== "ready") alerts.push({ detail: "Critical alert configuration is not ready for delivery.", severity: "warning", title: "Telegram alerts are not ready" });
+  if (performance?.stability.status === "blocked") alerts.push({ detail: performance.stability.blockedReasons.join(", "), severity: "info", title: "Paper stability gate remains blocked" });
+  return alerts;
+}
+
+function AlertsCard({ health, freshness, performance }: { readonly health: OperationsHealth | undefined; readonly freshness: "delayed" | "fresh" | "stale"; readonly performance: PaperPerformance | undefined }) {
+  const alerts = buildHealthAlerts(health, freshness, performance);
+  return <article className="card full-width" id="alerts"><div className="card-heading"><div><p className="label">Alerts</p><h2>{alerts.length === 0 ? "No active health alerts" : `${alerts.length} health alert${alerts.length === 1 ? "" : "s"}`}</h2></div><span className={`state-badge ${alerts.some((alert) => alert.severity === "critical") ? "degraded" : alerts.some((alert) => alert.severity === "warning") ? "delayed" : "fresh"}`}>{alerts.some((alert) => alert.severity === "critical") ? "Review now" : alerts.length === 0 ? "Healthy" : "Review"}</span></div><div className="alert-list">{alerts.length === 0 ? <p className="empty-state">No active alert is derived from the current persisted health contracts.</p> : alerts.map((alert) => <div className={`alert-row ${alert.severity}`} key={alert.title}><strong>{alert.title}</strong><span>{alert.detail}</span></div>)}</div><p className="provenance">These are current-state health notices, not a replacement for the immutable audit log. They do not change risk or order behavior.</p></article>;
+}
+
 export default async function DashboardPage() {
   const { isAuthenticated, redirectToSignIn, userId, getToken } = await auth();
   if (!isAuthenticated) return redirectToSignIn();
@@ -326,9 +346,7 @@ export default async function DashboardPage() {
 
           <OperatorAuditCards overview={operatorOverview} />
 
-          <article className="card" id="alerts">
-            <p className="label">Alerts</p><h2>No alert feed yet</h2><p>Critical stale-data, discrepancy, and risk alerts will be shown here when the alert service is implemented.</p><p className="provenance">Current dashboard state: {freshness === "fresh" ? "No known alert from this read model." : "Review stale or degraded data before relying on values."}</p>
-          </article>
+          <AlertsCard health={operationsHealth} freshness={freshness} performance={paperPerformance} />
 
           <article className="card">
             <p className="label">Recent account activity</p><h2>{result.model.activities.length} events</h2>
