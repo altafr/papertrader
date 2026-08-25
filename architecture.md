@@ -8,6 +8,7 @@
 
 - Added `paper-e2e-run-once`, which composes one paper-account reconciliation and one bounded market-research agent run so the operator can verify the complete read → persist → dashboard path quickly.
 - It requires a command-scoped, non-secret reference and explicit paper broker/database gates, refuses to run with Paper Autopilot enabled, persists reconciliation provenance and research evidence, and has no order-submission or scheduler mutation authority.
+- Worker deployment `caf894b9-fa02-4d46-908e-3544e8c68ef9` ran `paper-e2e-20260826-001` successfully. Read-only verification confirmed fresh reconciliation, persisted run provenance, drained queues, and a succeeded stock research artifact. This is end-to-end evidence, not an order or return claim.
 
 ### Credential-free hosted auth-boundary verification (2026-08-26)
 
