@@ -2,7 +2,12 @@
 
 ## Status
 
-- **Stage:** Phase 6.182 Authenticated reconciled account CSV export added; multi-day evidence collection continues.
+- **Stage:** Phase 6.183 Versioned strategy catalog metadata rendered; multi-day evidence collection continues.
+
+### Versioned strategy catalog metadata rendered (2026-08-26)
+
+- The authenticated operator overview now includes safe metadata from the registered momentum strategy plugins: key, semantic version, asset class, owner, description, stage, required lookback, and default parameters.
+- The dashboard renders this catalog read-only beside lifecycle and outcome evidence; it does not alter strategy configuration or bypass approvals.
 
 ### Authenticated reconciled account CSV export (2026-08-26)
 

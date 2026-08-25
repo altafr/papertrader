@@ -272,6 +272,11 @@ function StrategyLifecycleCard({ overview }: { readonly overview: OperatorOvervi
   return <article className="card full-width" id="strategy-lifecycle"><div className="card-heading"><div><p className="label">Strategy lifecycle</p><h2>{events.length ? `${events.length} version events` : "No lifecycle events"}</h2></div><span className="provenance">Read-only approvals</span></div>{events.length === 0 ? <p className="empty-state">No persisted strategy stage transitions are available.</p> : <div className="responsive-table"><table><thead><tr><th>Strategy</th><th>Version</th><th>Transition</th><th>Revision</th><th>Reason</th><th>Evidence</th><th>Approved</th></tr></thead><tbody>{events.map((event) => <tr key={value(event, "eventId")}><th scope="row">{value(event, "strategyKey")}</th><td>{value(event, "strategyVersion")}</td><td>{value(event, "fromStage")} → {value(event, "toStage")}</td><td>{value(event, "revision")}</td><td className="table-reason">{value(event, "reason")}</td><td>{value(event, "evidenceKey")}</td><td>{formatUtc(value(event, "approvedAt"))}</td></tr>)}</tbody></table></div>}<p className="provenance">Lifecycle history records reviewed stage transitions; it does not itself enable trading or override deterministic gates.</p></article>;
 }
 
+function StrategyCatalogCard({ overview }: { readonly overview: OperatorOverview | undefined }) {
+  const strategies = overview?.strategyCatalog ?? [];
+  return <article className="card full-width" id="strategy-catalog"><div className="card-heading"><div><p className="label">Strategy catalog</p><h2>{strategies.length ? `${strategies.length} registered strategies` : "No strategy metadata"}</h2></div><span className="provenance">Versioned defaults</span></div>{strategies.length === 0 ? <p className="empty-state">No registered strategy metadata is available.</p> : <div className="responsive-table"><table><thead><tr><th>Strategy</th><th>Version</th><th>Asset class</th><th>Stage</th><th>Lookback</th><th>Description</th><th>Default parameters</th></tr></thead><tbody>{strategies.map((strategy) => <tr key={`${value(strategy, "key")}-${value(strategy, "version")}`}><th scope="row">{value(strategy, "key")}</th><td>{value(strategy, "version")}</td><td>{value(strategy, "assetClass")}</td><td>{value(strategy, "stage")}</td><td>{value(strategy, "requiredLookbackBars")} bars</td><td className="table-reason">{value(strategy, "description")}</td><td className="table-reason">{isRecord(strategy.defaultParameters) ? JSON.stringify(strategy.defaultParameters) : "Not reported"}</td></tr>)}</tbody></table></div>}<p className="provenance">Catalog metadata is descriptive and read-only; lifecycle approvals and deterministic gates remain authoritative.</p></article>;
+}
+
 function AuditTimelineCard({ overview }: { readonly overview: OperatorOverview | undefined }) {
   const events = overview?.auditTimeline ?? [];
   return <article className="card full-width" id="audit-timeline"><div className="card-heading"><div><p className="label">Audit timeline</p><h2>{events.length ? `${events.length} persisted events` : "No persisted events"}</h2></div><span className="provenance">Read-only unified view</span></div>{events.length === 0 ? <p className="empty-state">No agent, lifecycle, scheduler, or execution events are available.</p> : <div className="audit-timeline-list">{events.map((event) => <div className="audit-timeline-row" key={`${value(event, "category")}-${value(event, "reference")}`}><span className="audit-timeline-time">{formatUtc(value(event, "capturedAt"))}</span><strong>{value(event, "title")}</strong><span>{value(event, "detail")}</span><small>{value(event, "category")}</small></div>)}</div>}<p className="provenance">This view combines immutable persisted records for orientation; it does not replace source records or authorize actions.</p></article>;
@@ -370,6 +375,7 @@ export default async function DashboardPage({ searchParams }: { readonly searchP
           <a href="#decision-log">Decision log</a>
           <a href="#strategy-performance">Strategies</a>
           <a href="#strategy-lifecycle">Lifecycle</a>
+          <a href="#strategy-catalog">Catalog</a>
           <a href="#audit-timeline">Audit</a>
           <a href="#performance">Performance</a>
         <a href="#alerts">Alerts</a>
@@ -432,6 +438,8 @@ export default async function DashboardPage({ searchParams }: { readonly searchP
           <StrategyPerformanceCard overview={operatorOverview} />
 
           <StrategyLifecycleCard overview={operatorOverview} />
+
+          <StrategyCatalogCard overview={operatorOverview} />
 
           <AuditTimelineCard overview={operatorOverview} />
 

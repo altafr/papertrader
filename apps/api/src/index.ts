@@ -21,7 +21,7 @@ import {
   getServerPort,
   isGlobalKillSwitchActive,
 } from "@momentum/config";
-import { calculatePerformanceMetrics, MAX_SINGLE_TRADE_RISK_PERCENT_OF_NOTIONAL, MAX_SINGLE_TRADE_STOP_LOSS_PERCENT, PAPER_INITIAL_EQUITY_BASELINE } from "@momentum/domain";
+import { calculatePerformanceMetrics, INITIAL_MOMENTUM_STRATEGIES, MAX_SINGLE_TRADE_RISK_PERCENT_OF_NOTIONAL, MAX_SINGLE_TRADE_STOP_LOSS_PERCENT, PAPER_INITIAL_EQUITY_BASELINE } from "@momentum/domain";
 import { getTelegramAlertTestReadiness, getTelegramNotificationReadiness } from "@momentum/notifications";
 
 import { getApiHealth } from "./app.js";
@@ -493,6 +493,7 @@ async function readOperatorOverview(request: IncomingMessage) {
         filteredTrades: [...filteredTrades.rows.map((row) => ({ observationId: row.observation_id, symbol: row.symbol, assetClass: row.asset_class, strategyKey: row.strategy_key, strategyVersion: row.strategy_version, score: row.score, proposedEntryPrice: row.proposed_entry_price, plannedStopPrice: row.planned_stop_price, plannedExitPrice: row.planned_exit_price, signalTime: row.signal_time, expiresAt: row.expires_at, rationale: row.rationale, marketSnapshot: row.market_snapshot, outcome: row.reason ? { exitPrice: row.exit_price, observedAt: row.observed_at, reason: row.reason, returnPercent: row.return_percent } : null, status: row.reason ? "closed" : "open" })), ...researchCandidates],
         tradeDecisions: submissions.rows.map((row) => ({ intentId: row.intent_id, approvalId: row.approval_id, clientOrderId: row.client_order_id, alpacaOrderId: row.alpaca_order_id, symbol: row.symbol, assetClass: row.asset_class, quantity: row.quantity, filledQuantity: row.filled_quantity, status: row.status, createdAt: row.created_at, submittedAt: row.submitted_at, updatedAt: row.updated_at, reason: Array.isArray(row.risk_decision?.reasons) && row.risk_decision.reasons.length > 0 ? row.risk_decision.reasons.join("; ") : "Deterministic paper execution approval recorded.", riskDecision: row.risk_decision, marketSnapshot: row.market_snapshot })),
         strategyLifecycle: lifecycle.rows.map((row) => ({ eventId: row.event_id, strategyKey: row.strategy_key, strategyVersion: row.strategy_version, fromStage: row.from_stage, toStage: row.to_stage, revision: row.revision, reason: row.reason, approvalNote: row.approval_note, evidenceKey: row.evidence_key, approvedBy: row.approved_by, approvedAt: row.approved_at, requestedAt: row.requested_at })),
+        strategyCatalog: INITIAL_MOMENTUM_STRATEGIES.map((strategy) => ({ assetClass: strategy.assetClass, description: strategy.description, key: strategy.key, owner: strategy.owner, requiredLookbackBars: strategy.requiredLookbackBars, stage: strategy.stage, version: strategy.version, defaultParameters: strategy.parameters.defaults })),
         auditTimeline,
       },
       status: 200,
