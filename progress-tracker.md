@@ -2578,3 +2578,10 @@
 - Worker deployment `caf894b9-fa02-4d46-908e-3544e8c68ef9` reached `SUCCESS`. The bounded run `paper-e2e-20260826-001` completed against Alpaca paper with fresh capture `2026-08-25T23:27:43.224Z`; durable one-run verification returned `status:"verified"` with both queues drained and persisted provenance, and research verification returned a succeeded stock agent artifact.
 - No order was submitted, Paper Autopilot was not enabled, and no persistent runtime flag changed. The authenticated dashboard can now display the new reconciliation and research evidence through the existing protected overview path.
 - **Next smallest unit:** add a deterministic candidate-to-risk-decision dry run (still no order submission), then use the resulting evidence to decide whether to activate Paper Autopilot for a first paper order.
+
+### 2026-08-26 — Phase 6.148 candidate-to-risk dry run
+
+- Added a guarded candidate-to-risk step to the paper end-to-end command. It converts the top persisted research candidate into an immutable long signal with a 5% planned stop, runs the existing deterministic paper-risk engine, and persists an explicit `risk_dry_run_approved` or `risk_dry_run_rejected` decision with the market snapshot and risk reasons.
+- The dry run requires fresh account/data state, verified USD 100,000 paper baseline, inactive kill switch, and all existing exposure/entry limits. It never calls an order submitter and refuses to run with Paper Autopilot enabled.
+- Verification passed: 259 tests, Worker typecheck, lint, and full workspace build. Hosted deployment and one dry-run execution remain next.
+- **Next smallest unit:** deploy the Worker, run one bounded risk dry run, and verify the persisted decision through the protected dashboard read model.

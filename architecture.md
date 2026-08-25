@@ -10,6 +10,10 @@
 - It requires a command-scoped, non-secret reference and explicit paper broker/database gates, refuses to run with Paper Autopilot enabled, persists reconciliation provenance and research evidence, and has no order-submission or scheduler mutation authority.
 - Worker deployment `caf894b9-fa02-4d46-908e-3544e8c68ef9` ran `paper-e2e-20260826-001` successfully. Read-only verification confirmed fresh reconciliation, persisted run provenance, drained queues, and a succeeded stock research artifact. This is end-to-end evidence, not an order or return claim.
 
+### Candidate-to-risk dry run (2026-08-26)
+
+- The guarded paper evidence command now feeds the top research candidate into `createImmutablePaperSignal`, `createImmutablePaperTradeIntent`, and `approvePaperTradeIntent`. Its result is persisted as a clearly labelled dry-run decision with deterministic loss, policy, reasons, and point-in-time market snapshot fields; no broker order API is reachable from this path.
+
 ### Credential-free hosted auth-boundary verification (2026-08-26)
 
 - Added a credential-free verifier for the protected JSON and CSV operator-overview endpoints and included it in CI.

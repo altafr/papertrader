@@ -1,6 +1,7 @@
 import { createPaperAccountReader, createPaperMarketDataReader } from "@momentum/alpaca";
 import { getPaperOnlyRuntimeConfig } from "@momentum/config";
-import { createAgentRunRepository, createAccountStateRepository, createDatabase, type PersistedAgentRun } from "@momentum/db";
+import { createAgentRunRepository, createAccountStateRepository, createDatabase, createPaperOrderRepository, type PersistedAgentRun } from "@momentum/db";
+import { isGlobalKillSwitchActive } from "@momentum/config";
 import { createCryptoResearchAgent, createStockResearchAgent, type AgentRunRequest, type ResearchAgentInput } from "@momentum/domain";
 
 import { executeResearchRun } from "./research-runner.js";
@@ -8,6 +9,7 @@ import { createAlpacaResearchInputSource } from "./research-market-source.js";
 import { reconcilePaperAccount } from "./reconcile.js";
 import { getResearchMarketInputRefs } from "./research-market-run-once-guard.js";
 import { validatePaperE2ERunOnce } from "./paper-e2e-run-once.js";
+import { assessResearchCandidateRisk } from "./paper-risk-dry-run.js";
 
 const config = validatePaperE2ERunOnce();
 getPaperOnlyRuntimeConfig();
@@ -30,7 +32,26 @@ try {
   const handler = config.agentType === "stock_research" ? createStockResearchAgent(marketInput as ResearchAgentInput & { assetClass: "us_equity" }) : createCryptoResearchAgent(marketInput as ResearchAgentInput & { assetClass: "crypto" });
   const research = await executeResearchRun({ handler, persistence, request });
   if (research.status !== "succeeded") throw new Error("paper_e2e_research_failed");
-  console.log(JSON.stringify({ approvalReference: config.approvalReference, capturedAt: snapshot.capturedAt.toISOString(), researchRunId: request.runId, runId: config.runId, status: "completed" }));
+  const payload = research.artifact?.payload as { readonly candidates?: readonly unknown[] } | undefined;
+  const rawCandidate = payload?.candidates?.[0];
+  if (!rawCandidate || typeof rawCandidate !== "object") throw new Error("paper_e2e_no_research_candidate");
+  const candidate = rawCandidate as Parameters<typeof assessResearchCandidateRisk>[0]["candidate"];
+  const model = await accountRepository.getLatestReadModel();
+  if (!model) throw new Error("paper_e2e_account_read_model_missing");
+  const now = new Date();
+  const accountFresh = Math.floor((now.getTime() - model.freshness.capturedAt.getTime()) / 1000) <= 172_800;
+  const state = {
+    accountBaselineVerified: Number(snapshot.equity) === 100000,
+    accountFresh,
+    dataFresh: marketInput.freshness === "fresh",
+    killSwitchActive: isGlobalKillSwitchActive(),
+    openPositions: model.positions.map((position) => ({ assetClass: position.assetClass === "crypto" ? "crypto" as const : "us_equity" as const, marketValue: position.marketValue })),
+    submittedEntriesLast24Hours: model.orders.filter((order) => order.side.toLowerCase() === "buy" && order.submittedAt && now.getTime() - order.submittedAt.getTime() <= 86_400_000).length,
+  };
+  const quantity = process.env.PAPER_E2E_QUANTITY?.trim() || "1";
+  const { approval, intentId } = assessResearchCandidateRisk({ candidate, currentAt: now.toISOString(), equity: snapshot.equity, quantity, state });
+  await createPaperOrderRepository(db).recordSubmission({ approvalId: approval.approvalId, assetClass: candidate.assetClass, clientOrderId: `${intentId}:dry-run`, intentId, ...(candidate.marketSnapshot ? { marketSnapshot: Object.fromEntries(Object.entries(candidate.marketSnapshot).map(([key, value]) => [key, value])) as Readonly<Record<string, string | null>> } : {}), quantity, riskDecision: { estimatedLoss: approval.assessment.estimatedLoss, estimatedLossPercent: approval.assessment.estimatedLossPercent, policyVersion: approval.policyVersion, reasons: approval.assessment.reasons }, status: approval.status === "approved" ? "risk_dry_run_approved" : "risk_dry_run_rejected", symbol: candidate.symbol });
+  console.log(JSON.stringify({ approvalStatus: approval.status, approvalReference: config.approvalReference, capturedAt: snapshot.capturedAt.toISOString(), estimatedLossPercent: approval.assessment.estimatedLossPercent, intentId, researchRunId: request.runId, runId: config.runId, status: "completed" }));
 } catch {
   console.error("Paper end-to-end evidence run failed.");
   process.exitCode = 1;
