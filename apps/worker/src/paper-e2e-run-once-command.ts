@@ -23,9 +23,11 @@ const persistence = {
   succeed: agentRepository.succeed,
 };
 
+let stage = "reconciliation";
 try {
   const reader = createPaperAccountReader({ apiKey: process.env.ALPACA_API_KEY ?? "", secretKey: process.env.ALPACA_SECRET_KEY ?? "" });
   const snapshot = await reconcilePaperAccount(reader, accountRepository, { approvalReference: config.approvalReference, runId: config.runId });
+  stage = "research";
   const assetClass = config.agentType === "stock_research" ? "us_equity" : "crypto";
   const marketInput = await createAlpacaResearchInputSource(createPaperMarketDataReader({ apiKey: process.env.ALPACA_API_KEY ?? "", secretKey: process.env.ALPACA_SECRET_KEY ?? "" })).read({ assetClass, limit: config.limit, maxCandidates: config.maxCandidates, symbols: config.symbols, timeframe: config.timeframe });
   const request: AgentRunRequest = { agentType: config.agentType, createdAt: new Date().toISOString(), inputRefs: getResearchMarketInputRefs(assetClass, marketInput.capturedAt, config.approvalReference), promptVersion: "research-market-boundary@1", runId: `${config.runId}-research`, task: `Read and rank ${assetClass} market bars once as part of the paper evidence cycle.` };
@@ -36,6 +38,7 @@ try {
   const rawCandidate = payload?.candidates?.[0];
   if (!rawCandidate || typeof rawCandidate !== "object") throw new Error("paper_e2e_no_research_candidate");
   const candidate = rawCandidate as Parameters<typeof assessResearchCandidateRisk>[0]["candidate"];
+  stage = "risk_assessment";
   const model = await accountRepository.getLatestReadModel();
   if (!model) throw new Error("paper_e2e_account_read_model_missing");
   const now = new Date();
@@ -50,10 +53,11 @@ try {
   };
   const quantity = process.env.PAPER_E2E_QUANTITY?.trim() || "1";
   const { approval, intentId } = assessResearchCandidateRisk({ candidate, currentAt: now.toISOString(), equity: snapshot.equity, quantity, state });
+  stage = "risk_persist";
   await createPaperOrderRepository(db).recordSubmission({ approvalId: approval.approvalId, assetClass: candidate.assetClass, clientOrderId: `${intentId}:dry-run`, intentId, ...(candidate.marketSnapshot ? { marketSnapshot: Object.fromEntries(Object.entries(candidate.marketSnapshot).map(([key, value]) => [key, value])) as Readonly<Record<string, string | null>> } : {}), quantity, riskDecision: { estimatedLoss: approval.assessment.estimatedLoss, estimatedLossPercent: approval.assessment.estimatedLossPercent, policyVersion: approval.policyVersion, reasons: approval.assessment.reasons }, status: approval.status === "approved" ? "risk_dry_run_approved" : "risk_dry_run_rejected", symbol: candidate.symbol });
   console.log(JSON.stringify({ approvalStatus: approval.status, approvalReference: config.approvalReference, capturedAt: snapshot.capturedAt.toISOString(), estimatedLossPercent: approval.assessment.estimatedLossPercent, intentId, researchRunId: request.runId, runId: config.runId, status: "completed" }));
 } catch {
-  console.error("Paper end-to-end evidence run failed.");
+  console.error(`Paper end-to-end evidence run failed (stage=${stage}).`);
   process.exitCode = 1;
 } finally {
   await pool.end();
