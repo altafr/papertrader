@@ -2,7 +2,12 @@
 
 ## Status
 
-- **Stage:** Phase 6.159 Point-in-time decision indicators persisted; multi-day evidence collection continues.
+- **Stage:** Phase 6.160 Research candidate indicator evidence persisted; multi-day evidence collection continues.
+
+### Research candidate audit evidence (2026-08-25)
+
+- Scheduled research artifacts now retain indicator snapshots alongside each ranked candidate. The operator overview presents these as `research_candidate` records, not as approved or submitted trades.
+- Bounded paper run `research-market-1787673210266` produced two candidates, each with an indicator snapshot. This proves the persistence path without placing an order or bypassing strategy/risk gates.
 
 ### Point-in-time decision indicators (2026-08-25)
 
