@@ -2,6 +2,7 @@ import { UserButton } from "@clerk/nextjs";
 import { auth } from "@clerk/nextjs/server";
 
 import { formatUtc, getFreshnessLabel, getFreshnessState, parseAgentRuns, parseOperatorOverview, parseOperationsHealth, parsePaperPerformance, type AgentRunSummary, type OperationsHealth, type OperatorOverview, type PaperPerformance } from "./dashboard-state";
+import { DashboardRefresh } from "./dashboard-refresh";
 
 type ReadModel = {
   activities: Array<Record<string, unknown>>;
@@ -299,6 +300,7 @@ export default async function DashboardPage({ searchParams }: { readonly searchP
           <span className="badge paper">Paper</span>
           <span className="badge neutral">{operatingModeLabel(operationsHealth)}</span>
           <span className={`badge ${freshness === "fresh" ? "healthy" : "warning"}`}>{freshnessLabel}</span>
+          <DashboardRefresh />
           <UserButton />
         </div>
       </header>

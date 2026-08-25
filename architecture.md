@@ -2,7 +2,12 @@
 
 ## Status
 
-- **Stage:** Phase 6.168 Strategy-level shadow performance summary added; multi-day evidence collection continues.
+- **Stage:** Phase 6.169 Read-only dashboard auto-refresh added; multi-day evidence collection continues.
+
+### Read-only dashboard auto-refresh (2026-08-26)
+
+- The authenticated dashboard now offers a manual Refresh control and automatically requests a server refresh every 60 seconds.
+- Refresh only re-reads protected persisted read models; it does not create commands, alter risk state, or add broker authority to the browser.
 
 ### Strategy-level shadow performance summary (2026-08-26)
 
