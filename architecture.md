@@ -2,13 +2,18 @@
 
 ## Status
 
-- **Stage:** Phase 6.154 Read-only paper performance reporting deployed; multi-day evidence collection continues.
+- **Stage:** Phase 6.155 Paper performance coverage spans three calendar days; multi-day evidence collection continues.
 
 ### Paper performance evidence (2026-08-25)
 
 - Worker deployment `d7b4d8d9-36ac-4481-a8da-46ea1c8464b8` added a read-only report over reconciled equity snapshots.
 - Hosted output covers 12 snapshots and reports final equity `99292.09000000`, total P/L `-98.12000000`, total return `-0.09872200%`, and max drawdown `0.20037185%`.
 - The negative result is recorded as simulated evidence, not hidden or reframed as a profit claim. No order authority was added.
+
+### Multi-day coverage evidence (2026-08-25)
+
+- Hosted performance reporting now covers 13 snapshots across three calendar days, from `2026-08-22T16:30:21.444Z` through `2026-08-25T15:16:13.679Z`.
+- Return remains `-0.09872200%` with maximum drawdown `0.20037185%`; this is monitoring evidence only, not a profitability claim.
 
 ### Bounded paper research evidence (2026-08-25)
 
