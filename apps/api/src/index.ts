@@ -38,6 +38,10 @@ let shadowObservationRepository: ReturnType<typeof createShadowObservationReposi
 
 class InvalidMarketDataRequest extends Error {}
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
 const marketAssetClasses = new Set<MarketAssetClass>(["crypto", "us_equity"]);
 const marketBarTimeframes = new Set<MarketBarTimeframe>([
   "1Day",
@@ -482,6 +486,29 @@ async function readOperatorOverview(request: IncomingMessage) {
   }
 }
 
+function csvCell(value: unknown): string {
+  const raw = value === null || value === undefined ? "" : typeof value === "string" ? value : JSON.stringify(value);
+  const safe = /^[=+\-@]/.test(raw) ? `'${raw}` : raw;
+  return `"${safe.replaceAll('"', '""')}"`;
+}
+
+async function readOperatorOverviewCsv(request: IncomingMessage) {
+  const result = await readOperatorOverview(request);
+  if (result.status !== 200) return result;
+  const body = result.body as {
+    readonly agents: readonly Record<string, unknown>[];
+    readonly filteredTrades: readonly Record<string, unknown>[];
+    readonly tradeDecisions: readonly Record<string, unknown>[];
+  };
+  const header = ["recordType", "recordId", "agentType", "task", "symbol", "strategy", "status", "score", "entry", "stop", "reason", "rationale", "riskDecision", "marketSnapshot", "capturedAt"];
+  const rows = [
+    ...body.agents.map((agent) => ["agent", agent.runId, agent.agentType, agent.task, "", "", agent.status, "", "", "", agent.errorCode ?? "", isRecord(agent.artifact) ? agent.artifact.rationale ?? "" : "", "", "", agent.createdAt]),
+    ...body.filteredTrades.map((trade) => ["filtered_trade", trade.observationId, "", "", trade.symbol, `${trade.strategyKey ?? ""} ${trade.strategyVersion ?? ""}`.trim(), trade.status, trade.score, trade.proposedEntryPrice, trade.plannedStopPrice, isRecord(trade.outcome) ? trade.outcome.reason ?? "" : "", trade.rationale, "", trade.marketSnapshot, trade.signalTime]),
+    ...body.tradeDecisions.map((trade) => ["execution_decision", trade.intentId, "", "", trade.symbol, "", trade.status, "", "", "", trade.reason, "", trade.riskDecision, trade.marketSnapshot, trade.createdAt]),
+  ];
+  return { body: `${[header, ...rows].map((row) => row.map(csvCell).join(",")).join("\n")}\n`, status: 200, contentType: "text/csv; charset=utf-8" } as const;
+}
+
 function parseAgentRunLimit(request: IncomingMessage): number {
   const url = new URL(request.url ?? "/", `http://${request.headers.host ?? "localhost"}`);
   const limit = Number(url.searchParams.get("limit") ?? "50");
@@ -715,6 +742,19 @@ const server = createServer((request, response) => {
       .catch(() => {
         response.writeHead(503, { "content-type": "application/json" });
         response.end(JSON.stringify({ error: "operator_overview_unavailable" }));
+      });
+    return;
+  }
+
+  if (request.method === "GET" && request.url === "/v1/operator-overview.csv") {
+    readOperatorOverviewCsv(request)
+      .then((result) => {
+        response.writeHead(result.status, { "content-type": result.status === 200 ? "text/csv; charset=utf-8" : "application/json", ...(result.status === 200 ? { "content-disposition": "attachment; filename=momentum-autopilot-audit.csv" } : {}) });
+        response.end(typeof result.body === "string" ? result.body : JSON.stringify(result.body));
+      })
+      .catch(() => {
+        response.writeHead(503, { "content-type": "application/json" });
+        response.end(JSON.stringify({ error: "operator_overview_export_unavailable" }));
       });
     return;
   }

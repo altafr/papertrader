@@ -2,7 +2,13 @@
 
 ## Status
 
-- **Stage:** Phase 6.163 Agent rationale and evidence visibility corrected; multi-day evidence collection continues.
+- **Stage:** Phase 6.164 Authenticated audit CSV export added; multi-day evidence collection continues.
+
+### Authenticated audit CSV export (2026-08-26)
+
+- Added an authenticated `/v1/operator-overview.csv` API export containing agent runs, filtered/shadow decisions, and paper execution decisions with reasons, risk evidence, and market snapshots.
+- Added a server-side Next.js dashboard proxy at `/dashboard/export`, so the browser never needs direct broker credentials or an exposed API token.
+- CSV cells are quoted and formula-prefixed values are neutralized to reduce spreadsheet-injection risk. Unauthenticated API access remains fail-closed with `401`.
 
 ### Agent rationale and evidence visibility (2026-08-26)
 
