@@ -131,6 +131,18 @@ function numericValue(row: Record<string, unknown>, key: string): number | undef
   return Number.isFinite(parsed) ? parsed : undefined;
 }
 
+function positionNotional(row: Record<string, unknown>): number | undefined {
+  const quantity = numericValue(row, "quantity");
+  const entry = numericValue(row, "averageEntryPrice");
+  return quantity !== undefined && entry !== undefined ? quantity * entry : undefined;
+}
+
+function positionReturnPercent(row: Record<string, unknown>): number | undefined {
+  const notional = positionNotional(row);
+  const unrealized = numericValue(row, "unrealizedPl");
+  return notional && unrealized !== undefined ? (unrealized / notional) * 100 : undefined;
+}
+
 function indicatorSummary(row: Record<string, unknown>) {
   if (!isRecord(row.marketSnapshot)) return "Not captured";
   const snapshot = row.marketSnapshot;
@@ -404,8 +416,8 @@ export default async function DashboardPage({ searchParams }: { readonly searchP
           <article className="card full-width" id="positions">
             <div className="card-heading"><div><p className="label">Positions</p><h2>{result.model.positions.length} open positions</h2></div><span className="provenance">Persisted account snapshot</span></div>
             {result.model.positions.length === 0 ? <p className="empty-state">No open positions in the latest reconciled snapshot.</p> : (
-              <div className="responsive-table"><table><thead><tr><th>Symbol</th><th>Class</th><th>Quantity</th><th>Avg entry</th><th>Market value</th><th>Unrealized P/L</th></tr></thead><tbody>
-                {result.model.positions.map((position) => <tr key={`${value(position, "symbol")}-${value(position, "accountSnapshotId")}`}><th scope="row">{value(position, "symbol")}</th><td>{value(position, "assetClass")}</td><td>{value(position, "quantity")}</td><td>{value(position, "averageEntryPrice")}</td><td>{value(position, "marketValue")}</td><td>{value(position, "unrealizedPl")}</td></tr>)}
+              <div className="responsive-table"><table><thead><tr><th>Symbol</th><th>Class</th><th>Quantity</th><th>Avg entry</th><th>Invested notional</th><th>Market value</th><th>Unrealized P/L</th><th>Return</th></tr></thead><tbody>
+                {result.model.positions.map((position) => { const notional = positionNotional(position); const returnPercent = positionReturnPercent(position); return <tr key={`${value(position, "symbol")}-${value(position, "accountSnapshotId")}`}><th scope="row">{value(position, "symbol")}</th><td>{value(position, "assetClass")}</td><td>{value(position, "quantity")}</td><td>{value(position, "averageEntryPrice")}</td><td>{notional === undefined ? "Not reported" : notional.toFixed(2)}</td><td>{value(position, "marketValue")}</td><td className={numericValue(position, "unrealizedPl") !== undefined && (numericValue(position, "unrealizedPl") ?? 0) < 0 ? "negative-value" : ""}>{value(position, "unrealizedPl")}</td><td className={returnPercent !== undefined && returnPercent < 0 ? "negative-value" : ""}>{returnPercent === undefined ? "Not reported" : `${returnPercent.toFixed(2)}%`}</td></tr>; })}
               </tbody></table></div>
             )}
           </article>

@@ -2,7 +2,12 @@
 
 ## Status
 
-- **Stage:** Phase 6.178 Authenticated agent detail view added; multi-day evidence collection continues.
+- **Stage:** Phase 6.179 Position notional and return metrics added; multi-day evidence collection continues.
+
+### Position notional and return metrics (2026-08-26)
+
+- Position rows now show invested notional (`quantity × average entry price`) and derived return percentage (`unrealized P/L ÷ invested notional`) from persisted reconciliation fields.
+- Missing or zero-denominator values remain explicitly unavailable; no broker call or client-side price inference was added.
 
 ### Authenticated agent detail view (2026-08-26)
 
