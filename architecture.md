@@ -2,7 +2,12 @@
 
 ## Status
 
-- **Stage:** Phase 6.195 Truthful unavailable-audit state; multi-day evidence collection continues.
+- **Stage:** Phase 6.196 Latest persisted audit-event provenance; multi-day evidence collection continues.
+
+### Latest persisted audit-event provenance (2026-08-26)
+
+- The operator overview history metadata now includes the newest captured timestamp from the current bounded page, and the dashboard labels it as persisted-event provenance in UTC.
+- An empty page remains explicitly unavailable rather than being assigned a browser-generated timestamp.
 
 ### Truthful unavailable-audit state (2026-08-26)
 

@@ -395,6 +395,7 @@ export default async function DashboardPage({ searchParams }: { readonly searchP
       <section className="history-toolbar" aria-label="Audit history controls">
         <span className="label">Audit history</span>
         <span className="history-window">{formatAuditDateRange(historyFrom, historyTo)}</span>
+        <span className="provenance">Latest persisted event: {operatorOverview?.history?.latestCapturedAt ? formatUtc(operatorOverview.history.latestCapturedAt) : "Not available"}</span>
         <span>Page {operatorOverview?.history?.page ?? safeHistoryPage}</span>
         {operatorOverview?.history?.totals && <span className="audit-coverage" aria-label="Audit record totals"><span>{operatorOverview.history.totals.filteredTrades} filtered</span><span>{operatorOverview.history.totals.submissions} execution</span><span>{operatorOverview.history.totals.agents} agents</span><span>{operatorOverview.history.totals.lifecycle} lifecycle</span><span>{operatorOverview.history.totals.schedules} scheduler</span></span>}
         {safeHistoryPage <= 1 ? <span className="disabled-control" aria-disabled="true">Previous</span> : <a href={`/dashboard?${buildDashboardHistoryParams(safeHistoryPage - 1, performanceRange, historyFrom, historyTo).toString()}`}>Previous</a>}

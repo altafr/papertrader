@@ -73,8 +73,9 @@ describe("dashboard state", () => {
   });
 
   it("preserves complete audit totals for the coverage summary", () => {
-    const overview = parseOperatorOverview({ agents: [], filteredTrades: [], tradeDecisions: [], strategyLifecycle: [], strategyCatalog: [], auditTimeline: [], history: { page: 1, limit: 100, hasNext: false, totals: { agents: 2, filteredTrades: 3, submissions: 4, lifecycle: 5, schedules: 6 } } });
+    const overview = parseOperatorOverview({ agents: [], filteredTrades: [], tradeDecisions: [], strategyLifecycle: [], strategyCatalog: [], auditTimeline: [], history: { page: 1, limit: 100, hasNext: false, latestCapturedAt: "2026-08-26T12:00:00.000Z", totals: { agents: 2, filteredTrades: 3, submissions: 4, lifecycle: 5, schedules: 6 } } });
     expect(overview?.history?.totals).toEqual({ agents: 2, filteredTrades: 3, submissions: 4, lifecycle: 5, schedules: 6 });
+    expect(overview?.history?.latestCapturedAt).toBe("2026-08-26T12:00:00.000Z");
   });
 
   it("rejects an unavailable overview instead of treating it as an empty audit", () => {
