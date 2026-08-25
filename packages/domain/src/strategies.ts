@@ -1,5 +1,6 @@
 import * as DecimalModule from "decimal.js";
 import type { StrategyBar, StrategyEvaluationContext, StrategyPlugin, StrategySignalCandidate } from "./strategy.js";
+import { computeMarketIndicatorSnapshot } from "./indicators.js";
 
 interface DecimalValue {
   plus(value: DecimalValue | string | number): DecimalValue;
@@ -30,12 +31,14 @@ const latestBySymbol = (bars: readonly StrategyBar[]) => {
   return grouped;
 };
 const futureTime = (timestamp: string, holdingBars: number) => new Date(Date.parse(timestamp) + holdingBars * 60 * 60 * 1000).toISOString();
-const candidate = (key: string, version: string, bar: StrategyBar, score: DecimalValue, stopPercent: string, targetPercent: string, holdingBars: number, rationale: string): StrategySignalCandidate => {
+const candidate = (key: string, version: string, bar: StrategyBar, bars: readonly StrategyBar[], score: DecimalValue, stopPercent: string, targetPercent: string, holdingBars: number, rationale: string): StrategySignalCandidate => {
   const close = parse(bar.close, "close");
+  const marketSnapshot = computeMarketIndicatorSnapshot({ bars, asOf: bar.timestamp });
   return {
     assetClass: "us_equity", expiresAt: futureTime(bar.timestamp, holdingBars), proposedEntryPrice: output(close),
     plannedExitPrice: output(close.times(new Decimal("1").plus(parse(targetPercent, "targetPercent")))),
     plannedStopPrice: output(close.times(new Decimal("1").minus(parse(stopPercent, "stopPercent")))), rationale,
+    ...(marketSnapshot ? { marketSnapshot } : {}),
     score: output(score), signalTime: bar.timestamp, side: "long", strategyKey: key, strategyVersion: version,
     symbol: bar.symbol, timeStopAt: futureTime(bar.timestamp, holdingBars),
   };
@@ -69,7 +72,7 @@ function crossSectionalEvaluate(context: StrategyEvaluationContext, parameters: 
     if (returnValue.greaterThanOrEqualTo(parameters.minReturn)) ranked.push({ bar: latest, returnValue });
   }
   return ranked.sort((a, b) => (a.returnValue.greaterThan(b.returnValue) ? -1 : 1)).slice(0, parameters.maxCandidates)
-    .map(({ bar, returnValue }) => candidate("cross-sectional-momentum", "1.0.0", bar, returnValue, parameters.stopPercent, parameters.targetPercent, parameters.holdingBars, "Positive point-in-time return ranked across symbols."));
+    .map(({ bar, returnValue }) => candidate("cross-sectional-momentum", "1.0.0", bar, latestBySymbol(context.market.bars).get(bar.symbol) ?? [], returnValue, parameters.stopPercent, parameters.targetPercent, parameters.holdingBars, "Positive point-in-time return ranked across symbols."));
 }
 
 function breakoutEvaluate(context: StrategyEvaluationContext, parameters: VolumeBreakoutParameters) {
@@ -85,7 +88,7 @@ function breakoutEvaluate(context: StrategyEvaluationContext, parameters: Volume
     }, undefined)!;
     const averageVolume = volumes.reduce((sum, bar) => sum.plus(parse(bar.volume, "volume")), new Decimal("0")).div(volumes.length);
     if (!parse(latest.close, "close").greaterThan(highest) || !parse(latest.volume, "volume").greaterThanOrEqualTo(averageVolume.times(parse(parameters.volumeMultiplier, "volumeMultiplier")))) continue;
-    results.push(candidate("volume-confirmed-breakout", "1.0.0", latest, parse(latest.close, "close").div(highest).minus("1"), parameters.stopPercent, parameters.targetPercent, parameters.holdingBars, "Point-in-time range breakout confirmed by relative volume."));
+    results.push(candidate("volume-confirmed-breakout", "1.0.0", latest, bars, parse(latest.close, "close").div(highest).minus("1"), parameters.stopPercent, parameters.targetPercent, parameters.holdingBars, "Point-in-time range breakout confirmed by relative volume."));
   }
   return results;
 }
@@ -96,7 +99,7 @@ function trendEvaluate(context: StrategyEvaluationContext, parameters: TrendCont
     if (bars.length <= parameters.slowLookbackBars) continue;
     const latest = bars[bars.length - 1]!; const fastStart = bars[bars.length - 1 - parameters.fastLookbackBars]!; const slowStart = bars[bars.length - 1 - parameters.slowLookbackBars]!;
     const close = parse(latest.close, "close"); const fastReturn = close.div(parse(fastStart.close, "close")).minus("1"); const slowReturn = close.div(parse(slowStart.close, "close")).minus("1");
-    if (fastReturn.greaterThanOrEqualTo(parameters.minTrendReturn) && slowReturn.greaterThanOrEqualTo(parameters.minTrendReturn)) results.push(candidate("intraday-trend-continuation", "1.0.0", latest, fastReturn, parameters.stopPercent, parameters.targetPercent, parameters.holdingBars, "Fast and slow point-in-time trends agree."));
+    if (fastReturn.greaterThanOrEqualTo(parameters.minTrendReturn) && slowReturn.greaterThanOrEqualTo(parameters.minTrendReturn)) results.push(candidate("intraday-trend-continuation", "1.0.0", latest, bars, fastReturn, parameters.stopPercent, parameters.targetPercent, parameters.holdingBars, "Fast and slow point-in-time trends agree."));
   }
   return results;
 }

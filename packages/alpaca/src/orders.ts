@@ -22,6 +22,8 @@ export interface PaperOrderSubmissionRequest {
   readonly assetClass: "crypto" | "us_equity";
   readonly clientOrderId: string;
   readonly limitPrice?: string;
+  /** Point-in-time indicator values are persisted for audit and never sent to Alpaca. */
+  readonly marketSnapshot?: Readonly<Record<string, string | null>>;
   readonly quantity: string;
   readonly side: "buy";
   readonly symbol: string;

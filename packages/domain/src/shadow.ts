@@ -1,4 +1,5 @@
 import * as DecimalModule from "decimal.js";
+import type { MarketIndicatorSnapshot } from "./indicators.js";
 import type { StrategyPlugin, StrategySignalCandidate } from "./strategy.js";
 
 interface DecimalValue {
@@ -31,6 +32,7 @@ export interface ShadowObservation {
   readonly plannedStopPrice: string;
   readonly proposedEntryPrice: string;
   readonly rationale: string;
+  readonly marketSnapshot?: MarketIndicatorSnapshot;
   readonly score: string;
   readonly signalTime: string;
   readonly status: ShadowObservationStatus;
@@ -71,7 +73,7 @@ export function createShadowObservation<Parameters extends object>(input: {
     assetClass: input.candidate.assetClass, expiresAt: input.candidate.expiresAt, observationId: input.observationId,
     ...(input.candidate.plannedExitPrice ? { plannedExitPrice: input.candidate.plannedExitPrice } : {}),
     plannedStopPrice: input.candidate.plannedStopPrice, proposedEntryPrice: input.candidate.proposedEntryPrice,
-    rationale: input.candidate.rationale, score: input.candidate.score, signalTime: input.candidate.signalTime, status: "open",
+    rationale: input.candidate.rationale, ...(input.candidate.marketSnapshot ? { marketSnapshot: Object.freeze({ ...input.candidate.marketSnapshot }) } : {}), score: input.candidate.score, signalTime: input.candidate.signalTime, status: "open",
     strategyKey: input.candidate.strategyKey, strategyVersion: input.candidate.strategyVersion, symbol: input.candidate.symbol,
     ...(input.candidate.timeStopAt ? { timeStopAt: input.candidate.timeStopAt } : {}),
   });

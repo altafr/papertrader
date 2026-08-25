@@ -123,6 +123,12 @@ function value(row: Record<string, unknown>, key: string) {
   return typeof result === "string" || typeof result === "number" ? String(result) : "—";
 }
 
+function indicatorSummary(row: Record<string, unknown>) {
+  if (!isRecord(row.marketSnapshot)) return "Not captured";
+  const snapshot = row.marketSnapshot;
+  return `RSI14 ${value(snapshot, "rsi14")} · EMA20 ${value(snapshot, "ema20")} · ATR14 ${value(snapshot, "atr14")} · RV20 ${value(snapshot, "relativeVolume20")}`;
+}
+
 function StatusBadge({ state }: { readonly state: "degraded" | "delayed" | "fresh" | "stale" }) {
   const label = state === "fresh" ? "Healthy" : state === "delayed" ? "Delayed" : state === "stale" ? "Stale" : "Degraded";
   return <span className={`state-badge ${state}`}>{label}</span>;
@@ -190,12 +196,12 @@ function OperatorAuditCards({ overview }: { readonly overview: OperatorOverview 
   const field = (row: Record<string, unknown>, key: string) => value(row, key);
   return <>
     <article className="card full-width" id="filtered-trades"><div className="card-heading"><div><p className="label">Filtered trades</p><h2>{overview ? overview.filteredTrades.length : "—"} signal decisions</h2></div><span className="provenance">Shadow / rejected opportunity audit</span></div>
-      {!overview || overview.filteredTrades.length === 0 ? <p className="empty-state">No filtered or shadow decisions are persisted yet.</p> : <div className="responsive-table"><table><thead><tr><th>Symbol</th><th>Strategy</th><th>Score</th><th>Entry</th><th>Stop</th><th>State</th><th>Why / outcome</th></tr></thead><tbody>{overview.filteredTrades.slice(0, 25).map((row) => <tr key={field(row, "observationId")}><th scope="row">{field(row, "symbol")}</th><td>{field(row, "strategyKey")} {field(row, "strategyVersion")}</td><td>{field(row, "score")}</td><td>{field(row, "proposedEntryPrice")}</td><td>{field(row, "plannedStopPrice")}</td><td>{field(row, "status")}</td><td className="table-reason">{field(row, "rationale")}{isRecord(row.outcome) ? ` · ${field(row.outcome, "reason")} ${field(row.outcome, "returnPercent")}%` : ""}</td></tr>)}</tbody></table></div>}
-      <p className="provenance">Entry, stop, score, timestamp, and rationale are the stored point-in-time signal snapshot. This is not a promise of execution or profitability.</p>
+      {!overview || overview.filteredTrades.length === 0 ? <p className="empty-state">No filtered or shadow decisions are persisted yet.</p> : <div className="responsive-table"><table><thead><tr><th>Symbol</th><th>Strategy</th><th>Score</th><th>Entry</th><th>Stop</th><th>Indicators at signal</th><th>State</th><th>Why / outcome</th></tr></thead><tbody>{overview.filteredTrades.slice(0, 25).map((row) => <tr key={field(row, "observationId")}><th scope="row">{field(row, "symbol")}</th><td>{field(row, "strategyKey")} {field(row, "strategyVersion")}</td><td>{field(row, "score")}</td><td>{field(row, "proposedEntryPrice")}</td><td>{field(row, "plannedStopPrice")}</td><td className="table-reason">{indicatorSummary(row)}</td><td>{field(row, "status")}</td><td className="table-reason">{field(row, "rationale")}{isRecord(row.outcome) ? ` · ${field(row.outcome, "reason")} ${field(row.outcome, "returnPercent")}%` : ""}</td></tr>)}</tbody></table></div>}
+      <p className="provenance">RSI14, EMA20, ATR14, and relative volume are computed from finalized bars and stored with the signal. This is not a promise of execution or profitability.</p>
     </article>
     <article className="card full-width" id="decision-log"><div className="card-heading"><div><p className="label">Trade decision log</p><h2>{overview ? overview.tradeDecisions.length : "—"} execution decisions</h2></div><span className="provenance">Immutable paper submissions</span></div>
-      {!overview || overview.tradeDecisions.length === 0 ? <p className="empty-state">No paper execution decisions have been submitted.</p> : <div className="responsive-table"><table><thead><tr><th>Symbol</th><th>Intent</th><th>Status</th><th>Quantity</th><th>Filled</th><th>Decision reason</th><th>Market snapshot</th></tr></thead><tbody>{overview.tradeDecisions.slice(0, 25).map((row) => <tr key={field(row, "intentId")}><th scope="row">{field(row, "symbol")}</th><td>{field(row, "intentId")}</td><td>{field(row, "status")}</td><td>{field(row, "quantity")}</td><td>{field(row, "filledQuantity")}</td><td className="table-reason">{field(row, "reason")}</td><td>{row.marketSnapshot ? "Captured" : "Not attached to submission"}</td></tr>)}</tbody></table></div>}
-      <p className="provenance">A submission without a linked market snapshot is visibly marked; the execution schema currently stores intent and approval provenance but not indicator values.</p>
+      {!overview || overview.tradeDecisions.length === 0 ? <p className="empty-state">No paper execution decisions have been submitted.</p> : <div className="responsive-table"><table><thead><tr><th>Symbol</th><th>Intent</th><th>Status</th><th>Quantity</th><th>Filled</th><th>Decision reason</th><th>Indicators at approval</th></tr></thead><tbody>{overview.tradeDecisions.slice(0, 25).map((row) => <tr key={field(row, "intentId")}><th scope="row">{field(row, "symbol")}</th><td>{field(row, "intentId")}</td><td>{field(row, "status")}</td><td>{field(row, "quantity")}</td><td>{field(row, "filledQuantity")}</td><td className="table-reason">{field(row, "reason")}</td><td className="table-reason">{indicatorSummary(row)}</td></tr>)}</tbody></table></div>}
+      <p className="provenance">Execution submissions now carry the same immutable indicator snapshot when the order request includes one; older rows remain visibly marked as not captured.</p>
     </article>
   </>;
 }

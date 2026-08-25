@@ -12,6 +12,7 @@ describe("database migration approval guard", () => {
   it("only gates the reviewed one-run audit migration", () => {
     expect(migrationRequiresApproval("0008")).toBe(false);
     expect(migrationRequiresApproval("0009")).toBe(true);
+    expect(migrationRequiresApproval("0011")).toBe(true);
   });
 
   it("requires an exact target for the pending migration", () => {

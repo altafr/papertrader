@@ -1,3 +1,5 @@
+import type { MarketIndicatorSnapshot } from "./indicators.js";
+
 export type StrategyAssetClass = "crypto" | "us_equity";
 export type StrategyStage = "disabled" | "eligible_live" | "paper" | "replay" | "shadow";
 
@@ -33,6 +35,7 @@ export interface StrategySignalCandidate {
   readonly plannedExitPrice?: string;
   readonly plannedStopPrice: string;
   readonly rationale: string;
+  readonly marketSnapshot?: MarketIndicatorSnapshot;
   readonly recommendedNotional?: string;
   readonly score: string;
   readonly signalTime: string;

@@ -41,7 +41,8 @@ const { pool } = createDatabase(databaseUrl);
 try {
   const trackingTable = await pool.query<{ readonly present: boolean }>("SELECT to_regclass('public.schema_migrations') IS NOT NULL AS present");
   const applied = trackingTable.rows[0]?.present === true ? new Set((await pool.query<{ readonly version: string }>("SELECT version FROM schema_migrations")).rows.map((row) => row.version)) : new Set<string>();
-  validatePendingMigrationSet(migrationVersions.filter(({ version }) => !applied.has(version)).map(({ version }) => version), "0009");
+  const targetVersion = process.env.DATABASE_MIGRATION_TARGET?.trim() || "0009";
+  validatePendingMigrationSet(migrationVersions.filter(({ version }) => !applied.has(version)).map(({ version }) => version), targetVersion);
   await pool.query(`CREATE TABLE IF NOT EXISTS schema_migrations (
     version TEXT PRIMARY KEY,
     applied_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
