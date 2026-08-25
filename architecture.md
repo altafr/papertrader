@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.135 pre-cycle Paper Autopilot readiness verified; natural scheduler-cycle verification, recovery evidence sign-off, alert hardening, and Paper Autopilot activation remain separately gated.
+- **Stage:** Phase 6.136 command-scoped Paper Autopilot activation rehearsal passed; natural scheduler-cycle verification, recovery evidence sign-off, alert hardening, and persistent Paper Autopilot activation remain separately gated.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -78,6 +78,11 @@ Do not run the continuous trading loop in the browser or Vercel functions. Verce
 - Read-only hosted Paper Autopilot readiness confirmed paper mode, configured paper credentials, broker/database/scheduler/handler gates, inactive global kill switch, and the fixed risk policy (`USD 1,000` baseline, `0.25%` planned-risk cap, `USD 100` absolute cap).
 - Runtime readiness also reported a fresh persisted reconciliation (`2026-08-25T00:00:32.065Z`, age `42,808` seconds at check time). The overall status remains `disabled` because Paper Autopilot and operating mode are intentionally not activated before the first audited natural scheduler cycle and explicit activation gate.
 - No broker request, order submission, queue trigger, database write, or persistent variable change occurred.
+
+### 2026-08-25 — Phase 6.136 Paper Autopilot activation rehearsal
+
+- A command-scoped rehearsal set `PAPER_AUTOPILOT_ENABLED=true` and `OPERATING_MODE=paper_autopilot` only for the read-only runtime-readiness process. It returned `status:"ready"` with all paper, broker, database, scheduler, handler, kill-switch, credential, and risk-policy checks passing, plus fresh reconciliation.
+- The rehearsal did not change Railway variables, restart the Worker, enqueue work, contact Alpaca, or submit an order. Persistent activation remains gated until the first natural scheduler-audit record is verified and the operator explicitly activates Paper Autopilot.
 
 ### Deployment Recommendation
 
