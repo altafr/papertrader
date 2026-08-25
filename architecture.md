@@ -2,7 +2,13 @@
 
 ## Status
 
-- **Stage:** Phase 6.153 Stock and crypto paper research pipelines verified; isolated recovery resources retained pending cleanup review.
+- **Stage:** Phase 6.154 Read-only paper performance reporting deployed; multi-day evidence collection continues.
+
+### Paper performance evidence (2026-08-25)
+
+- Worker deployment `d7b4d8d9-36ac-4481-a8da-46ea1c8464b8` added a read-only report over reconciled equity snapshots.
+- Hosted output covers 12 snapshots and reports final equity `99292.09000000`, total P/L `-98.12000000`, total return `-0.09872200%`, and max drawdown `0.20037185%`.
+- The negative result is recorded as simulated evidence, not hidden or reframed as a profit claim. No order authority was added.
 
 ### Bounded paper research evidence (2026-08-25)
 
