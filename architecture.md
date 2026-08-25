@@ -2,7 +2,12 @@
 
 ## Status
 
-- **Stage:** Phase 6.166 Selectable paper-performance windows added; multi-day evidence collection continues.
+- **Stage:** Phase 6.167 Complete persisted order/activity history rendered; multi-day evidence collection continues.
+
+### Complete persisted order/activity history (2026-08-26)
+
+- The dashboard no longer slices the reconciled order or account-activity arrays to an arbitrary recent subset; it renders every row returned by the server-side read model.
+- Order rows include requested and filled quantities plus the latest update timestamp, while activity rows include transaction timestamps. The view remains read-only and bounded by the server read-model contract.
 
 ### Selectable paper-performance windows (2026-08-26)
 

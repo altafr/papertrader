@@ -343,7 +343,7 @@ export default async function DashboardPage({ searchParams }: { readonly searchP
 
           <article className="card" id="orders">
             <div className="card-heading"><div><p className="label">Orders &amp; fills</p><h2>{result.model.orders.length} orders</h2></div><span className="provenance">Read-only</span></div>
-            <div className="data-list">{result.model.orders.slice(0, 10).map((order) => <div className="data-row" key={value(order, "alpacaOrderId")}><strong>{value(order, "symbol")}</strong><span>{value(order, "side")} · {value(order, "status")} · filled {value(order, "filledQuantity")}</span></div>)}{result.model.orders.length === 0 && <p className="empty-state">No orders recorded.</p>}</div>
+            <div className="data-list">{result.model.orders.map((order) => <div className="data-row" key={value(order, "alpacaOrderId")}><strong>{value(order, "symbol")}</strong><span>{value(order, "side")} · {value(order, "status")} · requested {value(order, "quantity")} · filled {value(order, "filledQuantity")} · {value(order, "updatedAt")}</span></div>)}{result.model.orders.length === 0 && <p className="empty-state">No orders recorded.</p>}</div>
           </article>
 
           <PaperPerformanceCard performance={paperPerformance} />
@@ -354,7 +354,7 @@ export default async function DashboardPage({ searchParams }: { readonly searchP
 
           <article className="card">
             <p className="label">Recent account activity</p><h2>{result.model.activities.length} events</h2>
-            <div className="data-list">{result.model.activities.slice(0, 8).map((activity) => <div className="data-row" key={value(activity, "activityId")}><strong>{value(activity, "activityType")}</strong><span>{value(activity, "symbol")} · {value(activity, "quantity")}</span></div>)}{result.model.activities.length === 0 && <p className="empty-state">No account activity recorded.</p>}</div>
+            <div className="data-list">{result.model.activities.map((activity) => <div className="data-row" key={value(activity, "activityId")}><strong>{value(activity, "activityType")}</strong><span>{value(activity, "symbol")} · {value(activity, "quantity")} · {value(activity, "transactionTime")}</span></div>)}{result.model.activities.length === 0 && <p className="empty-state">No account activity recorded.</p>}</div>
           </article>
         </section>
       )}
