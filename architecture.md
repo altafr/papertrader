@@ -2,7 +2,12 @@
 
 ## Status
 
-- **Stage:** Phase 6.188 Authenticated operator-overview deployment verifier; multi-day evidence collection continues.
+- **Stage:** Phase 6.189 Testable authenticated deployment verifier; multi-day evidence collection continues.
+
+### Testable authenticated deployment verifier (2026-08-26)
+
+- The operator-overview verifier now exposes a testable function that checks both authenticated JSON and CSV contracts, while the command-line wrapper remains environment-only.
+- Mocked tests cover the successful authenticated path and a rejected `401` response. No real token is placed in tests, source control, logs, or browser code.
 
 ### Authenticated operator-overview deployment verifier (2026-08-26)
 
