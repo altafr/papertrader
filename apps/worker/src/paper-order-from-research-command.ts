@@ -1,4 +1,4 @@
-import { createPaperAccountReader, createPaperOrderSubmitter } from "@momentum/alpaca";
+import { createPaperAccountReader, createPaperMarketDataReader, createPaperOrderSubmitter } from "@momentum/alpaca";
 import { getPaperOnlyRuntimeConfig, isGlobalKillSwitchActive } from "@momentum/config";
 import { createAccountStateRepository, createAgentRunRepository, createDatabase, createPaperOrderRepository } from "@momentum/db";
 import { executePaperAutopilotOrder } from "./paper-execution.js";
@@ -25,8 +25,18 @@ try {
   if (research.status !== "succeeded") throw new Error("Persisted research run did not succeed.");
   if (!research.artifactPayload || typeof research.artifactPayload !== "object") throw new Error("Persisted research artifact payload is unavailable.");
   const payload = research.artifactPayload as { readonly candidates?: readonly unknown[] };
-  const rawCandidate = payload?.candidates?.[0];
-  if (!Array.isArray(payload.candidates)) throw new Error("Persisted research artifact candidate list is unavailable.");
+  let rawCandidate = payload?.candidates?.[0];
+  if ((!rawCandidate || typeof rawCandidate !== "object") && process.env.PAPER_ORDER_USE_SNAPSHOT_FALLBACK === "true") {
+    stage = "snapshot_fallback";
+    const symbol = (process.env.PAPER_ORDER_SYMBOL ?? "AAPL").trim().toUpperCase();
+    const snapshots = await createPaperMarketDataReader({ apiKey: process.env.ALPACA_API_KEY ?? "", secretKey: process.env.ALPACA_SECRET_KEY ?? "" }).readSnapshots({ assetClass: "us_equity", symbols: [symbol] });
+    const snapshot = snapshots.find((item) => item.symbol === symbol);
+    const price = snapshot?.latestTrade?.price ?? snapshot?.dailyBar?.close ?? snapshot?.latestQuote?.askPrice;
+    const timestamp = snapshot?.latestTrade?.timestamp ?? snapshot?.dailyBar?.timestamp ?? snapshot?.latestQuote?.timestamp;
+    if (!snapshot || !price || !timestamp) throw new Error("Paper snapshot fallback has no usable price.");
+    rawCandidate = { assetClass: "us_equity", averageVolume: snapshot.dailyBar?.volume ?? "1", dataAsOf: timestamp, marketSnapshot: { asOf: timestamp, atr14: null, close: price, ema20: null, ema50: null, relativeVolume20: null, rsi14: null, volume: snapshot.dailyBar?.volume ?? "1" }, momentumReturn: "0", symbol };
+  }
+  if (!Array.isArray(payload.candidates) && !rawCandidate) throw new Error("Persisted research artifact candidate list is unavailable.");
   if (!rawCandidate || typeof rawCandidate !== "object") throw new Error("Persisted research artifact has no candidate.");
   const candidate = rawCandidate as Parameters<typeof assessResearchCandidateRisk>[0]["candidate"];
   const model = await accountRepository.getLatestReadModel();
