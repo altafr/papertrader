@@ -345,6 +345,10 @@ export default async function DashboardPage({ searchParams }: { readonly searchP
   const lastEquity = result.kind === "ready" ? numericValue(result.model.snapshot, "lastEquity") : undefined;
   const dayPnl = equity !== undefined && lastEquity !== undefined ? equity - lastEquity : undefined;
   const grossExposurePercent = equity && portfolioMarketValue !== undefined ? (portfolioMarketValue / equity) * 100 : undefined;
+  const today = new Date();
+  const toDate = today.toISOString().slice(0, 10);
+  const presetDate = (days: number) => { const from = new Date(today); from.setUTCDate(from.getUTCDate() - (days - 1)); return from.toISOString().slice(0, 10); };
+  const historyPresetHref = (days?: number) => { const params = new URLSearchParams({ page: "1" }); if (days) { params.set("from", presetDate(days)); params.set("to", toDate); } return `/dashboard?${params.toString()}#filtered-trades`; };
 
   return (
     <main>
@@ -391,8 +395,10 @@ export default async function DashboardPage({ searchParams }: { readonly searchP
       <section className="history-toolbar" aria-label="Audit history controls">
         <span className="label">Audit history</span>
         <span>Page {operatorOverview?.history?.page ?? safeHistoryPage}</span>
+        {operatorOverview?.history?.totals && <span className="provenance">{operatorOverview.history.totals.filteredTrades} filtered · {operatorOverview.history.totals.submissions} execution · {operatorOverview.history.totals.agents} agents</span>}
         <a className={safeHistoryPage <= 1 ? "disabled-link" : ""} href={`/dashboard?${new URLSearchParams({ page: String(Math.max(1, safeHistoryPage - 1)), ...(historyFrom ? { from: historyFrom } : {}), ...(historyTo ? { to: historyTo } : {}) }).toString()}`} aria-disabled={safeHistoryPage <= 1}>Previous</a>
         <a className={operatorOverview?.history?.hasNext === false ? "disabled-link" : ""} href={`/dashboard?${new URLSearchParams({ page: String(safeHistoryPage + 1), ...(historyFrom ? { from: historyFrom } : {}), ...(historyTo ? { to: historyTo } : {}) }).toString()}`} aria-disabled={operatorOverview?.history?.hasNext === false}>Next</a>
+        <span className="history-presets" aria-label="Date presets"><a href={historyPresetHref()}>All</a><a href={historyPresetHref(1)}>Today</a><a href={historyPresetHref(7)}>7d</a><a href={historyPresetHref(30)}>30d</a></span>
         <form method="get" className="history-filter"><label htmlFor="history-from">From</label><input id="history-from" name="from" type="date" defaultValue={historyFrom?.slice(0, 10)} /><label htmlFor="history-to">To</label><input id="history-to" name="to" type="date" defaultValue={historyTo?.slice(0, 10)} /><button type="submit">Apply</button></form>
         <span className="provenance">Read-only, bounded to 100 records per page</span>
       </section>

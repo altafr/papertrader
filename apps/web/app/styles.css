@@ -233,6 +233,22 @@ main {
   cursor: pointer;
 }
 
+.history-presets {
+  display: inline-flex;
+  gap: 0.25rem;
+}
+
+.history-presets a {
+  color: var(--paper);
+  font-size: 0.72rem;
+  text-decoration: none;
+}
+
+.history-presets a:hover,
+.history-presets a:focus-visible {
+  text-decoration: underline;
+}
+
 .eyebrow,
 .label {
   color: var(--paper);

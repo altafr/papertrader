@@ -2,7 +2,12 @@
 
 ## Status
 
-- **Stage:** Phase 6.185 Paginated and date-filtered audit history; multi-day evidence collection continues.
+- **Stage:** Phase 6.186 Audit history totals and date presets; multi-day evidence collection continues.
+
+### Audit history totals and date presets (2026-08-26)
+
+- The operator overview now returns filtered counts for each persisted audit category in addition to the current bounded page. Counts use the same parameterized date predicates as the page queries.
+- The dashboard provides All, Today, 7-day, and 30-day links plus manual date inputs. These are navigation-only conveniences; they do not modify records, strategy state, risk policy, or order behavior.
 
 ### Paginated and date-filtered audit history (2026-08-26)
 
