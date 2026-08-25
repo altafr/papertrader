@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.142 startup recovery gate committed to GitHub and deployed; natural scheduler-cycle verification, post-restore reconciliation, recovery sign-off, and persistent Paper Autopilot activation remain separately gated.
+- **Stage:** Phase 6.143 startup recovery invariant covered by focused tests; natural scheduler-cycle verification, post-restore reconciliation, recovery sign-off, and persistent Paper Autopilot activation remain separately gated.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -116,6 +116,11 @@ Do not run the continuous trading loop in the browser or Vercel functions. Verce
 
 - The completed recovery-gate implementation and evidence commits were pushed to the operator's GitHub repository branch `phase-6-10-operator-health` at commit `47b0632`.
 - This is source-control publication only; no runtime variable, scheduler, queue, broker, or trading state changed.
+
+### 2026-08-25 — Phase 6.143 startup recovery invariant tests
+
+- Extracted the startup recovery sequencing boundary and added focused tests proving the scheduler starts only after successful reconciliation and remains paused on reconciliation failure.
+- Verification: 232 tests, typecheck, lint, and production build pass. This is a behavior-preserving testability change; the already deployed Phase 6.141 runtime behavior remains unchanged.
 
 ### Deployment Recommendation
 

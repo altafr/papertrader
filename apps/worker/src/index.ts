@@ -14,6 +14,7 @@ import { assertDurableScheduleRunMigrationReady, assertDurableSchedulerMigration
 import { reconcilePaperAccount } from "./reconcile.js";
 import { getResearchScheduleReadiness } from "./research-scheduler.js";
 import { createResearchSchedulerFromEnvironment } from "./research-scheduler-runtime.js";
+import { reconcileBeforeSchedulerStart } from "./startup-recovery.js";
 
 const streamEnabled = process.env.MARKET_STREAM_ENABLED;
 if (streamEnabled !== undefined && streamEnabled !== "true" && streamEnabled !== "false") {
@@ -101,15 +102,13 @@ if (durableConfiguration.enabled) {
   });
   // Recovery starts paused: reconcile broker truth before registering the
   // durable schedule so a restart cannot resume from stale internal state.
-  void (async () => {
-    try {
-      await runDailyPreparation();
-    } catch {
+  void reconcileBeforeSchedulerStart({
+    reconcile: runDailyPreparation,
+    onFailure: async () => {
       setDurableSchedulerHealth({ enabled: true, status: "degraded" });
       await sendTelegramAlert(telegramNotificationConfig, { code: "durable_scheduler_start_failed", message: "Durable scheduler startup reconciliation failed; scheduling remains paused.", occurredAt: new Date().toISOString(), severity: "critical" }).catch(() => undefined);
-      return;
-    }
-    await durableScheduler.start().catch(() => { /* health endpoint reports the degraded state */ });
-  })();
+    },
+    startScheduler: () => durableScheduler.start().catch(() => { /* health endpoint reports the degraded state */ }),
+  });
 }
 server.listen(getServerPort(), "0.0.0.0");
