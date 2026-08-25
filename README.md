@@ -1,5 +1,7 @@
 # Momentum Autopilot — Project Context Pack
 
+[![Paper-only verification](https://github.com/altafr/papertrader/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/altafr/papertrader/actions/workflows/ci.yml)
+
 This folder contains the project context for a continuously running, multi-agent trading application with a Next.js dashboard on Vercel and a Railway backend connected to Alpaca.
 
 ## Product intent
@@ -49,6 +51,8 @@ For the controlled hosted paper reconciliation procedure, see [`docs/railway-pap
 Use `pnpm typecheck`, `pnpm lint`, `pnpm test`, and `pnpm build` for the local verification loop. Phase 0.1 contains no credentials, broker request, database connection, or order behavior.
 
 GitHub Actions runs the same locked, paper-only verification loop on pushes to `main`, every pull request, and manual `workflow_dispatch` runs. The workflow has read-only repository permissions and does not receive broker, database, Clerk, or deployment secrets.
+
+Monitor runs or start a manual verification from the [GitHub Actions workflow page](https://github.com/altafr/papertrader/actions/workflows/ci.yml).
 
 When the protected GitHub Actions secrets `OPERATOR_AUTH_TOKEN` and optional `OPERATOR_API_BASE_URL` are configured, the workflow also runs `pnpm verify:operator-overview` against the hosted authenticated overview and CSV contracts. If the token secret is absent, that live check is explicitly skipped; all local contract tests still run.
 

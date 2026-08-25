@@ -2,7 +2,12 @@
 
 ## Status
 
-- **Stage:** Phase 6.200 Manual paper-only verification trigger; multi-day evidence collection continues.
+- **Stage:** Phase 6.201 CI monitoring link and status badge; multi-day evidence collection continues.
+
+### CI monitoring link and status badge (2026-08-26)
+
+- The repository README now links directly to the paper-only GitHub Actions workflow and displays its main-branch status badge.
+- This is monitoring/documentation only; it does not grant deployment, broker, scheduler, or order authority.
 
 ### Manual paper-only verification trigger (2026-08-26)
 
