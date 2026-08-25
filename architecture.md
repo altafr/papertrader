@@ -8,6 +8,7 @@
 
 - The dashboard derives the total number of audit pages from the largest filtered category and the server-reported page size, then renders `Page X of Y`.
 - The calculation is descriptive navigation metadata only; server-side bounds and authenticated reads remain authoritative.
+- Vercel preview `https://papertrader-qm4n6lkn5-altafrs-projects.vercel.app` is ready; protected authenticated page-count rendering still requires the operator session.
 
 ### Latest persisted audit-event provenance (2026-08-26)
 

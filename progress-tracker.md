@@ -14,7 +14,7 @@
 - [x] Render `Page X of Y` beside the active date window and persisted-event timestamp.
 - [x] Add page-count tests for populated and empty histories.
 - [x] Verify 252 tests, typecheck, lint, and production build pass.
-- [ ] Publish the web preview and verify authenticated hosted page-count rendering.
+- [x] Publish Vercel preview `https://papertrader-qm4n6lkn5-altafrs-projects.vercel.app`; authenticated hosted page-count rendering remains pending behind deployment protection.
 
 ### Phase 6.196 — Latest persisted audit-event provenance (2026-08-26)
 
