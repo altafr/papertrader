@@ -2,7 +2,12 @@
 
 ## Status
 
-- **Stage:** Phase 6.167 Complete persisted order/activity history rendered; multi-day evidence collection continues.
+- **Stage:** Phase 6.168 Strategy-level shadow performance summary added; multi-day evidence collection continues.
+
+### Strategy-level shadow performance summary (2026-08-26)
+
+- The dashboard aggregates persisted filtered/shadow observations by strategy, showing total, open, closed, wins, losses, and average observed return where outcomes exist.
+- The summary is explicitly descriptive shadow/research evidence; it is not a live-trade performance claim and does not authorize or change orders.
 
 ### Complete persisted order/activity history (2026-08-26)
 
