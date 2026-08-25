@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.138 Telegram provider-level delivery validation deployed; natural scheduler-cycle verification, recovery evidence sign-off, and persistent Paper Autopilot activation remain separately gated.
+- **Stage:** Phase 6.139 isolated PITR schema checksum captured; natural scheduler-cycle verification, post-restore reconciliation, recovery sign-off, and persistent Paper Autopilot activation remain separately gated.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -94,6 +94,11 @@ Do not run the continuous trading loop in the browser or Vercel functions. Verce
 
 - Worker deployment `bc805397-2995-4f7d-bf01-5ae609c5980e` reached `SUCCESS` after deploying the provider-response validation. Private Worker Health returned `healthy`, scheduler `scheduled` for `2026-08-26T00:00:00Z`, global kill switch inactive, observe mode, and Paper Autopilot disabled.
 - Deployment was a code-only rollout; no Railway variables, secrets, queue state, scheduler trigger, broker request, or order behavior changed.
+
+### 2026-08-25 — Phase 6.139 isolated PITR schema checksum
+
+- A read-only `pg_dump --schema-only --no-owner --no-privileges | sha256sum` on the restored sibling produced schema checksum `72ceb28d6cfb15199263962f483689b778c2c52e3a15f40c8712d498f7496c8f`.
+- This checksum covers schema DDL only; it does not expose account data or credentials and does not substitute for broker reconciliation. The restored service remains isolated and production remains untouched.
 
 ### Deployment Recommendation
 
