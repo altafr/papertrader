@@ -8,6 +8,7 @@
 
 - The JSON and CSV operator-overview routes now distinguish malformed history parameters with a `400 invalid_operator_history_query` response.
 - Authentication remains fail-closed at `401`; unexpected database or runtime failures remain `503`. Error classification does not reveal query values or internal SQL details.
+- API deployment `587f5d15-2300-4be5-9155-64699302a39f` is healthy. Unauthenticated requests—including malformed queries—remain `401` because authentication precedes query validation; authenticated invalid queries receive the explicit `400` contract.
 
 ### Complete audit coverage summary (2026-08-26)
 

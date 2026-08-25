@@ -14,7 +14,7 @@
 - [x] Preserve `401` authentication failures and `503` runtime/database failures.
 - [x] Add focused classification tests for validation versus runtime errors.
 - [x] Verify 248 tests, typecheck, lint, and production build pass.
-- [ ] Deploy and verify hosted invalid-query responses; authenticated valid-query inspection remains protected.
+- [x] Deploy API `587f5d15-2300-4be5-9155-64699302a39f`; health is healthy and unauthenticated malformed/valid overview requests both correctly return `401` before query parsing. Authenticated `400` validation inspection remains protected.
 
 ### Phase 6.190 — Complete audit coverage summary (2026-08-26)
 
