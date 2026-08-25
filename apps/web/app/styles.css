@@ -401,6 +401,10 @@ h2 {
   font-weight: 500;
 }
 
+.negative-value {
+  color: var(--negative);
+}
+
 .responsive-table {
   border: 1px solid var(--border);
   border-radius: 12px;

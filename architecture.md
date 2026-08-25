@@ -2,7 +2,12 @@
 
 ## Status
 
-- **Stage:** Phase 6.169 Read-only dashboard auto-refresh added; multi-day evidence collection continues.
+- **Stage:** Phase 6.170 Reconciled portfolio P/L and exposure metrics added; multi-day evidence collection continues.
+
+### Reconciled portfolio P/L and exposure metrics (2026-08-26)
+
+- The account card now derives day P/L from persisted `equity` and `lastEquity` when both are present, sums persisted position unrealized P/L, and calculates gross exposure as position market value divided by equity.
+- Missing source fields remain explicitly unavailable; no values are inferred from live broker calls or fabricated in the browser.
 
 ### Read-only dashboard auto-refresh (2026-08-26)
 

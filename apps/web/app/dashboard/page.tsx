@@ -126,6 +126,11 @@ function value(row: Record<string, unknown>, key: string) {
   return typeof result === "string" || typeof result === "number" ? String(result) : "—";
 }
 
+function numericValue(row: Record<string, unknown>, key: string): number | undefined {
+  const parsed = Number(row[key]);
+  return Number.isFinite(parsed) ? parsed : undefined;
+}
+
 function indicatorSummary(row: Record<string, unknown>) {
   if (!isRecord(row.marketSnapshot)) return "Not captured";
   const snapshot = row.marketSnapshot;
@@ -291,6 +296,12 @@ export default async function DashboardPage({ searchParams }: { readonly searchP
   const operatorOverview = await loadOperatorOverview(getToken);
   const freshness = result.kind === "ready" ? getFreshnessState(result.model.freshness.ageSeconds) : "stale";
   const freshnessLabel = getFreshnessLabel(freshness);
+  const portfolioMarketValue = result.kind === "ready" ? result.model.positions.reduce((sum, position) => sum + (numericValue(position, "marketValue") ?? 0), 0) : undefined;
+  const portfolioUnrealizedPl = result.kind === "ready" ? result.model.positions.reduce((sum, position) => sum + (numericValue(position, "unrealizedPl") ?? 0), 0) : undefined;
+  const equity = result.kind === "ready" ? numericValue(result.model.snapshot, "equity") : undefined;
+  const lastEquity = result.kind === "ready" ? numericValue(result.model.snapshot, "lastEquity") : undefined;
+  const dayPnl = equity !== undefined && lastEquity !== undefined ? equity - lastEquity : undefined;
+  const grossExposurePercent = equity && portfolioMarketValue !== undefined ? (portfolioMarketValue / equity) * 100 : undefined;
 
   return (
     <main>
@@ -354,7 +365,9 @@ export default async function DashboardPage({ searchParams }: { readonly searchP
               <div><dt>Cash</dt><dd>{value(result.model.snapshot, "cash")}</dd></div>
               <div><dt>Buying power</dt><dd>{value(result.model.snapshot, "buyingPower")}</dd></div>
               <div><dt>Account status</dt><dd>{value(result.model.snapshot, "status")}</dd></div>
-              <div><dt>Day P/L</dt><dd className="unavailable-value">Not reported</dd></div>
+              <div><dt>Day P/L</dt><dd className={dayPnl !== undefined && dayPnl < 0 ? "negative-value" : ""}>{dayPnl === undefined ? "Not reported" : dayPnl.toFixed(2)}</dd></div>
+              <div><dt>Unrealized P/L</dt><dd className={portfolioUnrealizedPl !== undefined && portfolioUnrealizedPl < 0 ? "negative-value" : ""}>{portfolioUnrealizedPl === undefined ? "Not reported" : portfolioUnrealizedPl.toFixed(2)}</dd></div>
+              <div><dt>Gross exposure</dt><dd>{grossExposurePercent === undefined ? "Not reported" : `${grossExposurePercent.toFixed(2)}%`}</dd></div>
             </dl>
             <p className="provenance">Source: persisted Alpaca paper reconciliation · captured {formatUtc(result.model.freshness.capturedAt)}</p>
           </article>
