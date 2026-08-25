@@ -52,3 +52,14 @@ jobs:
 
       - name: Audit secret surfaces
         run: pnpm audit:secret-surfaces
+
+      - name: Verify hosted operator overview when credentials are configured
+        env:
+          OPERATOR_API_BASE_URL: ${{ secrets.OPERATOR_API_BASE_URL }}
+          OPERATOR_AUTH_TOKEN: ${{ secrets.OPERATOR_AUTH_TOKEN }}
+        run: |
+          if [ -n "$OPERATOR_AUTH_TOKEN" ]; then
+            pnpm verify:operator-overview
+          else
+            echo "Hosted operator-overview verification skipped; protected secrets are not configured."
+          fi

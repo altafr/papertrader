@@ -2,7 +2,12 @@
 
 ## Status
 
-- **Stage:** Phase 6.197 Audit page-count visibility; multi-day evidence collection continues.
+- **Stage:** Phase 6.198 Credential-optional hosted contract CI; multi-day evidence collection continues.
+
+### Credential-optional hosted contract CI (2026-08-26)
+
+- GitHub Actions now runs the authenticated operator-overview verifier only when the protected `OPERATOR_AUTH_TOKEN` secret is present; otherwise it logs an explicit skip while retaining all local contract, quality, and secret-surface checks.
+- The token and optional API base URL are injected only as workflow environment values and are never committed, printed, or sent to browser code.
 
 ### Audit page-count visibility (2026-08-26)
 

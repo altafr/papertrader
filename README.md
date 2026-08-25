@@ -50,6 +50,8 @@ Use `pnpm typecheck`, `pnpm lint`, `pnpm test`, and `pnpm build` for the local v
 
 GitHub Actions runs the same locked, paper-only verification loop on pushes to `main` and every pull request. The workflow has read-only repository permissions and does not receive broker, database, Clerk, or deployment secrets.
 
+When the protected GitHub Actions secrets `OPERATOR_AUTH_TOKEN` and optional `OPERATOR_API_BASE_URL` are configured, the workflow also runs `pnpm verify:operator-overview` against the hosted authenticated overview and CSV contracts. If the token secret is absent, that live check is explicitly skipped; all local contract tests still run.
+
 The server must run daily preparation, health, reconciliation, and evaluation independently of an open browser. Paper Autopilot does not require per-order human confirmation, but every order still requires deterministic risk approval. The initial paper baseline is `USD 100,000` (Alpaca's current default); estimated loss at the planned stop is limited to `5%` of invested notional, with a maximum 5% adverse stop distance.
 
 Railway PostgreSQL is the selected system of record. Railway also hosts the authenticated API, PostgreSQL-backed durable jobs, and persistent Alpaca market/trading WebSocket worker. Vercel hosts only the dashboard and contains no Alpaca credentials or direct order authority.
