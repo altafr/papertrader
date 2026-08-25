@@ -524,6 +524,21 @@ tbody th {
   width: 100%;
 }
 
+.snapshot-details {
+  margin-top: 0.8rem;
+}
+
+.snapshot-details summary {
+  color: var(--paper);
+  cursor: pointer;
+  font-size: 0.76rem;
+}
+
+.snapshot-details .responsive-table {
+  margin-top: 0.6rem;
+  max-height: 22rem;
+}
+
 .chart-caption {
   color: var(--muted);
   display: block;

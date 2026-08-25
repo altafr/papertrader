@@ -2,7 +2,12 @@
 
 ## Status
 
-- **Stage:** Phase 6.180 Full order/fill reconciliation table rendered; multi-day evidence collection continues.
+- **Stage:** Phase 6.181 Performance snapshot history table added; multi-day evidence collection continues.
+
+### Performance snapshot history table (2026-08-26)
+
+- The selected paper-performance window now includes a collapsible table of every returned equity snapshot with capture time, equity, return, and drawdown.
+- The table is read-only and derives from the same reconciled snapshot series as the performance curve and metrics.
 
 ### Full order/fill reconciliation table rendered (2026-08-26)
 
