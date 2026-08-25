@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.133 scheduler-audit gate visible in private Worker Health; restore-drill verification, alert hardening, and Paper Autopilot activation remain separately gated.
+- **Stage:** Phase 6.134 isolated PITR restore mechanics and schema verification completed; natural scheduler-cycle verification, recovery evidence sign-off, alert hardening, and Paper Autopilot activation remain separately gated.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -65,6 +65,13 @@ Do not run the continuous trading loop in the browser or Vercel functions. Verce
 - Added the guarded read-only `durable-schedule-audit-verify` Worker command. Worker deployment `1cc4bee8-ee98-48e4-9e37-22196cfee7c8` reached `SUCCESS`; the pre-cycle check for `2026-08-26T00:00:00Z` correctly returned `status:"incomplete"` with no audit run yet, reconciliation before cycle, and both queues present/drained. It does not trigger work or write state.
 - Worker deployment `b27c8db6-1134-47c6-8f33-a991ef38e39a` reached `SUCCESS` with private Worker Health exposing only scheduler-audit enabled/reference-presence booleans. Hosted health is `healthy`, scheduler `scheduled`, next run `2026-08-26T00:00:00Z`, global kill switch inactive, and Paper Autopilot disabled; no scheduler trigger or broker/order action was issued.
 - PITR presence is not a restore drill. `RECOVERY_DRILL_VERIFIED` remains unset, so recovery status stays `unverified` until an isolated restore is completed and its reference/timestamp are recorded.
+
+### 2026-08-25 — Phase 6.134 isolated PITR restore drill
+
+- Railway PITR restored production PostgreSQL to an isolated sibling service `Postgres-restored-20260825-1130` (service `aa11412e-345e-4a43-aab4-a7e6c7c2b67f`) at target `2026-08-25T11:30:00Z`; production Postgres, API, Worker, scheduler, broker, and Paper Autopilot state were not changed.
+- Restore deployment `485a3d57-9a08-4a7f-ad90-34f02ca23d11` reached `SUCCESS`. Recovery logs ended with `archive recovery complete` and `database system is ready to accept connections`; the recovered database reported schema migration `0010`, `durable_schedule_runs`, and `pgboss.job` present. The restored scheduler-audit table contained zero rows, consistent with the target being before the first natural audit cycle.
+- The check was read-only; no migration was applied, no queue job was started, and no broker reconciliation was run against the restored sibling. The isolated service is retained pending a separately reviewed cleanup decision.
+- This verifies restore mechanics and schema/queue presence only. `RECOVERY_DRILL_VERIFIED` remains unset because the runbook's complete evidence package still requires the bounded recovery approval/timestamp record, checksum/timing record, and separately approved post-restore paper reconciliation.
 
 ### Deployment Recommendation
 
