@@ -134,7 +134,7 @@ function numericValue(row: Record<string, unknown>, key: string): number | undef
 function indicatorSummary(row: Record<string, unknown>) {
   if (!isRecord(row.marketSnapshot)) return "Not captured";
   const snapshot = row.marketSnapshot;
-  return `RSI14 ${value(snapshot, "rsi14")} · EMA20 ${value(snapshot, "ema20")} · ATR14 ${value(snapshot, "atr14")} · RV20 ${value(snapshot, "relativeVolume20")}`;
+  return `RSI14 ${value(snapshot, "rsi14")} · EMA20 ${value(snapshot, "ema20")} · EMA50 ${value(snapshot, "ema50")} · ATR14 ${value(snapshot, "atr14")} · RV20 ${value(snapshot, "relativeVolume20")} · close ${value(snapshot, "close")} · volume ${value(snapshot, "volume")} · as of ${formatUtc(value(snapshot, "asOf"))}`;
 }
 
 function riskDecisionSummary(row: Record<string, unknown>) {

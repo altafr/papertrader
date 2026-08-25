@@ -2,7 +2,12 @@
 
 ## Status
 
-- **Stage:** Phase 6.174 Structured risk evidence rendered in decision log; multi-day evidence collection continues.
+- **Stage:** Phase 6.175 Complete point-in-time indicator snapshots rendered; multi-day evidence collection continues.
+
+### Complete point-in-time indicator snapshots rendered (2026-08-26)
+
+- Filtered-trade and approval-decision rows now display all persisted market-snapshot fields: RSI14, EMA20, EMA50, ATR14, relative volume20, close, volume, and signal/approval timestamp.
+- Missing snapshots remain explicitly marked as not captured; the dashboard does not calculate or invent historical values client-side.
 
 ### Structured risk evidence rendered in decision log (2026-08-26)
 
