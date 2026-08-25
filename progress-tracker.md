@@ -13,7 +13,7 @@
 - [x] Show the active audit date window as an explicit UTC range beside pagination and totals.
 - [x] Preserve clear Beginning/Now labels when no bound is selected.
 - [x] Add formatter tests and verify 250 tests, typecheck, lint, and production build pass.
-- [ ] Publish the web preview and verify authenticated hosted rendering.
+- [x] Publish Vercel preview `https://papertrader-4oz2gi7r1-altafrs-projects.vercel.app`; authenticated hosted rendering remains pending behind deployment protection.
 
 ### Phase 6.192 — Preserved dashboard performance-window state (2026-08-26)
 

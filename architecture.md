@@ -8,6 +8,7 @@
 
 - The dashboard now labels the currently displayed audit records with their inclusive UTC date window, including explicit Beginning/Now defaults.
 - The label is derived from URL filter state and is informational only; it does not alter persisted records or authorize actions.
+- Vercel preview `https://papertrader-4oz2gi7r1-altafrs-projects.vercel.app` is ready; protected authenticated rendering still requires the operator session.
 
 ### Preserved dashboard performance-window state (2026-08-26)
 
