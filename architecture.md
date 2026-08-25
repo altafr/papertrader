@@ -2,7 +2,12 @@
 
 ## Status
 
-- **Stage:** Phase 6.151 Isolated post-restore reconciliation and recovery sign-off verified; isolated recovery resources retained pending cleanup review.
+- **Stage:** Phase 6.152 Paper research pipeline verified end-to-end; isolated recovery resources retained pending cleanup review.
+
+### Bounded paper research evidence (2026-08-25)
+
+- A one-shot stock research command read paper Alpaca market data for `AAPL,MSFT` and persisted run `research-market-1787670407363` with status `succeeded` and a present artifact.
+- Verification confirmed approval provenance `RESEARCH-PAPER-PHASE-152-20260825`; the command has no order submission, approval, cancellation, or recurring scheduling authority.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
