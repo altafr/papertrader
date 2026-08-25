@@ -2,7 +2,12 @@
 
 ## Status
 
-- **Stage:** Phase 6.189 Testable authenticated deployment verifier; multi-day evidence collection continues.
+- **Stage:** Phase 6.190 Complete audit coverage summary; multi-day evidence collection continues.
+
+### Complete audit coverage summary (2026-08-26)
+
+- The dashboard history toolbar now displays all authenticated filtered totals—agent runs, filtered/shadow trades, execution decisions, lifecycle events, and scheduler runs—beside pagination and date controls.
+- This is an orientation summary only; it does not imply that shadow records are profitable evidence and cannot alter trading, risk, or scheduler state.
 
 ### Testable authenticated deployment verifier (2026-08-26)
 

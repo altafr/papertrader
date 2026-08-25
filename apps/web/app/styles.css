@@ -238,6 +238,20 @@ main {
   gap: 0.25rem;
 }
 
+.audit-coverage {
+  color: var(--muted);
+  display: inline-flex;
+  flex-wrap: wrap;
+  font-size: 0.72rem;
+  gap: 0.45rem;
+}
+
+.audit-coverage span + span::before {
+  color: var(--border);
+  content: "·";
+  margin-right: 0.45rem;
+}
+
 .history-presets a {
   color: var(--paper);
   font-size: 0.72rem;

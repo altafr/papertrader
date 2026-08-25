@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { formatUtc, getFreshnessLabel, getFreshnessState, parseAgentRuns, parseOperationsHealth } from "./dashboard-state";
+import { formatUtc, getFreshnessLabel, getFreshnessState, parseAgentRuns, parseOperatorOverview, parseOperationsHealth } from "./dashboard-state";
 
 describe("dashboard state", () => {
   it("classifies persisted data by freshness", () => {
@@ -70,5 +70,10 @@ describe("dashboard state", () => {
     expect(runs?.[0]?.artifact?.type).toBe("research_watchlist");
     expect(parseAgentRuns({ runs: [{ agentType: "stock_research", createdAt: "now", inputRefs: ["bars:1"], promptVersion: "research@1", runId: "run-1", status: "unknown", task: "Rank stocks." }] })).toBeUndefined();
     expect(parseAgentRuns({ runs: [{ agentType: "stock_research", createdAt: "now", inputRefs: [1], promptVersion: "research@1", runId: "run-1", status: "queued", task: "Rank stocks." }] })).toBeUndefined();
+  });
+
+  it("preserves complete audit totals for the coverage summary", () => {
+    const overview = parseOperatorOverview({ agents: [], filteredTrades: [], tradeDecisions: [], strategyLifecycle: [], strategyCatalog: [], auditTimeline: [], history: { page: 1, limit: 100, hasNext: false, totals: { agents: 2, filteredTrades: 3, submissions: 4, lifecycle: 5, schedules: 6 } } });
+    expect(overview?.history?.totals).toEqual({ agents: 2, filteredTrades: 3, submissions: 4, lifecycle: 5, schedules: 6 });
   });
 });
