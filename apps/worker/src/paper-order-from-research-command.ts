@@ -21,8 +21,12 @@ try {
   const snapshot = await reconcilePaperAccount(reader, accountRepository, { approvalReference, runId: `paper-order-${Date.now()}` });
   stage = "research_artifact";
   const research = await agentRepository.get(researchRunId);
-  const payload = research?.status === "succeeded" && research.artifactPayload && typeof research.artifactPayload === "object" ? research.artifactPayload as { readonly candidates?: readonly unknown[] } : undefined;
+  if (!research) throw new Error("Persisted research run is unavailable.");
+  if (research.status !== "succeeded") throw new Error("Persisted research run did not succeed.");
+  if (!research.artifactPayload || typeof research.artifactPayload !== "object") throw new Error("Persisted research artifact payload is unavailable.");
+  const payload = research.artifactPayload as { readonly candidates?: readonly unknown[] };
   const rawCandidate = payload?.candidates?.[0];
+  if (!Array.isArray(payload.candidates)) throw new Error("Persisted research artifact candidate list is unavailable.");
   if (!rawCandidate || typeof rawCandidate !== "object") throw new Error("Persisted research artifact has no candidate.");
   const candidate = rawCandidate as Parameters<typeof assessResearchCandidateRisk>[0]["candidate"];
   const model = await accountRepository.getLatestReadModel();
