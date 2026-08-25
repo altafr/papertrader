@@ -4,6 +4,11 @@
 
 - **Stage:** Phase 6.202 Credential-free hosted auth-boundary verification; multi-day evidence collection continues.
 
+### Guarded paper end-to-end evidence run (2026-08-26)
+
+- Added `paper-e2e-run-once`, which composes one paper-account reconciliation and one bounded market-research agent run so the operator can verify the complete read → persist → dashboard path quickly.
+- It requires a command-scoped, non-secret reference and explicit paper broker/database gates, refuses to run with Paper Autopilot enabled, persists reconciliation provenance and research evidence, and has no order-submission or scheduler mutation authority.
+
 ### Credential-free hosted auth-boundary verification (2026-08-26)
 
 - Added a credential-free verifier for the protected JSON and CSV operator-overview endpoints and included it in CI.

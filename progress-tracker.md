@@ -2569,3 +2569,10 @@
 - Added [`docs/paper-autopilot-activation-runbook.md`](docs/paper-autopilot-activation-runbook.md), documenting the exact paper-only preconditions, read-only rehearsal, persistent activation sequence, rollback, and evidence requirements.
 - No Railway variable, scheduler, queue, broker, or trading state changed.
 - **Next smallest unit:** Verify the first natural scheduler-audit record, then use the runbook for the explicit activation review.
+
+### 2026-08-26 — Phase 6.147 guarded paper end-to-end evidence run
+
+- Added `paper-e2e-run-once`, a single command-scoped workflow that reconciles the Alpaca paper account, reads bounded market bars, runs the typed research agent, and persists both reconciliation provenance and research evidence for the dashboard.
+- The command is explicitly paper-only, requires broker/database gates and a bounded non-secret run reference, refuses to run while Paper Autopilot is enabled, submits no orders, and never prints provider data or credentials.
+- Verification passed: 257 tests, Worker typecheck, lint, and full workspace build. No hosted state changed yet.
+- **Next smallest unit:** deploy the Worker command, run one bounded `PAPER-E2E-...` invocation on Railway, then open the authenticated dashboard and confirm the fresh reconciliation and research candidate/agent records end to end.
