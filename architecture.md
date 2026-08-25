@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.129 repeatable database credential-surface audit deployed and verified; scheduler audit activation, restore-drill verification, alert delivery, and Paper Autopilot activation remain separately gated.
+- **Stage:** Phase 6.130 scheduler-audit gate visibility deployed and verified; scheduler audit activation, restore-drill verification, alert delivery, and Paper Autopilot activation remain separately gated.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -57,6 +57,8 @@ Do not run the continuous trading loop in the browser or Vercel functions. Verce
 - `pnpm audit:secret-surfaces` passed with no credential-like values in source or browser output. A bounded 200-line JSON log scan for the Worker and API found no Alpaca key, private-key, or credentialed-PostgreSQL patterns. This does not claim a full PostgreSQL data audit; that remains a separately scoped verification if required.
 - A read-only hosted PostgreSQL scan examined 63 public text/varchar columns and found zero credential-like matches. The deployed Vercel root returned HTTP 200 with no credential-like pattern. Together with the source/browser and bounded log checks, this completes the current credential-surface audit without exposing values.
 - Worker deployment `39aa5a9f-4e0a-4cd1-9d69-578b85bdfbe1` reached `SUCCESS` with the guarded `database-credential-surface-audit` command. Hosted execution returned `status:"passed"`, `columnsScanned:63`, and zero matching columns/rows; `DATABASE_CREDENTIAL_SURFACE_AUDIT=false` failed closed before database access. No persistent runtime variable changed.
+- API deployment `a62ace4e-caff-40a7-ab2e-c5654ded16e9` reached `SUCCESS`; authenticated Operations Health now reports scheduler-audit write-gate status (`disabled`, `blocked`, or `enabled`) separately from the latest persisted run. The production gate remains disabled, migration `0010` is ready, and no audit rows are being written.
+- Vercel production remains available at `https://papertrader-j3idgz4ns-altafrs-projects.vercel.app`; API `/health` returned healthy and unauthenticated Operations Health returned `401` after deployment. No scheduler, broker, order, or Paper Autopilot state changed.
 - PITR presence is not a restore drill. `RECOVERY_DRILL_VERIFIED` remains unset, so recovery status stays `unverified` until an isolated restore is completed and its reference/timestamp are recorded.
 
 ### Deployment Recommendation

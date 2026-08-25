@@ -2018,3 +2018,10 @@
 - Worker deployment `39aa5a9f-4e0a-4cd1-9d69-578b85bdfbe1` reached `SUCCESS`; hosted execution returned `status:"passed"`, `columnsScanned:63`, `matchingColumns:0`, and `matchingRows:0`.
 - The `DATABASE_CREDENTIAL_SURFACE_AUDIT=false` guard test failed closed before database access. No persistent runtime variable, scheduler behavior, broker request, order submission, or Paper Autopilot state changed.
 - **Next smallest unit:** Obtain an explicit bounded scheduler-audit activation reference, then enable and verify the first persisted scheduler-run record.
+
+### 2026-08-25 — Phase 6.130 scheduler-audit gate visibility deployed
+
+- Added a redacted API/dashboard read model that distinguishes the scheduler-audit write gate (`disabled`, `blocked`, or `enabled`) from the latest persisted run status. It exposes only booleans and bounded status values; activation references are never returned.
+- Verification: 227 tests, full typecheck, lint, and production build pass. API deployment `a62ace4e-caff-40a7-ab2e-c5654ded16e9` reached `SUCCESS`; `/health` returned healthy and unauthenticated Operations Health returned `401`.
+- The production dashboard continues to show the audit write gate as disabled, with migration `0010` ready and no runtime audit writes. No scheduler trigger, broker request, order submission, or Paper Autopilot state changed.
+- **Next smallest unit:** Obtain an explicit bounded scheduler-audit activation reference, then enable and verify the first persisted scheduler-run record.
