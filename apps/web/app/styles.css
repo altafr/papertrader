@@ -364,6 +364,27 @@ tbody th {
   white-space: normal;
 }
 
+.equity-chart {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--positive);
+  margin: 1rem 0;
+  padding: 0.5rem;
+}
+
+.equity-chart svg {
+  display: block;
+  height: 5rem;
+  width: 100%;
+}
+
+.chart-caption {
+  color: var(--muted);
+  display: block;
+  font-size: 0.7rem;
+  margin-top: 0.25rem;
+}
+
 .primary-card {
   border-color: rgb(79 142 247 / 38%);
 }

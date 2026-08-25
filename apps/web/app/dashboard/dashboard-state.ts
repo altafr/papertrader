@@ -40,6 +40,7 @@ export type PaperPerformance = {
   readonly calendarDays: number;
   readonly consecutiveCalendarDays: number;
   readonly firstCapturedAt?: string;
+  readonly equityCurve?: readonly { readonly capturedAt: string; readonly drawdownPercent: string; readonly equity: string; readonly returnPercent: string }[];
   readonly lastCapturedAt?: string;
   readonly metrics?: { readonly finalEquity: string; readonly initialEquity: string; readonly maxDrawdownPercent: string; readonly totalPnl: string; readonly totalReturnPercent: string };
   readonly snapshotCount: number;
@@ -50,11 +51,14 @@ export type PaperPerformance = {
 export function parsePaperPerformance(value: unknown): PaperPerformance | undefined {
   if (!isRecord(value) || typeof value.calendarDays !== "number" || typeof value.consecutiveCalendarDays !== "number" || typeof value.snapshotCount !== "number" || !isRecord(value.stability) || !Array.isArray(value.stability.blockedReasons) || value.stability.blockedReasons.some((reason) => typeof reason !== "string") || !(value.stability.status === "blocked" || value.stability.status === "ready") || !(value.status === "insufficient_history" || value.status === "ready")) return undefined;
   const metrics = value.metrics;
+  const equityCurve = value.equityCurve;
+  if (equityCurve !== undefined && (!Array.isArray(equityCurve) || equityCurve.some((point) => !isRecord(point) || typeof point.capturedAt !== "string" || typeof point.drawdownPercent !== "string" || typeof point.equity !== "string" || typeof point.returnPercent !== "string"))) return undefined;
   if (metrics !== undefined && (!isRecord(metrics) || typeof metrics.finalEquity !== "string" || typeof metrics.initialEquity !== "string" || typeof metrics.maxDrawdownPercent !== "string" || typeof metrics.totalPnl !== "string" || typeof metrics.totalReturnPercent !== "string")) return undefined;
   return {
     calendarDays: value.calendarDays,
     consecutiveCalendarDays: value.consecutiveCalendarDays,
     ...(typeof value.firstCapturedAt === "string" ? { firstCapturedAt: value.firstCapturedAt } : {}),
+    ...(Array.isArray(equityCurve) ? { equityCurve: equityCurve.map((point) => ({ capturedAt: point.capturedAt as string, drawdownPercent: point.drawdownPercent as string, equity: point.equity as string, returnPercent: point.returnPercent as string })) } : {}),
     ...(typeof value.lastCapturedAt === "string" ? { lastCapturedAt: value.lastCapturedAt } : {}),
     ...(metrics ? { metrics: { finalEquity: metrics.finalEquity as string, initialEquity: metrics.initialEquity as string, maxDrawdownPercent: metrics.maxDrawdownPercent as string, totalPnl: metrics.totalPnl as string, totalReturnPercent: metrics.totalReturnPercent as string } } : {}),
     snapshotCount: value.snapshotCount,

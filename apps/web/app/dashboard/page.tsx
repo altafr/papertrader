@@ -209,7 +209,13 @@ function OperatorAuditCards({ overview }: { readonly overview: OperatorOverview 
 function PaperPerformanceCard({ performance }: { readonly performance: PaperPerformance | undefined }) {
   if (!performance) return <article className="card" id="performance"><p className="label">Performance</p><h2>Unavailable</h2><p>Authenticated performance data is currently unavailable.</p></article>;
   const metrics = performance.metrics;
-  return <article className="card" id="performance"><p className="label">Paper performance</p><h2>{metrics ? `${metrics.totalReturnPercent}% return` : "Insufficient history"}</h2><p>{performance.snapshotCount} snapshots · {performance.calendarDays} calendar days · {performance.consecutiveCalendarDays} consecutive days</p>{metrics && <p>Max drawdown {metrics.maxDrawdownPercent}% · P/L {metrics.totalPnl}</p>}<p className="provenance">Stability gate: {performance.stability.status === "ready" ? "Ready" : `Blocked · ${performance.stability.blockedReasons.join(", ")}`}</p></article>;
+  const curve = performance.equityCurve ?? [];
+  const numeric = curve.map((point) => Number(point.equity)).filter(Number.isFinite);
+  const minimum = Math.min(...numeric);
+  const maximum = Math.max(...numeric);
+  const span = maximum - minimum || 1;
+  const points = curve.map((point, index) => `${(index / Math.max(curve.length - 1, 1)) * 100},${100 - ((Number(point.equity) - minimum) / span) * 88 - 6}`).join(" ");
+  return <article className="card" id="performance"><p className="label">Paper performance</p><h2>{metrics ? `${metrics.totalReturnPercent}% return` : "Insufficient history"}</h2><p>{performance.snapshotCount} snapshots · {performance.calendarDays} calendar days · {performance.consecutiveCalendarDays} consecutive days</p>{metrics && <p>Max drawdown {metrics.maxDrawdownPercent}% · P/L {metrics.totalPnl}</p>}{points && <div className="equity-chart" aria-label="Paper equity curve"><svg viewBox="0 0 100 100" role="img" aria-label="Equity curve"><polyline points={points} fill="none" stroke="currentColor" strokeWidth="2" vectorEffect="non-scaling-stroke" /></svg><span className="chart-caption">Equity curve · latest {formatUtc(curve[curve.length - 1]!.capturedAt)}</span></div>}<p className="provenance">Stability gate: {performance.stability.status === "ready" ? "Ready" : `Blocked · ${performance.stability.blockedReasons.join(", ")}`}</p></article>;
 }
 
 export default async function DashboardPage() {

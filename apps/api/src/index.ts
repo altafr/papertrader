@@ -394,11 +394,23 @@ async function readPaperPerformance(request: IncomingMessage) {
     }
     if (snapshots.length < 2) return { body: { calendarDays: dates.length, consecutiveCalendarDays, snapshotCount: snapshots.length, stability: { blockedReasons: ["minimum_30_consecutive_calendar_days_not_met", "performance_history_insufficient"], status: "blocked" }, status: "insufficient_history" }, status: 200 } as const;
     const metrics = calculatePerformanceMetrics(snapshots);
+    let peak = Number(snapshots[0]?.equity ?? "0");
+    const initial = Number(snapshots[0]?.equity ?? "0");
+    const equityCurve = snapshots.map((snapshot) => {
+      const equity = Number(snapshot.equity);
+      peak = Math.max(peak, equity);
+      return {
+        capturedAt: snapshot.capturedAt,
+        equity: snapshot.equity,
+        returnPercent: initial === 0 ? "0.00000000" : ((equity / initial - 1) * 100).toFixed(8),
+        drawdownPercent: peak === 0 ? "0.00000000" : (((peak - equity) / peak) * 100).toFixed(8),
+      };
+    });
     const blockedReasons = [
       ...(consecutiveCalendarDays >= 30 ? [] : ["minimum_30_consecutive_calendar_days_not_met"]),
       ...(Number(metrics.maxDrawdownPercent) <= 5 ? [] : ["maximum_drawdown_policy_exceeded"]),
     ];
-    return { body: { calendarDays: dates.length, consecutiveCalendarDays, firstCapturedAt: snapshots[0]?.capturedAt, lastCapturedAt: snapshots[snapshots.length - 1]?.capturedAt, metrics, snapshotCount: snapshots.length, stability: { blockedReasons, status: blockedReasons.length === 0 ? "ready" : "blocked" }, status: "ready" }, status: 200 } as const;
+    return { body: { calendarDays: dates.length, consecutiveCalendarDays, equityCurve, firstCapturedAt: snapshots[0]?.capturedAt, lastCapturedAt: snapshots[snapshots.length - 1]?.capturedAt, metrics, snapshotCount: snapshots.length, stability: { blockedReasons, status: blockedReasons.length === 0 ? "ready" : "blocked" }, status: "ready" }, status: 200 } as const;
   } finally {
     await pool.end();
   }
