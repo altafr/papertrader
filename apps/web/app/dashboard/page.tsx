@@ -131,6 +131,7 @@ function OperationsHealthCard({ health }: { readonly health: OperationsHealth | 
         <div><span className="label">Global kill switch</span><strong>{health.runtime.globalKillSwitchActive ? "ACTIVE" : "Inactive"}</strong></div>
         <div><span className="label">Paper baseline</span><strong>USD {health.runtime.riskPolicy.initialEquityBaseline}</strong></div>
         <div><span className="label">Max single-trade risk</span><strong>USD {health.runtime.riskPolicy.maxSingleTradeRiskUsd} / {health.runtime.riskPolicy.maxSingleTradeRiskPercent}%</strong></div>
+        <div><span className="label">Maximum stop distance</span><strong>{health.runtime.riskPolicy.maxSingleTradeStopLossPercent}% adverse</strong></div>
       </div>
       {health.runtime.migration.status === "blocked" && <p className="provenance">Audit migration checks: {health.runtime.migration.blockedReasons.join(", ") || "unavailable"}.</p>}
       <p className="provenance">The dashboard can observe these gates but cannot change them. Continuous scheduling and Paper Autopilot remain disabled unless explicitly activated.</p>

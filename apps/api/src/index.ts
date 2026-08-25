@@ -21,7 +21,7 @@ import {
   getServerPort,
   isGlobalKillSwitchActive,
 } from "@momentum/config";
-import { MAX_SINGLE_TRADE_RISK_PERCENT_OF_EQUITY, MAX_SINGLE_TRADE_RISK_USD, PAPER_INITIAL_EQUITY_BASELINE } from "@momentum/domain";
+import { MAX_SINGLE_TRADE_RISK_PERCENT_OF_EQUITY, MAX_SINGLE_TRADE_RISK_USD, MAX_SINGLE_TRADE_STOP_LOSS_PERCENT, PAPER_INITIAL_EQUITY_BASELINE } from "@momentum/domain";
 import { getTelegramAlertTestReadiness, getTelegramNotificationReadiness } from "@momentum/notifications";
 
 import { getApiHealth } from "./app.js";
@@ -352,6 +352,7 @@ async function readOperationsHealth(request: IncomingMessage) {
           initialEquityBaseline: PAPER_INITIAL_EQUITY_BASELINE,
           maxSingleTradeRiskPercent: MAX_SINGLE_TRADE_RISK_PERCENT_OF_EQUITY,
           maxSingleTradeRiskUsd: MAX_SINGLE_TRADE_RISK_USD,
+          maxSingleTradeStopLossPercent: MAX_SINGLE_TRADE_STOP_LOSS_PERCENT,
         },
         scheduler: {
           activationApprovalReferencePresent,

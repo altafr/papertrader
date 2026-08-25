@@ -1,5 +1,5 @@
 import { getPaperOperatingMode, isGlobalKillSwitchActive } from "@momentum/config";
-import { MAX_SINGLE_TRADE_RISK_PERCENT_OF_EQUITY, MAX_SINGLE_TRADE_RISK_USD, PAPER_INITIAL_EQUITY_BASELINE } from "@momentum/domain";
+import { MAX_SINGLE_TRADE_RISK_PERCENT_OF_EQUITY, MAX_SINGLE_TRADE_RISK_USD, MAX_SINGLE_TRADE_STOP_LOSS_PERCENT, PAPER_INITIAL_EQUITY_BASELINE } from "@momentum/domain";
 
 export type PaperAutopilotReadinessStatus = "blocked" | "disabled" | "ready";
 
@@ -22,6 +22,7 @@ export interface PaperAutopilotReadiness {
     readonly initialEquityBaseline: string;
     readonly maxSingleTradeRiskPercent: string;
     readonly maxSingleTradeRiskUsd: string;
+    readonly maxSingleTradeStopLossPercent: string;
   };
   readonly status: PaperAutopilotReadinessStatus;
 }
@@ -62,7 +63,7 @@ export function getPaperAutopilotReadiness(environment: NodeJS.ProcessEnv = proc
   return {
     blockedReasons: status === "disabled" ? [] : blockedReasons,
     checks: { brokerConnectionEnabled, dailyPreparationHandlerEnabled, databaseConfigured, durableSchedulerEnabled, globalKillSwitchActive, operatingModePaperAutopilot, paperCredentialsConfigured, paperMode, paperRiskPolicyValid, runtimeFreshnessGateRequired: true, schedulerActivationApprovalReferencePresent },
-    policy: { initialEquityBaseline: PAPER_INITIAL_EQUITY_BASELINE, maxSingleTradeRiskPercent: MAX_SINGLE_TRADE_RISK_PERCENT_OF_EQUITY, maxSingleTradeRiskUsd: MAX_SINGLE_TRADE_RISK_USD },
+    policy: { initialEquityBaseline: PAPER_INITIAL_EQUITY_BASELINE, maxSingleTradeRiskPercent: MAX_SINGLE_TRADE_RISK_PERCENT_OF_EQUITY, maxSingleTradeRiskUsd: MAX_SINGLE_TRADE_RISK_USD, maxSingleTradeStopLossPercent: MAX_SINGLE_TRADE_STOP_LOSS_PERCENT },
     status,
   };
 }

@@ -28,6 +28,7 @@ export type OperationsHealth = {
       readonly initialEquityBaseline: string;
       readonly maxSingleTradeRiskPercent: string;
       readonly maxSingleTradeRiskUsd: string;
+      readonly maxSingleTradeStopLossPercent: string;
     };
     readonly researchSchedule: { readonly enabled: boolean; readonly handlerEnabled: boolean; readonly status: ResearchScheduleStatus };
     readonly scheduler: { readonly activationApprovalReferencePresent: boolean; readonly cron: string; readonly enabled: boolean; readonly status: "blocked" | "disabled" | "ready"; readonly timezone: "UTC" };
@@ -98,7 +99,7 @@ export function parseOperationsHealth(value: unknown): OperationsHealth | undefi
   for (const key of ["completedAt", "failureCode", "runId", "scheduledAt", "startedAt"] as const) if (schedulerAudit[key] !== undefined && typeof schedulerAudit[key] !== "string") return undefined;
   if (typeof schedulerAuditGate.activationApprovalReferencePresent !== "boolean" || typeof schedulerAuditGate.enabled !== "boolean" || typeof schedulerAuditGate.migrationReady !== "boolean") return undefined;
   if (!(runtime.migration.status === "blocked" || runtime.migration.status === "ready")) return undefined;
-  if (typeof recovery.status !== "string" || typeof riskPolicy.initialEquityBaseline !== "string" || typeof riskPolicy.maxSingleTradeRiskPercent !== "string" || typeof riskPolicy.maxSingleTradeRiskUsd !== "string") return undefined;
+  if (typeof recovery.status !== "string" || typeof riskPolicy.initialEquityBaseline !== "string" || typeof riskPolicy.maxSingleTradeRiskPercent !== "string" || typeof riskPolicy.maxSingleTradeRiskUsd !== "string" || typeof riskPolicy.maxSingleTradeStopLossPercent !== "string") return undefined;
   if (reconciliation.ageSeconds !== undefined && typeof reconciliation.ageSeconds !== "number") return undefined;
   if (reconciliation.capturedAt !== undefined && typeof reconciliation.capturedAt !== "string") return undefined;
   return {
@@ -122,6 +123,7 @@ export function parseOperationsHealth(value: unknown): OperationsHealth | undefi
         initialEquityBaseline: riskPolicy.initialEquityBaseline,
         maxSingleTradeRiskPercent: riskPolicy.maxSingleTradeRiskPercent,
         maxSingleTradeRiskUsd: riskPolicy.maxSingleTradeRiskUsd,
+        maxSingleTradeStopLossPercent: riskPolicy.maxSingleTradeStopLossPercent,
       },
       researchSchedule: { enabled: researchSchedule.enabled, handlerEnabled: researchSchedule.handlerEnabled, status: researchSchedule.status as ResearchScheduleStatus },
       scheduler: { activationApprovalReferencePresent: scheduler.activationApprovalReferencePresent, cron: scheduler.cron, enabled: scheduler.enabled, status: scheduler.status as OperationsHealth["runtime"]["scheduler"]["status"], timezone: "UTC" },
