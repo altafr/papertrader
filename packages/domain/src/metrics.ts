@@ -27,6 +27,8 @@ export type DecimalString = string;
 /** Hard ceiling required by the paper-trading risk invariant. */
 export const MAX_SINGLE_TRADE_RISK_USD = "100";
 export const MAX_SINGLE_TRADE_RISK_PERCENT_OF_EQUITY = "0.25";
+/** Maximum adverse entry-to-stop distance for a long position. */
+export const MAX_SINGLE_TRADE_STOP_LOSS_PERCENT = "5";
 
 const ABSOLUTE_TRADE_RISK_LIMIT = new Decimal(MAX_SINGLE_TRADE_RISK_USD);
 const PERCENT_TRADE_RISK_LIMIT = new Decimal("0.0025");

@@ -1,6 +1,6 @@
 import * as DecimalModule from "decimal.js";
 
-import { calculateTradeRisk, type DecimalString, type TradeRiskResult } from "./metrics.js";
+import { calculateTradeRisk, MAX_SINGLE_TRADE_STOP_LOSS_PERCENT, type DecimalString, type TradeRiskResult } from "./metrics.js";
 import type { StrategySignalCandidate } from "./strategy.js";
 
 interface DecimalValue {
@@ -9,6 +9,7 @@ interface DecimalValue {
   greaterThan(value: DecimalValue | string): boolean;
   isNegative(): boolean;
   lessThan(value: DecimalValue | string): boolean;
+  minus(value: DecimalValue | string): DecimalValue;
   plus(value: DecimalValue | string): DecimalValue;
   times(value: DecimalValue | string): DecimalValue;
   toDecimalPlaces(decimalPlaces: number): DecimalValue;
@@ -46,8 +47,8 @@ export interface PaperRiskPolicy {
   readonly maxStockPositionPercent: DecimalString;
 }
 
-/** The paper account must start from the operator's USD 1,000 baseline. */
-export const PAPER_INITIAL_EQUITY_BASELINE = "1000";
+/** Alpaca's default paper account starts at USD 100,000; verify this baseline before activation. */
+export const PAPER_INITIAL_EQUITY_BASELINE = "100000";
 
 export const DEFAULT_PAPER_RISK_POLICY: PaperRiskPolicy = {
   initialEquityBaseline: PAPER_INITIAL_EQUITY_BASELINE,
@@ -99,9 +100,12 @@ export function assessPaperRisk(input: {
   if (equity.isNegative() || quantity.isNegative()) throw new Error("Risk values must be non-negative.");
   const candidate = input.signal.candidate;
   const entry = decimal(candidate.proposedEntryPrice, "entry price");
+  const stop = decimal(candidate.plannedStopPrice, "planned stop price");
   if (entry.isNegative() || entry.toFixed() === "0") throw new Error("entry price must be greater than zero.");
   const risk = calculateTradeRisk({ entryPrice: candidate.proposedEntryPrice, equity: input.equity, estimatedFees: input.estimatedFees, estimatedSlippage: input.estimatedSlippage, quantity: input.quantity, stopPrice: candidate.plannedStopPrice });
   const reasons: string[] = [];
+  const adverseStopPercent = entry.minus(stop).div(entry).times("100");
+  if (adverseStopPercent.greaterThan(MAX_SINGLE_TRADE_STOP_LOSS_PERCENT)) reasons.push("Planned stop exceeds the maximum 5% adverse-loss distance.");
   if (!input.state.accountBaselineVerified) reasons.push("Starting paper-equity baseline has not been verified.");
   if (!input.state.accountFresh) reasons.push("Account state is stale.");
   if (!input.state.dataFresh) reasons.push("Market data is stale.");

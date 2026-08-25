@@ -44,7 +44,7 @@ export function getPaperAutopilotReadiness(environment: NodeJS.ProcessEnv = proc
   } catch {
     operatingModePaperAutopilot = false;
   }
-  const paperRiskPolicyValid = PAPER_INITIAL_EQUITY_BASELINE === "1000" && MAX_SINGLE_TRADE_RISK_USD === "100" && MAX_SINGLE_TRADE_RISK_PERCENT_OF_EQUITY === "0.25";
+  const paperRiskPolicyValid = PAPER_INITIAL_EQUITY_BASELINE === "100000" && MAX_SINGLE_TRADE_RISK_USD === "100" && MAX_SINGLE_TRADE_RISK_PERCENT_OF_EQUITY === "0.25";
   const blockedReasons = [
     ...(paperMode ? [] : ["paper_runtime_invalid"]),
     ...(paperCredentialsConfigured ? [] : ["paper_credentials_not_configured"]),

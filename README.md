@@ -27,7 +27,7 @@ Momentum Autopilot researches US stocks and supported crypto assets, prepares a 
 
 1. Create the strict TypeScript Next.js project for Vercel and keep these files at the repository root.
 2. Provision the Railway API, persistent worker, and PostgreSQL services; select a compatible authentication provider.
-3. Create/reset the Alpaca paper account to the configured `USD 1,000` baseline, then add **paper trading** keys only to Railway API and worker service secret variables. Never paste their values into chat or source control.
+3. Create/reset the Alpaca paper account to the configured `USD 100,000` baseline, then add **paper trading** keys only to Railway API and worker service secret variables. Never paste their values into chat or source control.
 4. Build the read-only dashboard and persisted audit log.
 5. Add historical replay and strategy evaluation.
 6. Add paper order submission behind the deterministic risk engine.
@@ -50,7 +50,7 @@ Use `pnpm typecheck`, `pnpm lint`, `pnpm test`, and `pnpm build` for the local v
 
 GitHub Actions runs the same locked, paper-only verification loop on pushes to `main` and every pull request. The workflow has read-only repository permissions and does not receive broker, database, Clerk, or deployment secrets.
 
-The server must run daily preparation, health, reconciliation, and evaluation independently of an open browser. Paper Autopilot does not require per-order human confirmation, but every order still requires deterministic risk approval. The initial paper baseline is `USD 1,000`; estimated loss at the planned stop is limited to the lower of `0.25%` of equity and `USD 100`.
+The server must run daily preparation, health, reconciliation, and evaluation independently of an open browser. Paper Autopilot does not require per-order human confirmation, but every order still requires deterministic risk approval. The initial paper baseline is `USD 100,000` (Alpaca's current default); estimated loss at the planned stop is limited to the lower of `0.25%` of equity and `USD 100`, with a maximum 5% adverse stop distance.
 
 Railway PostgreSQL is the selected system of record. Railway also hosts the authenticated API, PostgreSQL-backed durable jobs, and persistent Alpaca market/trading WebSocket worker. Vercel hosts only the dashboard and contains no Alpaca credentials or direct order authority.
 
@@ -58,7 +58,7 @@ For the Alpaca MCP connection, configure `ALPACA_API_KEY`, `ALPACA_SECRET_KEY`, 
 
 ### Phase 0.4 operator setup
 
-1. In Alpaca, select the Paper Trading account. If the account balance is not the required `USD 1,000`, create a new paper account with that starting balance or delete and recreate the existing paper account. Generate fresh paper API keys after creating the account.
+1. In Alpaca, select the Paper Trading account. Verify the account balance is the required `USD 100,000` baseline; create a new paper account if necessary. Generate fresh paper API keys after creating an account.
 2. In Railway, set `APP_ENVIRONMENT=production-paper`, `TRADING_MODE=paper`, `ALPACA_PAPER_TRADE=true`, and leave `BROKER_CONNECTION_ENABLED=false` until the later read-only broker adapter is implemented.
 3. Add the paper `ALPACA_API_KEY` and `ALPACA_SECRET_KEY` only to the Railway API and worker service variables. Seal both values after saving them. Do not put them in Vercel, GitHub, `.env.example`, browser code, logs, or PostgreSQL.
 4. Keep the repository template in `.env.example` as names and safe defaults only. The API and worker fail closed if live mode is requested, paper mode is disabled, or broker access is enabled without both credentials.

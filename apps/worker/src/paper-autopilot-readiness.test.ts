@@ -4,7 +4,7 @@ import { getPaperAutopilotReadiness } from "./paper-autopilot-readiness.js";
 
 describe("paper autopilot readiness", () => {
   it("is disabled by default and reports no activation reasons", () => {
-    expect(getPaperAutopilotReadiness({})).toMatchObject({ status: "disabled", blockedReasons: [], policy: { initialEquityBaseline: "1000", maxSingleTradeRiskPercent: "0.25", maxSingleTradeRiskUsd: "100" } });
+    expect(getPaperAutopilotReadiness({})).toMatchObject({ status: "disabled", blockedReasons: [], policy: { initialEquityBaseline: "100000", maxSingleTradeRiskPercent: "0.25", maxSingleTradeRiskUsd: "100" } });
   });
 
   it("reports bounded missing-gate reasons without exposing credentials", () => {
