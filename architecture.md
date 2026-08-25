@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.155 Paper performance coverage spans three calendar days; multi-day evidence collection continues.
+- **Stage:** Phase 6.156 Consecutive-day paper evidence reporting deployed; multi-day evidence collection continues.
 
 ### Paper performance evidence (2026-08-25)
 
@@ -14,6 +14,11 @@
 
 - Hosted performance reporting now covers 13 snapshots across three calendar days, from `2026-08-22T16:30:21.444Z` through `2026-08-25T15:16:13.679Z`.
 - Return remains `-0.09872200%` with maximum drawdown `0.20037185%`; this is monitoring evidence only, not a profitability claim.
+
+### Consecutive coverage evidence (2026-08-25)
+
+- Hosted reporting now distinguishes total calendar days from consecutive coverage: 14 snapshots across 3 calendar days, with 2 consecutive days.
+- Current simulated return is `-0.18984767%` and P/L is `-188.69`; the short negative sample does not justify changing strategy or risk policy.
 
 ### Bounded paper research evidence (2026-08-25)
 
