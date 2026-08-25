@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.140 startup reconciliation recovery gate implemented; natural scheduler-cycle verification, post-restore reconciliation, recovery sign-off, and persistent Paper Autopilot activation remain separately gated.
+- **Stage:** Phase 6.141 startup reconciliation recovery gate deployed and verified; natural scheduler-cycle verification, post-restore reconciliation, recovery sign-off, and persistent Paper Autopilot activation remain separately gated.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -105,6 +105,12 @@ Do not run the continuous trading loop in the browser or Vercel functions. Verce
 - Worker startup now performs one paper-account reconciliation before registering the durable daily schedule. If that reconciliation fails, scheduling remains paused, Worker scheduler health is degraded, and a generic critical alert is attempted.
 - This closes the restart boundary required by the architecture: the scheduler cannot resume from stale internal state. The reconciliation remains read-only at Alpaca and persists only the canonical internal snapshot; no order path or live endpoint is involved.
 - Verification: 230 tests, typecheck, lint, and production build pass locally. Deployment is still pending; no hosted state changed in this code unit.
+
+### 2026-08-25 — Phase 6.141 startup reconciliation recovery gate deployed
+
+- Worker deployment `43119259-7ec4-4d90-97ac-4b276228cada` reached `SUCCESS`. Private Worker Health returned `healthy`, scheduler `scheduled` for `2026-08-26T00:00:00Z`, observe mode, inactive global kill switch, and Paper Autopilot disabled.
+- Hosted runtime readiness reported a fresh persisted reconciliation captured at `2026-08-25T12:07:59.337Z` (age 38 seconds at verification), confirming the startup recovery reconciliation completed before the scheduler became scheduled.
+- No manual scheduler trigger or order action was issued; the startup reconciliation used the existing paper read/reconcile path only.
 
 ### Deployment Recommendation
 
