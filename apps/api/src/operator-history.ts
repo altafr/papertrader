@@ -10,3 +10,7 @@ export function normalizeOperatorHistoryDate(value: string | null, boundary: Ope
   if (/^\d{4}-\d{2}-\d{2}$/.test(value)) return boundary === "from" ? `${value}T00:00:00.000Z` : `${value}T23:59:59.999Z`;
   return value;
 }
+
+export function isOperatorHistoryQueryError(error: unknown): boolean {
+  return error instanceof Error && error.message.startsWith("invalid_operator_history_");
+}

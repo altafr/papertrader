@@ -1,6 +1,6 @@
 import { createServer, type IncomingMessage } from "node:http";
 
-import { normalizeOperatorHistoryDate } from "./operator-history.js";
+import { isOperatorHistoryQueryError, normalizeOperatorHistoryDate } from "./operator-history.js";
 
 import { createClerkClient } from "@clerk/backend";
 import { ZodError } from "zod";
@@ -815,9 +815,10 @@ const server = createServer((request, response) => {
         response.writeHead(status, { "content-type": "application/json" });
         response.end(JSON.stringify(body));
       })
-      .catch(() => {
-        response.writeHead(503, { "content-type": "application/json" });
-        response.end(JSON.stringify({ error: "operator_overview_unavailable" }));
+      .catch((error: unknown) => {
+        const invalidQuery = isOperatorHistoryQueryError(error);
+        response.writeHead(invalidQuery ? 400 : 503, { "content-type": "application/json" });
+        response.end(JSON.stringify({ error: invalidQuery ? "invalid_operator_history_query" : "operator_overview_unavailable" }));
       });
     return;
   }
@@ -828,9 +829,10 @@ const server = createServer((request, response) => {
         response.writeHead(result.status, { "content-type": result.status === 200 ? "text/csv; charset=utf-8" : "application/json", ...(result.status === 200 ? { "content-disposition": "attachment; filename=momentum-autopilot-audit.csv" } : {}) });
         response.end(typeof result.body === "string" ? result.body : JSON.stringify(result.body));
       })
-      .catch(() => {
-        response.writeHead(503, { "content-type": "application/json" });
-        response.end(JSON.stringify({ error: "operator_overview_export_unavailable" }));
+      .catch((error: unknown) => {
+        const invalidQuery = isOperatorHistoryQueryError(error);
+        response.writeHead(invalidQuery ? 400 : 503, { "content-type": "application/json" });
+        response.end(JSON.stringify({ error: invalidQuery ? "invalid_operator_history_query" : "operator_overview_export_unavailable" }));
       });
     return;
   }

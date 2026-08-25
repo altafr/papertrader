@@ -2,7 +2,12 @@
 
 ## Status
 
-- **Stage:** Phase 6.190 Complete audit coverage summary; multi-day evidence collection continues.
+- **Stage:** Phase 6.191 Explicit audit-query validation errors; multi-day evidence collection continues.
+
+### Explicit audit-query validation errors (2026-08-26)
+
+- The JSON and CSV operator-overview routes now distinguish malformed history parameters with a `400 invalid_operator_history_query` response.
+- Authentication remains fail-closed at `401`; unexpected database or runtime failures remain `503`. Error classification does not reveal query values or internal SQL details.
 
 ### Complete audit coverage summary (2026-08-26)
 
