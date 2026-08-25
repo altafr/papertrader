@@ -14,7 +14,7 @@
 - [x] Export one formula-safe `strategy_catalog` record per registered strategy alongside agent, decision, lifecycle, and timeline records.
 - [x] Preserve read-only behavior and fail-closed authentication; no strategy configuration or order authority is added.
 - [x] Verify 238 tests, typecheck, lint, and production build pass.
-- [ ] Deploy the API change and verify authenticated hosted CSV contents; unauthenticated export access must remain `401`.
+- [x] Deploy API `df02e5b1-6940-4b39-bc42-234a02bb0c6e`; hosted health is healthy and unauthenticated `/v1/operator-overview.csv` returns `401`. Authenticated CSV content remains pending because deployment protection prevents unauthenticated inspection.
 
 ### Phase 6.158 — Unified operator audit dashboard (2026-08-25)
 

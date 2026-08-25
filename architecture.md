@@ -8,6 +8,7 @@
 
 - The authenticated operator CSV now includes a `strategy_catalog` record for each registered strategy, carrying the same safe metadata rendered by the dashboard: key, version, asset class, owner, description, stage, required lookback, and default parameters.
 - Catalog rows are read-only evidence and do not alter strategy configuration, approvals, risk policy, or order behavior. CSV cells remain quoted and formula-safe.
+- API deployment `df02e5b1-6940-4b39-bc42-234a02bb0c6e` is healthy; unauthenticated export access returns `401`. Authenticated hosted CSV inspection remains pending behind deployment protection.
 
 ### Versioned strategy catalog metadata rendered (2026-08-26)
 
