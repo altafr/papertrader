@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.125 scheduler-run audit observability deployed to the API; dashboard rollout is pending Vercel confirmation, while audit activation, restore-drill verification, alert delivery, and Paper Autopilot activation remain separately gated.
+- **Stage:** Phase 6.126 first natural daily paper cycle verified; scheduler audit activation, restore-drill verification, alert delivery, and Paper Autopilot activation remain separately gated.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -53,6 +53,7 @@ Do not run the continuous trading loop in the browser or Vercel functions. Verce
 - Runtime audit activation now requires the bounded non-secret `DURABLE_SCHEDULER_AUDIT_ACTIVATION_APPROVAL_REFERENCE` whenever `DURABLE_SCHEDULER_AUDIT_ENABLED=true`; the reference is validated but never emitted.
 - Added an authenticated Operations Health scheduler-audit read model. It returns only the latest run's bounded status, run ID, UTC timestamps, and generic failure code, or `unavailable` when no audit row/schema is available; the dashboard renders this as Scheduler audit status.
 - API deployment `2efb3330-8ee5-4b59-a169-834cf11432cd` reached `SUCCESS`; public API health is healthy and unauthenticated Operations Health correctly returns `401`. Vercel production deployment `https://papertrader-j3idgz4ns-altafrs-projects.vercel.app` is `Ready` after a retry, so the dashboard observability change is now deployed.
+- The first natural UTC daily cycle was verified read-only with `DAILY_CYCLE_STARTED_AT=2026-08-25T00:00:00Z`: persisted reconciliation captured at `2026-08-25T00:00:32.065Z` and returned `status:"verified"`; work and dead-letter queues were present and fully drained. The scheduler audit gate remains unset, so no `durable_schedule_runs` row was expected or written.
 - PITR presence is not a restore drill. `RECOVERY_DRILL_VERIFIED` remains unset, so recovery status stays `unverified` until an isolated restore is completed and its reference/timestamp are recorded.
 
 ### Deployment Recommendation
