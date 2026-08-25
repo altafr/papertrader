@@ -2,7 +2,12 @@
 
 ## Status
 
-- **Stage:** Phase 6.179 Position notional and return metrics added; multi-day evidence collection continues.
+- **Stage:** Phase 6.180 Full order/fill reconciliation table rendered; multi-day evidence collection continues.
+
+### Full order/fill reconciliation table rendered (2026-08-26)
+
+- The dashboard renders every persisted order with symbol, side/type, status, requested and filled quantities, client order ID, broker order ID, submitted timestamp, and updated timestamp.
+- The table remains read-only and is sourced from the reconciled server read model.
 
 ### Position notional and return metrics (2026-08-26)
 

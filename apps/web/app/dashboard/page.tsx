@@ -422,9 +422,9 @@ export default async function DashboardPage({ searchParams }: { readonly searchP
             )}
           </article>
 
-          <article className="card" id="orders">
-            <div className="card-heading"><div><p className="label">Orders &amp; fills</p><h2>{result.model.orders.length} orders</h2></div><span className="provenance">Read-only</span></div>
-            <div className="data-list">{result.model.orders.map((order) => <div className="data-row" key={value(order, "alpacaOrderId")}><strong>{value(order, "symbol")}</strong><span>{value(order, "side")} · {value(order, "status")} · requested {value(order, "quantity")} · filled {value(order, "filledQuantity")} · {value(order, "updatedAt")}</span></div>)}{result.model.orders.length === 0 && <p className="empty-state">No orders recorded.</p>}</div>
+          <article className="card full-width" id="orders">
+            <div className="card-heading"><div><p className="label">Orders &amp; fills</p><h2>{result.model.orders.length} orders</h2></div><span className="provenance">Read-only broker reconciliation</span></div>
+            {result.model.orders.length === 0 ? <p className="empty-state">No orders recorded.</p> : <div className="responsive-table"><table><thead><tr><th>Symbol</th><th>Side/type</th><th>Status</th><th>Requested</th><th>Filled</th><th>Client order ID</th><th>Broker order ID</th><th>Submitted</th><th>Updated</th></tr></thead><tbody>{result.model.orders.map((order) => <tr key={value(order, "alpacaOrderId")}><th scope="row">{value(order, "symbol")}</th><td>{value(order, "side")} / {value(order, "type")}</td><td>{value(order, "status")}</td><td>{value(order, "quantity")}</td><td>{value(order, "filledQuantity")}</td><td className="table-reason">{value(order, "clientOrderId")}</td><td className="table-reason">{value(order, "alpacaOrderId")}</td><td>{value(order, "submittedAt")}</td><td>{value(order, "updatedAt")}</td></tr>)}</tbody></table></div>}
           </article>
 
           <PaperPerformanceCard performance={paperPerformance} />
