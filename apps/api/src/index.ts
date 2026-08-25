@@ -1,5 +1,7 @@
 import { createServer, type IncomingMessage } from "node:http";
 
+import { normalizeOperatorHistoryDate } from "./operator-history.js";
+
 import { createClerkClient } from "@clerk/backend";
 import { ZodError } from "zod";
 
@@ -438,8 +440,10 @@ function parseOperatorHistoryQuery(request: IncomingMessage): OperatorHistoryQue
   const url = new URL(request.url ?? "/", `http://${request.headers.host ?? "localhost"}`);
   const page = Number(url.searchParams.get("page") ?? "1");
   const limit = Number(url.searchParams.get("limit") ?? "100");
-  const from = url.searchParams.get("from");
-  const to = url.searchParams.get("to");
+  const fromInput = url.searchParams.get("from");
+  const toInput = url.searchParams.get("to");
+  const from = normalizeOperatorHistoryDate(fromInput, "from");
+  const to = normalizeOperatorHistoryDate(toInput, "to");
   if (!Number.isSafeInteger(page) || page < 1 || page > 1_000 || !Number.isSafeInteger(limit) || limit < 1 || limit > 100) throw new Error("invalid_operator_history_paging");
   if (from && !Number.isFinite(Date.parse(from))) throw new Error("invalid_operator_history_from");
   if (to && !Number.isFinite(Date.parse(to))) throw new Error("invalid_operator_history_to");

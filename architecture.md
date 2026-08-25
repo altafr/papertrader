@@ -2,7 +2,12 @@
 
 ## Status
 
-- **Stage:** Phase 6.186 Audit history totals and date presets; multi-day evidence collection continues.
+- **Stage:** Phase 6.187 Inclusive calendar-day audit filters; multi-day evidence collection continues.
+
+### Inclusive calendar-day audit filters (2026-08-26)
+
+- Date-only dashboard inputs are normalized server-side to UTC calendar boundaries: `from` begins at midnight and `to` ends at the final millisecond of the selected day.
+- Explicit timestamps remain unchanged. This prevents a date preset from silently excluding records later on its selected end date while preserving the authenticated, parameterized, read-only audit contract.
 
 ### Audit history totals and date presets (2026-08-26)
 
