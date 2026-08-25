@@ -536,16 +536,18 @@ async function readOperatorOverviewCsv(request: IncomingMessage) {
     readonly agents: readonly Record<string, unknown>[];
     readonly auditTimeline: readonly Record<string, unknown>[];
     readonly filteredTrades: readonly Record<string, unknown>[];
+    readonly strategyCatalog: readonly Record<string, unknown>[];
     readonly strategyLifecycle: readonly Record<string, unknown>[];
     readonly tradeDecisions: readonly Record<string, unknown>[];
   };
-  const header = ["recordType", "recordId", "agentType", "task", "symbol", "strategy", "status", "score", "entry", "stop", "reason", "rationale", "riskDecision", "marketSnapshot", "capturedAt", "category", "transition", "evidence"];
+  const header = ["recordType", "recordId", "agentType", "task", "symbol", "strategy", "strategyVersion", "assetClass", "owner", "description", "stage", "requiredLookbackBars", "defaultParameters", "status", "score", "entry", "stop", "reason", "rationale", "riskDecision", "marketSnapshot", "capturedAt", "category", "transition", "evidence"];
   const rows = [
-    ...body.agents.map((agent) => ["agent", agent.runId, agent.agentType, agent.task, "", "", agent.status, "", "", "", agent.errorCode ?? "", isRecord(agent.artifact) ? agent.artifact.rationale ?? "" : "", "", "", agent.createdAt, "", "", ""]),
-    ...body.filteredTrades.map((trade) => ["filtered_trade", trade.observationId, "", "", trade.symbol, `${trade.strategyKey ?? ""} ${trade.strategyVersion ?? ""}`.trim(), trade.status, trade.score, trade.proposedEntryPrice, trade.plannedStopPrice, isRecord(trade.outcome) ? trade.outcome.reason ?? "" : "", trade.rationale, "", trade.marketSnapshot, trade.signalTime, "", "", ""]),
-    ...body.tradeDecisions.map((trade) => ["execution_decision", trade.intentId, "", "", trade.symbol, "", trade.status, "", "", "", trade.reason, "", trade.riskDecision, trade.marketSnapshot, trade.createdAt, "", "", ""]),
-    ...body.strategyLifecycle.map((event) => ["strategy_lifecycle", event.eventId, "", "", "", `${event.strategyKey ?? ""} ${event.strategyVersion ?? ""}`.trim(), event.toStage, "", "", "", event.reason, event.approvalNote, "", "", event.approvedAt, "strategy_lifecycle", `${event.fromStage} → ${event.toStage}`, event.evidenceKey]),
-    ...body.auditTimeline.map((event) => ["audit_timeline", event.reference, "", "", "", "", "", "", "", "", event.detail, "", "", event.capturedAt, event.category, "", ""]),
+    ...body.agents.map((agent) => ["agent", agent.runId, agent.agentType, agent.task, "", "", "", "", "", "", "", "", "", agent.status, "", "", "", agent.errorCode ?? "", isRecord(agent.artifact) ? agent.artifact.rationale ?? "" : "", "", "", agent.createdAt, "", "", ""]),
+    ...body.filteredTrades.map((trade) => ["filtered_trade", trade.observationId, "", "", trade.symbol, trade.strategyKey ?? "", trade.strategyVersion ?? "", trade.assetClass ?? "", "", "", "", "", "", trade.status, trade.score, trade.proposedEntryPrice, trade.plannedStopPrice, isRecord(trade.outcome) ? trade.outcome.reason ?? "" : "", trade.rationale, "", trade.marketSnapshot, trade.signalTime, "", "", ""]),
+    ...body.tradeDecisions.map((trade) => ["execution_decision", trade.intentId, "", "", trade.symbol, "", "", trade.assetClass ?? "", "", "", "", "", "", trade.status, "", "", "", trade.reason, "", trade.riskDecision, trade.marketSnapshot, trade.createdAt, "", "", ""]),
+    ...body.strategyCatalog.map((strategy) => ["strategy_catalog", strategy.key, "", "", "", strategy.key, strategy.version, strategy.assetClass, strategy.owner, strategy.description, strategy.stage, strategy.requiredLookbackBars, strategy.defaultParameters, "", "", "", "", "", "", "", "", "", "strategy_catalog", "", ""]),
+    ...body.strategyLifecycle.map((event) => ["strategy_lifecycle", event.eventId, "", "", "", event.strategyKey ?? "", event.strategyVersion ?? "", "", "", "", event.toStage, "", "", event.toStage, "", "", "", event.reason, event.approvalNote, "", "", event.approvedAt, "strategy_lifecycle", `${event.fromStage} → ${event.toStage}`, event.evidenceKey]),
+    ...body.auditTimeline.map((event) => ["audit_timeline", event.reference, "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", event.detail, "", "", event.capturedAt, event.category, "", ""]),
   ];
   return { body: `${[header, ...rows].map((row) => row.map(csvCell).join(",")).join("\n")}\n`, status: 200, contentType: "text/csv; charset=utf-8" } as const;
 }

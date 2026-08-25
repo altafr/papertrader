@@ -2,7 +2,12 @@
 
 ## Status
 
-- **Stage:** Phase 6.183 Versioned strategy catalog metadata rendered; multi-day evidence collection continues.
+- **Stage:** Phase 6.184 Strategy catalog metadata included in audit export; multi-day evidence collection continues.
+
+### Strategy catalog metadata included in audit export (2026-08-26)
+
+- The authenticated operator CSV now includes a `strategy_catalog` record for each registered strategy, carrying the same safe metadata rendered by the dashboard: key, version, asset class, owner, description, stage, required lookback, and default parameters.
+- Catalog rows are read-only evidence and do not alter strategy configuration, approvals, risk policy, or order behavior. CSV cells remain quoted and formula-safe.
 
 ### Versioned strategy catalog metadata rendered (2026-08-26)
 
