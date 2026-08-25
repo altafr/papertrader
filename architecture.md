@@ -2,7 +2,12 @@
 
 ## Status
 
-- **Stage:** Phase 6.201 CI monitoring link and status badge; multi-day evidence collection continues.
+- **Stage:** Phase 6.202 Credential-free hosted auth-boundary verification; multi-day evidence collection continues.
+
+### Credential-free hosted auth-boundary verification (2026-08-26)
+
+- Added a credential-free verifier for the protected JSON and CSV operator-overview endpoints and included it in CI.
+- The live Railway check confirmed both endpoints return `401` without credentials. The verifier never sends or prints a token; authenticated contract verification remains a separate protected check.
 
 ### CI monitoring link and status badge (2026-08-26)
 

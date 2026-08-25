@@ -54,6 +54,9 @@ jobs:
       - name: Audit secret surfaces
         run: pnpm audit:secret-surfaces
 
+      - name: Verify hosted operator authentication boundary
+        run: pnpm verify:operator-auth-boundary
+
       - name: Verify hosted operator overview when credentials are configured
         env:
           OPERATOR_API_BASE_URL: ${{ secrets.OPERATOR_API_BASE_URL }}

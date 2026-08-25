@@ -17,6 +17,7 @@
     "lint": "eslint apps packages --max-warnings=0",
     "test": "vitest run",
     "typecheck": "pnpm -r --if-present typecheck",
+    "verify:operator-auth-boundary": "tsx scripts/verify-operator-auth-boundary.ts",
     "verify:operator-overview": "tsx scripts/verify-operator-overview.ts"
   },
   "devDependencies": {
