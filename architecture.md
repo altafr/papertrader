@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.137 Telegram provider-level delivery validation added; natural scheduler-cycle verification, recovery evidence sign-off, and persistent Paper Autopilot activation remain separately gated.
+- **Stage:** Phase 6.138 Telegram provider-level delivery validation deployed; natural scheduler-cycle verification, recovery evidence sign-off, and persistent Paper Autopilot activation remain separately gated.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -89,6 +89,11 @@ Do not run the continuous trading loop in the browser or Vercel functions. Verce
 - Hardened the server-only Telegram notifier to validate the provider's JSON-level `ok:true` response, not just HTTP status. Invalid/malformed/provider-rejected responses now fail with the same generic, non-sensitive delivery error.
 - Added regression coverage for successful JSON delivery and an HTTP-200/provider-failure response. Notification credentials and provider response bodies remain excluded from logs and API surfaces.
 - Verification: notifications tests (8) and package typecheck pass. No hosted variable, scheduler, broker, queue, or trading state changed.
+
+### 2026-08-25 — Phase 6.138 Telegram validation deployed
+
+- Worker deployment `bc805397-2995-4f7d-bf01-5ae609c5980e` reached `SUCCESS` after deploying the provider-response validation. Private Worker Health returned `healthy`, scheduler `scheduled` for `2026-08-26T00:00:00Z`, global kill switch inactive, observe mode, and Paper Autopilot disabled.
+- Deployment was a code-only rollout; no Railway variables, secrets, queue state, scheduler trigger, broker request, or order behavior changed.
 
 ### Deployment Recommendation
 
