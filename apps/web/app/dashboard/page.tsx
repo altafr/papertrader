@@ -246,6 +246,11 @@ function StrategyPerformanceCard({ overview }: { readonly overview: OperatorOver
   return <article className="card full-width" id="strategy-performance"><div className="card-heading"><div><p className="label">Strategy performance</p><h2>{summaries.length ? `${summaries.length} strategies observed` : "No strategy outcomes yet"}</h2></div><span className="provenance">Shadow observations only</span></div>{summaries.length === 0 ? <p className="empty-state">Strategy-level metrics will appear after persisted signal outcomes are available.</p> : <div className="responsive-table"><table><thead><tr><th>Strategy</th><th>Total signals</th><th>Open</th><th>Closed</th><th>Wins</th><th>Losses</th><th>Avg observed return</th></tr></thead><tbody>{summaries.map((summary) => <tr key={summary.strategy}><th scope="row">{summary.strategy}</th><td>{summary.total}</td><td>{summary.open}</td><td>{summary.closed}</td><td>{summary.wins}</td><td>{summary.losses}</td><td>{summary.averageReturn === undefined ? "Not available" : `${summary.averageReturn.toFixed(4)}%`}</td></tr>)}</tbody></table></div>}<p className="provenance">These are descriptive shadow/research observations, not live-trade returns or a profitability claim.</p></article>;
 }
 
+function StrategyLifecycleCard({ overview }: { readonly overview: OperatorOverview | undefined }) {
+  const events = overview?.strategyLifecycle ?? [];
+  return <article className="card full-width" id="strategy-lifecycle"><div className="card-heading"><div><p className="label">Strategy lifecycle</p><h2>{events.length ? `${events.length} version events` : "No lifecycle events"}</h2></div><span className="provenance">Read-only approvals</span></div>{events.length === 0 ? <p className="empty-state">No persisted strategy stage transitions are available.</p> : <div className="responsive-table"><table><thead><tr><th>Strategy</th><th>Version</th><th>Transition</th><th>Revision</th><th>Reason</th><th>Evidence</th><th>Approved</th></tr></thead><tbody>{events.map((event) => <tr key={value(event, "eventId")}><th scope="row">{value(event, "strategyKey")}</th><td>{value(event, "strategyVersion")}</td><td>{value(event, "fromStage")} → {value(event, "toStage")}</td><td>{value(event, "revision")}</td><td className="table-reason">{value(event, "reason")}</td><td>{value(event, "evidenceKey")}</td><td>{formatUtc(value(event, "approvedAt"))}</td></tr>)}</tbody></table></div>}<p className="provenance">Lifecycle history records reviewed stage transitions; it does not itself enable trading or override deterministic gates.</p></article>;
+}
+
 function PaperPerformanceCard({ performance }: { readonly performance: PaperPerformance | undefined }) {
   if (!performance) return <article className="card" id="performance"><p className="label">Performance</p><h2>Unavailable</h2><p>Authenticated performance data is currently unavailable.</p></article>;
   const metrics = performance.metrics;
@@ -338,6 +343,7 @@ export default async function DashboardPage({ searchParams }: { readonly searchP
           <a href="#filtered-trades">Filtered trades</a>
           <a href="#decision-log">Decision log</a>
           <a href="#strategy-performance">Strategies</a>
+          <a href="#strategy-lifecycle">Lifecycle</a>
           <a href="#performance">Performance</a>
         <a href="#alerts">Alerts</a>
       </nav>
@@ -397,6 +403,8 @@ export default async function DashboardPage({ searchParams }: { readonly searchP
           <PaperPerformanceCard performance={paperPerformance} />
 
           <StrategyPerformanceCard overview={operatorOverview} />
+
+          <StrategyLifecycleCard overview={operatorOverview} />
 
           <OperatorAuditCards overview={operatorOverview} />
 

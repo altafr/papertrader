@@ -2,7 +2,12 @@
 
 ## Status
 
-- **Stage:** Phase 6.172 Complete persisted decision history rendered; multi-day evidence collection continues.
+- **Stage:** Phase 6.173 Strategy lifecycle/version history rendered; multi-day evidence collection continues.
+
+### Strategy lifecycle/version history rendered (2026-08-26)
+
+- `/v1/operator-overview` now includes up to 100 persisted strategy lifecycle events, and the dashboard renders strategy key/version, stage transition, revision, reason, evidence key, and approval time.
+- The lifecycle view is read-only and records reviewed transitions; it does not enable trading or bypass deterministic lifecycle gates.
 
 ### Complete persisted decision history rendered (2026-08-26)
 
