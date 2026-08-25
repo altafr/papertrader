@@ -16,8 +16,10 @@ const { db, pool } = createDatabase();
 const accountRepository = createAccountStateRepository(db);
 const agentRepository = createAgentRunRepository(db);
 const reader = createPaperAccountReader({ apiKey: process.env.ALPACA_API_KEY ?? "", secretKey: process.env.ALPACA_SECRET_KEY ?? "" });
+let stage = "reconciliation";
 try {
   const snapshot = await reconcilePaperAccount(reader, accountRepository, { approvalReference, runId: `paper-order-${Date.now()}` });
+  stage = "research_artifact";
   const research = await agentRepository.get(researchRunId);
   const payload = research?.status === "succeeded" && research.artifactPayload && typeof research.artifactPayload === "object" ? research.artifactPayload as { readonly candidates?: readonly unknown[] } : undefined;
   const rawCandidate = payload?.candidates?.[0];
@@ -36,17 +38,20 @@ try {
     submittedEntriesLast24Hours: model.orders.filter((order) => order.side.toLowerCase() === "buy" && order.submittedAt && now.getTime() - order.submittedAt.getTime() <= 86_400_000).length,
   };
   const quantity = process.env.PAPER_ORDER_QUANTITY?.trim() || "1";
+  stage = "risk_gate";
   const { approval, intentId } = assessResearchCandidateRisk({ candidate, currentAt: now.toISOString(), equity: snapshot.equity, quantity, state });
   const orderRepository = createPaperOrderRepository(db);
   if (approval.status !== "approved") {
     await orderRepository.recordSubmission({ approvalId: approval.approvalId, assetClass: candidate.assetClass, clientOrderId: `${intentId}:rejected`, intentId, quantity, riskDecision: { estimatedLoss: approval.assessment.estimatedLoss, estimatedLossPercent: approval.assessment.estimatedLossPercent, policyVersion: approval.policyVersion, reasons: approval.assessment.reasons }, status: "paper_order_risk_rejected", symbol: candidate.symbol });
     throw new Error("Deterministic paper risk approval rejected the order.");
   }
+  stage = "order_submit";
   const result = await executePaperAutopilotOrder({ autopilot: { enabled: true, mode: "paper_autopilot" }, order: { approval: { approvalId: approval.approvalId, intentId, riskDecision: { estimatedLoss: approval.assessment.estimatedLoss, estimatedLossPercent: approval.assessment.estimatedLossPercent, policyVersion: approval.policyVersion, reasons: approval.assessment.reasons }, status: "approved" }, assetClass: candidate.assetClass, clientOrderId: `${intentId}-paper`, ...(candidate.marketSnapshot ? { marketSnapshot: candidate.marketSnapshot as unknown as Readonly<Record<string, string | null>> } : {}), quantity, side: "buy", symbol: candidate.symbol, timeInForce: "day", type: "market" }, persistence: orderRepository, submitter: createPaperOrderSubmitter({ apiKey: process.env.ALPACA_API_KEY ?? "", brokerConnectionEnabled: true, secretKey: process.env.ALPACA_SECRET_KEY ?? "" }) });
+  stage = "post_order_reconciliation";
   await reconcilePaperAccount(reader, accountRepository);
   console.log(JSON.stringify({ alpacaOrderId: result.brokerOrder.alpacaOrderId, approvalReference, approvalStatus: approval.status, filledQuantity: result.brokerOrder.filledQuantity ?? null, intentId, researchRunId, status: "paper_order_reconciled" }));
 } catch {
-  console.error("One-shot paper order failed closed.");
+  console.error(`One-shot paper order failed closed (stage=${stage}).`);
   process.exitCode = 1;
 } finally {
   await pool.end();
