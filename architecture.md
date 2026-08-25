@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.150 Accelerated paper closeout rehearsal completed; recovery sign-off remains separately gated.
+- **Stage:** Phase 6.151 Isolated post-restore reconciliation and recovery sign-off verified; isolated recovery resources retained pending cleanup review.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -45,6 +45,13 @@ Do not run the continuous trading loop in the browser or Vercel functions. Verce
 - Profit optimization is an objective evaluated through measured, risk-adjusted performance; it never overrides deterministic safety gates or implies guaranteed returns.
 - Each long position must have a stop at or above 95% of entry (maximum 5% adverse price distance). Planned loss, fees, and slippage must fit 5% of invested notional.
 - The updated policy is deployed and hosted readiness reports baseline `100000`, maximum stop loss `5%`, invested-notional risk `5%`, and status `ready`; no order submission was performed.
+
+### Isolated post-restore reconciliation evidence (2026-08-25)
+
+- Temporary recovery Worker `868981c7-f753-46a7-852d-1d8a750852d4` was deployed from the verified branch with paper credentials referenced server-side and `PAPER_AUTOPILOT_ENABLED=false`, `DURABLE_SCHEDULER_ENABLED=false`.
+- It reconciled successfully against retained restored PostgreSQL sibling `aa11412e-345e-4a43-aab4-a7e6c7c2b67f`; read-only verification found four account snapshots and latest capture `2026-08-25T15:02:51.939Z`.
+- Production recovery evidence is now persisted with bounded reference `RECOVERY-PITR-20260825-POSTRECON` and verified status. Hosted recovery-readiness reports all three evidence checks true.
+- The isolated recovery resources are retained; deleting them is a separate reviewed destructive action.
 
 ### Current hosted activation evidence (2026-08-24)
 
