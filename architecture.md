@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.134 isolated PITR restore mechanics and schema verification completed; natural scheduler-cycle verification, recovery evidence sign-off, alert hardening, and Paper Autopilot activation remain separately gated.
+- **Stage:** Phase 6.135 pre-cycle Paper Autopilot readiness verified; natural scheduler-cycle verification, recovery evidence sign-off, alert hardening, and Paper Autopilot activation remain separately gated.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -72,6 +72,12 @@ Do not run the continuous trading loop in the browser or Vercel functions. Verce
 - Restore deployment `485a3d57-9a08-4a7f-ad90-34f02ca23d11` reached `SUCCESS`. Recovery logs ended with `archive recovery complete` and `database system is ready to accept connections`; the recovered database reported schema migration `0010`, `durable_schedule_runs`, and `pgboss.job` present. The restored scheduler-audit table contained zero rows, consistent with the target being before the first natural audit cycle.
 - The check was read-only; no migration was applied, no queue job was started, and no broker reconciliation was run against the restored sibling. The isolated service is retained pending a separately reviewed cleanup decision.
 - This verifies restore mechanics and schema/queue presence only. `RECOVERY_DRILL_VERIFIED` remains unset because the runbook's complete evidence package still requires the bounded recovery approval/timestamp record, checksum/timing record, and separately approved post-restore paper reconciliation.
+
+### 2026-08-25 — Phase 6.135 pre-cycle Paper Autopilot readiness
+
+- Read-only hosted Paper Autopilot readiness confirmed paper mode, configured paper credentials, broker/database/scheduler/handler gates, inactive global kill switch, and the fixed risk policy (`USD 1,000` baseline, `0.25%` planned-risk cap, `USD 100` absolute cap).
+- Runtime readiness also reported a fresh persisted reconciliation (`2026-08-25T00:00:32.065Z`, age `42,808` seconds at check time). The overall status remains `disabled` because Paper Autopilot and operating mode are intentionally not activated before the first audited natural scheduler cycle and explicit activation gate.
+- No broker request, order submission, queue trigger, database write, or persistent variable change occurred.
 
 ### Deployment Recommendation
 
