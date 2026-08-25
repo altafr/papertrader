@@ -8,6 +8,7 @@
 
 - Date-only dashboard inputs are normalized server-side to UTC calendar boundaries: `from` begins at midnight and `to` ends at the final millisecond of the selected day.
 - Explicit timestamps remain unchanged. This prevents a date preset from silently excluding records later on its selected end date while preserving the authenticated, parameterized, read-only audit contract.
+- API deployment `de82b44b-103d-4663-8b2f-544598849b56` and Vercel preview `https://papertrader-nu9t11oau-altafrs-projects.vercel.app` are ready. Unauthenticated date-filtered requests remain `401`; authenticated hosted boundary inspection still requires the operator session.
 
 ### Audit history totals and date presets (2026-08-26)
 

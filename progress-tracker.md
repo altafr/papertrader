@@ -14,7 +14,7 @@
 - [x] Add focused boundary tests for lower-bound, upper-bound, and explicit-instant inputs.
 - [x] Preserve parameterized SQL, authenticated access, and read-only behavior.
 - [x] Verify 241 tests, typecheck, lint, and production build pass.
-- [ ] Deploy and verify hosted date-boundary behavior; authenticated content remains subject to deployment protection.
+- [x] Deploy API `de82b44b-103d-4663-8b2f-544598849b56` and Vercel preview `https://papertrader-nu9t11oau-altafrs-projects.vercel.app`; API health is healthy and unauthenticated date-filtered overview/CSV requests return `401`. Authenticated boundary inspection remains behind deployment protection.
 
 ### Phase 6.186 — Audit history totals and date presets (2026-08-26)
 
