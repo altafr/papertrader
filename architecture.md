@@ -2,7 +2,12 @@
 
 ## Status
 
-- **Stage:** Phase 6.171 Agent evidence references rendered; multi-day evidence collection continues.
+- **Stage:** Phase 6.172 Complete persisted decision history rendered; multi-day evidence collection continues.
+
+### Complete persisted decision history rendered (2026-08-26)
+
+- Filtered/shadow trades and paper execution decisions are no longer truncated to 25 rows in the dashboard; all rows returned by the authenticated overview contract are rendered.
+- The server remains bounded at its reviewed read-model limits, and the CSV export remains available for the complete exported audit set.
 
 ### Agent evidence references rendered (2026-08-26)
 
