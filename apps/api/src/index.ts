@@ -21,7 +21,7 @@ import {
   getServerPort,
   isGlobalKillSwitchActive,
 } from "@momentum/config";
-import { MAX_SINGLE_TRADE_RISK_PERCENT_OF_NOTIONAL, MAX_SINGLE_TRADE_STOP_LOSS_PERCENT, PAPER_INITIAL_EQUITY_BASELINE } from "@momentum/domain";
+import { calculatePerformanceMetrics, MAX_SINGLE_TRADE_RISK_PERCENT_OF_NOTIONAL, MAX_SINGLE_TRADE_STOP_LOSS_PERCENT, PAPER_INITIAL_EQUITY_BASELINE } from "@momentum/domain";
 import { getTelegramAlertTestReadiness, getTelegramNotificationReadiness } from "@momentum/notifications";
 
 import { getApiHealth } from "./app.js";
@@ -377,6 +377,57 @@ async function readOperationsHealth(request: IncomingMessage) {
   }
 }
 
+async function readPaperPerformance(request: IncomingMessage) {
+  const authentication = await authenticateOperator(request);
+  if (authentication.status !== 200) return authentication;
+  if (!process.env.DATABASE_URL?.trim()) return { body: { error: "db_not_configured" }, status: 503 } as const;
+  const { pool } = createDatabase();
+  try {
+    const result = await pool.query<{ readonly captured_at: Date; readonly equity: string }>("SELECT captured_at, equity FROM account_snapshots ORDER BY captured_at DESC LIMIT 500");
+    const snapshots = result.rows.map((row) => ({ capturedAt: row.captured_at.toISOString(), equity: String(row.equity) })).sort((left, right) => Date.parse(left.capturedAt) - Date.parse(right.capturedAt));
+    const dates = [...new Set(snapshots.map((snapshot) => snapshot.capturedAt.slice(0, 10)))];
+    let consecutiveCalendarDays = dates.length > 0 ? 1 : 0;
+    for (let index = 1; index < dates.length; index += 1) {
+      const previous = Date.parse(`${dates[index - 1]}T00:00:00Z`);
+      const current = Date.parse(`${dates[index]}T00:00:00Z`);
+      consecutiveCalendarDays = current - previous === 86_400_000 ? consecutiveCalendarDays + 1 : 1;
+    }
+    if (snapshots.length < 2) return { body: { calendarDays: dates.length, consecutiveCalendarDays, snapshotCount: snapshots.length, stability: { blockedReasons: ["minimum_30_consecutive_calendar_days_not_met", "performance_history_insufficient"], status: "blocked" }, status: "insufficient_history" }, status: 200 } as const;
+    const metrics = calculatePerformanceMetrics(snapshots);
+    const blockedReasons = [
+      ...(consecutiveCalendarDays >= 30 ? [] : ["minimum_30_consecutive_calendar_days_not_met"]),
+      ...(Number(metrics.maxDrawdownPercent) <= 5 ? [] : ["maximum_drawdown_policy_exceeded"]),
+    ];
+    return { body: { calendarDays: dates.length, consecutiveCalendarDays, firstCapturedAt: snapshots[0]?.capturedAt, lastCapturedAt: snapshots[snapshots.length - 1]?.capturedAt, metrics, snapshotCount: snapshots.length, stability: { blockedReasons, status: blockedReasons.length === 0 ? "ready" : "blocked" }, status: "ready" }, status: 200 } as const;
+  } finally {
+    await pool.end();
+  }
+}
+
+async function readOperatorOverview(request: IncomingMessage) {
+  const authentication = await authenticateOperator(request);
+  if (authentication.status !== 200) return authentication;
+  if (!process.env.DATABASE_URL?.trim()) return { body: { error: "db_not_configured" }, status: 503 } as const;
+  const { pool } = createDatabase();
+  try {
+    const [agents, filteredTrades, submissions] = await Promise.all([
+      pool.query("SELECT run_id, agent_type, task, status, created_at, started_at, finished_at, artifact_rationale, artifact_confidence, artifact_evidence_refs, artifact_type, prompt_version FROM agent_runs ORDER BY created_at DESC LIMIT 50"),
+      pool.query("SELECT s.observation_id, s.symbol, s.asset_class, s.strategy_key, s.strategy_version, s.score, s.proposed_entry_price, s.planned_stop_price, s.planned_exit_price, s.signal_time, s.expires_at, s.rationale, o.exit_price, o.observed_at, o.reason, o.return_percent FROM shadow_observations s LEFT JOIN shadow_observation_outcomes o ON o.observation_id = s.observation_id ORDER BY s.signal_time DESC LIMIT 100"),
+      pool.query("SELECT intent_id, approval_id, client_order_id, alpaca_order_id, symbol, asset_class, quantity, filled_quantity, status, created_at, submitted_at, updated_at FROM paper_order_submissions ORDER BY COALESCE(updated_at, created_at) DESC LIMIT 100"),
+    ]);
+    return {
+      body: {
+        agents: agents.rows.map((row) => ({ ...row, createdAt: row.created_at, startedAt: row.started_at, finishedAt: row.finished_at, runId: row.run_id, agentType: row.agent_type, artifactRationale: typeof row.artifact_rationale === "string" ? row.artifact_rationale.slice(0, 2_000) : null, artifactConfidence: row.artifact_confidence, artifactEvidenceRefs: row.artifact_evidence_refs, artifactType: row.artifact_type, promptVersion: row.prompt_version })),
+        filteredTrades: filteredTrades.rows.map((row) => ({ observationId: row.observation_id, symbol: row.symbol, assetClass: row.asset_class, strategyKey: row.strategy_key, strategyVersion: row.strategy_version, score: row.score, proposedEntryPrice: row.proposed_entry_price, plannedStopPrice: row.planned_stop_price, plannedExitPrice: row.planned_exit_price, signalTime: row.signal_time, expiresAt: row.expires_at, rationale: row.rationale, outcome: row.reason ? { exitPrice: row.exit_price, observedAt: row.observed_at, reason: row.reason, returnPercent: row.return_percent } : null, status: row.reason ? "closed" : "open" })),
+        tradeDecisions: submissions.rows.map((row) => ({ intentId: row.intent_id, approvalId: row.approval_id, clientOrderId: row.client_order_id, alpacaOrderId: row.alpaca_order_id, symbol: row.symbol, assetClass: row.asset_class, quantity: row.quantity, filledQuantity: row.filled_quantity, status: row.status, createdAt: row.created_at, submittedAt: row.submitted_at, updatedAt: row.updated_at, reason: "Deterministic paper execution approval recorded.", marketSnapshot: null })),
+      },
+      status: 200,
+    } as const;
+  } finally {
+    await pool.end();
+  }
+}
+
 function parseAgentRunLimit(request: IncomingMessage): number {
   const url = new URL(request.url ?? "/", `http://${request.headers.host ?? "localhost"}`);
   const limit = Number(url.searchParams.get("limit") ?? "50");
@@ -394,10 +445,10 @@ async function readAgentRuns(request: IncomingMessage) {
   }
   const rows = await agentRunRepository.listRecent(parseAgentRunLimit(request));
   return {
-    body: {
-      runs: rows.map((row) => ({
+      body: {
+        runs: rows.map((row) => ({
         agentType: row.agentType,
-        artifact: row.artifactType ? { confidence: row.artifactConfidence, evidenceRefs: row.artifactEvidenceRefs, schemaVersion: row.artifactSchemaVersion, type: row.artifactType } : undefined,
+          artifact: row.artifactType ? { confidence: row.artifactConfidence, evidenceRefs: row.artifactEvidenceRefs, rationale: row.artifactRationale?.slice(0, 2_000), schemaVersion: row.artifactSchemaVersion, type: row.artifactType } : undefined,
         createdAt: row.createdAt,
         errorCode: row.errorCode,
         finishedAt: row.finishedAt,
@@ -584,6 +635,32 @@ const server = createServer((request, response) => {
       .catch(() => {
         response.writeHead(503, { "content-type": "application/json" });
         response.end(JSON.stringify({ error: "operations_health_unavailable" }));
+      });
+    return;
+  }
+
+  if (request.method === "GET" && request.url === "/v1/paper-performance") {
+    readPaperPerformance(request)
+      .then(({ body, status }) => {
+        response.writeHead(status, { "content-type": "application/json" });
+        response.end(JSON.stringify(body));
+      })
+      .catch(() => {
+        response.writeHead(503, { "content-type": "application/json" });
+        response.end(JSON.stringify({ error: "paper_performance_unavailable" }));
+      });
+    return;
+  }
+
+  if (request.method === "GET" && request.url === "/v1/operator-overview") {
+    readOperatorOverview(request)
+      .then(({ body, status }) => {
+        response.writeHead(status, { "content-type": "application/json" });
+        response.end(JSON.stringify(body));
+      })
+      .catch(() => {
+        response.writeHead(503, { "content-type": "application/json" });
+        response.end(JSON.stringify({ error: "operator_overview_unavailable" }));
       });
     return;
   }

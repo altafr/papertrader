@@ -2,7 +2,14 @@
 
 ## Status
 
-- **Stage:** Phase 6.157 Stability-readiness gate deployed; multi-day evidence collection continues.
+- **Stage:** Phase 6.158 Unified operator audit dashboard added; multi-day evidence collection continues.
+
+### Unified operator audit dashboard (2026-08-25)
+
+- The authenticated API now exposes a read-only operator overview combining persisted agent rationale/evidence, shadow or filtered trade decisions, and paper submission provenance.
+- The dashboard presents compact dark-mode views for agent activity, filtered opportunities, portfolio positions, order/fill history, decision audit, and paper performance.
+- Shadow decisions include the persisted point-in-time signal snapshot (score, entry, stop, expiry, strategy, rationale, and outcome when available). Paper submission rows explicitly show when no market snapshot is attached; the UI does not fabricate indicators.
+- Agent reasoning shown to the operator is stored artifact rationale and structured evidence, not hidden chain-of-thought. Deterministic risk and execution gates remain authoritative.
 
 ### Paper performance evidence (2026-08-25)
 

@@ -36,11 +36,39 @@ export type OperationsHealth = {
   };
 };
 
+export type PaperPerformance = {
+  readonly calendarDays: number;
+  readonly consecutiveCalendarDays: number;
+  readonly firstCapturedAt?: string;
+  readonly lastCapturedAt?: string;
+  readonly metrics?: { readonly finalEquity: string; readonly initialEquity: string; readonly maxDrawdownPercent: string; readonly totalPnl: string; readonly totalReturnPercent: string };
+  readonly snapshotCount: number;
+  readonly stability: { readonly blockedReasons: readonly string[]; readonly status: "blocked" | "ready" };
+  readonly status: "insufficient_history" | "ready";
+};
+
+export function parsePaperPerformance(value: unknown): PaperPerformance | undefined {
+  if (!isRecord(value) || typeof value.calendarDays !== "number" || typeof value.consecutiveCalendarDays !== "number" || typeof value.snapshotCount !== "number" || !isRecord(value.stability) || !Array.isArray(value.stability.blockedReasons) || value.stability.blockedReasons.some((reason) => typeof reason !== "string") || !(value.stability.status === "blocked" || value.stability.status === "ready") || !(value.status === "insufficient_history" || value.status === "ready")) return undefined;
+  const metrics = value.metrics;
+  if (metrics !== undefined && (!isRecord(metrics) || typeof metrics.finalEquity !== "string" || typeof metrics.initialEquity !== "string" || typeof metrics.maxDrawdownPercent !== "string" || typeof metrics.totalPnl !== "string" || typeof metrics.totalReturnPercent !== "string")) return undefined;
+  return {
+    calendarDays: value.calendarDays,
+    consecutiveCalendarDays: value.consecutiveCalendarDays,
+    ...(typeof value.firstCapturedAt === "string" ? { firstCapturedAt: value.firstCapturedAt } : {}),
+    ...(typeof value.lastCapturedAt === "string" ? { lastCapturedAt: value.lastCapturedAt } : {}),
+    ...(metrics ? { metrics: { finalEquity: metrics.finalEquity as string, initialEquity: metrics.initialEquity as string, maxDrawdownPercent: metrics.maxDrawdownPercent as string, totalPnl: metrics.totalPnl as string, totalReturnPercent: metrics.totalReturnPercent as string } } : {}),
+    snapshotCount: value.snapshotCount,
+    stability: { blockedReasons: value.stability.blockedReasons as string[], status: value.stability.status },
+    status: value.status,
+  };
+}
+
 export type AgentRunSummary = {
   readonly agentType: string;
   readonly artifact?: {
     readonly confidence?: string;
     readonly evidenceRefs?: readonly string[];
+    readonly rationale?: string;
     readonly schemaVersion?: string;
     readonly type?: string;
   };
@@ -55,6 +83,19 @@ export type AgentRunSummary = {
   readonly status: "failed" | "queued" | "running" | "succeeded";
   readonly task: string;
 };
+
+export type OperatorOverview = {
+  readonly agents: readonly (AgentRunSummary & { readonly artifact?: AgentRunSummary["artifact"] })[];
+  readonly filteredTrades: readonly Record<string, unknown>[];
+  readonly tradeDecisions: readonly Record<string, unknown>[];
+};
+
+export function parseOperatorOverview(value: unknown): OperatorOverview | undefined {
+  if (!isRecord(value) || !Array.isArray(value.agents) || !Array.isArray(value.filteredTrades) || !Array.isArray(value.tradeDecisions)) return undefined;
+  const agents = parseAgentRuns({ runs: value.agents });
+  if (!agents) return undefined;
+  return { agents, filteredTrades: value.filteredTrades.filter(isRecord), tradeDecisions: value.tradeDecisions.filter(isRecord) };
+}
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -139,12 +180,12 @@ export function parseAgentRuns(value: unknown): readonly AgentRunSummary[] | und
     if (!( ["failed", "queued", "running", "succeeded"] as const).includes(candidate.status as AgentRunSummary["status"])) return undefined;
     if (candidate.artifact !== undefined) {
       if (!isRecord(candidate.artifact)) return undefined;
-      for (const key of ["confidence", "schemaVersion", "type"] as const) if (candidate.artifact[key] !== undefined && typeof candidate.artifact[key] !== "string") return undefined;
+      for (const key of ["confidence", "rationale", "schemaVersion", "type"] as const) if (candidate.artifact[key] !== undefined && typeof candidate.artifact[key] !== "string") return undefined;
       if (candidate.artifact.evidenceRefs !== undefined && (!Array.isArray(candidate.artifact.evidenceRefs) || candidate.artifact.evidenceRefs.some((ref) => typeof ref !== "string"))) return undefined;
     }
     parsed.push({
       agentType: candidate.agentType,
-      ...(candidate.artifact !== undefined ? { artifact: { ...(typeof candidate.artifact.confidence === "string" ? { confidence: candidate.artifact.confidence } : {}), ...(Array.isArray(candidate.artifact.evidenceRefs) ? { evidenceRefs: candidate.artifact.evidenceRefs as readonly string[] } : {}), ...(typeof candidate.artifact.schemaVersion === "string" ? { schemaVersion: candidate.artifact.schemaVersion } : {}), ...(typeof candidate.artifact.type === "string" ? { type: candidate.artifact.type } : {}) } } : {}),
+      ...(candidate.artifact !== undefined ? { artifact: { ...(typeof candidate.artifact.confidence === "string" ? { confidence: candidate.artifact.confidence } : {}), ...(Array.isArray(candidate.artifact.evidenceRefs) ? { evidenceRefs: candidate.artifact.evidenceRefs as readonly string[] } : {}), ...(typeof candidate.artifact.rationale === "string" ? { rationale: candidate.artifact.rationale } : {}), ...(typeof candidate.artifact.schemaVersion === "string" ? { schemaVersion: candidate.artifact.schemaVersion } : {}), ...(typeof candidate.artifact.type === "string" ? { type: candidate.artifact.type } : {}) } } : {}),
       createdAt: candidate.createdAt,
       ...(typeof candidate.errorCode === "string" ? { errorCode: candidate.errorCode } : {}),
       ...(typeof candidate.finishedAt === "string" ? { finishedAt: candidate.finishedAt } : {}),

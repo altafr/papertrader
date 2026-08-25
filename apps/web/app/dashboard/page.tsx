@@ -1,7 +1,7 @@
 import { UserButton } from "@clerk/nextjs";
 import { auth } from "@clerk/nextjs/server";
 
-import { formatUtc, getFreshnessLabel, getFreshnessState, parseAgentRuns, parseOperationsHealth, type AgentRunSummary, type OperationsHealth } from "./dashboard-state";
+import { formatUtc, getFreshnessLabel, getFreshnessState, parseAgentRuns, parseOperatorOverview, parseOperationsHealth, parsePaperPerformance, type AgentRunSummary, type OperationsHealth, type OperatorOverview, type PaperPerformance } from "./dashboard-state";
 
 type ReadModel = {
   activities: Array<Record<string, unknown>>;
@@ -90,6 +90,34 @@ async function loadAgentRuns(getToken: () => Promise<string | null>) {
   }
 }
 
+async function loadPaperPerformance(getToken: () => Promise<string | null>): Promise<PaperPerformance | undefined> {
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+  if (!apiBaseUrl) return undefined;
+  const token = await getToken();
+  if (!token) return undefined;
+  try {
+    const response = await fetch(`${apiBaseUrl}/v1/paper-performance`, { cache: "no-store", headers: { authorization: `Bearer ${token}` } });
+    if (!response.ok) return undefined;
+    return parsePaperPerformance(await response.json());
+  } catch {
+    return undefined;
+  }
+}
+
+async function loadOperatorOverview(getToken: () => Promise<string | null>): Promise<OperatorOverview | undefined> {
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+  if (!apiBaseUrl) return undefined;
+  const token = await getToken();
+  if (!token) return undefined;
+  try {
+    const response = await fetch(`${apiBaseUrl}/v1/operator-overview`, { cache: "no-store", headers: { authorization: `Bearer ${token}` } });
+    if (!response.ok) return undefined;
+    return parseOperatorOverview(await response.json());
+  } catch {
+    return undefined;
+  }
+}
+
 function value(row: Record<string, unknown>, key: string) {
   const result = row[key];
   return typeof result === "string" || typeof result === "number" ? String(result) : "—";
@@ -151,11 +179,31 @@ function AgentRunsCard({ runs }: { readonly runs: readonly AgentRunSummary[] | u
     <article className="card full-width agent-runs-card" aria-label="Agent run health">
       <div className="card-heading"><div><p className="label">Research agents</p><h2>Run health &amp; provenance</h2></div><span className={`state-badge ${runs ? "fresh" : "degraded"}`}>{runs ? `${runs.length} recent` : "Unavailable"}</span></div>
       {!runs ? <p className="empty-state">Authenticated agent-run metadata is currently unavailable.</p> : runs.length === 0 ? <p className="empty-state">No agent runs have been recorded.</p> : (
-        <div className="agent-runs-list">{runs.slice(0, 8).map((run) => <div className="agent-run-row" key={run.runId}><div><strong>{run.agentType}</strong><span>{run.task} · {formatUtc(run.createdAt)}</span></div><span className={`state-badge ${run.status === "succeeded" ? "fresh" : run.status === "failed" ? "degraded" : "delayed"}`}>{run.status}</span></div>)}</div>
+        <div className="agent-runs-list">{runs.slice(0, 8).map((run) => <div className="agent-run-row" key={run.runId}><div><strong>{run.agentType}</strong><span>{run.task} · {formatUtc(run.createdAt)}</span>{run.artifact?.rationale && <small>{run.artifact.rationale}</small>}</div><span className={`state-badge ${run.status === "succeeded" ? "fresh" : run.status === "failed" ? "degraded" : "delayed"}`}>{run.status}</span></div>)}</div>
       )}
-      <p className="provenance">Metadata only: artifact payloads and rationale remain server-side. Agent output never authorizes risk or orders.</p>
+      <p className="provenance">Stored rationale and evidence are shown for audit context only. Agent output never authorizes risk or orders.</p>
     </article>
   );
+}
+
+function OperatorAuditCards({ overview }: { readonly overview: OperatorOverview | undefined }) {
+  const field = (row: Record<string, unknown>, key: string) => value(row, key);
+  return <>
+    <article className="card full-width" id="filtered-trades"><div className="card-heading"><div><p className="label">Filtered trades</p><h2>{overview ? overview.filteredTrades.length : "—"} signal decisions</h2></div><span className="provenance">Shadow / rejected opportunity audit</span></div>
+      {!overview || overview.filteredTrades.length === 0 ? <p className="empty-state">No filtered or shadow decisions are persisted yet.</p> : <div className="responsive-table"><table><thead><tr><th>Symbol</th><th>Strategy</th><th>Score</th><th>Entry</th><th>Stop</th><th>State</th><th>Why / outcome</th></tr></thead><tbody>{overview.filteredTrades.slice(0, 25).map((row) => <tr key={field(row, "observationId")}><th scope="row">{field(row, "symbol")}</th><td>{field(row, "strategyKey")} {field(row, "strategyVersion")}</td><td>{field(row, "score")}</td><td>{field(row, "proposedEntryPrice")}</td><td>{field(row, "plannedStopPrice")}</td><td>{field(row, "status")}</td><td className="table-reason">{field(row, "rationale")}{isRecord(row.outcome) ? ` · ${field(row.outcome, "reason")} ${field(row.outcome, "returnPercent")}%` : ""}</td></tr>)}</tbody></table></div>}
+      <p className="provenance">Entry, stop, score, timestamp, and rationale are the stored point-in-time signal snapshot. This is not a promise of execution or profitability.</p>
+    </article>
+    <article className="card full-width" id="decision-log"><div className="card-heading"><div><p className="label">Trade decision log</p><h2>{overview ? overview.tradeDecisions.length : "—"} execution decisions</h2></div><span className="provenance">Immutable paper submissions</span></div>
+      {!overview || overview.tradeDecisions.length === 0 ? <p className="empty-state">No paper execution decisions have been submitted.</p> : <div className="responsive-table"><table><thead><tr><th>Symbol</th><th>Intent</th><th>Status</th><th>Quantity</th><th>Filled</th><th>Decision reason</th><th>Market snapshot</th></tr></thead><tbody>{overview.tradeDecisions.slice(0, 25).map((row) => <tr key={field(row, "intentId")}><th scope="row">{field(row, "symbol")}</th><td>{field(row, "intentId")}</td><td>{field(row, "status")}</td><td>{field(row, "quantity")}</td><td>{field(row, "filledQuantity")}</td><td className="table-reason">{field(row, "reason")}</td><td>{row.marketSnapshot ? "Captured" : "Not attached to submission"}</td></tr>)}</tbody></table></div>}
+      <p className="provenance">A submission without a linked market snapshot is visibly marked; the execution schema currently stores intent and approval provenance but not indicator values.</p>
+    </article>
+  </>;
+}
+
+function PaperPerformanceCard({ performance }: { readonly performance: PaperPerformance | undefined }) {
+  if (!performance) return <article className="card" id="performance"><p className="label">Performance</p><h2>Unavailable</h2><p>Authenticated performance data is currently unavailable.</p></article>;
+  const metrics = performance.metrics;
+  return <article className="card" id="performance"><p className="label">Paper performance</p><h2>{metrics ? `${metrics.totalReturnPercent}% return` : "Insufficient history"}</h2><p>{performance.snapshotCount} snapshots · {performance.calendarDays} calendar days · {performance.consecutiveCalendarDays} consecutive days</p>{metrics && <p>Max drawdown {metrics.maxDrawdownPercent}% · P/L {metrics.totalPnl}</p>}<p className="provenance">Stability gate: {performance.stability.status === "ready" ? "Ready" : `Blocked · ${performance.stability.blockedReasons.join(", ")}`}</p></article>;
 }
 
 export default async function DashboardPage() {
@@ -170,6 +218,8 @@ export default async function DashboardPage() {
   const result = await loadReadModel(getToken);
   const operationsHealth = await loadOperationsHealth(getToken);
   const agentRuns = await loadAgentRuns(getToken);
+  const paperPerformance = await loadPaperPerformance(getToken);
+  const operatorOverview = await loadOperatorOverview(getToken);
   const freshness = result.kind === "ready" ? getFreshnessState(result.model.freshness.ageSeconds) : "stale";
   const freshnessLabel = getFreshnessLabel(freshness);
 
@@ -203,15 +253,17 @@ export default async function DashboardPage() {
       <nav className="dashboard-nav" aria-label="Dashboard sections">
         <a className="active" href="#overview">Overview</a>
         <a href="#positions">Positions</a>
-        <a href="#orders">Orders &amp; fills</a>
-        <a href="#performance">Performance</a>
+          <a href="#orders">Orders &amp; fills</a>
+          <a href="#filtered-trades">Filtered trades</a>
+          <a href="#decision-log">Decision log</a>
+          <a href="#performance">Performance</a>
         <a href="#alerts">Alerts</a>
       </nav>
 
       {result.kind === "unavailable" ? (
         <section className="grid" aria-label="Dashboard unavailable state">
           <OperationsHealthCard health={operationsHealth} />
-          <AgentRunsCard runs={agentRuns} />
+          <AgentRunsCard runs={operatorOverview?.agents ?? agentRuns} />
           <article className="card full-width alert-card degraded-card">
             <p className="label">Read model unavailable</p>
             <h2>Waiting for the first safe reconciliation.</h2>
@@ -224,7 +276,7 @@ export default async function DashboardPage() {
       ) : (
         <section className="grid" aria-label="Paper account dashboard">
           <OperationsHealthCard health={operationsHealth} />
-          <AgentRunsCard runs={agentRuns} />
+          <AgentRunsCard runs={operatorOverview?.agents ?? agentRuns} />
           <article className="card primary-card" id="overview">
             <div className="card-heading"><div><p className="label">Account equity</p><h2>{value(result.model.snapshot, "currency")} {value(result.model.snapshot, "equity")}</h2></div><StatusBadge state={freshness} /></div>
             <dl className="facts">
@@ -258,9 +310,9 @@ export default async function DashboardPage() {
             <div className="data-list">{result.model.orders.slice(0, 10).map((order) => <div className="data-row" key={value(order, "alpacaOrderId")}><strong>{value(order, "symbol")}</strong><span>{value(order, "side")} · {value(order, "status")} · filled {value(order, "filledQuantity")}</span></div>)}{result.model.orders.length === 0 && <p className="empty-state">No orders recorded.</p>}</div>
           </article>
 
-          <article className="card" id="performance">
-            <p className="label">Performance</p><h2>Not yet available</h2><p>Performance snapshots, equity curves, drawdown, and attribution will appear after the performance ledger is implemented.</p><p className="provenance">No performance values are inferred from the account snapshot.</p>
-          </article>
+          <PaperPerformanceCard performance={paperPerformance} />
+
+          <OperatorAuditCards overview={operatorOverview} />
 
           <article className="card" id="alerts">
             <p className="label">Alerts</p><h2>No alert feed yet</h2><p>Critical stale-data, discrepancy, and risk alerts will be shown here when the alert service is implemented.</p><p className="provenance">Current dashboard state: {freshness === "fresh" ? "No known alert from this read model." : "Review stale or degraded data before relying on values."}</p>
