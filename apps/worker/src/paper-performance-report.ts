@@ -11,12 +11,16 @@ export interface PaperPerformanceReport {
   readonly firstCapturedAt?: string;
   readonly lastCapturedAt?: string;
   readonly metrics?: PerformanceMetrics;
+  readonly stability: {
+    readonly blockedReasons: readonly string[];
+    readonly status: "blocked" | "ready";
+  };
   readonly snapshotCount: number;
   readonly status: "insufficient_history" | "ready";
 }
 
 export function buildPaperPerformanceReport(snapshots: readonly PaperPerformanceSnapshot[]): PaperPerformanceReport {
-  if (snapshots.length < 2) return { calendarDays: new Set(snapshots.map((snapshot) => snapshot.capturedAt.slice(0, 10))).size, consecutiveCalendarDays: snapshots.length === 1 ? 1 : 0, snapshotCount: snapshots.length, status: "insufficient_history" };
+  if (snapshots.length < 2) return { calendarDays: new Set(snapshots.map((snapshot) => snapshot.capturedAt.slice(0, 10))).size, consecutiveCalendarDays: snapshots.length === 1 ? 1 : 0, snapshotCount: snapshots.length, stability: { blockedReasons: ["minimum_30_consecutive_calendar_days_not_met", "performance_history_insufficient"], status: "blocked" }, status: "insufficient_history" };
   const ordered = [...snapshots].sort((left, right) => Date.parse(left.capturedAt) - Date.parse(right.capturedAt));
   const first = ordered[0];
   const last = ordered[ordered.length - 1];
@@ -31,13 +35,19 @@ export function buildPaperPerformanceReport(snapshots: readonly PaperPerformance
     if (current - previous === 86_400_000) consecutiveCalendarDays += 1;
     else consecutiveCalendarDays = 1;
   }
+  const metrics = calculatePerformanceMetrics(ordered);
+  const stabilityBlockedReasons = [
+    ...(consecutiveCalendarDays >= 30 ? [] : ["minimum_30_consecutive_calendar_days_not_met"]),
+    ...(Number(metrics.maxDrawdownPercent) <= 5 ? [] : ["maximum_drawdown_policy_exceeded"]),
+  ];
   return {
     calendarDays: dates.length,
     consecutiveCalendarDays,
     firstCapturedAt: first.capturedAt,
     lastCapturedAt: last.capturedAt,
-    metrics: calculatePerformanceMetrics(ordered),
+    metrics,
     snapshotCount: ordered.length,
+    stability: { blockedReasons: stabilityBlockedReasons, status: stabilityBlockedReasons.length === 0 ? "ready" : "blocked" },
     status: "ready",
   };
 }

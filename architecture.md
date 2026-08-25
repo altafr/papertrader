@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.156 Consecutive-day paper evidence reporting deployed; multi-day evidence collection continues.
+- **Stage:** Phase 6.157 Stability-readiness gate deployed; multi-day evidence collection continues.
 
 ### Paper performance evidence (2026-08-25)
 
@@ -19,6 +19,11 @@
 
 - Hosted reporting now distinguishes total calendar days from consecutive coverage: 14 snapshots across 3 calendar days, with 2 consecutive days.
 - Current simulated return is `-0.18984767%` and P/L is `-188.69`; the short negative sample does not justify changing strategy or risk policy.
+
+### Stability-readiness gate (2026-08-25)
+
+- The read-only performance report now returns a machine-readable stability gate: at least 30 consecutive calendar days and maximum drawdown no greater than 5%.
+- Hosted status remains `blocked` only because the current evidence has two consecutive days; no strategy or risk control is bypassed.
 
 ### Bounded paper research evidence (2026-08-25)
 
