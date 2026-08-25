@@ -8,6 +8,7 @@
 
 - The dashboard history toolbar now displays all authenticated filtered totals—agent runs, filtered/shadow trades, execution decisions, lifecycle events, and scheduler runs—beside pagination and date controls.
 - This is an orientation summary only; it does not imply that shadow records are profitable evidence and cannot alter trading, risk, or scheduler state.
+- Vercel preview `https://papertrader-3hjfgqi2x-altafrs-projects.vercel.app` is ready; authenticated rendering still requires the protected operator session.
 
 ### Testable authenticated deployment verifier (2026-08-26)
 

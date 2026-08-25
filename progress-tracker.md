@@ -14,7 +14,7 @@
 - [x] Keep the summary compact, dark-mode, read-only, and scoped to the active date filter.
 - [x] Add a dashboard parser test proving all totals survive validation.
 - [x] Verify 247 tests, typecheck, lint, and production build pass.
-- [ ] Publish the web preview and verify authenticated hosted rendering.
+- [x] Publish Vercel preview `https://papertrader-3hjfgqi2x-altafrs-projects.vercel.app`; authenticated hosted rendering remains pending because deployment protection blocks unauthenticated inspection.
 
 ### Phase 6.189 — Testable authenticated deployment verifier (2026-08-26)
 
