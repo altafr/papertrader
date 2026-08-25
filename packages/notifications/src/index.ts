@@ -124,4 +124,16 @@ export async function sendTelegramAlert(config: TelegramNotificationConfig, aler
     body: JSON.stringify({ chat_id: config.chatId, disable_web_page_preview: true, text: formatTelegramAlert(alert) }),
   });
   if (!response.ok) throw new Error("Telegram alert delivery failed.");
+  // HTTP 2xx alone is not sufficient: Telegram can return a JSON-level
+  // failure while the transport remains successful. Keep the provider body
+  // out of logs and expose only a generic failure to callers.
+  let body: unknown;
+  try {
+    body = await response.json();
+  } catch {
+    throw new Error("Telegram alert delivery failed.");
+  }
+  if (!body || typeof body !== "object" || (body as { ok?: unknown }).ok !== true) {
+    throw new Error("Telegram alert delivery failed.");
+  }
 }

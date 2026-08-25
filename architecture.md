@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.136 command-scoped Paper Autopilot activation rehearsal passed; natural scheduler-cycle verification, recovery evidence sign-off, alert hardening, and persistent Paper Autopilot activation remain separately gated.
+- **Stage:** Phase 6.137 Telegram provider-level delivery validation added; natural scheduler-cycle verification, recovery evidence sign-off, and persistent Paper Autopilot activation remain separately gated.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -83,6 +83,12 @@ Do not run the continuous trading loop in the browser or Vercel functions. Verce
 
 - A command-scoped rehearsal set `PAPER_AUTOPILOT_ENABLED=true` and `OPERATING_MODE=paper_autopilot` only for the read-only runtime-readiness process. It returned `status:"ready"` with all paper, broker, database, scheduler, handler, kill-switch, credential, and risk-policy checks passing, plus fresh reconciliation.
 - The rehearsal did not change Railway variables, restart the Worker, enqueue work, contact Alpaca, or submit an order. Persistent activation remains gated until the first natural scheduler-audit record is verified and the operator explicitly activates Paper Autopilot.
+
+### 2026-08-25 — Phase 6.137 Telegram provider-level delivery validation
+
+- Hardened the server-only Telegram notifier to validate the provider's JSON-level `ok:true` response, not just HTTP status. Invalid/malformed/provider-rejected responses now fail with the same generic, non-sensitive delivery error.
+- Added regression coverage for successful JSON delivery and an HTTP-200/provider-failure response. Notification credentials and provider response bodies remain excluded from logs and API surfaces.
+- Verification: notifications tests (8) and package typecheck pass. No hosted variable, scheduler, broker, queue, or trading state changed.
 
 ### Deployment Recommendation
 

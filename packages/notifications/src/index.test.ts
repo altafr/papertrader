@@ -35,12 +35,17 @@ describe("Telegram notifications", () => {
     const fetchImpl = vi.fn(async (input: string, init?: RequestInit) => {
       void input;
       void init;
-      return new Response(null, { status: 200 });
+      return new Response(JSON.stringify({ ok: true, result: { message_id: 1 } }), { status: 200, headers: { "content-type": "application/json" } });
     });
     await sendTelegramAlert({ apiBaseUrl: "https://api.telegram.org", botToken: "123456:ABC_def-123", chatId: "123", enabled: true }, { code: "telegram_test", message: "Test", occurredAt: "2026-08-24T00:00:00.000Z", severity: "info" }, fetchImpl);
     expect(fetchImpl).toHaveBeenCalledOnce();
     const [url, init] = fetchImpl.mock.calls[0] ?? [];
     expect(url).toBe("https://api.telegram.org/bot123456:ABC_def-123/sendMessage");
     expect(JSON.parse(String(init?.body))).toMatchObject({ chat_id: "123", disable_web_page_preview: true });
+  });
+
+  it("rejects a provider-level failure returned with HTTP 200", async () => {
+    const fetchImpl = vi.fn(async () => new Response(JSON.stringify({ ok: false, error_code: 400 }), { status: 200 }));
+    await expect(sendTelegramAlert({ apiBaseUrl: "https://api.telegram.org", botToken: "123456:ABC_def-123", chatId: "123", enabled: true }, { code: "telegram_test", message: "Test", occurredAt: "2026-08-24T00:00:00.000Z", severity: "info" }, fetchImpl)).rejects.toThrow("Telegram alert delivery failed.");
   });
 });
