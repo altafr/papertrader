@@ -9,7 +9,7 @@ import { getWorkerHealth } from "./app.js";
 import { startPaperMarketStream } from "./market-stream-runner.js";
 import { getShadowEvaluationConfig } from "./shadow-evaluation.js";
 import { createAlpacaShadowBarSource, createShadowEvaluationScheduler, runShadowEvaluationOnce } from "./shadow-evaluation-service.js";
-import { createDurableScheduler, getDurableSchedulerConfig, validateDurableSchedulerAuditActivation } from "./durable-scheduler.js";
+import { createDurableScheduler, getDurableSchedulerConfig, setDurableSchedulerHealth, validateDurableSchedulerAuditActivation } from "./durable-scheduler.js";
 import { assertDurableScheduleRunMigrationReady, assertDurableSchedulerMigrationReady, readDurableScheduleRunMigrationState, readDurableSchedulerMigrationState } from "./durable-scheduler-migration-guard.js";
 import { reconcilePaperAccount } from "./reconcile.js";
 import { getResearchScheduleReadiness } from "./research-scheduler.js";
@@ -80,24 +80,36 @@ if (durableConfiguration.enabled) {
     complete: (runId: string, completedAt: Date, accountSnapshotId: string) => scheduleAudit.complete(runId, completedAt, accountSnapshotId).then(() => undefined),
     fail: (runId: string, completedAt: Date, failureCode: string) => scheduleAudit.fail(runId, completedAt, failureCode).then(() => undefined),
   } : undefined;
+  const runDailyPreparation = async () => {
+    const { db, pool } = createDatabase(process.env.DATABASE_URL);
+    try {
+      const snapshot = await reconcilePaperAccount(
+        createPaperAccountReader({ apiKey: process.env.ALPACA_API_KEY ?? "", secretKey: process.env.ALPACA_SECRET_KEY ?? "" }),
+        createAccountStateRepository(db),
+      );
+      return { accountSnapshotId: snapshot.id };
+    } finally {
+      await pool.end();
+    }
+  };
   const durableScheduler = createDurableScheduler({
     config: durableConfiguration,
     connectionString: process.env.DATABASE_URL,
     notify: (alert) => sendTelegramAlert(telegramNotificationConfig, { ...alert, occurredAt: new Date().toISOString() }),
     ...(scheduleAuditCallbacks ? { audit: scheduleAuditCallbacks } : {}),
-    runDailyPreparation: async () => {
-      const { db, pool } = createDatabase(process.env.DATABASE_URL);
-      try {
-        const snapshot = await reconcilePaperAccount(
-          createPaperAccountReader({ apiKey: process.env.ALPACA_API_KEY ?? "", secretKey: process.env.ALPACA_SECRET_KEY ?? "" }),
-          createAccountStateRepository(db),
-        );
-        return { accountSnapshotId: snapshot.id };
-      } finally {
-        await pool.end();
-      }
-    },
+    runDailyPreparation,
   });
-  void durableScheduler.start().catch(() => { /* the health endpoint reports the degraded state */ });
+  // Recovery starts paused: reconcile broker truth before registering the
+  // durable schedule so a restart cannot resume from stale internal state.
+  void (async () => {
+    try {
+      await runDailyPreparation();
+    } catch {
+      setDurableSchedulerHealth({ enabled: true, status: "degraded" });
+      await sendTelegramAlert(telegramNotificationConfig, { code: "durable_scheduler_start_failed", message: "Durable scheduler startup reconciliation failed; scheduling remains paused.", occurredAt: new Date().toISOString(), severity: "critical" }).catch(() => undefined);
+      return;
+    }
+    await durableScheduler.start().catch(() => { /* health endpoint reports the degraded state */ });
+  })();
 }
 server.listen(getServerPort(), "0.0.0.0");

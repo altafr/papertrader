@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.139 isolated PITR schema checksum captured; natural scheduler-cycle verification, post-restore reconciliation, recovery sign-off, and persistent Paper Autopilot activation remain separately gated.
+- **Stage:** Phase 6.140 startup reconciliation recovery gate implemented; natural scheduler-cycle verification, post-restore reconciliation, recovery sign-off, and persistent Paper Autopilot activation remain separately gated.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -99,6 +99,12 @@ Do not run the continuous trading loop in the browser or Vercel functions. Verce
 
 - A read-only `pg_dump --schema-only --no-owner --no-privileges | sha256sum` on the restored sibling produced schema checksum `72ceb28d6cfb15199263962f483689b778c2c52e3a15f40c8712d498f7496c8f`.
 - This checksum covers schema DDL only; it does not expose account data or credentials and does not substitute for broker reconciliation. The restored service remains isolated and production remains untouched.
+
+### 2026-08-25 — Phase 6.140 startup reconciliation recovery gate
+
+- Worker startup now performs one paper-account reconciliation before registering the durable daily schedule. If that reconciliation fails, scheduling remains paused, Worker scheduler health is degraded, and a generic critical alert is attempted.
+- This closes the restart boundary required by the architecture: the scheduler cannot resume from stale internal state. The reconciliation remains read-only at Alpaca and persists only the canonical internal snapshot; no order path or live endpoint is involved.
+- Verification: 230 tests, typecheck, lint, and production build pass locally. Deployment is still pending; no hosted state changed in this code unit.
 
 ### Deployment Recommendation
 
