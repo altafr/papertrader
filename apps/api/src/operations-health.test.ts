@@ -1,10 +1,15 @@
 import { describe, expect, it } from "vitest";
 
-import { assessAuditMigrationReadiness, assessReconciliationHealth, assessResearchScheduleActivation, assessSchedulerActivation, readAuditMigrationReadiness, serializeDurableScheduleRunHealth } from "./operations-health.js";
+import { assessAuditMigrationReadiness, assessReconciliationHealth, assessResearchScheduleActivation, assessSchedulerActivation, assessSchedulerAuditGate, readAuditMigrationReadiness, readSchedulerAuditMigrationReadiness, serializeDurableScheduleRunHealth } from "./operations-health.js";
 
 const now = new Date("2026-08-23T00:00:00.000Z");
 
 describe("reconciliation health", () => {
+  it("distinguishes disabled, blocked, and enabled scheduler-audit gates", () => {
+    expect(assessSchedulerAuditGate({ activationApprovalReferencePresent: true, enabled: false, migrationReady: true })).toEqual({ activationApprovalReferencePresent: true, enabled: false, migrationReady: true, status: "disabled" });
+    expect(assessSchedulerAuditGate({ activationApprovalReferencePresent: false, enabled: true, migrationReady: true }).status).toBe("blocked");
+    expect(assessSchedulerAuditGate({ activationApprovalReferencePresent: true, enabled: true, migrationReady: true }).status).toBe("enabled");
+  });
   it("serializes the latest recurring scheduler run without exposing database values", () => {
     expect(serializeDurableScheduleRunHealth({ runId: "scheduled-daily-preparation-2026-08-25", scheduledAt: new Date("2026-08-25T00:00:00.000Z"), startedAt: new Date("2026-08-25T00:00:03.000Z"), status: "completed", completedAt: new Date("2026-08-25T00:00:10.000Z") })).toEqual({ completedAt: "2026-08-25T00:00:10.000Z", runId: "scheduled-daily-preparation-2026-08-25", scheduledAt: "2026-08-25T00:00:00.000Z", startedAt: "2026-08-25T00:00:03.000Z", status: "completed" });
     expect(serializeDurableScheduleRunHealth(undefined)).toEqual({ status: "unavailable" });
@@ -49,5 +54,12 @@ describe("reconciliation health", () => {
     await expect(readAuditMigrationReadiness({ query: async <T extends Record<string, unknown>>() => { call += 1; return { rows: (call === 1 ? [{ recorded: true }] : call === 2 ? [{ present: true }] : [{ count: 6 }]) as unknown as T[] }; } })).resolves.toEqual({ blockedReasons: [], status: "ready" });
     call = 0;
     await expect(readAuditMigrationReadiness({ query: async <T extends Record<string, unknown>>() => { call += 1; if (call === 1) throw Object.assign(new Error("missing"), { code: "42P01" }); return { rows: (call === 2 ? [{ present: false }] : [{ count: 0 }]) as unknown as T[] }; } })).resolves.toEqual({ blockedReasons: ["migration_not_recorded", "audit_table_missing", "audit_columns_missing"], status: "blocked" });
+  });
+
+  it("reads scheduler-audit migration readiness without returning schema values", async () => {
+    let call = 0;
+    await expect(readSchedulerAuditMigrationReadiness({ query: async <T extends Record<string, unknown>>() => { call += 1; return { rows: (call === 1 ? [{ recorded: true }] : [{ table_present: true, required_columns_present: true }]) as unknown as T[] }; } })).resolves.toEqual({ ready: true });
+    call = 0;
+    await expect(readSchedulerAuditMigrationReadiness({ query: async <T extends Record<string, unknown>>() => { call += 1; if (call === 1) throw Object.assign(new Error("missing"), { code: "42P01" }); return { rows: [{ table_present: false, required_columns_present: false }] as unknown as T[] }; } })).resolves.toEqual({ ready: false });
   });
 });

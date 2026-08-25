@@ -25,7 +25,7 @@ import { MAX_SINGLE_TRADE_RISK_PERCENT_OF_EQUITY, MAX_SINGLE_TRADE_RISK_USD, PAP
 import { getTelegramAlertTestReadiness, getTelegramNotificationReadiness } from "@momentum/notifications";
 
 import { getApiHealth } from "./app.js";
-import { assessReconciliationHealth, assessResearchScheduleActivation, assessSchedulerActivation, readAuditMigrationReadiness, serializeDurableScheduleRunHealth } from "./operations-health.js";
+import { assessReconciliationHealth, assessResearchScheduleActivation, assessSchedulerActivation, assessSchedulerAuditGate, readAuditMigrationReadiness, readSchedulerAuditMigrationReadiness, serializeDurableScheduleRunHealth } from "./operations-health.js";
 import { compareReconciliationAccounts } from "./reconciliation-status.js";
 import { approveDisabledToReplay, approveReplayToShadow, approveShadowToPaper } from "./lifecycle-command.js";
 import { toAgentRunDetail } from "./agent-run-detail.js";
@@ -328,6 +328,9 @@ async function readOperationsHealth(request: IncomingMessage) {
   const migrationDatabase = createDatabase();
   try {
     const migration = await readAuditMigrationReadiness(migrationDatabase.pool);
+    const schedulerAuditMigration = await readSchedulerAuditMigrationReadiness(migrationDatabase.pool);
+    const schedulerAuditEnabled = readBooleanEnvironmentFlag("DURABLE_SCHEDULER_AUDIT_ENABLED");
+    const schedulerAuditActivationApprovalReferencePresent = !schedulerAuditEnabled || Boolean(process.env.DURABLE_SCHEDULER_AUDIT_ACTIVATION_APPROVAL_REFERENCE?.trim() && /^[A-Za-z0-9][A-Za-z0-9._:/-]{0,127}$/.test(process.env.DURABLE_SCHEDULER_AUDIT_ACTIVATION_APPROVAL_REFERENCE.trim()));
 
     return {
     body: {
@@ -340,6 +343,7 @@ async function readOperationsHealth(request: IncomingMessage) {
           ...(lastDailyRun?.capturedAt ? { capturedAt: lastDailyRun.capturedAt.toISOString() } : {}),
         },
         schedulerAudit: serializeDurableScheduleRunHealth(latestSchedulerRun),
+        schedulerAuditGate: assessSchedulerAuditGate({ activationApprovalReferencePresent: schedulerAuditActivationApprovalReferencePresent, enabled: schedulerAuditEnabled, migrationReady: schedulerAuditMigration.ready }),
         recovery: { status: getRecoveryVerificationStatus() },
         globalKillSwitchActive: isGlobalKillSwitchActive(),
         operatingMode: getPaperOperatingMode(),

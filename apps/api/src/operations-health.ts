@@ -4,6 +4,19 @@ export type ResearchScheduleActivationStatus = "blocked" | "disabled" | "ready";
 export type MigrationReadinessStatus = "blocked" | "ready";
 export type MigrationBlockedReason = "audit_columns_missing" | "audit_table_missing" | "migration_not_recorded";
 export type DurableScheduleRunHealthStatus = "completed" | "failed" | "running" | "unavailable";
+export type SchedulerAuditGateStatus = "blocked" | "disabled" | "enabled";
+
+export interface SchedulerAuditGate {
+  readonly activationApprovalReferencePresent: boolean;
+  readonly enabled: boolean;
+  readonly migrationReady: boolean;
+  readonly status: SchedulerAuditGateStatus;
+}
+
+export function assessSchedulerAuditGate(input: { readonly activationApprovalReferencePresent: boolean; readonly enabled: boolean; readonly migrationReady: boolean }): SchedulerAuditGate {
+  const status: SchedulerAuditGateStatus = !input.enabled ? "disabled" : input.activationApprovalReferencePresent && input.migrationReady ? "enabled" : "blocked";
+  return { ...input, status };
+}
 
 export interface DurableScheduleRunHealthInput {
   readonly completedAt?: Date | null;
@@ -97,6 +110,22 @@ export async function readAuditMigrationReadiness(client: MigrationReadinessQuer
   const table = await client.query<{ readonly present: boolean }>("SELECT to_regclass('public.durable_one_run_audits') IS NOT NULL AS present");
   const columns = await client.query<{ readonly count: number }>("SELECT COUNT(*)::int AS count FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'durable_one_run_audits' AND column_name = ANY($1::text[])", [["run_id", "approval_reference", "account_snapshot_id", "captured_at", "created_at", "status"]]);
   return assessAuditMigrationReadiness({ auditTablePresent: table.rows[0]?.present === true, requiredColumnsPresent: Number(columns.rows[0]?.count ?? 0) === 6, schemaMigrationRecorded });
+}
+
+export interface SchedulerAuditMigrationReadiness {
+  readonly ready: boolean;
+}
+
+export async function readSchedulerAuditMigrationReadiness(client: MigrationReadinessQueryClient): Promise<SchedulerAuditMigrationReadiness> {
+  let schemaMigrationRecorded = false;
+  try {
+    const recorded = await client.query<{ readonly recorded: boolean }>("SELECT EXISTS (SELECT 1 FROM schema_migrations WHERE version = $1) AS recorded", ["0010"]);
+    schemaMigrationRecorded = recorded.rows[0]?.recorded === true;
+  } catch (error) {
+    if ((error as { readonly code?: string }).code !== "42P01") throw error;
+  }
+  const result = await client.query<{ readonly table_present: boolean; readonly required_columns_present: boolean }>("SELECT to_regclass('public.durable_schedule_runs') IS NOT NULL AS table_present, (SELECT COUNT(*) FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'durable_schedule_runs' AND column_name = ANY($1::text[])) = 8 AS required_columns_present", [["run_id", "scheduled_at", "started_at", "completed_at", "account_snapshot_id", "failure_code", "created_at", "status"]]);
+  return { ready: schemaMigrationRecorded && result.rows[0]?.table_present === true && result.rows[0]?.required_columns_present === true };
 }
 
 export function assessReconciliationHealth(
