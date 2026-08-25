@@ -2,7 +2,14 @@
 
 ## Status
 
-- **Stage:** Phase 6.161 Paper performance equity curve added; multi-day evidence collection continues.
+- **Stage:** Phase 6.162 Deterministic risk decision evidence added; multi-day evidence collection continues.
+
+### Deterministic risk decision evidence (2026-08-26)
+
+- Paper order submissions can persist structured risk evidence: estimated loss, estimated loss percentage, policy version, and deterministic reasons.
+- Migration `0012_risk_decision_evidence.sql` was applied with bounded reference `RISK-DECISION-0012`; the API exposes the evidence in the operator decision log.
+- The dashboard labels these fields as risk decision evidence and continues to distinguish stored deterministic facts from agent rationale or hidden chain-of-thought.
+- Older submissions without evidence remain visible with a clear fallback reason; no synthetic trade or order was created.
 
 ### Paper performance equity curve (2026-08-26)
 
