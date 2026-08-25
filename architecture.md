@@ -2,7 +2,12 @@
 
 ## Status
 
-- **Stage:** Phase 6.194 Clearable audit filters and disabled navigation; multi-day evidence collection continues.
+- **Stage:** Phase 6.195 Truthful unavailable-audit state; multi-day evidence collection continues.
+
+### Truthful unavailable-audit state (2026-08-26)
+
+- When the protected operator overview cannot be read, the dashboard displays a degraded notice rather than implying that empty tables mean no history exists.
+- Reconciled account data remains separately read-only; the notice does not fabricate audit records or change any operational authority.
 
 ### Clearable audit filters and disabled navigation (2026-08-26)
 

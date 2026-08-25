@@ -404,6 +404,8 @@ export default async function DashboardPage({ searchParams }: { readonly searchP
         <span className="provenance">Read-only, bounded to 100 records per page</span>
       </section>
 
+      {result.kind === "ready" && !operatorOverview && <section className="audit-unavailable" role="status" aria-label="Audit history unavailable"><strong>Audit history is temporarily unavailable.</strong><span>The authenticated overview could not be read, so empty tables must not be interpreted as zero records. Account data remains read-only and separate.</span></section>}
+
       {result.kind === "unavailable" ? (
         <section className="grid" aria-label="Dashboard unavailable state">
           <OperationsHealthCard health={operationsHealth} />

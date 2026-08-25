@@ -77,6 +77,10 @@ describe("dashboard state", () => {
     expect(overview?.history?.totals).toEqual({ agents: 2, filteredTrades: 3, submissions: 4, lifecycle: 5, schedules: 6 });
   });
 
+  it("rejects an unavailable overview instead of treating it as an empty audit", () => {
+    expect(parseOperatorOverview({ error: "operator_overview_unavailable" })).toBeUndefined();
+  });
+
   it("preserves the selected performance range during audit navigation", () => {
     expect(buildDashboardHistoryParams(2, "30d", "2026-08-01", "2026-08-26").toString()).toBe("page=2&range=30d&from=2026-08-01&to=2026-08-26");
     expect(buildDashboardHistoryParams(1, "30d").toString()).toBe("page=1&range=30d");
