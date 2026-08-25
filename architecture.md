@@ -2,7 +2,12 @@
 
 ## Status
 
-- **Stage:** Phase 6.191 Explicit audit-query validation errors; multi-day evidence collection continues.
+- **Stage:** Phase 6.192 Preserved dashboard performance-window state; multi-day evidence collection continues.
+
+### Preserved dashboard performance-window state (2026-08-26)
+
+- Audit pagination, date presets, and manual date filters now retain the selected performance range in the dashboard URL, preventing navigation from resetting the equity/performance view.
+- This is client navigation state only and does not alter the server-side paper-performance contract or any trading behavior.
 
 ### Explicit audit-query validation errors (2026-08-26)
 

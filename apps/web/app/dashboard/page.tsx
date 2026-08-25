@@ -1,7 +1,7 @@
 import { UserButton } from "@clerk/nextjs";
 import { auth } from "@clerk/nextjs/server";
 
-import { formatUtc, getFreshnessLabel, getFreshnessState, parseAgentRuns, parseOperatorOverview, parseOperationsHealth, parsePaperPerformance, type AgentRunSummary, type OperationsHealth, type OperatorOverview, type PaperPerformance } from "./dashboard-state";
+import { buildDashboardHistoryParams, formatUtc, getFreshnessLabel, getFreshnessState, parseAgentRuns, parseOperatorOverview, parseOperationsHealth, parsePaperPerformance, type AgentRunSummary, type OperationsHealth, type OperatorOverview, type PaperPerformance } from "./dashboard-state";
 import { DashboardRefresh } from "./dashboard-refresh";
 
 type ReadModel = {
@@ -348,7 +348,7 @@ export default async function DashboardPage({ searchParams }: { readonly searchP
   const today = new Date();
   const toDate = today.toISOString().slice(0, 10);
   const presetDate = (days: number) => { const from = new Date(today); from.setUTCDate(from.getUTCDate() - (days - 1)); return from.toISOString().slice(0, 10); };
-  const historyPresetHref = (days?: number) => { const params = new URLSearchParams({ page: "1" }); if (days) { params.set("from", presetDate(days)); params.set("to", toDate); } return `/dashboard?${params.toString()}#filtered-trades`; };
+  const historyPresetHref = (days?: number) => { const params = buildDashboardHistoryParams(1, performanceRange); if (days) { params.set("from", presetDate(days)); params.set("to", toDate); } return `/dashboard?${params.toString()}#filtered-trades`; };
 
   return (
     <main>
@@ -396,10 +396,10 @@ export default async function DashboardPage({ searchParams }: { readonly searchP
         <span className="label">Audit history</span>
         <span>Page {operatorOverview?.history?.page ?? safeHistoryPage}</span>
         {operatorOverview?.history?.totals && <span className="audit-coverage" aria-label="Audit record totals"><span>{operatorOverview.history.totals.filteredTrades} filtered</span><span>{operatorOverview.history.totals.submissions} execution</span><span>{operatorOverview.history.totals.agents} agents</span><span>{operatorOverview.history.totals.lifecycle} lifecycle</span><span>{operatorOverview.history.totals.schedules} scheduler</span></span>}
-        <a className={safeHistoryPage <= 1 ? "disabled-link" : ""} href={`/dashboard?${new URLSearchParams({ page: String(Math.max(1, safeHistoryPage - 1)), ...(historyFrom ? { from: historyFrom } : {}), ...(historyTo ? { to: historyTo } : {}) }).toString()}`} aria-disabled={safeHistoryPage <= 1}>Previous</a>
-        <a className={operatorOverview?.history?.hasNext === false ? "disabled-link" : ""} href={`/dashboard?${new URLSearchParams({ page: String(safeHistoryPage + 1), ...(historyFrom ? { from: historyFrom } : {}), ...(historyTo ? { to: historyTo } : {}) }).toString()}`} aria-disabled={operatorOverview?.history?.hasNext === false}>Next</a>
+        <a className={safeHistoryPage <= 1 ? "disabled-link" : ""} href={`/dashboard?${buildDashboardHistoryParams(Math.max(1, safeHistoryPage - 1), performanceRange, historyFrom, historyTo).toString()}`} aria-disabled={safeHistoryPage <= 1}>Previous</a>
+        <a className={operatorOverview?.history?.hasNext === false ? "disabled-link" : ""} href={`/dashboard?${buildDashboardHistoryParams(safeHistoryPage + 1, performanceRange, historyFrom, historyTo).toString()}`} aria-disabled={operatorOverview?.history?.hasNext === false}>Next</a>
         <span className="history-presets" aria-label="Date presets"><a href={historyPresetHref()}>All</a><a href={historyPresetHref(1)}>Today</a><a href={historyPresetHref(7)}>7d</a><a href={historyPresetHref(30)}>30d</a></span>
-        <form method="get" className="history-filter"><label htmlFor="history-from">From</label><input id="history-from" name="from" type="date" defaultValue={historyFrom?.slice(0, 10)} /><label htmlFor="history-to">To</label><input id="history-to" name="to" type="date" defaultValue={historyTo?.slice(0, 10)} /><button type="submit">Apply</button></form>
+        <form method="get" className="history-filter"><input type="hidden" name="range" value={performanceRange} /><label htmlFor="history-from">From</label><input id="history-from" name="from" type="date" defaultValue={historyFrom?.slice(0, 10)} /><label htmlFor="history-to">To</label><input id="history-to" name="to" type="date" defaultValue={historyTo?.slice(0, 10)} /><button type="submit">Apply</button></form>
         <span className="provenance">Read-only, bounded to 100 records per page</span>
       </section>
 
