@@ -405,6 +405,27 @@ h2 {
   overflow-wrap: anywhere;
 }
 
+.detail-link {
+  color: var(--paper);
+  font-size: 0.74rem;
+  text-decoration: none;
+}
+
+.detail-link:hover { text-decoration: underline; }
+
+.artifact-json {
+  background: rgb(8 15 23 / 55%);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--foreground);
+  font-size: 0.74rem;
+  max-height: 34rem;
+  overflow: auto;
+  padding: 1rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
 .operations-health-grid {
   display: grid;
   gap: 0.8rem;

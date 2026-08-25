@@ -2,7 +2,12 @@
 
 ## Status
 
-- **Stage:** Phase 6.177 Audit CSV expanded to unified event coverage; multi-day evidence collection continues.
+- **Stage:** Phase 6.178 Authenticated agent detail view added; multi-day evidence collection continues.
+
+### Authenticated agent detail view (2026-08-26)
+
+- Each agent row links to a protected detail page backed by `/v1/agent-runs/:runId`, showing stored rationale, evidence references, confidence/schema metadata, and the API-redacted artifact payload.
+- The detail page is a read-only audit surface; secret-key fields are redacted server-side and hidden chain-of-thought is neither collected nor exposed.
 
 ### Audit CSV expanded to unified event coverage (2026-08-26)
 
