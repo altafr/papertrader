@@ -116,6 +116,7 @@ export const paperOrderSubmissions = pgTable(
     filledQuantity: numeric("filled_quantity", { precision: 20, scale: 8 }),
     intentId: text("intent_id").primaryKey(),
     marketSnapshot: jsonb("market_snapshot").$type<Readonly<Record<string, string | null>>>(),
+    riskDecision: jsonb("risk_decision").$type<Readonly<{ readonly estimatedLoss?: string; readonly estimatedLossPercent?: string; readonly policyVersion?: string; readonly reasons?: readonly string[] }>>(),
     quantity: numeric("quantity", { precision: 20, scale: 8 }).notNull(),
     status: text("status").notNull(),
     submittedAt: timestamp("submitted_at", { withTimezone: true }),

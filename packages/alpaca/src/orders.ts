@@ -13,6 +13,12 @@ export interface PaperOrderApproval {
   /** Deterministic risk approval; Paper Autopilot does not require an operator confirmation field. */
   readonly approvalId: string;
   readonly intentId: string;
+  readonly riskDecision?: {
+    readonly estimatedLoss?: string;
+    readonly estimatedLossPercent?: string;
+    readonly policyVersion?: string;
+    readonly reasons?: readonly string[];
+  };
   readonly status: "approved" | "rejected";
 }
 

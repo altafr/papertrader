@@ -13,6 +13,7 @@ describe("database migration approval guard", () => {
     expect(migrationRequiresApproval("0008")).toBe(false);
     expect(migrationRequiresApproval("0009")).toBe(true);
     expect(migrationRequiresApproval("0011")).toBe(true);
+    expect(migrationRequiresApproval("0012")).toBe(true);
   });
 
   it("requires an exact target for the pending migration", () => {

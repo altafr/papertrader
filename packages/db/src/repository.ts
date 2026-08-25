@@ -31,6 +31,7 @@ export interface PersistedPaperOrderSubmission {
   readonly filledQuantity?: string;
   readonly intentId: string;
   readonly marketSnapshot?: Readonly<Record<string, string | null>>;
+  readonly riskDecision?: Readonly<{ readonly estimatedLoss?: string; readonly estimatedLossPercent?: string; readonly policyVersion?: string; readonly reasons?: readonly string[] }>;
   readonly quantity: string;
   readonly status: string;
   readonly submittedAt?: Date;
@@ -458,6 +459,7 @@ export function createPaperOrderRepository(db: Database) {
           ...(submission.alpacaOrderId ? { alpacaOrderId: submission.alpacaOrderId } : {}),
           ...(submission.filledQuantity ? { filledQuantity: submission.filledQuantity } : {}),
           ...(submission.marketSnapshot ? { marketSnapshot: submission.marketSnapshot } : {}),
+          ...(submission.riskDecision ? { riskDecision: submission.riskDecision } : {}),
           ...(submission.submittedAt ? { submittedAt: submission.submittedAt } : {}),
           ...(submission.updatedAt ? { updatedAt: submission.updatedAt } : {}),
         }).returning();

@@ -3,7 +3,7 @@ import { getPaperAutopilotConfig, isGlobalKillSwitchActive, type PaperAutopilotC
 import { reconcilePaperOrder } from "@momentum/domain";
 
 export interface PaperSubmissionPersistence {
-  recordSubmission(input: { readonly approvalId: string; readonly assetClass: string; readonly clientOrderId: string; readonly intentId: string; readonly marketSnapshot?: Readonly<Record<string, string | null>>; readonly quantity: string; readonly status: string; readonly symbol: string }): Promise<unknown>;
+  recordSubmission(input: { readonly approvalId: string; readonly assetClass: string; readonly clientOrderId: string; readonly intentId: string; readonly marketSnapshot?: Readonly<Record<string, string | null>>; readonly quantity: string; readonly riskDecision?: Readonly<{ readonly estimatedLoss?: string; readonly estimatedLossPercent?: string; readonly policyVersion?: string; readonly reasons?: readonly string[] }>; readonly status: string; readonly symbol: string }): Promise<unknown>;
   reconcile(input: { readonly alpacaOrderId: string; readonly filledQuantity?: string; readonly intentId: string; readonly status: string; readonly submittedAt?: Date; readonly updatedAt?: Date }): Promise<unknown>;
   markFailed(intentId: string): Promise<unknown>;
 }
@@ -26,7 +26,7 @@ export async function executePaperAutopilotOrder(input: {
   if (isGlobalKillSwitchActive()) throw new Error("Paper order execution is blocked by the global kill switch.");
   if (input.order.approval.status !== "approved") throw new Error("A passing paper risk approval is required.");
   const intentId = input.order.approval.intentId;
-  await input.persistence.recordSubmission({ approvalId: input.order.approval.approvalId, assetClass: input.order.assetClass, clientOrderId: input.order.clientOrderId, intentId, ...(input.order.marketSnapshot ? { marketSnapshot: input.order.marketSnapshot } : {}), quantity: input.order.quantity, status: "pending", symbol: input.order.symbol });
+  await input.persistence.recordSubmission({ approvalId: input.order.approval.approvalId, assetClass: input.order.assetClass, clientOrderId: input.order.clientOrderId, intentId, ...(input.order.marketSnapshot ? { marketSnapshot: input.order.marketSnapshot } : {}), quantity: input.order.quantity, ...(input.order.approval.riskDecision ? { riskDecision: input.order.approval.riskDecision } : {}), status: "pending", symbol: input.order.symbol });
   try {
     const brokerOrder = await input.submitter.submit(input.order);
     const recovery = reconcilePaperOrder({ brokerClientOrderId: brokerOrder.clientOrderId, brokerStatus: brokerOrder.status, expectedClientOrderId: input.order.clientOrderId, expectedQuantity: input.order.quantity, ...(brokerOrder.filledQuantity ? { filledQuantity: brokerOrder.filledQuantity } : {}) });

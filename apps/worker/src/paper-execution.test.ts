@@ -1,14 +1,16 @@
 import { describe, expect, it } from "vitest";
 import { executePaperAutopilotOrder } from "./paper-execution.js";
 
-const order = { approval: { approvalId: "approval-1", intentId: "intent-1", status: "approved" as const }, assetClass: "us_equity" as const, clientOrderId: "intent-1-order", quantity: "0.02", side: "buy" as const, symbol: "AAA", timeInForce: "day" as const, type: "market" as const };
+const order = { approval: { approvalId: "approval-1", intentId: "intent-1", riskDecision: { estimatedLoss: "1.00", estimatedLossPercent: "2.00", policyVersion: "paper-risk-v1", reasons: [] }, status: "approved" as const }, assetClass: "us_equity" as const, clientOrderId: "intent-1-order", quantity: "0.02", side: "buy" as const, symbol: "AAA", timeInForce: "day" as const, type: "market" as const };
 const mode = { enabled: true, mode: "paper_autopilot" as const };
 
 describe("paper execution wiring", () => {
   it("records pending, submits, and reconciles broker truth", async () => {
     const events: string[] = [];
-    const result = await executePaperAutopilotOrder({ autopilot: mode, order, persistence: { recordSubmission: async () => { events.push("pending"); }, reconcile: async () => { events.push("reconcile"); }, markFailed: async () => { events.push("failed"); } }, submitter: { submit: async () => ({ alpacaOrderId: "alpaca-1", assetClass: "us_equity", clientOrderId: order.clientOrderId, quantity: order.quantity, status: "accepted", symbol: order.symbol, type: order.type }) } });
+    let recordedRisk: unknown;
+    const result = await executePaperAutopilotOrder({ autopilot: mode, order, persistence: { recordSubmission: async (input) => { recordedRisk = input.riskDecision; events.push("pending"); }, reconcile: async () => { events.push("reconcile"); }, markFailed: async () => { events.push("failed"); } }, submitter: { submit: async () => ({ alpacaOrderId: "alpaca-1", assetClass: "us_equity", clientOrderId: order.clientOrderId, quantity: order.quantity, status: "accepted", symbol: order.symbol, type: order.type }) } });
     expect(result).toMatchObject({ intentId: "intent-1", status: "reconciled" }); expect(events).toEqual(["pending", "reconcile"]);
+    expect(recordedRisk).toEqual(order.approval.riskDecision);
   });
 
   it("marks failed and never submits when Paper Autopilot is disabled", async () => {
