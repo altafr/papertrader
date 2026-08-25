@@ -22,7 +22,7 @@ describe("paper signals and deterministic risk", () => {
   it("rejects stale state, kill switch, risk, and exposure violations", () => {
     const result = assessPaperRisk({ estimatedFees: "0", estimatedSlippage: "0", equity: "1000", quantity: "10", signal, state: { ...state, accountFresh: false, dataFresh: false, killSwitchActive: true } });
     expect(result.passes).toBe(false);
-    expect(result.reasons).toEqual(expect.arrayContaining(["Account state is stale.", "Market data is stale.", "Global kill switch is active.", "Estimated planned-stop loss exceeds the deterministic per-trade risk limit."]));
+    expect(result.reasons).toEqual(expect.arrayContaining(["Account state is stale.", "Market data is stale.", "Global kill switch is active.", "Proposed position exceeds the gross-exposure cap."]));
   });
 
   it("fails closed when the baseline is not verified", () => {

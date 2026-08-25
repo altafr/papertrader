@@ -7,7 +7,7 @@ This runbook activates only Alpaca paper trading. It does not authorize live tra
 - Confirm the Worker is healthy and the daily scheduler is scheduled in UTC.
 - Confirm the first natural scheduler-audit run is persisted as completed or failed with bounded evidence, and both durable queues are present and drained.
 - Confirm the latest reconciliation is fresh and the USD 100,000 baseline is verified.
-- Confirm the fixed risk policy remains the lower of `0.25%` of equity and no more than `USD 100` planned loss per trade, with a maximum 5% adverse stop distance.
+- Confirm the fixed risk policy remains no more than `5%` of invested notional planned loss per trade, with a maximum 5% adverse stop distance.
 - Confirm the global kill switch is inactive and Telegram alert configuration is ready.
 - Record a bounded, non-secret activation reference. Never put credentials in the reference.
 

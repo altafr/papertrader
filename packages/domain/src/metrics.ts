@@ -24,14 +24,12 @@ const Decimal = (DecimalModule as unknown as { readonly default: DecimalConstruc
 
 export type DecimalString = string;
 
-/** Hard ceiling required by the paper-trading risk invariant. */
-export const MAX_SINGLE_TRADE_RISK_USD = "100";
-export const MAX_SINGLE_TRADE_RISK_PERCENT_OF_EQUITY = "0.25";
+/** Maximum planned loss as a percentage of the position's invested notional. */
+export const MAX_SINGLE_TRADE_RISK_PERCENT_OF_NOTIONAL = "5";
 /** Maximum adverse entry-to-stop distance for a long position. */
 export const MAX_SINGLE_TRADE_STOP_LOSS_PERCENT = "5";
 
-const ABSOLUTE_TRADE_RISK_LIMIT = new Decimal(MAX_SINGLE_TRADE_RISK_USD);
-const PERCENT_TRADE_RISK_LIMIT = new Decimal("0.0025");
+const NOTIONAL_TRADE_RISK_LIMIT = new Decimal("0.05");
 
 function decimal(value: DecimalString): DecimalValue {
   try {
@@ -132,8 +130,8 @@ export interface TradeRiskResult {
   readonly allowedRisk: DecimalString;
   readonly estimatedLoss: DecimalString;
   readonly estimatedLossPercent: DecimalString;
-  readonly maximumRiskByEquity: DecimalString;
-  readonly maximumRiskAbsolute: DecimalString;
+  readonly investedNotional: DecimalString;
+  readonly maximumRiskByNotional: DecimalString;
   readonly passes: boolean;
 }
 
@@ -176,17 +174,16 @@ export function calculateTradeRisk(input: TradeRiskInput): TradeRiskResult {
   const slippage = nonNegative(input.estimatedSlippage, "estimated slippage");
   const entry = nonNegative(input.entryPrice, "entry price");
   const stop = nonNegative(input.stopPrice, "stop price");
-  const maximumRiskByEquity = equity.times(PERCENT_TRADE_RISK_LIMIT);
-  const allowedRisk = maximumRiskByEquity.lessThanOrEqualTo(ABSOLUTE_TRADE_RISK_LIMIT)
-    ? maximumRiskByEquity
-    : ABSOLUTE_TRADE_RISK_LIMIT;
+  const investedNotional = entry.times(quantity);
+  const maximumRiskByNotional = investedNotional.times(NOTIONAL_TRADE_RISK_LIMIT);
+  const allowedRisk = maximumRiskByNotional;
   const estimatedLoss = entry.minus(stop).abs().times(quantity).plus(fees).plus(slippage);
   return {
     allowedRisk: output(allowedRisk),
     estimatedLoss: output(estimatedLoss),
     estimatedLossPercent: output(equity.isZero() ? new Decimal(0) : estimatedLoss.div(equity).times(100)),
-    maximumRiskAbsolute: output(ABSOLUTE_TRADE_RISK_LIMIT),
-    maximumRiskByEquity: output(maximumRiskByEquity),
+    investedNotional: output(investedNotional),
+    maximumRiskByNotional: output(maximumRiskByNotional),
     passes: estimatedLoss.lessThanOrEqualTo(allowedRisk),
   };
 }

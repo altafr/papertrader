@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { calculateExposure, calculatePerformanceMetrics, calculateTradeRisk, MAX_SINGLE_TRADE_RISK_USD } from "./metrics.js";
+import { calculateExposure, calculatePerformanceMetrics, calculateTradeRisk, MAX_SINGLE_TRADE_RISK_PERCENT_OF_NOTIONAL } from "./metrics.js";
 
 describe("decimal-safe metrics", () => {
   it("calculates P/L and drawdown without binary floating-point drift", () => {
@@ -27,26 +27,27 @@ describe("decimal-safe metrics", () => {
     });
   });
 
-  it("enforces the lower of 0.25% equity and USD 100 per-trade risk", () => {
+  it("limits planned loss to 5% of invested notional", () => {
     const result = calculateTradeRisk({
       entryPrice: "10.00",
       equity: "1000",
-      estimatedFees: "0.10",
-      estimatedSlippage: "0.10",
+      estimatedFees: "0",
+      estimatedSlippage: "0",
       quantity: "0.2",
-      stopPrice: "0.00",
+      stopPrice: "9.50",
     });
-    expect(result.allowedRisk).toBe("2.50000000");
-    expect(result.estimatedLoss).toBe("2.20000000");
+    expect(result.allowedRisk).toBe("0.10000000");
+    expect(result.investedNotional).toBe("2.00000000");
+    expect(result.estimatedLoss).toBe("0.10000000");
     expect(result.passes).toBe(true);
     expect(calculateTradeRisk({ ...resultInput(), quantity: "1" }).passes).toBe(false);
   });
 
-  it("never raises the absolute single-trade ceiling above USD 100", () => {
+  it("scales the allowed loss with invested notional", () => {
     const result = calculateTradeRisk({ ...resultInput(), equity: "100000", quantity: "10" });
-    expect(MAX_SINGLE_TRADE_RISK_USD).toBe("100");
-    expect(result.maximumRiskAbsolute).toBe("100.00000000");
-    expect(result.allowedRisk).toBe("100.00000000");
+    expect(MAX_SINGLE_TRADE_RISK_PERCENT_OF_NOTIONAL).toBe("5");
+    expect(result.maximumRiskByNotional).toBe("5.00000000");
+    expect(result.allowedRisk).toBe("5.00000000");
     expect(result.estimatedLoss).toBe("100.20000000");
     expect(result.passes).toBe(false);
   });

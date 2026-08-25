@@ -58,7 +58,7 @@
 - Default-deny when required inputs are absent, stale, invalid, or inconsistent.
 - The execution service accepts only an unexpired approved intent and revalidates mode, kill switches, and material account state immediately before submission.
 - Paper Autopilot requires no per-order human confirmation, but it may never bypass deterministic approval or execution-time revalidation.
-- Reject any intent whose estimated loss at the planned stop, including estimated fees and slippage, exceeds the lower of `0.25%` of current equity and `USD 100`; reject any long stop more than `5%` below entry; verify the configured `USD 100,000` initial paper-account baseline before enabling autopilot.
+- Reject any intent whose estimated loss at the planned stop, including estimated fees and slippage, exceeds `5%` of invested notional; reject any long stop more than `5%` below entry; verify the configured `USD 100,000` initial paper-account baseline before enabling autopilot.
 - Every broker mutation uses a unique idempotency/client order ID.
 - On an ambiguous broker timeout, query existing state before retrying.
 - Persist the outbound request intent and broker response/request ID with secret fields redacted.

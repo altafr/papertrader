@@ -112,7 +112,7 @@ export function assessPaperRisk(input: {
   if (input.state.killSwitchActive) reasons.push("Global kill switch is active.");
   if (input.state.submittedEntriesLast24Hours >= policy.maxSubmittedEntriesLast24Hours) reasons.push("Rolling 24-hour entry limit has been reached.");
   if (input.state.openPositions.length >= policy.maxOpenPositions) reasons.push("Maximum open-position limit has been reached.");
-  if (!risk.passes) reasons.push("Estimated planned-stop loss exceeds the deterministic per-trade risk limit.");
+  if (!risk.passes) reasons.push("Estimated planned-stop loss exceeds 5% of invested notional.");
   const notional = entry.times(quantity);
   const maxPositionPercent = candidate.assetClass === "crypto" ? policy.maxCryptoPositionPercent : policy.maxStockPositionPercent;
   if (notional.greaterThan(equity.times(maxPositionPercent).div("100"))) {

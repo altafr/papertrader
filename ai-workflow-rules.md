@@ -53,7 +53,7 @@ Do not skip ahead to order submission because a dashboard or agent demo appears 
 
 - Work in paper trading unless the user separately authorizes a live-readiness implementation after all gates pass.
 - In Paper Autopilot, do not add per-order human approval. Automatic submission is allowed only after deterministic risk approval and execution-time safety revalidation.
-- Treat `USD 100,000` as the initial paper-account equity baseline. Cap estimated planned-stop loss, including estimated fees and slippage, at the lower of `0.25%` of current equity and `USD 100`; enforce a maximum 5% adverse stop distance for long positions unless the operator explicitly approves a documented risk-policy change.
+- Treat `USD 100,000` as the initial paper-account equity baseline. Cap estimated planned-stop loss, including estimated fees and slippage, at `5%` of invested notional; enforce a maximum 5% adverse stop distance for long positions unless the operator explicitly approves a documented risk-policy change.
 - Never remove or weaken risk, freshness, idempotency, reconciliation, confirmation, or kill-switch controls to make a demo pass.
 - Do not add “temporary” direct order calls from UI components or agents.
 - Do not infer missing live-trading behavior. Record it as an open question.

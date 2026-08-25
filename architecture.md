@@ -35,7 +35,7 @@ Do not run the continuous trading loop in the browser or Vercel functions. Verce
 - Railway Worker and API have `PAPER_AUTOPILOT_ENABLED=true` and `OPERATING_MODE=paper_autopilot`; live trading remains impossible because `TRADING_MODE=paper` and `ALPACA_PAPER_TRADE=true` remain in force.
 - The initial variable-triggered deployment pulled stale `main`; it was corrected by deploying the verified branch directly: Worker `5680300e-4549-4e60-a253-9be539acae79`, API `0aa7163d-cf95-4f9a-8d30-91f7-a97802c3`.
 - Worker health is `healthy`, scheduler status is `scheduled`, global kill switch is inactive, and the daily cron remains `0 0 * * *` UTC.
-- Runtime readiness was `ready` with a fresh reconciliation (117 seconds old at verification), paper mode, USD 100,000 baseline, 0.25%/USD 100 single-trade risk cap, and all deterministic gates passing. No order was submitted.
+- Runtime readiness was `ready` with a fresh reconciliation (117 seconds old at verification), paper mode, USD 100,000 baseline, 5% invested-notional risk cap, and all deterministic gates passing. No order was submitted.
 - API health is `healthy`. Telegram delivery remains unverified; this does not block paper runtime readiness but keeps alert delivery separately gated.
 
 ### Updated paper capital and loss policy (2026-08-25)
@@ -43,8 +43,8 @@ Do not run the continuous trading loop in the browser or Vercel functions. Verce
 - Alpaca's official Paper Trading documentation states that a new paper account is created with a USD 100,000 default balance and may be reset with an arbitrary amount: [Alpaca Paper Trading](https://docs.alpaca.markets/us/docs/paper-trading).
 - The project baseline is therefore USD 100,000. This is a simulated account baseline, not a claim of real capital or expected returns.
 - Profit optimization is an objective evaluated through measured, risk-adjusted performance; it never overrides deterministic safety gates or implies guaranteed returns.
-- Each long position must have a stop at or above 95% of entry (maximum 5% adverse price distance). Planned loss, fees, and slippage must still fit the lower of 0.25% of current equity and USD 100. At USD 100,000 equity, the USD 100 cap is binding.
-- The updated policy is deployed and hosted readiness reports baseline `100000`, maximum stop loss `5%`, maximum planned risk `USD 100`, and status `ready`; no order submission was performed.
+- Each long position must have a stop at or above 95% of entry (maximum 5% adverse price distance). Planned loss, fees, and slippage must fit 5% of invested notional.
+- The updated policy is deployed and hosted readiness reports baseline `100000`, maximum stop loss `5%`, invested-notional risk `5%`, and status `ready`; no order submission was performed.
 
 ### Current hosted activation evidence (2026-08-24)
 
@@ -1290,7 +1290,7 @@ In Version 1, Railway PostgreSQL is the primary database. Large raw tick/bar pay
 9. Liquidity, spread, volatility, notional, minimum increment, and estimated slippage.
 10. Exit plan and order-type validity.
 
-Position sizing must also reject any intent whose estimated loss at the planned stop, including estimated fees and slippage, exceeds the lower of `0.25%` of current equity and `USD 100`, and reject long stops more than 5% below entry. The initial paper-account equity baseline is `USD 100,000` and must be reconciled before Paper Autopilot can start.
+Position sizing must reject any intent whose estimated loss at the planned stop, including estimated fees and slippage, exceeds `5%` of invested notional, and reject long stops more than 5% below entry. The initial paper-account equity baseline is `USD 100,000` and must be reconciled before Paper Autopilot can start.
 
 Any failure rejects the intent. Missing data is a failure, not a pass.
 

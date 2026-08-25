@@ -137,8 +137,7 @@ These are conservative engineering defaults for validation, not recommendations.
 
 - Initial paper-account equity baseline: `USD 100,000`, matching Alpaca's current default paper-account balance. Autopilot remains paused if the configured starting baseline has not been verified against the Alpaca paper account.
 - Long-only; no leverage or short selling.
-- Maximum risk at planned stop per trade: `0.25%` of current equity.
-- Absolute maximum estimated loss at the planned stop per trade: `USD 100`, inclusive of estimated fees and slippage. Position sizing uses the lower of the percentage limit and this dollar cap.
+- Maximum planned loss at the stop per trade: `5%` of the position's invested notional, inclusive of estimated fees and slippage.
 - Maximum adverse entry-to-stop distance: `5%` for long positions; the position must be exited at or before this threshold.
 - Maximum single stock position: `5%` of equity.
 - Maximum single crypto position: `3%` of equity.
@@ -152,7 +151,7 @@ These are conservative engineering defaults for validation, not recommendations.
 - Reject orders that exceed configured spread, estimated slippage, or liquidity limits.
 - Exit behavior must be specified before entry; an intent without a valid exit plan is rejected.
 
-At the `USD 100,000` starting baseline, the `USD 100` absolute ceiling is more restrictive than the `0.25%` equity limit (`USD 250`). The 5% stop-distance rule limits adverse price movement, while sizing and the USD cap limit planned loss. Gaps, liquidity failures, and execution slippage mean no system can guarantee the final realized loss.
+The 5% invested-notional rule aligns position sizing and the maximum adverse stop distance. Gaps, liquidity failures, and execution slippage mean no system can guarantee the final realized loss.
 
 Changing a risk limit requires an audit entry. Loosening a limit in live modes requires re-authentication and explicit confirmation.
 
