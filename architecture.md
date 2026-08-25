@@ -2,7 +2,12 @@
 
 ## Status
 
-- **Stage:** Phase 6.187 Inclusive calendar-day audit filters; multi-day evidence collection continues.
+- **Stage:** Phase 6.188 Authenticated operator-overview deployment verifier; multi-day evidence collection continues.
+
+### Authenticated operator-overview deployment verifier (2026-08-26)
+
+- Added a local/CI verifier that sends an operator-supplied bearer token to the hosted overview and CSV endpoints, then checks arrays, pagination/totals metadata, and strategy catalog export columns.
+- The verifier never prints or persists the token and fails closed when `OPERATOR_AUTH_TOKEN` is absent. It is diagnostic only and grants no trading authority or bypass of authentication/risk gates.
 
 ### Inclusive calendar-day audit filters (2026-08-26)
 

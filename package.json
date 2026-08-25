@@ -16,7 +16,8 @@
     "dev:worker": "pnpm --filter @momentum/worker dev",
     "lint": "eslint apps packages --max-warnings=0",
     "test": "vitest run",
-    "typecheck": "pnpm -r --if-present typecheck"
+    "typecheck": "pnpm -r --if-present typecheck",
+    "verify:operator-overview": "tsx scripts/verify-operator-overview.ts"
   },
   "devDependencies": {
     "@eslint/js": "9.39.5",
