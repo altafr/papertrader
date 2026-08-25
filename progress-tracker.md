@@ -2051,7 +2051,7 @@
 ### 2026-08-25 — Phase 6.134 isolated PITR restore drill
 
 - Executed the approved faster-path restore to bounded target `2026-08-25T11:30:00Z` using Railway PITR, creating isolated sibling service `Postgres-restored-20260825-1130` (`aa11412e-345e-4a43-aab4-a7e6c7c2b67f`). Production remained untouched; no scheduler trigger, broker request, order submission, or Paper Autopilot change occurred.
-- Restore deployment `485a3d57-9a08-4a7f-ad90-34f02ca23d11` reached `SUCCESS`. Logs confirmed archive recovery completion and readiness for connections. A read-only query confirmed migration `0010`, `durable_schedule_runs`, and `pgboss.job` are present; restored audit row count was `0`.
+- Restore deployment `485a3d57-9a08-4a7f-ad90-34f02ca23d11` reached `SUCCESS`. It was created at `2026-08-25T11:40:39.400Z`; recovery logs reported readiness at `2026-08-25T11:44:15.650Z`, an observed deployment-to-ready interval of approximately 3m36s. A read-only query confirmed migration `0010`, `durable_schedule_runs`, and `pgboss.job` are present; restored audit row count was `0`.
 - The isolated sibling is retained for review; it was not attached to API/Worker and no post-restore reconciliation was run. `RECOVERY_DRILL_VERIFIED` remains unset because the full runbook evidence package and bounded approval/timestamp record are still pending.
 - **Next smallest unit:** After the natural `2026-08-26T00:00:00Z` cycle, run the read-only scheduler-audit verifier; then decide whether to complete the separate post-restore reconciliation/evidence gate or proceed directly to Paper Autopilot validation.
 
