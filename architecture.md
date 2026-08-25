@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.149 Invested-notional loss policy deployed; Paper Autopilot remains paper-only under deterministic risk gates.
+- **Stage:** Phase 6.150 Accelerated paper closeout rehearsal completed; recovery sign-off remains separately gated.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
