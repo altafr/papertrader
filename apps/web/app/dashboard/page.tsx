@@ -1,7 +1,7 @@
 import { UserButton } from "@clerk/nextjs";
 import { auth } from "@clerk/nextjs/server";
 
-import { buildDashboardHistoryParams, formatAuditDateRange, formatUtc, getFreshnessLabel, getFreshnessState, parseAgentRuns, parseOperatorOverview, parseOperationsHealth, parsePaperPerformance, type AgentRunSummary, type OperationsHealth, type OperatorOverview, type PaperPerformance } from "./dashboard-state";
+import { auditPageCount, buildDashboardHistoryParams, formatAuditDateRange, formatUtc, getFreshnessLabel, getFreshnessState, parseAgentRuns, parseOperatorOverview, parseOperationsHealth, parsePaperPerformance, type AgentRunSummary, type OperationsHealth, type OperatorOverview, type PaperPerformance } from "./dashboard-state";
 import { DashboardRefresh } from "./dashboard-refresh";
 
 type ReadModel = {
@@ -337,6 +337,7 @@ export default async function DashboardPage({ searchParams }: { readonly searchP
   const agentRuns = await loadAgentRuns(getToken);
   const paperPerformance = await loadPaperPerformance(getToken, performanceRange);
   const operatorOverview = await loadOperatorOverview(getToken, `?${historyQuery}`);
+  const totalAuditPages = operatorOverview?.history?.totals ? auditPageCount(operatorOverview.history.totals, operatorOverview.history.limit) : undefined;
   const freshness = result.kind === "ready" ? getFreshnessState(result.model.freshness.ageSeconds) : "stale";
   const freshnessLabel = getFreshnessLabel(freshness);
   const portfolioMarketValue = result.kind === "ready" ? result.model.positions.reduce((sum, position) => sum + (numericValue(position, "marketValue") ?? 0), 0) : undefined;
@@ -396,7 +397,7 @@ export default async function DashboardPage({ searchParams }: { readonly searchP
         <span className="label">Audit history</span>
         <span className="history-window">{formatAuditDateRange(historyFrom, historyTo)}</span>
         <span className="provenance">Latest persisted event: {operatorOverview?.history?.latestCapturedAt ? formatUtc(operatorOverview.history.latestCapturedAt) : "Not available"}</span>
-        <span>Page {operatorOverview?.history?.page ?? safeHistoryPage}</span>
+        <span>Page {operatorOverview?.history?.page ?? safeHistoryPage}{totalAuditPages ? ` of ${totalAuditPages}` : ""}</span>
         {operatorOverview?.history?.totals && <span className="audit-coverage" aria-label="Audit record totals"><span>{operatorOverview.history.totals.filteredTrades} filtered</span><span>{operatorOverview.history.totals.submissions} execution</span><span>{operatorOverview.history.totals.agents} agents</span><span>{operatorOverview.history.totals.lifecycle} lifecycle</span><span>{operatorOverview.history.totals.schedules} scheduler</span></span>}
         {safeHistoryPage <= 1 ? <span className="disabled-control" aria-disabled="true">Previous</span> : <a href={`/dashboard?${buildDashboardHistoryParams(safeHistoryPage - 1, performanceRange, historyFrom, historyTo).toString()}`}>Previous</a>}
         {operatorOverview?.history?.hasNext === false ? <span className="disabled-control" aria-disabled="true">Next</span> : <a href={`/dashboard?${buildDashboardHistoryParams(safeHistoryPage + 1, performanceRange, historyFrom, historyTo).toString()}`}>Next</a>}

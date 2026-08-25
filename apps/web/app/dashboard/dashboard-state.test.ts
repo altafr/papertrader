@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { buildDashboardHistoryParams, formatAuditDateRange, formatUtc, getFreshnessLabel, getFreshnessState, parseAgentRuns, parseOperatorOverview, parseOperationsHealth } from "./dashboard-state";
+import { auditPageCount, buildDashboardHistoryParams, formatAuditDateRange, formatUtc, getFreshnessLabel, getFreshnessState, parseAgentRuns, parseOperatorOverview, parseOperationsHealth } from "./dashboard-state";
 
 describe("dashboard state", () => {
   it("classifies persisted data by freshness", () => {
@@ -90,5 +90,10 @@ describe("dashboard state", () => {
   it("labels the active audit window in UTC", () => {
     expect(formatAuditDateRange()).toBe("Beginning → Now UTC");
     expect(formatAuditDateRange("2026-08-01T00:00:00.000Z", "2026-08-26T23:59:59.999Z")).toBe("2026-08-01 → 2026-08-26 UTC");
+  });
+
+  it("calculates total audit pages from the largest category", () => {
+    expect(auditPageCount({ agents: 1, filteredTrades: 201, lifecycle: 0, schedules: 2, submissions: 100 }, 100)).toBe(3);
+    expect(auditPageCount({ agents: 0, filteredTrades: 0, lifecycle: 0, schedules: 0, submissions: 0 }, 100)).toBe(1);
   });
 });

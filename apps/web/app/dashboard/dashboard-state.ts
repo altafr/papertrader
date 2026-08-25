@@ -59,6 +59,11 @@ export function formatAuditDateRange(from?: string, to?: string): string {
   return `${start} → ${end} UTC`;
 }
 
+export function auditPageCount(totals: { readonly agents: number; readonly filteredTrades: number; readonly lifecycle: number; readonly schedules: number; readonly submissions: number }, limit: number): number {
+  const maximum = Math.max(totals.agents, totals.filteredTrades, totals.lifecycle, totals.schedules, totals.submissions, 0);
+  return Math.max(1, Math.ceil(maximum / Math.max(1, limit)));
+}
+
 export function parsePaperPerformance(value: unknown): PaperPerformance | undefined {
   if (!isRecord(value) || typeof value.calendarDays !== "number" || typeof value.consecutiveCalendarDays !== "number" || typeof value.snapshotCount !== "number" || !(value.performanceRange === "7d" || value.performanceRange === "30d" || value.performanceRange === "all") || !isRecord(value.stability) || !Array.isArray(value.stability.blockedReasons) || value.stability.blockedReasons.some((reason) => typeof reason !== "string") || !(value.stability.status === "blocked" || value.stability.status === "ready") || !(value.status === "insufficient_history" || value.status === "ready")) return undefined;
   const metrics = value.metrics;

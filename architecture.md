@@ -2,7 +2,12 @@
 
 ## Status
 
-- **Stage:** Phase 6.196 Latest persisted audit-event provenance; multi-day evidence collection continues.
+- **Stage:** Phase 6.197 Audit page-count visibility; multi-day evidence collection continues.
+
+### Audit page-count visibility (2026-08-26)
+
+- The dashboard derives the total number of audit pages from the largest filtered category and the server-reported page size, then renders `Page X of Y`.
+- The calculation is descriptive navigation metadata only; server-side bounds and authenticated reads remain authoritative.
 
 ### Latest persisted audit-event provenance (2026-08-26)
 
