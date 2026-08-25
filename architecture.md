@@ -2,7 +2,12 @@
 
 ## Status
 
-- **Stage:** Phase 6.170 Reconciled portfolio P/L and exposure metrics added; multi-day evidence collection continues.
+- **Stage:** Phase 6.171 Agent evidence references rendered; multi-day evidence collection continues.
+
+### Agent evidence references rendered (2026-08-26)
+
+- Each displayed agent rationale now includes its persisted evidence-reference identifiers when present, alongside confidence and artifact type.
+- The dashboard still displays structured stored output only; it does not collect or reveal hidden chain-of-thought, and evidence references do not grant order authority.
 
 ### Reconciled portfolio P/L and exposure metrics (2026-08-26)
 

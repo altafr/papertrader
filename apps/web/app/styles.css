@@ -371,6 +371,11 @@ h2 {
   max-width: 70rem;
 }
 
+.agent-run-row .evidence-refs {
+  color: var(--paper);
+  overflow-wrap: anywhere;
+}
+
 .operations-health-grid {
   display: grid;
   gap: 0.8rem;
