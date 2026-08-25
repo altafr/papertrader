@@ -13,7 +13,7 @@
 - [x] Preserve the selected 7-day, 30-day, or All performance range when using audit Previous/Next navigation.
 - [x] Preserve the selected range when applying manual date filters or choosing audit presets.
 - [x] Add URL-state helper coverage and verify 249 tests, typecheck, lint, and production build pass.
-- [ ] Publish the web preview and verify authenticated hosted navigation.
+- [x] Publish Vercel preview `https://papertrader-7i1tyeyw7-altafrs-projects.vercel.app`; authenticated hosted navigation remains pending behind deployment protection.
 
 ### Phase 6.191 — Explicit audit-query validation errors (2026-08-26)
 

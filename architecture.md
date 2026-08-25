@@ -8,6 +8,7 @@
 
 - Audit pagination, date presets, and manual date filters now retain the selected performance range in the dashboard URL, preventing navigation from resetting the equity/performance view.
 - This is client navigation state only and does not alter the server-side paper-performance contract or any trading behavior.
+- Vercel preview `https://papertrader-7i1tyeyw7-altafrs-projects.vercel.app` is ready; protected authenticated navigation still requires the operator session.
 
 ### Explicit audit-query validation errors (2026-08-26)
 
