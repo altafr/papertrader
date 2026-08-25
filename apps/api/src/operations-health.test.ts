@@ -6,7 +6,7 @@ const now = new Date("2026-08-23T00:00:00.000Z");
 
 describe("reconciliation health", () => {
   it("distinguishes disabled, blocked, and enabled scheduler-audit gates", () => {
-    expect(assessSchedulerAuditGate({ activationApprovalReferencePresent: true, enabled: false, migrationReady: true })).toEqual({ activationApprovalReferencePresent: true, enabled: false, migrationReady: true, status: "disabled" });
+    expect(assessSchedulerAuditGate({ activationApprovalReferencePresent: false, enabled: false, migrationReady: true })).toEqual({ activationApprovalReferencePresent: false, enabled: false, migrationReady: true, status: "disabled" });
     expect(assessSchedulerAuditGate({ activationApprovalReferencePresent: false, enabled: true, migrationReady: true }).status).toBe("blocked");
     expect(assessSchedulerAuditGate({ activationApprovalReferencePresent: true, enabled: true, migrationReady: true }).status).toBe("enabled");
   });

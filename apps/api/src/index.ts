@@ -330,7 +330,7 @@ async function readOperationsHealth(request: IncomingMessage) {
     const migration = await readAuditMigrationReadiness(migrationDatabase.pool);
     const schedulerAuditMigration = await readSchedulerAuditMigrationReadiness(migrationDatabase.pool);
     const schedulerAuditEnabled = readBooleanEnvironmentFlag("DURABLE_SCHEDULER_AUDIT_ENABLED");
-    const schedulerAuditActivationApprovalReferencePresent = !schedulerAuditEnabled || Boolean(process.env.DURABLE_SCHEDULER_AUDIT_ACTIVATION_APPROVAL_REFERENCE?.trim() && /^[A-Za-z0-9][A-Za-z0-9._:/-]{0,127}$/.test(process.env.DURABLE_SCHEDULER_AUDIT_ACTIVATION_APPROVAL_REFERENCE.trim()));
+    const schedulerAuditActivationApprovalReferencePresent = Boolean(process.env.DURABLE_SCHEDULER_AUDIT_ACTIVATION_APPROVAL_REFERENCE?.trim() && /^[A-Za-z0-9][A-Za-z0-9._:/-]{0,127}$/.test(process.env.DURABLE_SCHEDULER_AUDIT_ACTIVATION_APPROVAL_REFERENCE.trim()));
 
     return {
     body: {
