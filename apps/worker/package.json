@@ -21,6 +21,7 @@
     "database-migration-plan": "tsx src/database-migration-plan-command.ts",
     "durable-schedule-audit-readiness": "tsx src/durable-schedule-audit-readiness-command.ts",
     "durable-schedule-audit-activation-readiness": "tsx src/durable-scheduler-audit-activation-readiness-command.ts",
+    "database-credential-surface-audit": "tsx src/database-credential-surface-audit-command.ts",
     "durable-schedule-audit-migrate": "tsx src/durable-schedule-audit-migration-command.ts",
     "daily-reconciliation-readiness": "tsx src/daily-reconciliation-readiness-command.ts",
     "daily-reconciliation-activation-preflight": "tsx src/daily-reconciliation-readiness-command.ts",
