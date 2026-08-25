@@ -14,7 +14,7 @@
 - [x] Update the active baseline from USD 1,000 to USD 100,000 across policy, readiness, operator setup, and runbook documentation.
 - [x] Preserve the absolute USD 100 maximum planned loss per trade; at USD 100,000 equity this is stricter than the 0.25% equity limit.
 - [x] Add deterministic rejection for long stops more than 5% below entry and regression coverage.
-- [ ] Deploy and verify the updated risk policy on Railway before any paper order submission.
+- [x] Deploy and verify the updated risk policy on Railway before any paper order submission; Worker deployment `4d7b55ce-5cd2-4a2c-b470-2edf1ea80cee` and API deployment `db445a0d-f62d-4970-bf95-4eda94f5b932` succeeded, with hosted readiness `ready` and a fresh reconciliation.
 
 ## Delivery Roadmap
 

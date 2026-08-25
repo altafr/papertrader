@@ -44,6 +44,7 @@ Do not run the continuous trading loop in the browser or Vercel functions. Verce
 - The project baseline is therefore USD 100,000. This is a simulated account baseline, not a claim of real capital or expected returns.
 - Profit optimization is an objective evaluated through measured, risk-adjusted performance; it never overrides deterministic safety gates or implies guaranteed returns.
 - Each long position must have a stop at or above 95% of entry (maximum 5% adverse price distance). Planned loss, fees, and slippage must still fit the lower of 0.25% of current equity and USD 100. At USD 100,000 equity, the USD 100 cap is binding.
+- The updated policy is deployed and hosted readiness reports baseline `100000`, maximum stop loss `5%`, maximum planned risk `USD 100`, and status `ready`; no order submission was performed.
 
 ### Current hosted activation evidence (2026-08-24)
 
