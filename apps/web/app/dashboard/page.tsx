@@ -137,6 +137,15 @@ function indicatorSummary(row: Record<string, unknown>) {
   return `RSI14 ${value(snapshot, "rsi14")} · EMA20 ${value(snapshot, "ema20")} · ATR14 ${value(snapshot, "atr14")} · RV20 ${value(snapshot, "relativeVolume20")}`;
 }
 
+function riskDecisionSummary(row: Record<string, unknown>) {
+  if (!isRecord(row.riskDecision)) return "No structured risk evidence";
+  const risk = row.riskDecision;
+  const loss = value(risk, "estimatedLoss");
+  const percent = value(risk, "estimatedLossPercent");
+  const policy = value(risk, "policyVersion");
+  return [loss !== "—" ? `loss ${loss}` : "", percent !== "—" ? `${percent}% invested value` : "", policy !== "—" ? policy : ""].filter(Boolean).join(" · ") || "Structured risk decision recorded";
+}
+
 function StatusBadge({ state }: { readonly state: "degraded" | "delayed" | "fresh" | "stale" }) {
   const label = state === "fresh" ? "Healthy" : state === "delayed" ? "Delayed" : state === "stale" ? "Stale" : "Degraded";
   return <span className={`state-badge ${state}`}>{label}</span>;
@@ -208,7 +217,7 @@ function OperatorAuditCards({ overview }: { readonly overview: OperatorOverview 
       <p className="provenance">RSI14, EMA20, ATR14, and relative volume are computed from finalized bars and stored with the signal. This is not a promise of execution or profitability.</p>
     </article>
     <article className="card full-width" id="decision-log"><div className="card-heading"><div><p className="label">Trade decision log</p><h2>{overview ? overview.tradeDecisions.length : "—"} execution decisions</h2></div><span className="provenance">Immutable paper submissions</span></div>
-      {!overview || overview.tradeDecisions.length === 0 ? <p className="empty-state">No paper execution decisions have been submitted.</p> : <div className="responsive-table"><table><thead><tr><th>Symbol</th><th>Intent</th><th>Status</th><th>Quantity</th><th>Filled</th><th>Risk decision</th><th>Indicators at approval</th></tr></thead><tbody>{overview.tradeDecisions.map((row) => <tr key={field(row, "intentId")}><th scope="row">{field(row, "symbol")}</th><td>{field(row, "intentId")}</td><td>{field(row, "status")}</td><td>{field(row, "quantity")}</td><td>{field(row, "filledQuantity")}</td><td className="table-reason">{field(row, "reason")}{isRecord(row.riskDecision) && typeof row.riskDecision.estimatedLossPercent === "string" ? ` · planned loss ${row.riskDecision.estimatedLossPercent}%` : ""}</td><td className="table-reason">{indicatorSummary(row)}</td></tr>)}</tbody></table></div>}
+      {!overview || overview.tradeDecisions.length === 0 ? <p className="empty-state">No paper execution decisions have been submitted.</p> : <div className="responsive-table"><table><thead><tr><th>Symbol</th><th>Intent</th><th>Status</th><th>Quantity</th><th>Filled</th><th>Risk decision</th><th>Indicators at approval</th></tr></thead><tbody>{overview.tradeDecisions.map((row) => <tr key={field(row, "intentId")}><th scope="row">{field(row, "symbol")}</th><td>{field(row, "intentId")}</td><td>{field(row, "status")}</td><td>{field(row, "quantity")}</td><td>{field(row, "filledQuantity")}</td><td className="table-reason">{field(row, "reason")} · {riskDecisionSummary(row)}</td><td className="table-reason">{indicatorSummary(row)}</td></tr>)}</tbody></table></div>}
       <p className="provenance">Risk policy version, estimated loss, and deterministic rejection reasons are persisted with each submission when supplied by the approval engine.</p>
     </article>
   </>;

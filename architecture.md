@@ -2,7 +2,12 @@
 
 ## Status
 
-- **Stage:** Phase 6.173 Strategy lifecycle/version history rendered; multi-day evidence collection continues.
+- **Stage:** Phase 6.174 Structured risk evidence rendered in decision log; multi-day evidence collection continues.
+
+### Structured risk evidence rendered in decision log (2026-08-26)
+
+- Execution decision rows now display the stored estimated loss, invested-notional loss percentage, policy version, and deterministic reason when supplied by the approval engine.
+- Rows without structured evidence remain clearly marked as lacking it; the UI does not infer or fabricate risk values.
 
 ### Strategy lifecycle/version history rendered (2026-08-26)
 
