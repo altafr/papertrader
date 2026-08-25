@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.145 post-deployment secret-surface audit passed; natural scheduler-cycle verification, post-restore reconciliation, recovery sign-off, and persistent Paper Autopilot activation remain separately gated.
+- **Stage:** Phase 6.146 Paper Autopilot activation runbook added; natural scheduler-cycle verification, post-restore reconciliation, recovery sign-off, and persistent Paper Autopilot activation remain separately gated.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -131,6 +131,11 @@ Do not run the continuous trading loop in the browser or Vercel functions. Verce
 
 - `pnpm audit:secret-surfaces` passed after the recovery-gate changes, finding no credential-like values in source or browser output.
 - No hosted configuration, scheduler, queue, broker, or trading state changed during this read-only audit.
+
+### 2026-08-25 — Phase 6.146 Paper Autopilot activation runbook
+
+- Added [`docs/paper-autopilot-activation-runbook.md`](docs/paper-autopilot-activation-runbook.md) covering preconditions, command-scoped rehearsal, persistent paper-only activation, rollback, and evidence capture.
+- The runbook explicitly preserves the USD 1,000 baseline, 0.25%/USD 100 risk limits, startup reconciliation, kill switch, freshness, deterministic approval, and paper-mode gates. No activation or order action occurred.
 
 ### Deployment Recommendation
 
