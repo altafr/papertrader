@@ -14,7 +14,7 @@
 - [x] Clarify that empty audit tables must not be interpreted as zero historical records.
 - [x] Add parser coverage for rejected/unavailable overview payloads.
 - [x] Verify 251 tests, typecheck, lint, and production build pass.
-- [ ] Publish the web preview and verify authenticated hosted rendering.
+- [x] Publish Vercel preview `https://papertrader-2qvbswrzu-altafrs-projects.vercel.app`; authenticated hosted rendering remains pending behind deployment protection.
 
 ### Phase 6.194 — Clearable audit filters and disabled navigation (2026-08-26)
 

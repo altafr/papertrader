@@ -8,6 +8,7 @@
 
 - When the protected operator overview cannot be read, the dashboard displays a degraded notice rather than implying that empty tables mean no history exists.
 - Reconciled account data remains separately read-only; the notice does not fabricate audit records or change any operational authority.
+- Vercel preview `https://papertrader-2qvbswrzu-altafrs-projects.vercel.app` is ready; protected authenticated rendering still requires the operator session.
 
 ### Clearable audit filters and disabled navigation (2026-08-26)
 
