@@ -13,7 +13,7 @@
 - [x] Add a Clear action that removes audit date bounds while retaining the selected performance range.
 - [x] Render unavailable Previous/Next controls as non-clickable states rather than links with only visual styling.
 - [x] Verify 250 tests, typecheck, lint, and production build pass.
-- [ ] Publish the web preview and verify authenticated hosted navigation.
+- [x] Publish Vercel preview `https://papertrader-i7mw93n6r-altafrs-projects.vercel.app`; authenticated hosted navigation remains pending behind deployment protection.
 
 ### Phase 6.193 — Explicit active audit-window label (2026-08-26)
 

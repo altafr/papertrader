@@ -8,6 +8,7 @@
 
 - The dashboard offers a read-only Clear action for audit date bounds and preserves the selected performance range when clearing.
 - Previous/Next controls are rendered as non-interactive text when the current page has no corresponding page, preventing misleading navigation affordances.
+- Vercel preview `https://papertrader-i7mw93n6r-altafrs-projects.vercel.app` is ready; protected authenticated navigation still requires the operator session.
 
 ### Explicit active audit-window label (2026-08-26)
 
