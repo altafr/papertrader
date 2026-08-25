@@ -13,7 +13,7 @@
 - [x] Preserve active audit date bounds when switching the paper-performance window.
 - [x] Reuse the same validated URL-state builder for performance links and audit navigation.
 - [x] Add regression coverage and verify 252 tests, typecheck, lint, and production build pass.
-- [ ] Publish the web preview and verify authenticated hosted navigation.
+- [x] Publish Vercel preview `https://papertrader-4r854j862-altafrs-projects.vercel.app`; authenticated hosted navigation remains pending behind deployment protection.
 
 ### Phase 6.198 — Credential-optional hosted contract CI (2026-08-26)
 

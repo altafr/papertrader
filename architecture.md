@@ -8,6 +8,7 @@
 
 - Performance-window links now retain the active audit date bounds and reset only the audit page number, keeping the operator’s selected context consistent across the dashboard.
 - The change is URL navigation state only and does not alter persisted performance calculations or trading behavior.
+- Vercel preview `https://papertrader-4r854j862-altafrs-projects.vercel.app` is ready; protected authenticated navigation still requires the operator session.
 
 ### Credential-optional hosted contract CI (2026-08-26)
 
