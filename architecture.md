@@ -2,7 +2,13 @@
 
 ## Status
 
-- **Stage:** Phase 6.160 Research candidate indicator evidence persisted; multi-day evidence collection continues.
+- **Stage:** Phase 6.161 Paper performance equity curve added; multi-day evidence collection continues.
+
+### Paper performance equity curve (2026-08-26)
+
+- The authenticated paper-performance endpoint now returns the reconciled equity curve with per-capture return and peak-to-trough drawdown values.
+- The dashboard renders the curve as a compact SVG sparkline alongside total return, P/L, drawdown, snapshot count, and stability coverage.
+- The curve remains read-only and is derived from persisted account snapshots; it does not change trading behavior or risk policy.
 
 ### Research candidate audit evidence (2026-08-25)
 
