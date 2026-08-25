@@ -2025,3 +2025,11 @@
 - Verification: 227 tests, full typecheck, lint, and production build pass. API deployment `a62ace4e-caff-40a7-ab2e-c5654ded16e9` reached `SUCCESS`; Vercel production deployment `https://papertrader-7xv59tusl-altafrs-projects.vercel.app` reached `Ready`; `/health` returned healthy and unauthenticated Operations Health returned `401`.
 - The production dashboard continues to show the audit write gate as disabled, with migration `0010` ready and no runtime audit writes. No scheduler trigger, broker request, order submission, or Paper Autopilot state changed.
 - **Next smallest unit:** Obtain an explicit bounded scheduler-audit activation reference, then enable and verify the first persisted scheduler-run record.
+
+### 2026-08-25 — Phase 6.131 scheduler-audit activation and Telegram delivery verified
+
+- Activated `DURABLE_SCHEDULER_AUDIT_ENABLED=true` with operator reference `SCHEDULER-AUDIT-ACTIVATE-001` on the Worker and mirrored the two non-secret gate variables to the API. No Paper Autopilot or live-trading setting changed.
+- Worker deployment `90444c76-e1e0-4a04-ba59-5de61f30777b` and API deployment `55f63d2f-7b04-4e01-8b11-6f1ee0173fec` reached `SUCCESS`. Guarded activation readiness returned `status:"ready"`; queue status showed both queues present and drained; API health was healthy and unauthenticated Operations Health returned `401`.
+- The explicitly requested Telegram channel test sent successfully from the Railway Worker with command-scoped reference `USER-REQUEST-TELEGRAM-20260825`. Credentials and provider response data were not logged.
+- No manual scheduler trigger was issued. The first `durable_schedule_runs` record will be verified after the next natural UTC daily cycle. PITR restore-drill evidence remains unverified.
+- **Next smallest unit:** Observe the next natural daily cycle and verify its persisted scheduler-run status, reconciliation freshness, and drained queues.

@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.130 scheduler-audit gate visibility deployed and verified; scheduler audit activation, restore-drill verification, alert delivery, and Paper Autopilot activation remain separately gated.
+- **Stage:** Phase 6.131 scheduler-audit activation and Telegram delivery verified; restore-drill verification, alert hardening, and Paper Autopilot activation remain separately gated.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -59,6 +59,9 @@ Do not run the continuous trading loop in the browser or Vercel functions. Verce
 - Worker deployment `39aa5a9f-4e0a-4cd1-9d69-578b85bdfbe1` reached `SUCCESS` with the guarded `database-credential-surface-audit` command. Hosted execution returned `status:"passed"`, `columnsScanned:63`, and zero matching columns/rows; `DATABASE_CREDENTIAL_SURFACE_AUDIT=false` failed closed before database access. No persistent runtime variable changed.
 - API deployment `a62ace4e-caff-40a7-ab2e-c5654ded16e9` reached `SUCCESS`; authenticated Operations Health now reports scheduler-audit write-gate status (`disabled`, `blocked`, or `enabled`) separately from the latest persisted run. The production gate remains disabled, migration `0010` is ready, and no audit rows are being written.
 - Vercel production deployment `https://papertrader-7xv59tusl-altafrs-projects.vercel.app` is `Ready`; API `/health` returned healthy and unauthenticated Operations Health returned `401` after the paired deployment. No scheduler, broker, order, or Paper Autopilot state changed.
+- Scheduler-audit activation reference `SCHEDULER-AUDIT-ACTIVATE-001` was supplied by the operator. Worker deployment `90444c76-e1e0-4a04-ba59-5de61f30777b` reached `SUCCESS`; guarded activation readiness returned `status:"ready"` with migration, paper-mode, scheduler, kill-switch, and Paper Autopilot checks satisfied. The first persisted scheduler-run row will be verified after the next natural daily cycle; no manual trigger was issued.
+- API deployment `55f63d2f-7b04-4e01-8b11-6f1ee0173fec` reached `SUCCESS` with the same non-secret gate variables, so the dashboard can report the enabled gate truthfully. Queue status remains present and drained; API health is healthy and unauthenticated Operations Health remains `401`.
+- The guarded Telegram test was explicitly requested and sent from the Railway Worker using command-scoped reference `USER-REQUEST-TELEGRAM-20260825`; no token, chat ID, or provider response body was logged.
 - PITR presence is not a restore drill. `RECOVERY_DRILL_VERIFIED` remains unset, so recovery status stays `unverified` until an isolated restore is completed and its reference/timestamp are recorded.
 
 ### Deployment Recommendation
