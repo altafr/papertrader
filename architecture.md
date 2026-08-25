@@ -2,7 +2,12 @@
 
 ## Status
 
-- **Stage:** Phase 6.181 Performance snapshot history table added; multi-day evidence collection continues.
+- **Stage:** Phase 6.182 Authenticated reconciled account CSV export added; multi-day evidence collection continues.
+
+### Authenticated reconciled account CSV export (2026-08-26)
+
+- Added protected `/v1/read-model.csv` and dashboard `/dashboard/account-export` routes covering the reconciled account snapshot, all positions, orders/fills, and activities with IDs, quantities, P/L, prices, and timestamps.
+- The export is server-side authenticated and formula-safe; no broker credentials or raw API tokens reach the browser.
 
 ### Performance snapshot history table (2026-08-26)
 

@@ -508,6 +508,26 @@ function csvCell(value: unknown): string {
   return `"${safe.replaceAll('"', '""')}"`;
 }
 
+async function readReadModelCsv(request: IncomingMessage) {
+  const result = await readPersistedModel(request);
+  if (result.status !== 200) return result;
+  const model = result.body.model as {
+    readonly activities: readonly Record<string, unknown>[];
+    readonly orders: readonly Record<string, unknown>[];
+    readonly positions: readonly Record<string, unknown>[];
+    readonly snapshot: Record<string, unknown>;
+    readonly freshness: Record<string, unknown>;
+  };
+  const header = ["recordType", "recordId", "symbol", "assetClass", "side", "type", "status", "quantity", "filledQuantity", "averageEntryPrice", "marketValue", "pnl", "price", "capturedAt", "submittedAt", "updatedAt"];
+  const rows = [
+    ["account_snapshot", model.snapshot.accountSnapshotId, "", "", "", "", model.snapshot.status, "", "", "", "", "", "", model.freshness.capturedAt, "", ""],
+    ...model.positions.map((position) => ["position", position.symbol, position.symbol, position.assetClass, "", "", "open", position.quantity, "", position.averageEntryPrice, position.marketValue, position.unrealizedPl, "", model.freshness.capturedAt, "", ""]),
+    ...model.orders.map((order) => ["order", order.alpacaOrderId, order.symbol, order.assetClass, order.side, order.type, order.status, order.quantity, order.filledQuantity, "", "", "", "", "", order.submittedAt, order.updatedAt]),
+    ...model.activities.map((activity) => ["activity", activity.activityId, activity.symbol, "", "", activity.activityType, "", activity.quantity, "", "", "", "", activity.price, activity.transactionTime, "", ""]),
+  ];
+  return { body: `${[header, ...rows].map((row) => row.map(csvCell).join(",")).join("\n")}\n`, status: 200, contentType: "text/csv; charset=utf-8" } as const;
+}
+
 async function readOperatorOverviewCsv(request: IncomingMessage) {
   const result = await readOperatorOverview(request);
   if (result.status !== 200) return result;
@@ -775,6 +795,19 @@ const server = createServer((request, response) => {
       .catch(() => {
         response.writeHead(503, { "content-type": "application/json" });
         response.end(JSON.stringify({ error: "operator_overview_export_unavailable" }));
+      });
+    return;
+  }
+
+  if (request.method === "GET" && request.url === "/v1/read-model.csv") {
+    readReadModelCsv(request)
+      .then((result) => {
+        response.writeHead(result.status, { "content-type": result.status === 200 ? "text/csv; charset=utf-8" : "application/json", ...(result.status === 200 ? { "content-disposition": "attachment; filename=momentum-autopilot-account.csv" } : {}) });
+        response.end(typeof result.body === "string" ? result.body : JSON.stringify(result.body));
+      })
+      .catch(() => {
+        response.writeHead(503, { "content-type": "application/json" });
+        response.end(JSON.stringify({ error: "read_model_export_unavailable" }));
       });
     return;
   }

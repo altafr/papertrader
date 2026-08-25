@@ -1,0 +1,12 @@
+import { auth } from "@clerk/nextjs/server";
+
+export async function GET() {
+  const { isAuthenticated, getToken } = await auth();
+  if (!isAuthenticated) return new Response("Unauthorized", { status: 401 });
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+  const token = await getToken();
+  if (!apiBaseUrl || !token) return new Response("Export unavailable", { status: 503 });
+  const upstream = await fetch(`${apiBaseUrl}/v1/read-model.csv`, { cache: "no-store", headers: { authorization: `Bearer ${token}` } });
+  const body = await upstream.text();
+  return new Response(body, { status: upstream.status, headers: { "content-disposition": upstream.headers.get("content-disposition") ?? "attachment; filename=momentum-autopilot-account.csv", "content-type": upstream.headers.get("content-type") ?? "text/csv; charset=utf-8" } });
+}
