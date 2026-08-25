@@ -2,7 +2,12 @@
 
 ## Status
 
-- **Stage:** Phase 6.176 Unified immutable audit timeline added; multi-day evidence collection continues.
+- **Stage:** Phase 6.177 Audit CSV expanded to unified event coverage; multi-day evidence collection continues.
+
+### Audit CSV expanded to unified event coverage (2026-08-26)
+
+- The authenticated operator CSV now includes strategy lifecycle events and unified timeline records alongside agent runs, filtered decisions, and execution decisions.
+- The export remains protected and formula-safe; unauthenticated requests fail closed.
 
 ### Unified immutable audit timeline (2026-08-26)
 
