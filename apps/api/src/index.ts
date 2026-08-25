@@ -432,11 +432,12 @@ async function readOperatorOverview(request: IncomingMessage) {
   if (!process.env.DATABASE_URL?.trim()) return { body: { error: "db_not_configured" }, status: 503 } as const;
   const { pool } = createDatabase();
   try {
-    const [agents, filteredTrades, submissions, lifecycle] = await Promise.all([
+    const [agents, filteredTrades, submissions, lifecycle, schedules] = await Promise.all([
       pool.query("SELECT run_id, agent_type, task, status, created_at, started_at, finished_at, error_code, input_refs, model_provider, artifact_rationale, artifact_confidence, artifact_evidence_refs, artifact_payload, artifact_type, prompt_version FROM agent_runs ORDER BY created_at DESC LIMIT 50"),
       pool.query("SELECT s.observation_id, s.symbol, s.asset_class, s.strategy_key, s.strategy_version, s.score, s.proposed_entry_price, s.planned_stop_price, s.planned_exit_price, s.signal_time, s.expires_at, s.rationale, s.market_snapshot, o.exit_price, o.observed_at, o.reason, o.return_percent FROM shadow_observations s LEFT JOIN shadow_observation_outcomes o ON o.observation_id = s.observation_id ORDER BY s.signal_time DESC LIMIT 100"),
       pool.query("SELECT intent_id, approval_id, client_order_id, alpaca_order_id, symbol, asset_class, quantity, filled_quantity, status, created_at, submitted_at, updated_at, market_snapshot, risk_decision FROM paper_order_submissions ORDER BY COALESCE(updated_at, created_at) DESC LIMIT 100"),
       pool.query("SELECT event_id, strategy_key, strategy_version, from_stage, to_stage, revision, reason, approval_note, evidence_key, approved_by, approved_at, requested_at FROM strategy_lifecycle_events ORDER BY approved_at DESC LIMIT 100"),
+      pool.query("SELECT run_id, scheduled_at, started_at, completed_at, status, failure_code FROM durable_schedule_runs ORDER BY scheduled_at DESC LIMIT 100"),
     ]);
     const researchCandidates = agents.rows.flatMap((row) => {
       const payload = row.artifact_payload;
@@ -460,6 +461,12 @@ async function readOperatorOverview(request: IncomingMessage) {
         agentRunId: row.run_id,
       }));
     });
+    const auditTimeline = [
+      ...agents.rows.map((row) => ({ capturedAt: row.created_at, category: "agent_run", title: `${row.agent_type} · ${row.status}`, detail: row.task, reference: row.run_id })),
+      ...lifecycle.rows.map((row) => ({ capturedAt: row.approved_at, category: "strategy_lifecycle", title: `${row.strategy_key} ${row.strategy_version} · ${row.from_stage} → ${row.to_stage}`, detail: row.reason, reference: row.event_id })),
+      ...submissions.rows.map((row) => ({ capturedAt: row.created_at, category: "execution_decision", title: `${row.symbol} · ${row.status}`, detail: row.intent_id, reference: row.intent_id })),
+      ...schedules.rows.map((row) => ({ capturedAt: row.completed_at ?? row.started_at ?? row.scheduled_at, category: "scheduler", title: `Scheduled run · ${row.status}`, detail: row.failure_code ?? "Durable schedule run", reference: row.run_id })),
+    ].sort((left, right) => Date.parse(String(right.capturedAt)) - Date.parse(String(left.capturedAt))).slice(0, 100);
     return {
       body: {
         agents: agents.rows.map((row) => ({
@@ -486,6 +493,7 @@ async function readOperatorOverview(request: IncomingMessage) {
         filteredTrades: [...filteredTrades.rows.map((row) => ({ observationId: row.observation_id, symbol: row.symbol, assetClass: row.asset_class, strategyKey: row.strategy_key, strategyVersion: row.strategy_version, score: row.score, proposedEntryPrice: row.proposed_entry_price, plannedStopPrice: row.planned_stop_price, plannedExitPrice: row.planned_exit_price, signalTime: row.signal_time, expiresAt: row.expires_at, rationale: row.rationale, marketSnapshot: row.market_snapshot, outcome: row.reason ? { exitPrice: row.exit_price, observedAt: row.observed_at, reason: row.reason, returnPercent: row.return_percent } : null, status: row.reason ? "closed" : "open" })), ...researchCandidates],
         tradeDecisions: submissions.rows.map((row) => ({ intentId: row.intent_id, approvalId: row.approval_id, clientOrderId: row.client_order_id, alpacaOrderId: row.alpaca_order_id, symbol: row.symbol, assetClass: row.asset_class, quantity: row.quantity, filledQuantity: row.filled_quantity, status: row.status, createdAt: row.created_at, submittedAt: row.submitted_at, updatedAt: row.updated_at, reason: Array.isArray(row.risk_decision?.reasons) && row.risk_decision.reasons.length > 0 ? row.risk_decision.reasons.join("; ") : "Deterministic paper execution approval recorded.", riskDecision: row.risk_decision, marketSnapshot: row.market_snapshot })),
         strategyLifecycle: lifecycle.rows.map((row) => ({ eventId: row.event_id, strategyKey: row.strategy_key, strategyVersion: row.strategy_version, fromStage: row.from_stage, toStage: row.to_stage, revision: row.revision, reason: row.reason, approvalNote: row.approval_note, evidenceKey: row.evidence_key, approvedBy: row.approved_by, approvedAt: row.approved_at, requestedAt: row.requested_at })),
+        auditTimeline,
       },
       status: 200,
     } as const;

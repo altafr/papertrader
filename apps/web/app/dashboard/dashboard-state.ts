@@ -92,16 +92,17 @@ export type AgentRunSummary = {
 
 export type OperatorOverview = {
   readonly agents: readonly (AgentRunSummary & { readonly artifact?: AgentRunSummary["artifact"] })[];
+  readonly auditTimeline: readonly Record<string, unknown>[];
   readonly filteredTrades: readonly Record<string, unknown>[];
   readonly tradeDecisions: readonly Record<string, unknown>[];
   readonly strategyLifecycle: readonly Record<string, unknown>[];
 };
 
 export function parseOperatorOverview(value: unknown): OperatorOverview | undefined {
-  if (!isRecord(value) || !Array.isArray(value.agents) || !Array.isArray(value.filteredTrades) || !Array.isArray(value.tradeDecisions) || (value.strategyLifecycle !== undefined && !Array.isArray(value.strategyLifecycle))) return undefined;
+  if (!isRecord(value) || !Array.isArray(value.agents) || !Array.isArray(value.filteredTrades) || !Array.isArray(value.tradeDecisions) || (value.auditTimeline !== undefined && !Array.isArray(value.auditTimeline)) || (value.strategyLifecycle !== undefined && !Array.isArray(value.strategyLifecycle))) return undefined;
   const agents = parseAgentRuns({ runs: value.agents });
   if (!agents) return undefined;
-  return { agents, filteredTrades: value.filteredTrades.filter(isRecord), strategyLifecycle: Array.isArray(value.strategyLifecycle) ? value.strategyLifecycle.filter(isRecord) : [], tradeDecisions: value.tradeDecisions.filter(isRecord) };
+  return { agents, auditTimeline: Array.isArray(value.auditTimeline) ? value.auditTimeline.filter(isRecord) : [], filteredTrades: value.filteredTrades.filter(isRecord), strategyLifecycle: Array.isArray(value.strategyLifecycle) ? value.strategyLifecycle.filter(isRecord) : [], tradeDecisions: value.tradeDecisions.filter(isRecord) };
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

@@ -2,7 +2,12 @@
 
 ## Status
 
-- **Stage:** Phase 6.175 Complete point-in-time indicator snapshots rendered; multi-day evidence collection continues.
+- **Stage:** Phase 6.176 Unified immutable audit timeline added; multi-day evidence collection continues.
+
+### Unified immutable audit timeline (2026-08-26)
+
+- `/v1/operator-overview` now returns a bounded chronological timeline combining persisted agent runs, strategy lifecycle events, durable scheduler runs, and paper execution decisions.
+- The dashboard renders the timeline as orientation only and retains the source-specific audit tables; it does not synthesize mutable state or authorize actions.
 
 ### Complete point-in-time indicator snapshots rendered (2026-08-26)
 

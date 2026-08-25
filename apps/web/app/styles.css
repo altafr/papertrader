@@ -258,6 +258,35 @@ h2 {
 .alert-row.warning { border-left-color: var(--warning); }
 .alert-row.info { border-left-color: var(--paper); }
 
+.audit-timeline-list {
+  display: grid;
+  gap: 0.55rem;
+  margin-top: 1rem;
+}
+
+.audit-timeline-row {
+  align-items: baseline;
+  border-bottom: 1px solid var(--border);
+  display: grid;
+  gap: 0.35rem;
+  grid-template-columns: 10rem minmax(12rem, 0.8fr) minmax(14rem, 1.4fr) 8rem;
+  padding: 0.65rem 0;
+}
+
+.audit-timeline-row span,
+.audit-timeline-row small {
+  color: var(--muted);
+  font-size: 0.74rem;
+}
+
+.audit-timeline-time {
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 900px) {
+  .audit-timeline-row { grid-template-columns: 1fr; }
+}
+
 .degraded-card {
   background: linear-gradient(145deg, rgb(65 48 24 / 42%), rgb(16 26 36 / 92%));
 }
