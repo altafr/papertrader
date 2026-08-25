@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.141 startup reconciliation recovery gate deployed and verified; natural scheduler-cycle verification, post-restore reconciliation, recovery sign-off, and persistent Paper Autopilot activation remain separately gated.
+- **Stage:** Phase 6.142 startup recovery gate committed to GitHub and deployed; natural scheduler-cycle verification, post-restore reconciliation, recovery sign-off, and persistent Paper Autopilot activation remain separately gated.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -111,6 +111,11 @@ Do not run the continuous trading loop in the browser or Vercel functions. Verce
 - Worker deployment `43119259-7ec4-4d90-97ac-4b276228cada` reached `SUCCESS`. Private Worker Health returned `healthy`, scheduler `scheduled` for `2026-08-26T00:00:00Z`, observe mode, inactive global kill switch, and Paper Autopilot disabled.
 - Hosted runtime readiness reported a fresh persisted reconciliation captured at `2026-08-25T12:07:59.337Z` (age 38 seconds at verification), confirming the startup recovery reconciliation completed before the scheduler became scheduled.
 - No manual scheduler trigger or order action was issued; the startup reconciliation used the existing paper read/reconcile path only.
+
+### 2026-08-25 — Phase 6.142 recovery gate source published
+
+- The completed recovery-gate implementation and evidence commits were pushed to the operator's GitHub repository branch `phase-6-10-operator-health` at commit `47b0632`.
+- This is source-control publication only; no runtime variable, scheduler, queue, broker, or trading state changed.
 
 ### Deployment Recommendation
 
