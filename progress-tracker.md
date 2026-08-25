@@ -15,7 +15,7 @@
 - [x] Add read-only dashboard Previous/Next controls and date filters; export links preserve the active page and range.
 - [x] Return pagination metadata, including whether another page is available, without changing strategy, risk, or order behavior.
 - [x] Verify 238 tests, typecheck, lint, and production build pass.
-- [ ] Deploy the API/web changes and verify hosted query behavior; authenticated inspection remains subject to deployment protection.
+- [x] Deploy API `e14114cb-b54e-4ad3-9416-b05a5550c2f3` and Vercel preview `https://papertrader-ree59e7ew-altafrs-projects.vercel.app`; API health is healthy, query-string routes are recognized, and unauthenticated overview/CSV requests return `401`. Authenticated inspection remains subject to deployment protection.
 
 ### Phase 6.184 — Strategy catalog metadata included in audit export (2026-08-26)
 

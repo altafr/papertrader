@@ -9,6 +9,7 @@
 - The authenticated operator overview and CSV export accept validated `page`, `limit`, `from`, and `to` parameters. PostgreSQL queries use parameterized timestamps and a maximum page size of 100.
 - The dashboard exposes read-only page navigation and date filters and preserves the active query in the audit export link. Pagination expands historical coverage without pretending that a bounded response is the complete database history.
 - The contract returns `hasNext` metadata and does not change strategy configuration, paper mode, deterministic risk gates, kill-switch behavior, or order authority.
+- API deployment `e14114cb-b54e-4ad3-9416-b05a5550c2f3` and Vercel preview `https://papertrader-ree59e7ew-altafrs-projects.vercel.app` are ready. Health is healthy and unauthenticated query-string requests remain `401`; authenticated hosted content still requires the operator session.
 
 ### Strategy catalog metadata included in audit export (2026-08-26)
 
