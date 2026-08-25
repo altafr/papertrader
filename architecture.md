@@ -8,6 +8,7 @@
 
 - The operator overview now returns filtered counts for each persisted audit category in addition to the current bounded page. Counts use the same parameterized date predicates as the page queries.
 - The dashboard provides All, Today, 7-day, and 30-day links plus manual date inputs. These are navigation-only conveniences; they do not modify records, strategy state, risk policy, or order behavior.
+- API deployment `17a2293d-7cdd-4123-9412-60d89e17281e` and Vercel preview `https://papertrader-jgx315go9-altafrs-projects.vercel.app` are ready. Hosted unauthenticated filtered requests remain `401`; authenticated totals and preset rendering still require the operator session.
 
 ### Paginated and date-filtered audit history (2026-08-26)
 

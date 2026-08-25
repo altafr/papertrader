@@ -15,7 +15,7 @@
 - [x] Add one-click All, Today, 7-day, and 30-day dashboard presets while retaining manual date filters.
 - [x] Show filtered totals beside the page controls without implying that shadow evidence is profitability evidence.
 - [x] Verify 238 tests, typecheck, lint, and production build pass.
-- [ ] Deploy API/web changes and verify hosted totals/preset rendering; authenticated inspection remains subject to deployment protection.
+- [x] Deploy API `17a2293d-7cdd-4123-9412-60d89e17281e` and Vercel preview `https://papertrader-jgx315go9-altafrs-projects.vercel.app`; API health is healthy and unauthenticated filtered overview/CSV requests return `401`. Authenticated totals and preset rendering remain pending behind deployment protection.
 
 ### Phase 6.185 — Paginated and date-filtered audit history (2026-08-26)
 
