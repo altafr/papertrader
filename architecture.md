@@ -2,7 +2,12 @@
 
 ## Status
 
-- **Stage:** Phase 6.198 Credential-optional hosted contract CI; multi-day evidence collection continues.
+- **Stage:** Phase 6.199 Preserved performance-range audit context; multi-day evidence collection continues.
+
+### Preserved performance-range audit context (2026-08-26)
+
+- Performance-window links now retain the active audit date bounds and reset only the audit page number, keeping the operator’s selected context consistent across the dashboard.
+- The change is URL navigation state only and does not alter persisted performance calculations or trading behavior.
 
 ### Credential-optional hosted contract CI (2026-08-26)
 
