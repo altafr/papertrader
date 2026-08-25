@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.146 Paper Autopilot activation runbook added; natural scheduler-cycle verification, post-restore reconciliation, recovery sign-off, and persistent Paper Autopilot activation remain separately gated.
+- **Stage:** Phase 6.147 Paper Autopilot activated under explicit fast-path authorization; natural scheduler-cycle verification remains intentionally skipped, while post-restore reconciliation and recovery sign-off remain separately gated.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -28,6 +28,15 @@
 | Notifications | Telegram Bot API (server-side Railway worker) | Critical operational and risk alerts; disabled until guarded channel test passes |
 
 Do not run the continuous trading loop in the browser or Vercel functions. Vercel hosts the dashboard; Railway hosts broker access, durable jobs, and the supervised continuous worker.
+
+### Fast-path Paper Autopilot activation evidence (2026-08-25)
+
+- Explicit operator authorization `USER-REQUEST-SKIP-NATURAL-CYCLE-20260825` allowed the natural scheduler-cycle wait to be skipped to accelerate paper-only validation.
+- Railway Worker and API have `PAPER_AUTOPILOT_ENABLED=true` and `OPERATING_MODE=paper_autopilot`; live trading remains impossible because `TRADING_MODE=paper` and `ALPACA_PAPER_TRADE=true` remain in force.
+- The initial variable-triggered deployment pulled stale `main`; it was corrected by deploying the verified branch directly: Worker `5680300e-4549-4e60-a253-9be539acae79`, API `0aa7163d-cf95-4f9a-8d30-91f7-a97802c3`.
+- Worker health is `healthy`, scheduler status is `scheduled`, global kill switch is inactive, and the daily cron remains `0 0 * * *` UTC.
+- Runtime readiness is `ready` with a fresh reconciliation (117 seconds old at verification), paper mode, USD 1,000 baseline, 0.25%/USD 100 single-trade risk cap, and all deterministic gates passing. No order was submitted.
+- API health is `healthy`. Telegram delivery remains unverified; this does not block paper runtime readiness but keeps alert delivery separately gated.
 
 ### Current hosted activation evidence (2026-08-24)
 
