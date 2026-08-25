@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.131 scheduler-audit activation and Telegram delivery verified; restore-drill verification, alert hardening, and Paper Autopilot activation remain separately gated.
+- **Stage:** Phase 6.132 scheduler-audit cycle verifier deployed; restore-drill verification, alert hardening, and Paper Autopilot activation remain separately gated.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -62,6 +62,7 @@ Do not run the continuous trading loop in the browser or Vercel functions. Verce
 - Scheduler-audit activation reference `SCHEDULER-AUDIT-ACTIVATE-001` was supplied by the operator. Worker deployment `90444c76-e1e0-4a04-ba59-5de61f30777b` reached `SUCCESS`; guarded activation readiness returned `status:"ready"` with migration, paper-mode, scheduler, kill-switch, and Paper Autopilot checks satisfied. The first persisted scheduler-run row will be verified after the next natural daily cycle; no manual trigger was issued.
 - API deployment `55f63d2f-7b04-4e01-8b11-6f1ee0173fec` reached `SUCCESS` with the same non-secret gate variables, so the dashboard can report the enabled gate truthfully. Queue status remains present and drained; API health is healthy and unauthenticated Operations Health remains `401`.
 - The guarded Telegram test was explicitly requested and sent from the Railway Worker using command-scoped reference `USER-REQUEST-TELEGRAM-20260825`; no token, chat ID, or provider response body was logged.
+- Added the guarded read-only `durable-schedule-audit-verify` Worker command. Worker deployment `1cc4bee8-ee98-48e4-9e37-22196cfee7c8` reached `SUCCESS`; the pre-cycle check for `2026-08-26T00:00:00Z` correctly returned `status:"incomplete"` with no audit run yet, reconciliation before cycle, and both queues present/drained. It does not trigger work or write state.
 - PITR presence is not a restore drill. `RECOVERY_DRILL_VERIFIED` remains unset, so recovery status stays `unverified` until an isolated restore is completed and its reference/timestamp are recorded.
 
 ### Deployment Recommendation

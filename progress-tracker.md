@@ -2033,3 +2033,10 @@
 - The explicitly requested Telegram channel test sent successfully from the Railway Worker with command-scoped reference `USER-REQUEST-TELEGRAM-20260825`. Credentials and provider response data were not logged.
 - No manual scheduler trigger was issued. The first `durable_schedule_runs` record will be verified after the next natural UTC daily cycle. PITR restore-drill evidence remains unverified.
 - **Next smallest unit:** Observe the next natural daily cycle and verify its persisted scheduler-run status, reconciliation freshness, and drained queues.
+
+### 2026-08-25 — Phase 6.132 scheduler-audit cycle verifier deployed
+
+- Added guarded read-only `DURABLE_SCHEDULE_AUDIT_VERIFY=true pnpm --filter @momentum/worker durable-schedule-audit-verify`. It checks the latest persisted scheduler-run status, scheduled time, reconciliation freshness, and both durable queues without triggering or writing anything.
+- Verification: 229 tests, full typecheck, lint, and production build pass. Worker deployment `1cc4bee8-ee98-48e4-9e37-22196cfee7c8` reached `SUCCESS`.
+- Hosted pre-cycle verification for `2026-08-26T00:00:00Z` returned `status:"incomplete"` with `scheduler_audit_run_unavailable` and `reconciliation_before_cycle`; both queues were present and drained. No manual trigger, broker request, order submission, or Paper Autopilot change occurred.
+- **Next smallest unit:** Run the verifier after the next natural UTC daily cycle and record the first persisted scheduler-run evidence.
