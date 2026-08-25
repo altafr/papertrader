@@ -426,18 +426,41 @@ async function readPaperPerformance(request: IncomingMessage) {
   }
 }
 
+type OperatorHistoryQuery = {
+  readonly from: string | null;
+  readonly limit: number;
+  readonly offset: number;
+  readonly page: number;
+  readonly to: string | null;
+};
+
+function parseOperatorHistoryQuery(request: IncomingMessage): OperatorHistoryQuery {
+  const url = new URL(request.url ?? "/", `http://${request.headers.host ?? "localhost"}`);
+  const page = Number(url.searchParams.get("page") ?? "1");
+  const limit = Number(url.searchParams.get("limit") ?? "100");
+  const from = url.searchParams.get("from");
+  const to = url.searchParams.get("to");
+  if (!Number.isSafeInteger(page) || page < 1 || page > 1_000 || !Number.isSafeInteger(limit) || limit < 1 || limit > 100) throw new Error("invalid_operator_history_paging");
+  if (from && !Number.isFinite(Date.parse(from))) throw new Error("invalid_operator_history_from");
+  if (to && !Number.isFinite(Date.parse(to))) throw new Error("invalid_operator_history_to");
+  if (from && to && Date.parse(from) > Date.parse(to)) throw new Error("invalid_operator_history_range");
+  return { from, limit, offset: (page - 1) * limit, page, to };
+}
+
 async function readOperatorOverview(request: IncomingMessage) {
   const authentication = await authenticateOperator(request);
   if (authentication.status !== 200) return authentication;
   if (!process.env.DATABASE_URL?.trim()) return { body: { error: "db_not_configured" }, status: 503 } as const;
+  const history = parseOperatorHistoryQuery(request);
   const { pool } = createDatabase();
   try {
+    const queryValues = [history.from, history.to, history.limit, history.offset];
     const [agents, filteredTrades, submissions, lifecycle, schedules] = await Promise.all([
-      pool.query("SELECT run_id, agent_type, task, status, created_at, started_at, finished_at, error_code, input_refs, model_provider, artifact_rationale, artifact_confidence, artifact_evidence_refs, artifact_payload, artifact_type, prompt_version FROM agent_runs ORDER BY created_at DESC LIMIT 50"),
-      pool.query("SELECT s.observation_id, s.symbol, s.asset_class, s.strategy_key, s.strategy_version, s.score, s.proposed_entry_price, s.planned_stop_price, s.planned_exit_price, s.signal_time, s.expires_at, s.rationale, s.market_snapshot, o.exit_price, o.observed_at, o.reason, o.return_percent FROM shadow_observations s LEFT JOIN shadow_observation_outcomes o ON o.observation_id = s.observation_id ORDER BY s.signal_time DESC LIMIT 100"),
-      pool.query("SELECT intent_id, approval_id, client_order_id, alpaca_order_id, symbol, asset_class, quantity, filled_quantity, status, created_at, submitted_at, updated_at, market_snapshot, risk_decision FROM paper_order_submissions ORDER BY COALESCE(updated_at, created_at) DESC LIMIT 100"),
-      pool.query("SELECT event_id, strategy_key, strategy_version, from_stage, to_stage, revision, reason, approval_note, evidence_key, approved_by, approved_at, requested_at FROM strategy_lifecycle_events ORDER BY approved_at DESC LIMIT 100"),
-      pool.query("SELECT run_id, scheduled_at, started_at, completed_at, status, failure_code FROM durable_schedule_runs ORDER BY scheduled_at DESC LIMIT 100"),
+      pool.query("SELECT run_id, agent_type, task, status, created_at, started_at, finished_at, error_code, input_refs, model_provider, artifact_rationale, artifact_confidence, artifact_evidence_refs, artifact_payload, artifact_type, prompt_version FROM agent_runs WHERE ($1::timestamptz IS NULL OR created_at >= $1::timestamptz) AND ($2::timestamptz IS NULL OR created_at <= $2::timestamptz) ORDER BY created_at DESC LIMIT $3 OFFSET $4", queryValues),
+      pool.query("SELECT s.observation_id, s.symbol, s.asset_class, s.strategy_key, s.strategy_version, s.score, s.proposed_entry_price, s.planned_stop_price, s.planned_exit_price, s.signal_time, s.expires_at, s.rationale, s.market_snapshot, o.exit_price, o.observed_at, o.reason, o.return_percent FROM shadow_observations s LEFT JOIN shadow_observation_outcomes o ON o.observation_id = s.observation_id WHERE ($1::timestamptz IS NULL OR s.signal_time >= $1::timestamptz) AND ($2::timestamptz IS NULL OR s.signal_time <= $2::timestamptz) ORDER BY s.signal_time DESC LIMIT $3 OFFSET $4", queryValues),
+      pool.query("SELECT intent_id, approval_id, client_order_id, alpaca_order_id, symbol, asset_class, quantity, filled_quantity, status, created_at, submitted_at, updated_at, market_snapshot, risk_decision FROM paper_order_submissions WHERE ($1::timestamptz IS NULL OR COALESCE(updated_at, created_at) >= $1::timestamptz) AND ($2::timestamptz IS NULL OR COALESCE(updated_at, created_at) <= $2::timestamptz) ORDER BY COALESCE(updated_at, created_at) DESC LIMIT $3 OFFSET $4", queryValues),
+      pool.query("SELECT event_id, strategy_key, strategy_version, from_stage, to_stage, revision, reason, approval_note, evidence_key, approved_by, approved_at, requested_at FROM strategy_lifecycle_events WHERE ($1::timestamptz IS NULL OR approved_at >= $1::timestamptz) AND ($2::timestamptz IS NULL OR approved_at <= $2::timestamptz) ORDER BY approved_at DESC LIMIT $3 OFFSET $4", queryValues),
+      pool.query("SELECT run_id, scheduled_at, started_at, completed_at, status, failure_code FROM durable_schedule_runs WHERE ($1::timestamptz IS NULL OR scheduled_at >= $1::timestamptz) AND ($2::timestamptz IS NULL OR scheduled_at <= $2::timestamptz) ORDER BY scheduled_at DESC LIMIT $3 OFFSET $4", queryValues),
     ]);
     const researchCandidates = agents.rows.flatMap((row) => {
       const payload = row.artifact_payload;
@@ -495,6 +518,7 @@ async function readOperatorOverview(request: IncomingMessage) {
         strategyLifecycle: lifecycle.rows.map((row) => ({ eventId: row.event_id, strategyKey: row.strategy_key, strategyVersion: row.strategy_version, fromStage: row.from_stage, toStage: row.to_stage, revision: row.revision, reason: row.reason, approvalNote: row.approval_note, evidenceKey: row.evidence_key, approvedBy: row.approved_by, approvedAt: row.approved_at, requestedAt: row.requested_at })),
         strategyCatalog: INITIAL_MOMENTUM_STRATEGIES.map((strategy) => ({ assetClass: strategy.assetClass, description: strategy.description, key: strategy.key, owner: strategy.owner, requiredLookbackBars: strategy.requiredLookbackBars, stage: strategy.stage, version: strategy.version, defaultParameters: strategy.parameters.defaults })),
         auditTimeline,
+        history: { from: history.from, hasNext: [agents, filteredTrades, submissions, lifecycle, schedules].some((result) => result.rows.length === history.limit), limit: history.limit, page: history.page, to: history.to },
       },
       status: 200,
     } as const;
@@ -776,7 +800,7 @@ const server = createServer((request, response) => {
     return;
   }
 
-  if (request.method === "GET" && request.url === "/v1/operator-overview") {
+  if (request.method === "GET" && request.url?.split("?", 1)[0] === "/v1/operator-overview") {
     readOperatorOverview(request)
       .then(({ body, status }) => {
         response.writeHead(status, { "content-type": "application/json" });
@@ -789,7 +813,7 @@ const server = createServer((request, response) => {
     return;
   }
 
-  if (request.method === "GET" && request.url === "/v1/operator-overview.csv") {
+  if (request.method === "GET" && request.url?.split("?", 1)[0] === "/v1/operator-overview.csv") {
     readOperatorOverviewCsv(request)
       .then((result) => {
         response.writeHead(result.status, { "content-type": result.status === 200 ? "text/csv; charset=utf-8" : "application/json", ...(result.status === 200 ? { "content-disposition": "attachment; filename=momentum-autopilot-audit.csv" } : {}) });

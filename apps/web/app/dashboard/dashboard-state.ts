@@ -94,6 +94,7 @@ export type OperatorOverview = {
   readonly agents: readonly (AgentRunSummary & { readonly artifact?: AgentRunSummary["artifact"] })[];
   readonly auditTimeline: readonly Record<string, unknown>[];
   readonly filteredTrades: readonly Record<string, unknown>[];
+  readonly history?: { readonly from?: string | null; readonly hasNext: boolean; readonly limit: number; readonly page: number; readonly to?: string | null };
   readonly tradeDecisions: readonly Record<string, unknown>[];
   readonly strategyLifecycle: readonly Record<string, unknown>[];
   readonly strategyCatalog: readonly Record<string, unknown>[];
@@ -103,7 +104,9 @@ export function parseOperatorOverview(value: unknown): OperatorOverview | undefi
   if (!isRecord(value) || !Array.isArray(value.agents) || !Array.isArray(value.filteredTrades) || !Array.isArray(value.tradeDecisions) || (value.auditTimeline !== undefined && !Array.isArray(value.auditTimeline)) || (value.strategyLifecycle !== undefined && !Array.isArray(value.strategyLifecycle)) || (value.strategyCatalog !== undefined && !Array.isArray(value.strategyCatalog))) return undefined;
   const agents = parseAgentRuns({ runs: value.agents });
   if (!agents) return undefined;
-  return { agents, auditTimeline: Array.isArray(value.auditTimeline) ? value.auditTimeline.filter(isRecord) : [], filteredTrades: value.filteredTrades.filter(isRecord), strategyCatalog: Array.isArray(value.strategyCatalog) ? value.strategyCatalog.filter(isRecord) : [], strategyLifecycle: Array.isArray(value.strategyLifecycle) ? value.strategyLifecycle.filter(isRecord) : [], tradeDecisions: value.tradeDecisions.filter(isRecord) };
+  const history = value.history;
+  if (history !== undefined && (!isRecord(history) || typeof history.hasNext !== "boolean" || typeof history.limit !== "number" || typeof history.page !== "number")) return undefined;
+  return { agents, auditTimeline: Array.isArray(value.auditTimeline) ? value.auditTimeline.filter(isRecord) : [], filteredTrades: value.filteredTrades.filter(isRecord), ...(history && isRecord(history) ? { history: { ...(typeof history.from === "string" || history.from === null ? { from: history.from } : {}), hasNext: history.hasNext as boolean, limit: history.limit as number, page: history.page as number, ...(typeof history.to === "string" || history.to === null ? { to: history.to } : {}) } } : {}), strategyCatalog: Array.isArray(value.strategyCatalog) ? value.strategyCatalog.filter(isRecord) : [], strategyLifecycle: Array.isArray(value.strategyLifecycle) ? value.strategyLifecycle.filter(isRecord) : [], tradeDecisions: value.tradeDecisions.filter(isRecord) };
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

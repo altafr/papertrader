@@ -2,7 +2,13 @@
 
 ## Status
 
-- **Stage:** Phase 6.184 Strategy catalog metadata included in audit export; multi-day evidence collection continues.
+- **Stage:** Phase 6.185 Paginated and date-filtered audit history; multi-day evidence collection continues.
+
+### Paginated and date-filtered audit history (2026-08-26)
+
+- The authenticated operator overview and CSV export accept validated `page`, `limit`, `from`, and `to` parameters. PostgreSQL queries use parameterized timestamps and a maximum page size of 100.
+- The dashboard exposes read-only page navigation and date filters and preserves the active query in the audit export link. Pagination expands historical coverage without pretending that a bounded response is the complete database history.
+- The contract returns `hasNext` metadata and does not change strategy configuration, paper mode, deterministic risk gates, kill-switch behavior, or order authority.
 
 ### Strategy catalog metadata included in audit export (2026-08-26)
 

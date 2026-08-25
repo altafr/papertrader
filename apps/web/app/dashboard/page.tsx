@@ -107,13 +107,13 @@ async function loadPaperPerformance(getToken: () => Promise<string | null>, rang
   }
 }
 
-async function loadOperatorOverview(getToken: () => Promise<string | null>): Promise<OperatorOverview | undefined> {
+async function loadOperatorOverview(getToken: () => Promise<string | null>, historyQuery = ""): Promise<OperatorOverview | undefined> {
   const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
   if (!apiBaseUrl) return undefined;
   const token = await getToken();
   if (!token) return undefined;
   try {
-    const response = await fetch(`${apiBaseUrl}/v1/operator-overview`, { cache: "no-store", headers: { authorization: `Bearer ${token}` } });
+    const response = await fetch(`${apiBaseUrl}/v1/operator-overview${historyQuery}`, { cache: "no-store", headers: { authorization: `Bearer ${token}` } });
     if (!response.ok) return undefined;
     return parseOperatorOverview(await response.json());
   } catch {
@@ -221,10 +221,10 @@ function AgentRunsCard({ runs }: { readonly runs: readonly AgentRunSummary[] | u
   );
 }
 
-function OperatorAuditCards({ overview }: { readonly overview: OperatorOverview | undefined }) {
+function OperatorAuditCards({ historyQuery, overview }: { readonly historyQuery: string; readonly overview: OperatorOverview | undefined }) {
   const field = (row: Record<string, unknown>, key: string) => value(row, key);
   return <>
-    <article className="card full-width" id="filtered-trades"><div className="card-heading"><div><p className="label">Filtered trades</p><h2>{overview ? overview.filteredTrades.length : "—"} signal decisions</h2></div><a className="export-link" href="/dashboard/export">Export audit CSV</a><span className="provenance">Shadow / rejected opportunity audit</span></div>
+    <article className="card full-width" id="filtered-trades"><div className="card-heading"><div><p className="label">Filtered trades</p><h2>{overview ? overview.filteredTrades.length : "—"} signal decisions</h2></div><a className="export-link" href={`/dashboard/export?${historyQuery}`}>Export this audit page</a><span className="provenance">Shadow / rejected opportunity audit</span></div>
       {!overview || overview.filteredTrades.length === 0 ? <p className="empty-state">No filtered or shadow decisions are persisted yet.</p> : <div className="responsive-table"><table><thead><tr><th>Symbol</th><th>Strategy</th><th>Score</th><th>Entry</th><th>Stop</th><th>Indicators at signal</th><th>State</th><th>Why / outcome</th></tr></thead><tbody>{overview.filteredTrades.map((row) => <tr key={field(row, "observationId")}><th scope="row">{field(row, "symbol")}</th><td>{field(row, "strategyKey")} {field(row, "strategyVersion")}</td><td>{field(row, "score")}</td><td>{field(row, "proposedEntryPrice")}</td><td>{field(row, "plannedStopPrice")}</td><td className="table-reason">{indicatorSummary(row)}</td><td>{field(row, "status")}</td><td className="table-reason">{field(row, "rationale")}{isRecord(row.outcome) ? ` · ${field(row.outcome, "reason")} ${field(row.outcome, "returnPercent")}%` : ""}</td></tr>)}</tbody></table></div>}
       <p className="provenance">RSI14, EMA20, ATR14, and relative volume are computed from finalized bars and stored with the signal. This is not a promise of execution or profitability.</p>
     </article>
@@ -314,7 +314,7 @@ function AlertsCard({ health, freshness, performance }: { readonly health: Opera
   return <article className="card full-width" id="alerts"><div className="card-heading"><div><p className="label">Alerts</p><h2>{alerts.length === 0 ? "No active health alerts" : `${alerts.length} health alert${alerts.length === 1 ? "" : "s"}`}</h2></div><span className={`state-badge ${alerts.some((alert) => alert.severity === "critical") ? "degraded" : alerts.some((alert) => alert.severity === "warning") ? "delayed" : "fresh"}`}>{alerts.some((alert) => alert.severity === "critical") ? "Review now" : alerts.length === 0 ? "Healthy" : "Review"}</span></div><div className="alert-list">{alerts.length === 0 ? <p className="empty-state">No active alert is derived from the current persisted health contracts.</p> : alerts.map((alert) => <div className={`alert-row ${alert.severity}`} key={alert.title}><strong>{alert.title}</strong><span>{alert.detail}</span></div>)}</div><p className="provenance">These are current-state health notices, not a replacement for the immutable audit log. They do not change risk or order behavior.</p></article>;
 }
 
-export default async function DashboardPage({ searchParams }: { readonly searchParams?: Promise<{ readonly range?: string | string[] }> }) {
+export default async function DashboardPage({ searchParams }: { readonly searchParams?: Promise<{ readonly from?: string | string[]; readonly page?: string | string[]; readonly range?: string | string[]; readonly to?: string | string[] }> }) {
   const { isAuthenticated, redirectToSignIn, userId, getToken } = await auth();
   if (!isAuthenticated) return redirectToSignIn();
 
@@ -323,13 +323,20 @@ export default async function DashboardPage({ searchParams }: { readonly searchP
     return <main><h1>Access denied</h1><p>This account is not the configured single operator.</p></main>;
   }
 
-  const requestedRange = (await searchParams)?.range;
+  const requestedParams = await searchParams;
+  const requestedRange = requestedParams?.range;
   const performanceRange: PerformanceRange = requestedRange === "7d" || (Array.isArray(requestedRange) && requestedRange[0] === "7d") ? "7d" : requestedRange === "30d" || (Array.isArray(requestedRange) && requestedRange[0] === "30d") ? "30d" : "all";
+  const historyPageValue = requestedParams?.page;
+  const historyPage = Number(Array.isArray(historyPageValue) ? historyPageValue[0] : historyPageValue ?? "1");
+  const safeHistoryPage = Number.isSafeInteger(historyPage) && historyPage > 0 && historyPage <= 1_000 ? historyPage : 1;
+  const historyFrom = Array.isArray(requestedParams?.from) ? requestedParams?.from[0] : requestedParams?.from;
+  const historyTo = Array.isArray(requestedParams?.to) ? requestedParams?.to[0] : requestedParams?.to;
+  const historyQuery = new URLSearchParams({ limit: "100", page: String(safeHistoryPage), ...(historyFrom ? { from: historyFrom } : {}), ...(historyTo ? { to: historyTo } : {}) }).toString();
   const result = await loadReadModel(getToken);
   const operationsHealth = await loadOperationsHealth(getToken);
   const agentRuns = await loadAgentRuns(getToken);
   const paperPerformance = await loadPaperPerformance(getToken, performanceRange);
-  const operatorOverview = await loadOperatorOverview(getToken);
+  const operatorOverview = await loadOperatorOverview(getToken, `?${historyQuery}`);
   const freshness = result.kind === "ready" ? getFreshnessState(result.model.freshness.ageSeconds) : "stale";
   const freshnessLabel = getFreshnessLabel(freshness);
   const portfolioMarketValue = result.kind === "ready" ? result.model.positions.reduce((sum, position) => sum + (numericValue(position, "marketValue") ?? 0), 0) : undefined;
@@ -380,6 +387,15 @@ export default async function DashboardPage({ searchParams }: { readonly searchP
           <a href="#performance">Performance</a>
         <a href="#alerts">Alerts</a>
       </nav>
+
+      <section className="history-toolbar" aria-label="Audit history controls">
+        <span className="label">Audit history</span>
+        <span>Page {operatorOverview?.history?.page ?? safeHistoryPage}</span>
+        <a className={safeHistoryPage <= 1 ? "disabled-link" : ""} href={`/dashboard?${new URLSearchParams({ page: String(Math.max(1, safeHistoryPage - 1)), ...(historyFrom ? { from: historyFrom } : {}), ...(historyTo ? { to: historyTo } : {}) }).toString()}`} aria-disabled={safeHistoryPage <= 1}>Previous</a>
+        <a className={operatorOverview?.history?.hasNext === false ? "disabled-link" : ""} href={`/dashboard?${new URLSearchParams({ page: String(safeHistoryPage + 1), ...(historyFrom ? { from: historyFrom } : {}), ...(historyTo ? { to: historyTo } : {}) }).toString()}`} aria-disabled={operatorOverview?.history?.hasNext === false}>Next</a>
+        <form method="get" className="history-filter"><label htmlFor="history-from">From</label><input id="history-from" name="from" type="date" defaultValue={historyFrom?.slice(0, 10)} /><label htmlFor="history-to">To</label><input id="history-to" name="to" type="date" defaultValue={historyTo?.slice(0, 10)} /><button type="submit">Apply</button></form>
+        <span className="provenance">Read-only, bounded to 100 records per page</span>
+      </section>
 
       {result.kind === "unavailable" ? (
         <section className="grid" aria-label="Dashboard unavailable state">
@@ -443,7 +459,7 @@ export default async function DashboardPage({ searchParams }: { readonly searchP
 
           <AuditTimelineCard overview={operatorOverview} />
 
-          <OperatorAuditCards overview={operatorOverview} />
+          <OperatorAuditCards historyQuery={historyQuery} overview={operatorOverview} />
 
           <AlertsCard health={operationsHealth} freshness={freshness} performance={paperPerformance} />
 
