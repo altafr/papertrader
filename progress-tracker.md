@@ -2022,6 +2022,6 @@
 ### 2026-08-25 — Phase 6.130 scheduler-audit gate visibility deployed
 
 - Added a redacted API/dashboard read model that distinguishes the scheduler-audit write gate (`disabled`, `blocked`, or `enabled`) from the latest persisted run status. It exposes only booleans and bounded status values; activation references are never returned.
-- Verification: 227 tests, full typecheck, lint, and production build pass. API deployment `a62ace4e-caff-40a7-ab2e-c5654ded16e9` reached `SUCCESS`; `/health` returned healthy and unauthenticated Operations Health returned `401`.
+- Verification: 227 tests, full typecheck, lint, and production build pass. API deployment `a62ace4e-caff-40a7-ab2e-c5654ded16e9` reached `SUCCESS`; Vercel production deployment `https://papertrader-7xv59tusl-altafrs-projects.vercel.app` reached `Ready`; `/health` returned healthy and unauthenticated Operations Health returned `401`.
 - The production dashboard continues to show the audit write gate as disabled, with migration `0010` ready and no runtime audit writes. No scheduler trigger, broker request, order submission, or Paper Autopilot state changed.
 - **Next smallest unit:** Obtain an explicit bounded scheduler-audit activation reference, then enable and verify the first persisted scheduler-run record.
