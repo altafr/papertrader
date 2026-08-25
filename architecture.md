@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.144 startup recovery invariant tested and deployed; natural scheduler-cycle verification, post-restore reconciliation, recovery sign-off, and persistent Paper Autopilot activation remain separately gated.
+- **Stage:** Phase 6.145 post-deployment secret-surface audit passed; natural scheduler-cycle verification, post-restore reconciliation, recovery sign-off, and persistent Paper Autopilot activation remain separately gated.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -126,6 +126,11 @@ Do not run the continuous trading loop in the browser or Vercel functions. Verce
 
 - Worker deployment `75287072-b5d4-473c-997d-1b9e3f7974e3` reached `SUCCESS`; private Worker Health returned `healthy` with scheduler `scheduled` for `2026-08-26T00:00:00Z`, observe mode, inactive kill switch, and Paper Autopilot disabled.
 - The deployment preserves the startup reconciliation gate and its fail-closed test coverage; no manual scheduler trigger or order action occurred.
+
+### 2026-08-25 — Phase 6.145 post-deployment secret-surface audit
+
+- `pnpm audit:secret-surfaces` passed after the recovery-gate changes, finding no credential-like values in source or browser output.
+- No hosted configuration, scheduler, queue, broker, or trading state changed during this read-only audit.
 
 ### Deployment Recommendation
 
