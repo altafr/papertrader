@@ -1,5 +1,6 @@
 import * as DecimalModule from "decimal.js";
 import type { AgentArtifact, AgentHandler } from "./agent-runs.js";
+import { computeMarketIndicatorSnapshot, type MarketIndicatorSnapshot } from "./indicators.js";
 import type { StrategyAssetClass, StrategyBar } from "./strategy.js";
 
 interface DecimalValue {
@@ -29,6 +30,7 @@ export interface ResearchWatchlistCandidate {
   readonly dataAsOf: string;
   readonly momentumReturn: string;
   readonly symbol: string;
+  readonly marketSnapshot?: MarketIndicatorSnapshot;
 }
 
 export interface ResearchWatchlistPayload {
@@ -74,12 +76,14 @@ function buildWatchlist(input: ResearchAgentInput): ResearchWatchlistPayload {
     const first = parse(bars[0]!.close, "close");
     const latest = parse(bars[bars.length - 1]!.close, "close");
     const averageVolume = bars.reduce((sum, bar) => sum.plus(parse(bar.volume, "volume")), new Decimal("0")).div(String(bars.length));
+    const marketSnapshot = computeMarketIndicatorSnapshot({ bars, asOf: bars[bars.length - 1]!.timestamp });
     candidates.push({
       assetClass: input.assetClass,
       averageVolume: output(averageVolume),
       dataAsOf: bars[bars.length - 1]!.timestamp,
       momentumReturn: output(latest.div(first).minus("1")),
       symbol,
+      ...(marketSnapshot ? { marketSnapshot } : {}),
     });
   }
   candidates.sort((a, b) => {
