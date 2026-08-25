@@ -8,6 +8,7 @@
 
 - The operator overview history metadata now includes the newest captured timestamp from the current bounded page, and the dashboard labels it as persisted-event provenance in UTC.
 - An empty page remains explicitly unavailable rather than being assigned a browser-generated timestamp.
+- API deployment `9ae089a8-804b-4617-8c85-145550424820` is healthy and Vercel preview `https://papertrader-b91d9tutm-altafrs-projects.vercel.app` is ready; authenticated rendering still requires the operator session.
 
 ### Truthful unavailable-audit state (2026-08-26)
 

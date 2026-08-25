@@ -14,7 +14,7 @@
 - [x] Render it beside the active date range and coverage totals using UTC formatting.
 - [x] Preserve explicit `Not available` handling when the page contains no persisted events.
 - [x] Verify 251 tests, typecheck, lint, and production build pass.
-- [ ] Deploy API/web changes and verify authenticated hosted provenance rendering.
+- [x] Deploy API `9ae089a8-804b-4617-8c85-145550424820` and Vercel preview `https://papertrader-b91d9tutm-altafrs-projects.vercel.app`; API health is healthy. Authenticated provenance rendering remains pending behind deployment protection.
 
 ### Phase 6.195 — Truthful unavailable-audit state (2026-08-26)
 
