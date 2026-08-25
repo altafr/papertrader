@@ -11,6 +11,8 @@ export function getWorkerHealth(now = new Date(), environment: NodeJS.ProcessEnv
   const durable = getDurableSchedulerHealth();
   const durableConfig = getDurableSchedulerConfig(environment);
   const activationApprovalReferencePresent = !durableConfig.enabled || Boolean(environment.DURABLE_SCHEDULER_ACTIVATION_APPROVAL_REFERENCE?.trim() && /^[A-Za-z0-9][A-Za-z0-9._:/-]{0,127}$/.test(environment.DURABLE_SCHEDULER_ACTIVATION_APPROVAL_REFERENCE.trim()));
+  const auditEnabled = environment.DURABLE_SCHEDULER_AUDIT_ENABLED === "true";
+  const auditActivationApprovalReferencePresent = Boolean(environment.DURABLE_SCHEDULER_AUDIT_ACTIVATION_APPROVAL_REFERENCE?.trim() && /^[A-Za-z0-9][A-Za-z0-9._:/-]{0,127}$/.test(environment.DURABLE_SCHEDULER_AUDIT_ACTIVATION_APPROVAL_REFERENCE.trim()));
   const research = getResearchScheduleConfig(environment);
   const researchReadiness = getResearchScheduleReadiness(environment);
   const researchRuntime = getResearchSchedulerHealth();
@@ -23,7 +25,7 @@ export function getWorkerHealth(now = new Date(), environment: NodeJS.ProcessEnv
     asOf: now.toISOString(),
     brokerConnectionEnabled: environment.BROKER_CONNECTION_ENABLED === "true",
     database: environment.DATABASE_URL?.trim() ? "configured" : "not_configured",
-    durableScheduler: { ...durable, activationApprovalReferencePresent, cron: durableConfig.cron, enabled: durableConfig.enabled, timezone: DAILY_PREPARATION_TIMEZONE },
+    durableScheduler: { ...durable, auditActivationApprovalReferencePresent, auditEnabled, activationApprovalReferencePresent, cron: durableConfig.cron, enabled: durableConfig.enabled, timezone: DAILY_PREPARATION_TIMEZONE },
     globalKillSwitchActive: isGlobalKillSwitchActive(environment),
     operatingMode: getPaperOperatingMode(environment),
     researchSchedule: { enabled: research.enabled, handlerEnabled: research.handlerEnabled, ...(researchRuntime.lastRunAt ? { lastRunAt: researchRuntime.lastRunAt } : {}), ...(researchRuntime.nextRunAt ? { nextRunAt: researchRuntime.nextRunAt } : {}), status: researchStatus },

@@ -11,7 +11,7 @@ describe("worker health", () => {
       asOf: "2026-08-21T00:00:00.000Z",
       brokerConnectionEnabled: false,
       database: "not_configured",
-      durableScheduler: { activationApprovalReferencePresent: true, cron: "0 0 * * *", enabled: false, status: "disabled", timezone: "UTC" },
+      durableScheduler: { activationApprovalReferencePresent: true, auditActivationApprovalReferencePresent: false, auditEnabled: false, cron: "0 0 * * *", enabled: false, status: "disabled", timezone: "UTC" },
       globalKillSwitchActive: false,
       operatingMode: "observe",
       researchSchedule: { enabled: false, handlerEnabled: false, status: "disabled" },
@@ -30,9 +30,11 @@ describe("worker health", () => {
       ALPACA_PAPER_TRADE: "true",
       BROKER_CONNECTION_ENABLED: "false",
       DATABASE_URL: "postgres://private",
+      DURABLE_SCHEDULER_AUDIT_ACTIVATION_APPROVAL_REFERENCE: "scheduler-audit-activate-001",
+      DURABLE_SCHEDULER_AUDIT_ENABLED: "true",
       TRADING_MODE: "paper",
     });
-    expect(health).toMatchObject({ alpaca: "configured", brokerConnectionEnabled: false, database: "configured", operatingMode: "observe" });
+    expect(health).toMatchObject({ alpaca: "configured", brokerConnectionEnabled: false, database: "configured", durableScheduler: { auditActivationApprovalReferencePresent: true, auditEnabled: true }, operatingMode: "observe" });
   });
 
   it("reports the configured daily UTC schedule without activating it", () => {
