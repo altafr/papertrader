@@ -2,7 +2,13 @@
 
 ## Status
 
-- **Stage:** Phase 6.158 Unified operator audit dashboard added; multi-day evidence collection continues.
+- **Stage:** Phase 6.159 Point-in-time decision indicators persisted; multi-day evidence collection continues.
+
+### Point-in-time decision indicators (2026-08-25)
+
+- Finalized-bar strategy candidates now carry RSI14, EMA20, EMA50, ATR14, relative volume20, close, volume, and the signal timestamp.
+- Migration `0011_decision_market_snapshots.sql` adds JSONB snapshots to shadow observations and paper order submissions. It was applied with bounded reference `MARKET-SNAPSHOT-0011`; hosted migration planning reports no pending migrations.
+- The operator overview exposes these snapshots for filtered signals and paper execution decisions. Legacy rows without snapshots remain visible as incomplete rather than being backfilled with invented values.
 
 ### Unified operator audit dashboard (2026-08-25)
 
