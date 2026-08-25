@@ -15,7 +15,8 @@
 - [x] Consolidate agents, portfolio positions, order/fill history, performance, filtered trades, and decision log in the dark compact dashboard.
 - [x] Mark execution decisions without attached market snapshots as incomplete rather than implying indicator coverage.
 - [x] Verify 236 tests, typecheck, lint, and production build pass.
-- [ ] Deploy API and Vercel dashboard, then verify authenticated hosted rendering.
+- [x] Deploy API `0f73391e-e92a-47f3-b7fd-a5df0224bef1` and Vercel preview `https://papertrader-1hnd36sky-altafrs-projects.vercel.app`; API health is healthy and unauthenticated overview access correctly returns `401`.
+- [ ] Verify authenticated hosted rendering in the operator browser session.
 
 ### Phase 6.148 — Capital baseline and loss-cut policy (2026-08-25)
 
