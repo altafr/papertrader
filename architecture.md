@@ -2,7 +2,12 @@
 
 ## Status
 
-- **Stage:** Phase 6.165 Read-only current-state alert summary added; multi-day evidence collection continues.
+- **Stage:** Phase 6.166 Selectable paper-performance windows added; multi-day evidence collection continues.
+
+### Selectable paper-performance windows (2026-08-26)
+
+- The authenticated paper-performance endpoint accepts validated `range=7d`, `range=30d`, or `range=all` parameters and recalculates metrics, equity curve, drawdown, and stability coverage from the selected reconciled snapshots.
+- The dashboard exposes compact 7d/30d/All links and labels the active window. Invalid ranges are rejected, and unauthenticated requests remain protected.
 
 ### Read-only current-state alert summary (2026-08-26)
 

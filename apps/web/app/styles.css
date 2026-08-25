@@ -284,6 +284,26 @@ h2 {
   text-decoration: underline;
 }
 
+.range-links {
+  display: flex;
+  gap: 0.35rem;
+}
+
+.range-links a {
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--muted);
+  font-size: 0.7rem;
+  padding: 0.25rem 0.5rem;
+  text-decoration: none;
+}
+
+.range-links a.active,
+.range-links a:hover {
+  border-color: var(--paper);
+  color: var(--paper);
+}
+
 .agent-runs-list {
   border-top: 1px solid var(--border);
   display: grid;

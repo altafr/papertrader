@@ -387,8 +387,14 @@ async function readPaperPerformance(request: IncomingMessage) {
   if (!process.env.DATABASE_URL?.trim()) return { body: { error: "db_not_configured" }, status: 503 } as const;
   const { pool } = createDatabase();
   try {
+    const url = new URL(request.url ?? "/", `http://${request.headers.host ?? "localhost"}`);
+    const requestedRange = url.searchParams.get("range") ?? "all";
+    if (!(requestedRange === "all" || requestedRange === "7d" || requestedRange === "30d")) return { body: { error: "invalid_performance_range" }, status: 400 } as const;
     const result = await pool.query<{ readonly captured_at: Date; readonly equity: string }>("SELECT captured_at, equity FROM account_snapshots ORDER BY captured_at DESC LIMIT 500");
-    const snapshots = result.rows.map((row) => ({ capturedAt: row.captured_at.toISOString(), equity: String(row.equity) })).sort((left, right) => Date.parse(left.capturedAt) - Date.parse(right.capturedAt));
+    const allSnapshots = result.rows.map((row) => ({ capturedAt: row.captured_at.toISOString(), equity: String(row.equity) })).sort((left, right) => Date.parse(left.capturedAt) - Date.parse(right.capturedAt));
+    const latestCapturedAt = allSnapshots.at(-1)?.capturedAt;
+    const cutoff = requestedRange === "all" || !latestCapturedAt ? undefined : Date.parse(latestCapturedAt) - (requestedRange === "7d" ? 7 : 30) * 86_400_000;
+    const snapshots = cutoff === undefined ? allSnapshots : allSnapshots.filter((snapshot) => Date.parse(snapshot.capturedAt) >= cutoff);
     const dates = [...new Set(snapshots.map((snapshot) => snapshot.capturedAt.slice(0, 10)))];
     let consecutiveCalendarDays = dates.length > 0 ? 1 : 0;
     for (let index = 1; index < dates.length; index += 1) {
@@ -396,7 +402,7 @@ async function readPaperPerformance(request: IncomingMessage) {
       const current = Date.parse(`${dates[index]}T00:00:00Z`);
       consecutiveCalendarDays = current - previous === 86_400_000 ? consecutiveCalendarDays + 1 : 1;
     }
-    if (snapshots.length < 2) return { body: { calendarDays: dates.length, consecutiveCalendarDays, snapshotCount: snapshots.length, stability: { blockedReasons: ["minimum_30_consecutive_calendar_days_not_met", "performance_history_insufficient"], status: "blocked" }, status: "insufficient_history" }, status: 200 } as const;
+    if (snapshots.length < 2) return { body: { calendarDays: dates.length, consecutiveCalendarDays, performanceRange: requestedRange, snapshotCount: snapshots.length, stability: { blockedReasons: ["minimum_30_consecutive_calendar_days_not_met", "performance_history_insufficient"], status: "blocked" }, status: "insufficient_history" }, status: 200 } as const;
     const metrics = calculatePerformanceMetrics(snapshots);
     let peak = Number(snapshots[0]?.equity ?? "0");
     const initial = Number(snapshots[0]?.equity ?? "0");
@@ -414,7 +420,7 @@ async function readPaperPerformance(request: IncomingMessage) {
       ...(consecutiveCalendarDays >= 30 ? [] : ["minimum_30_consecutive_calendar_days_not_met"]),
       ...(Number(metrics.maxDrawdownPercent) <= 5 ? [] : ["maximum_drawdown_policy_exceeded"]),
     ];
-    return { body: { calendarDays: dates.length, consecutiveCalendarDays, equityCurve, firstCapturedAt: snapshots[0]?.capturedAt, lastCapturedAt: snapshots[snapshots.length - 1]?.capturedAt, metrics, snapshotCount: snapshots.length, stability: { blockedReasons, status: blockedReasons.length === 0 ? "ready" : "blocked" }, status: "ready" }, status: 200 } as const;
+    return { body: { calendarDays: dates.length, consecutiveCalendarDays, equityCurve, firstCapturedAt: snapshots[0]?.capturedAt, lastCapturedAt: snapshots[snapshots.length - 1]?.capturedAt, metrics, performanceRange: requestedRange, snapshotCount: snapshots.length, stability: { blockedReasons, status: blockedReasons.length === 0 ? "ready" : "blocked" }, status: "ready" }, status: 200 } as const;
   } finally {
     await pool.end();
   }
@@ -720,7 +726,7 @@ const server = createServer((request, response) => {
     return;
   }
 
-  if (request.method === "GET" && request.url === "/v1/paper-performance") {
+  if (request.method === "GET" && request.url?.startsWith("/v1/paper-performance")) {
     readPaperPerformance(request)
       .then(({ body, status }) => {
         response.writeHead(status, { "content-type": "application/json" });
