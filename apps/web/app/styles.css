@@ -206,6 +206,15 @@ main {
   outline: none;
 }
 
+.disabled-control {
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--muted);
+  font-size: 0.75rem;
+  opacity: 0.55;
+  padding: 0.35rem 0.65rem;
+}
+
 .history-toolbar .disabled-link {
   color: var(--muted);
   opacity: 0.55;
@@ -237,6 +246,17 @@ main {
 
 .history-filter button {
   cursor: pointer;
+}
+
+.clear-filter {
+  color: var(--paper);
+  font-size: 0.72rem;
+  text-decoration: none;
+}
+
+.clear-filter:hover,
+.clear-filter:focus-visible {
+  text-decoration: underline;
 }
 
 .history-presets {

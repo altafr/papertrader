@@ -79,6 +79,7 @@ describe("dashboard state", () => {
 
   it("preserves the selected performance range during audit navigation", () => {
     expect(buildDashboardHistoryParams(2, "30d", "2026-08-01", "2026-08-26").toString()).toBe("page=2&range=30d&from=2026-08-01&to=2026-08-26");
+    expect(buildDashboardHistoryParams(1, "30d").toString()).toBe("page=1&range=30d");
   });
 
   it("labels the active audit window in UTC", () => {

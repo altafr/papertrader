@@ -2,7 +2,12 @@
 
 ## Status
 
-- **Stage:** Phase 6.193 Explicit active audit-window label; multi-day evidence collection continues.
+- **Stage:** Phase 6.194 Clearable audit filters and disabled navigation; multi-day evidence collection continues.
+
+### Clearable audit filters and disabled navigation (2026-08-26)
+
+- The dashboard offers a read-only Clear action for audit date bounds and preserves the selected performance range when clearing.
+- Previous/Next controls are rendered as non-interactive text when the current page has no corresponding page, preventing misleading navigation affordances.
 
 ### Explicit active audit-window label (2026-08-26)
 
