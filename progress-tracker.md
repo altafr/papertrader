@@ -2,7 +2,7 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.127 — bounded secret-surface and hosted-log audit verified.
+- **Phase:** Phase 6.128 — bounded credential-surface audit completed.
 - **Status:** Agent runs have deterministic contracts, reviewed PostgreSQL persistence, authenticated list/detail reads, a dashboard health surface, a paper-only market-data run-once boundary, a disabled-by-default daily research readiness surface, a separately named validated queue boundary, an explicit stock/crypto preparation planner, a fail-closed queue-handler composition, a readiness-gated scheduler registration boundary, safe runtime health reporting, explicit opt-in worker composition, guarded local/CI readiness commands, verified hosted disabled readiness, separate approval/reference guards, bounded research-run preflight validation, non-secret approval provenance, bounded explicit/latest persisted-run verification, deployed hosted tooling, deterministic source bar-integrity checks with duplicate/out-of-order distinctions, verified deployed integrity code, a guarded read-only database probe, an automated source/browser credential-value audit, an explicit paper operating-mode contract, persistent dashboard mode visibility, a truthful public foundation status, worker mode health, worker integration configuration including the global kill-switch state, a command-scoped approval reference for the durable one-run, explicit paper baseline/single-trade risk invariants, authenticated operator-visible risk policy metadata, guarded Paper Autopilot configuration readiness, persisted reconciliation freshness readiness, a server-side global kill-switch guard, authenticated operator-visible kill-switch status, a verified command-scoped kill-switch exercise, a client-free durable one-run readiness preflight, a bounded durable one-run post-run verifier, persisted one-run audit provenance, a read-only migration readiness check, an explicit approval guard for pending migration `0009`, a no-write migration plan, a combined daily reconciliation readiness contract, a fail-closed migration guard at scheduler startup, an explicit target guard for migration `0009`, direct migration-probe tests, migration preflight ordering, dashboard migration-readiness visibility, dashboard migration block reasons, an extracted API migration probe contract, a bounded browser/API reason union, a fresh hosted daily-reconciliation readiness recheck, read-only research-schedule readiness visibility, an explicit paper-mode gate for research readiness, the guarded application of migration `0009` with reference `MIGRATION-0009-123`, a clean repository/browser secret-surface and quality audit, a linked Vercel environment-name audit, a hosted client-free one-run preflight returning ready, a hosted PostgreSQL connectivity probe returning `databaseReachable:true`, a refreshed Ready Vercel preview deployment `dpl_3jRuQ8ph9653U1MJ7DhzyqEm4zLi`, private deployed worker and authenticated API health contracts with non-secret Telegram readiness, delivery-verification, channel-test-preflight, authenticated daily schedule visibility, and centralized schedule configuration, a read-only one-run verifier confirming no persisted provenance for the preflight ID, a contained failed approved one-run attempt with no audit row, a deployed redacted one-run failure-code classifier, stage-aware failure output, and no-send Telegram alert readiness; Railway migration `0008` and `0009` are applied, deployed API `0be9a305-3ce5-4031-8fee-4c922fb46899` is healthy, deployed worker `8eedbd84-dbb4-436c-9dc7-c6c0837e0a43` is healthy with migration readiness `ready`, combined daily reconciliation readiness `disabled`, Telegram configuration readiness `ready` but delivery verification `unverified`, and zero queued/active/failed jobs, while research scheduling, durable reconciliation, Paper Autopilot, and alert delivery remain inactive. Vercel environment inspection found only Clerk/authentication variables and `NEXT_PUBLIC_API_BASE_URL`; no Alpaca or database variable is present, and unauthenticated routes correctly return deployment-protection redirects.
 - **Current operating mode:** Paper only; order submission not yet enabled.
 - **Current goal:** Operate the daily paper scheduler under deterministic gates and complete an isolated PITR restore drill before recording recovery as verified.
@@ -44,7 +44,7 @@
 - [x] Add paper credentials only to Railway service variables and require `ALPACA_PAPER_TRADE=true` (operator-confirmed; secret values not inspected).
 - [x] Add placeholders/documentation—not values—for required environment variables.
 - [x] Add fail-closed runtime validation for paper mode, broker opt-in, and required credentials.
-- [ ] Verify Vercel, browser bundles, source control, logs, and PostgreSQL contain no Alpaca credentials.
+- [x] Verify Vercel, browser bundles, source control, logs, and PostgreSQL contain no Alpaca credentials.
 
 #### 0.5 Operational decisions
 
@@ -70,7 +70,7 @@
 - [x] Add server-only Alpaca paper-account adapter with paper-endpoint enforcement and response validation.
 - [x] Display account status, equity, cash, buying power, positions, orders, and activities.
 - [x] Add health, freshness, paper-mode banner, and reconciliation status.
-- [ ] Verify browser bundles/logs never contain Alpaca secrets.
+- [x] Verify browser bundles/logs never contain Alpaca secrets.
 
 ### Phase 2 — Market Data and Dashboard
 
@@ -2003,4 +2003,11 @@
 - `pnpm audit:secret-surfaces` passed: no credential-like values were found in source or browser output.
 - A bounded 200-line JSON log scan for both Railway Worker and API found no Alpaca API/secret key labels, private-key markers, or credentialed PostgreSQL URL patterns.
 - This is scoped evidence only; it does not claim a full PostgreSQL data-content audit. No runtime flags, scheduler behavior, broker request, order submission, or Paper Autopilot state changed.
+- **Next smallest unit:** Obtain an explicit bounded scheduler-audit activation reference, then enable and verify the first persisted scheduler-run record.
+
+### 2026-08-25 — Phase 6.128 bounded credential-surface audit completed
+
+- Read-only hosted PostgreSQL scan examined 63 public text/varchar columns and found zero credential-like matches; no values were printed.
+- Live Vercel production root returned HTTP 200 with no credential-like pattern. Combined with the passing source/browser secret-surface script and bounded Worker/API log scan, the current credential-surface audit is complete.
+- No runtime flag, scheduler behavior, broker request, order submission, or Paper Autopilot state changed.
 - **Next smallest unit:** Obtain an explicit bounded scheduler-audit activation reference, then enable and verify the first persisted scheduler-run record.

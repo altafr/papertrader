@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.127 bounded secret-surface and hosted-log audit verified; scheduler audit activation, restore-drill verification, alert delivery, and Paper Autopilot activation remain separately gated.
+- **Stage:** Phase 6.128 bounded credential-surface audit completed; scheduler audit activation, restore-drill verification, alert delivery, and Paper Autopilot activation remain separately gated.
 - **Initial environment:** Alpaca paper trading only.
 - **Primary timezone:** Store timestamps in UTC; display exchange time and operator-local time explicitly.
 - **Core principle:** AI agents propose and explain; deterministic services authorize, submit, and reconcile.
@@ -55,6 +55,7 @@ Do not run the continuous trading loop in the browser or Vercel functions. Verce
 - API deployment `2efb3330-8ee5-4b59-a169-834cf11432cd` reached `SUCCESS`; public API health is healthy and unauthenticated Operations Health correctly returns `401`. Vercel production deployment `https://papertrader-j3idgz4ns-altafrs-projects.vercel.app` is `Ready` after a retry, so the dashboard observability change is now deployed.
 - The first natural UTC daily cycle was verified read-only with `DAILY_CYCLE_STARTED_AT=2026-08-25T00:00:00Z`: persisted reconciliation captured at `2026-08-25T00:00:32.065Z` and returned `status:"verified"`; work and dead-letter queues were present and fully drained. The scheduler audit gate remains unset, so no `durable_schedule_runs` row was expected or written.
 - `pnpm audit:secret-surfaces` passed with no credential-like values in source or browser output. A bounded 200-line JSON log scan for the Worker and API found no Alpaca key, private-key, or credentialed-PostgreSQL patterns. This does not claim a full PostgreSQL data audit; that remains a separately scoped verification if required.
+- A read-only hosted PostgreSQL scan examined 63 public text/varchar columns and found zero credential-like matches. The deployed Vercel root returned HTTP 200 with no credential-like pattern. Together with the source/browser and bounded log checks, this completes the current credential-surface audit without exposing values.
 - PITR presence is not a restore drill. `RECOVERY_DRILL_VERIFIED` remains unset, so recovery status stays `unverified` until an isolated restore is completed and its reference/timestamp are recorded.
 
 ### Deployment Recommendation
