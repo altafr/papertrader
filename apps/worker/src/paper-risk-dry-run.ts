@@ -1,5 +1,10 @@
 import { approvePaperTradeIntent, createImmutablePaperSignal, createImmutablePaperTradeIntent, type PaperTradeApproval, type PaperRiskState, type ResearchWatchlistCandidate } from "@momentum/domain";
 
+export function isPaperBaselineVerified(equity: string | number | undefined, baseline = 100_000, tolerance = 1): boolean {
+  const value = typeof equity === "number" ? equity : Number(equity);
+  return Number.isFinite(value) && Math.abs(value - baseline) <= tolerance;
+}
+
 export type RiskCandidate = ResearchWatchlistCandidate & { readonly expiresAt: string; readonly plannedExitPrice: string; readonly plannedStopPrice: string; readonly proposedEntryPrice: string; readonly rationale: string; readonly score: string; readonly signalTime: string; readonly side: "long"; readonly strategyKey: string; readonly strategyVersion: string };
 
 export function buildRiskCandidate(input: ResearchWatchlistCandidate, now = new Date()): RiskCandidate {

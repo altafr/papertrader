@@ -2,7 +2,7 @@ import { createPaperAccountReader, createPaperMarketDataReader, createPaperOrder
 import { getPaperOnlyRuntimeConfig, isGlobalKillSwitchActive } from "@momentum/config";
 import { createAccountStateRepository, createAgentRunRepository, createDatabase, createPaperOrderRepository } from "@momentum/db";
 import { executePaperAutopilotOrder } from "./paper-execution.js";
-import { assessResearchCandidateRisk } from "./paper-risk-dry-run.js";
+import { assessResearchCandidateRisk, isPaperBaselineVerified } from "./paper-risk-dry-run.js";
 import { reconcilePaperAccount } from "./reconcile.js";
 
 if (process.env.PAPER_ORDER_FROM_RESEARCH_ONCE !== "true") throw new Error("PAPER_ORDER_FROM_RESEARCH_ONCE must be exactly true.");
@@ -45,7 +45,7 @@ try {
   const now = new Date();
   const candidateAge = now.getTime() - Date.parse(candidate.dataAsOf);
   const state = {
-    accountBaselineVerified: Boolean(initialSnapshot && Number(initialSnapshot.equity) === 100000),
+    accountBaselineVerified: Boolean(initialSnapshot && isPaperBaselineVerified(initialSnapshot.equity)),
     accountFresh: Math.floor((now.getTime() - model.freshness.capturedAt.getTime()) / 1000) <= 172_800,
     dataFresh: Number.isFinite(candidateAge) && candidateAge >= 0 && candidateAge <= 172_800_000,
     killSwitchActive: isGlobalKillSwitchActive(),

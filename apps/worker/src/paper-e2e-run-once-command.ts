@@ -9,7 +9,7 @@ import { createAlpacaResearchInputSource } from "./research-market-source.js";
 import { reconcilePaperAccount } from "./reconcile.js";
 import { getResearchMarketInputRefs } from "./research-market-run-once-guard.js";
 import { validatePaperE2ERunOnce } from "./paper-e2e-run-once.js";
-import { assessResearchCandidateRisk } from "./paper-risk-dry-run.js";
+import { assessResearchCandidateRisk, isPaperBaselineVerified } from "./paper-risk-dry-run.js";
 import { executePaperAutopilotOrder } from "./paper-execution.js";
 
 const config = validatePaperE2ERunOnce();
@@ -47,7 +47,7 @@ try {
   const now = new Date();
   const accountFresh = Math.floor((now.getTime() - model.freshness.capturedAt.getTime()) / 1000) <= 172_800;
   const state = {
-    accountBaselineVerified: Boolean(initialSnapshot && Number(initialSnapshot.equity) === 100000),
+    accountBaselineVerified: Boolean(initialSnapshot && isPaperBaselineVerified(initialSnapshot.equity)),
     accountFresh,
     dataFresh: marketInput.freshness === "fresh",
     killSwitchActive: isGlobalKillSwitchActive(),
