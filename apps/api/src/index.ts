@@ -423,7 +423,7 @@ async function readOperatorOverview(request: IncomingMessage) {
   const { pool } = createDatabase();
   try {
     const [agents, filteredTrades, submissions] = await Promise.all([
-      pool.query("SELECT run_id, agent_type, task, status, created_at, started_at, finished_at, artifact_rationale, artifact_confidence, artifact_evidence_refs, artifact_payload, artifact_type, prompt_version FROM agent_runs ORDER BY created_at DESC LIMIT 50"),
+      pool.query("SELECT run_id, agent_type, task, status, created_at, started_at, finished_at, error_code, input_refs, model_provider, artifact_rationale, artifact_confidence, artifact_evidence_refs, artifact_payload, artifact_type, prompt_version FROM agent_runs ORDER BY created_at DESC LIMIT 50"),
       pool.query("SELECT s.observation_id, s.symbol, s.asset_class, s.strategy_key, s.strategy_version, s.score, s.proposed_entry_price, s.planned_stop_price, s.planned_exit_price, s.signal_time, s.expires_at, s.rationale, s.market_snapshot, o.exit_price, o.observed_at, o.reason, o.return_percent FROM shadow_observations s LEFT JOIN shadow_observation_outcomes o ON o.observation_id = s.observation_id ORDER BY s.signal_time DESC LIMIT 100"),
       pool.query("SELECT intent_id, approval_id, client_order_id, alpaca_order_id, symbol, asset_class, quantity, filled_quantity, status, created_at, submitted_at, updated_at, market_snapshot, risk_decision FROM paper_order_submissions ORDER BY COALESCE(updated_at, created_at) DESC LIMIT 100"),
     ]);
@@ -451,7 +451,27 @@ async function readOperatorOverview(request: IncomingMessage) {
     });
     return {
       body: {
-        agents: agents.rows.map((row) => ({ ...row, createdAt: row.created_at, startedAt: row.started_at, finishedAt: row.finished_at, runId: row.run_id, agentType: row.agent_type, artifactRationale: typeof row.artifact_rationale === "string" ? row.artifact_rationale.slice(0, 2_000) : null, artifactConfidence: row.artifact_confidence, artifactEvidenceRefs: row.artifact_evidence_refs, artifactType: row.artifact_type, promptVersion: row.prompt_version })),
+        agents: agents.rows.map((row) => ({
+          agentType: row.agent_type,
+          ...(row.artifact_type || row.artifact_rationale || row.artifact_confidence || row.artifact_evidence_refs ? {
+            artifact: {
+              ...(typeof row.artifact_confidence === "string" ? { confidence: row.artifact_confidence } : {}),
+              ...(Array.isArray(row.artifact_evidence_refs) ? { evidenceRefs: row.artifact_evidence_refs } : {}),
+              ...(typeof row.artifact_rationale === "string" ? { rationale: row.artifact_rationale.slice(0, 2_000) } : {}),
+              ...(typeof row.artifact_type === "string" ? { type: row.artifact_type } : {}),
+            },
+          } : {}),
+          createdAt: row.created_at,
+          ...(row.error_code ? { errorCode: row.error_code } : {}),
+          ...(row.finished_at ? { finishedAt: row.finished_at } : {}),
+          inputRefs: Array.isArray(row.input_refs) ? row.input_refs : [],
+          ...(row.model_provider ? { modelProvider: row.model_provider } : {}),
+          promptVersion: row.prompt_version,
+          runId: row.run_id,
+          ...(row.started_at ? { startedAt: row.started_at } : {}),
+          status: row.status,
+          task: row.task,
+        })),
         filteredTrades: [...filteredTrades.rows.map((row) => ({ observationId: row.observation_id, symbol: row.symbol, assetClass: row.asset_class, strategyKey: row.strategy_key, strategyVersion: row.strategy_version, score: row.score, proposedEntryPrice: row.proposed_entry_price, plannedStopPrice: row.planned_stop_price, plannedExitPrice: row.planned_exit_price, signalTime: row.signal_time, expiresAt: row.expires_at, rationale: row.rationale, marketSnapshot: row.market_snapshot, outcome: row.reason ? { exitPrice: row.exit_price, observedAt: row.observed_at, reason: row.reason, returnPercent: row.return_percent } : null, status: row.reason ? "closed" : "open" })), ...researchCandidates],
         tradeDecisions: submissions.rows.map((row) => ({ intentId: row.intent_id, approvalId: row.approval_id, clientOrderId: row.client_order_id, alpacaOrderId: row.alpaca_order_id, symbol: row.symbol, assetClass: row.asset_class, quantity: row.quantity, filledQuantity: row.filled_quantity, status: row.status, createdAt: row.created_at, submittedAt: row.submitted_at, updatedAt: row.updated_at, reason: Array.isArray(row.risk_decision?.reasons) && row.risk_decision.reasons.length > 0 ? row.risk_decision.reasons.join("; ") : "Deterministic paper execution approval recorded.", riskDecision: row.risk_decision, marketSnapshot: row.market_snapshot })),
       },

@@ -2,7 +2,13 @@
 
 ## Status
 
-- **Stage:** Phase 6.162 Deterministic risk decision evidence added; multi-day evidence collection continues.
+- **Stage:** Phase 6.163 Agent rationale and evidence visibility corrected; multi-day evidence collection continues.
+
+### Agent rationale and evidence visibility (2026-08-26)
+
+- The operator-overview agent contract now returns the nested artifact shape consumed by the dashboard parser, preserving stored rationale, confidence, type, and evidence references.
+- The dashboard shows each recent agent's task, status, stored rationale, confidence, artifact type, and evidence-reference count in the compact dark audit panel.
+- This remains structured, persisted agent output only; hidden chain-of-thought is not collected or exposed, and deterministic risk/execution gates remain authoritative.
 
 ### Deterministic risk decision evidence (2026-08-26)
 
