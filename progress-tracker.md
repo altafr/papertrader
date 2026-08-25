@@ -1987,6 +1987,6 @@
 - Added the authenticated Operations Health scheduler-audit read model and strict dashboard parsing/rendering for the latest recurring run: completed, failed, running, or unavailable.
 - The API redacts database/provider details and exposes only bounded status, run ID, UTC timestamps, and generic failure code. Missing schema/rows fail soft to `unavailable` so legacy/default-disabled operation remains safe.
 - Verification: 224 tests, full typecheck, lint, and production build pass. API deployment `2efb3330-8ee5-4b59-a169-834cf11432cd` reached `SUCCESS`; public health is healthy and unauthenticated Operations Health returns `401`.
-- Vercel production deployment timed out twice after upload; the previous protected frontend deployment remains the latest confirmed deployment, so the dashboard change is committed but not yet confirmed live.
+- Vercel production deployment `https://papertrader-j3idgz4ns-altafrs-projects.vercel.app` is `Ready` after a bounded retry, so the dashboard observability change is confirmed live.
 - No scheduler audit activation, scheduler trigger, broker request, order submission, or Paper Autopilot state changed.
-- **Next smallest unit:** Confirm/retry the Vercel deployment, then obtain an explicit bounded audit activation reference before enabling runtime audit writes.
+- **Next smallest unit:** Obtain an explicit bounded audit activation reference before enabling runtime audit writes.
