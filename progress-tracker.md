@@ -2668,3 +2668,10 @@
 - Extended the guarded baseline-readiness command with `PAPER_BASELINE_READINESS_LIVE=true`. It now reads and reconciles the live paper account before classifying the current and initial snapshots, eliminating stale database evidence after credential rotation.
 - Deployment `afb01261-d8ad-4177-aa76-63bb9315db4b` reached `SUCCESS`; live verification returned `currentBaseline:"outside_tolerance"`, `initialBaseline:"outside_tolerance"`, `status:"blocked"` without exposing account values or submitting an order.
 - **Next smallest unit:** create the new USD 100,000 paper account and rotate Railway credentials, then rerun the live readiness command; a `ready` result will unlock the guarded order attempt.
+
+### 2026-08-26 — Phase 6.161 guarded paper-order preflight
+
+- Added and deployed `PAPER_ORDER_PREFLIGHT=true`, which reconciles the live account, discovers the latest successful stock research artifact, counts candidates, and checks snapshot-fallback availability without submitting an order.
+- Production preflight returned: baseline blocked, latest stock artifact succeeded, candidate count `0`, AAPL snapshot fallback available, overall status blocked. This gives the post-reset order procedure a single deterministic readiness check.
+- Worker deployment `b9161dc4-692c-4a81-9b68-f87350ad6c30` reached `SUCCESS`; no trading or persistent mode change occurred.
+- **Next smallest unit:** after credential rotation, run the preflight until `status:"ready"`, then run the guarded one-share order with snapshot fallback.
