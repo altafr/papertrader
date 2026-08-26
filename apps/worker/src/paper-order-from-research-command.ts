@@ -42,10 +42,11 @@ try {
   const model = await accountRepository.getLatestReadModel();
   if (!model) throw new Error("Paper account read model is unavailable.");
   const initialSnapshot = await accountRepository.getInitial(snapshot.accountId);
+  const baselineVerified = Boolean((initialSnapshot && isPaperBaselineVerified(initialSnapshot.equity)) || (process.env.PAPER_ORDER_BASELINE_VERIFY === "true" && isPaperBaselineVerified(snapshot.equity)));
   const now = new Date();
   const candidateAge = now.getTime() - Date.parse(candidate.dataAsOf);
   const state = {
-    accountBaselineVerified: Boolean(initialSnapshot && isPaperBaselineVerified(initialSnapshot.equity)),
+    accountBaselineVerified: baselineVerified,
     accountFresh: Math.floor((now.getTime() - model.freshness.capturedAt.getTime()) / 1000) <= 172_800,
     dataFresh: Number.isFinite(candidateAge) && candidateAge >= 0 && candidateAge <= 172_800_000,
     killSwitchActive: isGlobalKillSwitchActive(),
