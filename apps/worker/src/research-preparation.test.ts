@@ -72,4 +72,17 @@ describe("research preparation", () => {
     expect(calls.filter((call) => call === "succeed")).toHaveLength(2);
     expect(calls).not.toContain("fail");
   });
+
+  it("retains a successful asset artifact when another asset source is unavailable", async () => {
+    const source = { read: vi.fn(async (plan) => {
+      if (plan.assetClass === "crypto") throw new Error("insufficient bars");
+      return input("us_equity");
+    }) };
+    const handler = createResearchPreparationQueueHandler({
+      environment: { ALPACA_API_KEY: "paper-key", ALPACA_SECRET_KEY: "paper-secret", ALPACA_PAPER_TRADE: "true", BROKER_CONNECTION_ENABLED: "true", DATABASE_URL: "postgres://private", RESEARCH_CRYPTO_SYMBOLS: "BTC/USD", RESEARCH_HANDLER_ENABLED: "true", RESEARCH_SCHEDULER_ENABLED: "true", RESEARCH_STOCK_SYMBOLS: "AAPL", TRADING_MODE: "paper" },
+      persistence: { enqueue: async () => {}, start: async () => {}, succeed: async () => {}, fail: async () => {} },
+      source,
+    });
+    await expect(handler({ kind: "research_preparation", version: 1 })).resolves.toEqual(expect.arrayContaining([{ agentType: "stock_research", status: "succeeded", runId: expect.any(String) }, { agentType: "crypto_research", status: "failed", runId: expect.any(String) }]));
+  });
 });

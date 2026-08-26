@@ -108,8 +108,13 @@ export function createResearchPreparationQueueHandler(input: {
     const plans = createResearchPreparationPlan(getResearchPreparationConfig(environment));
     const results: ResearchPreparationResult[] = [];
     for (const preparation of plans) {
-      results.push(await executeResearchPreparation({ ...(input.clock ? { clock: input.clock } : {}), persistence: input.persistence, preparation, source: input.source }));
+      try {
+        results.push(await executeResearchPreparation({ ...(input.clock ? { clock: input.clock } : {}), persistence: input.persistence, preparation, source: input.source }));
+      } catch {
+        results.push({ agentType: preparation.agentType, runId: `research-preparation-${preparation.agentType}-failed-${Date.now()}`, status: "failed" });
+      }
     }
+    if (results.every((result) => result.status === "failed")) throw new Error("All research preparation plans failed.");
     return results;
   };
 }
