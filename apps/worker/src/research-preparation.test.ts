@@ -24,6 +24,7 @@ describe("research preparation", () => {
       ["stock_research", "us_equity", ["AAPL", "MSFT"]],
       ["crypto_research", "crypto", ["BTC/USD", "ETH/USD"]],
     ]);
+    expect(createResearchPreparationPlan(config).map((plan) => plan.timeframe)).toEqual(["1Day", "1Hour"]);
   });
 
   it("rejects duplicate or unbounded preparation configuration", () => {

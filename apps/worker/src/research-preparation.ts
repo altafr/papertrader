@@ -14,11 +14,12 @@ export interface ResearchPreparationInputPlan {
 }
 
 export interface ResearchPreparationConfig {
+  readonly cryptoTimeframe: ResearchPreparationInputPlan["timeframe"];
   readonly limit: number;
   readonly maxCandidates: number;
   readonly stockSymbols: readonly string[];
+  readonly stockTimeframe: ResearchPreparationInputPlan["timeframe"];
   readonly cryptoSymbols: readonly string[];
-  readonly timeframe: ResearchPreparationInputPlan["timeframe"];
 }
 
 export interface ResearchPreparationSource {
@@ -48,21 +49,24 @@ function parseSymbols(name: string, value: string | undefined): readonly string[
 }
 
 export function getResearchPreparationConfig(environment: NodeJS.ProcessEnv = process.env): ResearchPreparationConfig {
-  const timeframe = environment.RESEARCH_TIMEFRAME ?? "1Day";
-  if (!allowedTimeframes.has(timeframe as ResearchPreparationInputPlan["timeframe"])) throw new Error("RESEARCH_TIMEFRAME is not supported.");
+  const stockTimeframe = environment.RESEARCH_STOCK_TIMEFRAME ?? environment.RESEARCH_TIMEFRAME ?? "1Day";
+  const cryptoTimeframe = environment.RESEARCH_CRYPTO_TIMEFRAME ?? environment.RESEARCH_TIMEFRAME ?? "1Hour";
+  if (!allowedTimeframes.has(stockTimeframe as ResearchPreparationInputPlan["timeframe"])) throw new Error("RESEARCH_STOCK_TIMEFRAME is not supported.");
+  if (!allowedTimeframes.has(cryptoTimeframe as ResearchPreparationInputPlan["timeframe"])) throw new Error("RESEARCH_CRYPTO_TIMEFRAME is not supported.");
   return {
+    cryptoTimeframe: cryptoTimeframe as ResearchPreparationInputPlan["timeframe"],
     cryptoSymbols: parseSymbols("RESEARCH_CRYPTO_SYMBOLS", environment.RESEARCH_CRYPTO_SYMBOLS ?? environment.RESEARCH_SYMBOLS),
     limit: parseBoundedInteger("RESEARCH_LIMIT", environment.RESEARCH_LIMIT, 100, 2, 1_000),
     maxCandidates: parseBoundedInteger("RESEARCH_MAX_CANDIDATES", environment.RESEARCH_MAX_CANDIDATES, 10, 1, 20),
     stockSymbols: parseSymbols("RESEARCH_STOCK_SYMBOLS", environment.RESEARCH_STOCK_SYMBOLS ?? environment.RESEARCH_SYMBOLS),
-    timeframe: timeframe as ResearchPreparationInputPlan["timeframe"],
+    stockTimeframe: stockTimeframe as ResearchPreparationInputPlan["timeframe"],
   };
 }
 
 export function createResearchPreparationPlan(config: ResearchPreparationConfig): readonly ResearchPreparationInputPlan[] {
   return Object.freeze([
-    { agentType: "stock_research", assetClass: "us_equity", limit: config.limit, maxCandidates: config.maxCandidates, symbols: config.stockSymbols, timeframe: config.timeframe },
-    { agentType: "crypto_research", assetClass: "crypto", limit: config.limit, maxCandidates: config.maxCandidates, symbols: config.cryptoSymbols, timeframe: config.timeframe },
+    { agentType: "stock_research", assetClass: "us_equity", limit: config.limit, maxCandidates: config.maxCandidates, symbols: config.stockSymbols, timeframe: config.stockTimeframe },
+    { agentType: "crypto_research", assetClass: "crypto", limit: config.limit, maxCandidates: config.maxCandidates, symbols: config.cryptoSymbols, timeframe: config.cryptoTimeframe },
   ]);
 }
 

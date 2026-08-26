@@ -25,5 +25,5 @@ export function validateResearchMarketPreflight(environment: NodeJS.ProcessEnv =
   const symbols = environment.RESEARCH_SYMBOLS?.trim();
   if (!symbols) throw new Error("RESEARCH_SYMBOLS is required for research market preflight.");
   const config = getResearchPreparationConfig({ ...environment, RESEARCH_CRYPTO_SYMBOLS: symbols, RESEARCH_STOCK_SYMBOLS: symbols });
-  return { agentType, approvalReference: approval.reference, brokerConnectionEnabled: true, databaseConfigured: true, limit: config.limit, maxCandidates: config.maxCandidates, paperMode: true, symbolCount: agentType === "stock_research" ? config.stockSymbols.length : config.cryptoSymbols.length, timeframe: config.timeframe };
+  return { agentType, approvalReference: approval.reference, brokerConnectionEnabled: true, databaseConfigured: true, limit: config.limit, maxCandidates: config.maxCandidates, paperMode: true, symbolCount: agentType === "stock_research" ? config.stockSymbols.length : config.cryptoSymbols.length, timeframe: agentType === "stock_research" ? config.stockTimeframe : config.cryptoTimeframe };
 }
