@@ -2648,3 +2648,10 @@
 - The configuration preflight returned `status:"ready"`. Worker deployment `1ea2488c-0ea7-4de4-b9f4-7f148bd447f1` reached `SUCCESS`; Worker health reports both durable and research schedulers scheduled, with paper broker/database gates healthy.
 - No order was submitted. The chosen universe is recorded here rather than left implicit so it can be reviewed or changed deliberately.
 - **Next smallest unit:** verify the first scheduled research-preparation job and its persisted stock/crypto artifacts.
+
+### 2026-08-26 — Phase 6.158 guarded research preparation verified with partial-feed resilience
+
+- Added and deployed the guarded `research-preparation-once` command, which invokes the same queue handler used by the daily scheduler and remains strictly non-trading.
+- Production execution completed with a fresh persisted stock research artifact. The crypto plan failed closed because Alpaca returned fewer than two usable bars; the handler retained the successful stock result instead of failing the entire daily queue.
+- The command now returns per-asset result statuses, making partial success explicit in operator evidence. Verification: 266 tests, Worker typecheck/build, deployment `1becf05e-37eb-4def-8243-0697c15bda73` healthy.
+- **Next smallest unit:** allow the next natural scheduler cycle to persist the same per-asset outcomes, then use the fresh stock artifact for the baseline-gated one-share order once Alpaca is reset.

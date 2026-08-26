@@ -26,8 +26,8 @@ try {
     persistence,
     source: createAlpacaResearchInputSource(createPaperMarketDataReader({ apiKey: process.env.ALPACA_API_KEY ?? "", secretKey: process.env.ALPACA_SECRET_KEY ?? "" })),
   });
-  await handler({ kind: "research_preparation", version: 1 });
-  console.log(JSON.stringify({ approvalReference, status: "research_preparation_completed" }));
+  const results = await handler({ kind: "research_preparation", version: 1 });
+  console.log(JSON.stringify({ approvalReference, results, status: "research_preparation_completed" }));
 } catch {
   console.error("Research preparation failed closed.");
   process.exitCode = 1;
