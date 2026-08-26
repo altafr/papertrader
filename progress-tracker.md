@@ -2606,3 +2606,9 @@
 - Production result: `currentBaseline:"outside_tolerance"`, `initialBaseline:"outside_tolerance"`, `status:"blocked"`. This confirms the deterministic rejection is caused by missing USD 100,000 baseline evidence, not by a market-data, broker-connectivity, or order-submission error.
 - Worker runtime remains healthy in paper-autopilot mode, with broker/database configured, kill switch inactive, and the daily UTC scheduler scheduled. No order was submitted.
 - **Next smallest unit:** reset/confirm the Alpaca paper account at USD 100,000 or provide an approved baseline-evidence decision; then rerun the guarded one-share order.
+
+### 2026-08-26 — Phase 6.152 paper-account reset runbook
+
+- Added [`docs/paper-account-baseline-reset-runbook.md`](docs/paper-account-baseline-reset-runbook.md) with the supported Alpaca dashboard flow, secret-rotation requirements, read-only verification command, and evidence required before retrying the first order.
+- Alpaca's documented current workflow creates a new paper account rather than changing the existing account balance through this application. The trading system remains fail-closed until the new account reports a verified USD 100,000 baseline.
+- **Next smallest unit:** operator creates the new Alpaca paper account, rotates the two Railway Worker secrets, and runs the baseline-readiness command.
