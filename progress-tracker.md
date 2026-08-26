@@ -2641,3 +2641,10 @@
 - The immediate guarded market-research attempt failed closed without submitting an order; no new provider data or credentials were exposed. Existing persisted research artifacts remain intact and the Worker stayed healthy.
 - A production deployment regression caused by Railway's automatic variable-triggered deploy was detected and corrected by redeploying the current workspace branch. The corrected Worker health contract now reports the full scheduler/research runtime state.
 - **Next smallest unit:** verify the first naturally scheduled research-preparation job and persisted artifact from the enabled research scheduler.
+
+### 2026-08-26 — Phase 6.157 research universe configured and deployed
+
+- The enabled research queue had no symbol configuration, which would have caused a fail-closed preparation job. Added the explicitly bounded, previously validated universe: stocks `AAPL,MSFT`; crypto `BTC/USD`; timeframe `1Day`; limit `100`; maximum candidates `10`.
+- The configuration preflight returned `status:"ready"`. Worker deployment `1ea2488c-0ea7-4de4-b9f4-7f148bd447f1` reached `SUCCESS`; Worker health reports both durable and research schedulers scheduled, with paper broker/database gates healthy.
+- No order was submitted. The chosen universe is recorded here rather than left implicit so it can be reviewed or changed deliberately.
+- **Next smallest unit:** verify the first scheduled research-preparation job and its persisted stock/crypto artifacts.
