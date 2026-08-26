@@ -2627,3 +2627,11 @@
 - Reconciliation was fresh at capture, the audit status was completed, and both durable work/dead-letter queues were present with zero queued, active, or failed jobs.
 - This proves the daily server loop and recovery/audit path are operating end to end. It did not submit an order or alter the paper baseline gate.
 - **Next smallest unit:** after the Alpaca paper-account reset and credential rotation, run baseline readiness, then execute the guarded one-share order and verify its broker reconciliation.
+
+### 2026-08-26 — Phase 6.155 daily research preparation enabled
+
+- Research scheduler preflight passed with paper mode, broker connection, database, paper credentials, and handler gates all ready.
+- Enabled `RESEARCH_SCHEDULER_ENABLED=true` and `RESEARCH_HANDLER_ENABLED=true` in Railway production. This schedules the daily research-preparation artifact workflow; it does not submit orders.
+- The variable update triggered an automatic deployment from an old GitHub commit, which was detected because Worker health regressed to the legacy minimal contract. The current branch was immediately redeployed from the workspace as `ce74cc34-7dc5-491f-8648-6e478b5e425d`.
+- Current Worker health is restored: Alpaca/database configured, durable scheduler scheduled, research scheduler scheduled, paper-autopilot mode, kill switch inactive. No order was submitted.
+- **Next smallest unit:** verify the first scheduled research-preparation run and its persisted agent artifact, then complete the Alpaca baseline reset before attempting the first paper order.
