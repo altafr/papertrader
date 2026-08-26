@@ -50,6 +50,23 @@ export interface PaperRiskPolicy {
 /** Alpaca's default paper account starts at USD 100,000; verify this baseline before activation. */
 export const PAPER_INITIAL_EQUITY_BASELINE = "100000";
 
+export type PaperBaselineStatus = "above_baseline" | "below_baseline" | "unavailable" | "within_tolerance";
+
+/** Redacted baseline classification for operator health; never returns an account value. */
+export function classifyPaperBaseline(equity: string | number | undefined, baseline = PAPER_INITIAL_EQUITY_BASELINE, tolerance = "1"): PaperBaselineStatus {
+  if (equity === undefined || equity === null || equity === "") return "unavailable";
+  try {
+    const value = new Decimal(String(equity));
+    const expected = new Decimal(String(baseline));
+    const allowed = new Decimal(String(tolerance));
+    if (value.isNegative() || expected.isNegative() || allowed.isNegative()) return "unavailable";
+    if (value.minus(expected).abs().lessThan(allowed) || value.minus(expected).abs().toFixed() === allowed.toFixed()) return "within_tolerance";
+    return value.lessThan(expected) ? "below_baseline" : "above_baseline";
+  } catch {
+    return "unavailable";
+  }
+}
+
 export const DEFAULT_PAPER_RISK_POLICY: PaperRiskPolicy = {
   initialEquityBaseline: PAPER_INITIAL_EQUITY_BASELINE,
   maxCryptoPositionPercent: "3",

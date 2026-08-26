@@ -193,6 +193,7 @@ function OperationsHealthCard({ health }: { readonly health: OperationsHealth | 
         <div><span className="label">Paper Autopilot</span><strong>{health.runtime.paperAutopilotEnabled ? "Enabled" : "Disabled"}</strong></div>
         <div><span className="label">Global kill switch</span><strong>{health.runtime.globalKillSwitchActive ? "ACTIVE" : "Inactive"}</strong></div>
         <div><span className="label">Paper baseline</span><strong>USD {health.runtime.riskPolicy.initialEquityBaseline}</strong></div>
+        <div><span className="label">Baseline verification</span><strong>{health.runtime.paperBaseline.status === "ready" ? "Verified" : "Blocked"}</strong><small className="provenance">Current: {health.runtime.paperBaseline.current.replaceAll("_", " ")} · Initial: {health.runtime.paperBaseline.initial.replaceAll("_", " ")}</small></div>
         <div><span className="label">Max loss vs invested value</span><strong>{health.runtime.riskPolicy.maxSingleTradeRiskPercentOfNotional}%</strong></div>
         <div><span className="label">Maximum stop distance</span><strong>{health.runtime.riskPolicy.maxSingleTradeStopLossPercent}% adverse</strong></div>
       </div>

@@ -23,7 +23,7 @@ import {
   getServerPort,
   isGlobalKillSwitchActive,
 } from "@momentum/config";
-import { calculatePerformanceMetrics, INITIAL_MOMENTUM_STRATEGIES, MAX_SINGLE_TRADE_RISK_PERCENT_OF_NOTIONAL, MAX_SINGLE_TRADE_STOP_LOSS_PERCENT, PAPER_INITIAL_EQUITY_BASELINE } from "@momentum/domain";
+import { calculatePerformanceMetrics, classifyPaperBaseline, INITIAL_MOMENTUM_STRATEGIES, MAX_SINGLE_TRADE_RISK_PERCENT_OF_NOTIONAL, MAX_SINGLE_TRADE_STOP_LOSS_PERCENT, PAPER_INITIAL_EQUITY_BASELINE, type PaperBaselineStatus } from "@momentum/domain";
 import { getTelegramAlertTestReadiness, getTelegramNotificationReadiness } from "@momentum/notifications";
 
 import { getApiHealth } from "./app.js";
@@ -303,6 +303,9 @@ async function readOperationsHealth(request: IncomingMessage) {
     readModelRepository = createAccountStateRepository(db);
   }
   const model = await readModelRepository.getLatestReadModel();
+  const initialSnapshot = model ? await readModelRepository.getInitial(model.snapshot.accountId) : undefined;
+  const currentBaseline: PaperBaselineStatus = classifyPaperBaseline(model?.snapshot.equity);
+  const initialBaseline: PaperBaselineStatus = classifyPaperBaseline(initialSnapshot?.equity);
   const lastDailyRun = await readModelRepository.getLatestDurableOneRunAudit();
   let latestSchedulerRun;
   try {
@@ -354,6 +357,11 @@ async function readOperationsHealth(request: IncomingMessage) {
         globalKillSwitchActive: isGlobalKillSwitchActive(),
         operatingMode: getPaperOperatingMode(),
         paperAutopilotEnabled: readBooleanEnvironmentFlag("PAPER_AUTOPILOT_ENABLED"),
+        paperBaseline: {
+          current: currentBaseline,
+          initial: initialBaseline,
+          status: currentBaseline === "within_tolerance" || initialBaseline === "within_tolerance" ? "ready" : "blocked",
+        },
         riskPolicy: {
           initialEquityBaseline: PAPER_INITIAL_EQUITY_BASELINE,
           maxSingleTradeRiskPercentOfNotional: MAX_SINGLE_TRADE_RISK_PERCENT_OF_NOTIONAL,

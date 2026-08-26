@@ -6,6 +6,7 @@ export type TelegramAlertTestStatus = "blocked" | "ready";
 export type RecoveryVerificationStatus = "unverified" | "verified";
 export type SchedulerAuditStatus = "completed" | "failed" | "running" | "unavailable";
 export type SchedulerAuditGateStatus = "blocked" | "disabled" | "enabled";
+export type PaperBaselineStatus = "above_baseline" | "below_baseline" | "unavailable" | "within_tolerance";
 
 export type OperationsHealth = {
   readonly reconciliation: {
@@ -23,6 +24,7 @@ export type OperationsHealth = {
     readonly globalKillSwitchActive: boolean;
     readonly operatingMode: "observe" | "recommend" | "paper_autopilot";
     readonly paperAutopilotEnabled: boolean;
+    readonly paperBaseline: { readonly current: PaperBaselineStatus; readonly initial: PaperBaselineStatus; readonly status: "blocked" | "ready" };
     readonly migration: { readonly blockedReasons: readonly MigrationBlockedReason[]; readonly status: "blocked" | "ready" };
     readonly riskPolicy: {
       readonly initialEquityBaseline: string;
@@ -142,6 +144,7 @@ export function parseOperationsHealth(value: unknown): OperationsHealth | undefi
   if (!isRecord(runtime.researchSchedule)) return undefined;
   if (!isRecord(runtime.telegramAlerts)) return undefined;
   if (!isRecord(runtime.telegramAlertTest)) return undefined;
+  if (!isRecord(runtime.paperBaseline)) return undefined;
   if (!isRecord(runtime.migration) || !Array.isArray(runtime.migration.blockedReasons) || runtime.migration.blockedReasons.some((reason) => !( ["audit_columns_missing", "audit_table_missing", "migration_not_recorded"] as const).includes(reason as MigrationBlockedReason))) return undefined;
   const scheduler = runtime.scheduler;
   const dailyReconciliation = runtime.dailyReconciliation;
@@ -151,6 +154,7 @@ export function parseOperationsHealth(value: unknown): OperationsHealth | undefi
   const researchSchedule = runtime.researchSchedule;
   const telegramAlerts = runtime.telegramAlerts;
   const telegramAlertTest = runtime.telegramAlertTest;
+  const paperBaseline = runtime.paperBaseline;
   if (!isRecord(runtime.riskPolicy)) return undefined;
   const riskPolicy = runtime.riskPolicy;
   if (!(["delayed", "fresh", "stale", "unavailable"] as const).includes(reconciliation.status as OperationsHealth["reconciliation"]["status"])) return undefined;
@@ -164,6 +168,7 @@ export function parseOperationsHealth(value: unknown): OperationsHealth | undefi
   if (!( ["completed", "failed", "running", "unavailable"] as const).includes(schedulerAudit.status as SchedulerAuditStatus)) return undefined;
   if (!( ["blocked", "disabled", "enabled"] as const).includes(schedulerAuditGate.status as SchedulerAuditGateStatus)) return undefined;
   if (!( ["unverified", "verified"] as const).includes(recovery.status as RecoveryVerificationStatus)) return undefined;
+  if (!( ["above_baseline", "below_baseline", "unavailable", "within_tolerance"] as const).includes(paperBaseline.current as PaperBaselineStatus) || !( ["above_baseline", "below_baseline", "unavailable", "within_tolerance"] as const).includes(paperBaseline.initial as PaperBaselineStatus) || !( ["blocked", "ready"] as const).includes(paperBaseline.status as "blocked" | "ready")) return undefined;
   if (typeof scheduler.activationApprovalReferencePresent !== "boolean" || typeof scheduler.cron !== "string" || scheduler.cron.trim().length === 0 || scheduler.cron.length > 120 || typeof scheduler.enabled !== "boolean" || scheduler.timezone !== "UTC" || typeof researchSchedule.enabled !== "boolean" || typeof researchSchedule.handlerEnabled !== "boolean" || typeof telegramAlerts.enabled !== "boolean" || typeof telegramAlertTest.approvalReferencePresent !== "boolean" || typeof runtime.brokerConnectionEnabled !== "boolean" || typeof runtime.dailyPreparationHandlerEnabled !== "boolean" || typeof runtime.globalKillSwitchActive !== "boolean" || typeof runtime.paperAutopilotEnabled !== "boolean" || (dailyReconciliation.capturedAt !== undefined && typeof dailyReconciliation.capturedAt !== "string")) return undefined;
   for (const key of ["completedAt", "failureCode", "runId", "scheduledAt", "startedAt"] as const) if (schedulerAudit[key] !== undefined && typeof schedulerAudit[key] !== "string") return undefined;
   if (typeof schedulerAuditGate.activationApprovalReferencePresent !== "boolean" || typeof schedulerAuditGate.enabled !== "boolean" || typeof schedulerAuditGate.migrationReady !== "boolean") return undefined;
@@ -187,6 +192,7 @@ export function parseOperationsHealth(value: unknown): OperationsHealth | undefi
       globalKillSwitchActive: runtime.globalKillSwitchActive,
       operatingMode: runtime.operatingMode as OperationsHealth["runtime"]["operatingMode"],
       paperAutopilotEnabled: runtime.paperAutopilotEnabled,
+      paperBaseline: { current: paperBaseline.current as PaperBaselineStatus, initial: paperBaseline.initial as PaperBaselineStatus, status: paperBaseline.status as "blocked" | "ready" },
       migration: { blockedReasons: runtime.migration.blockedReasons as readonly MigrationBlockedReason[], status: runtime.migration.status },
       riskPolicy: {
         initialEquityBaseline: riskPolicy.initialEquityBaseline,
