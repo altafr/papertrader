@@ -2612,3 +2612,11 @@
 - Added [`docs/paper-account-baseline-reset-runbook.md`](docs/paper-account-baseline-reset-runbook.md) with the supported Alpaca dashboard flow, secret-rotation requirements, read-only verification command, and evidence required before retrying the first order.
 - Alpaca's documented current workflow creates a new paper account rather than changing the existing account balance through this application. The trading system remains fail-closed until the new account reports a verified USD 100,000 baseline.
 - **Next smallest unit:** operator creates the new Alpaca paper account, rotates the two Railway Worker secrets, and runs the baseline-readiness command.
+
+### 2026-08-26 — Phase 6.153 live baseline visibility deployed
+
+- Added a redacted baseline classification to authenticated Operations Health: current snapshot, initial snapshot, and overall status are shown as classifications only (`within_tolerance`, `below_baseline`, `above_baseline`, or `unavailable`). No account values are exposed through the health contract.
+- Updated the dashboard to show **Baseline verification** alongside the USD 100,000 policy target, so the operator can distinguish the configured policy from verified broker state.
+- Verification passed: 265 tests, domain/database/API/Worker/web typechecks. Railway API deployment `318c9527-5b74-4031-a409-53c0857640a5` and Worker deployment `484f043d-8abc-4c83-bc58-fe5d4a047cb7` are `SUCCESS` and running; API health and Worker health are healthy.
+- The live account remains below baseline, so order submission remains blocked as designed.
+- **Next smallest unit:** after the paper-account reset and secret rotation, confirm the dashboard changes to `Baseline verification: Verified`, then execute and reconcile the first one-share paper order.
