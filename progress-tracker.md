@@ -2592,3 +2592,10 @@
 - The command defaults to one share, remains hard-gated to paper mode/broker/database/freshness/baseline/kill-switch/risk checks, uses an idempotent client order ID, and never changes persistent Railway flags. Evidence-only runs still cannot submit orders.
 - Local verification passed: 260 tests, Worker typecheck and lint. Hosted deployment and the single paper order remain to be executed.
 - **Next smallest unit:** deploy and run the one-shot paper order, then verify its broker order ID/status and dashboard row.
+
+### 2026-08-26 — Phase 6.150 hosted order attempt remains safely blocked at baseline verification
+
+- Worker deployment `aac93862-2050-4d6e-8400-5d201d924c03` reached `SUCCESS` with explicit fresh-baseline verification enabled only for the command-scoped attempt.
+- The bounded one-share AAPL paper-order attempt failed closed at the deterministic risk gate with `Starting paper-equity baseline has not been verified.` No Alpaca order was submitted, no persistent Paper Autopilot flag changed, and no credentials or account values were exposed.
+- Local verification passed: 261 tests, worker typecheck, lint, and workspace build. The remaining blocker is to establish an approved USD 100,000 paper-account baseline evidence record (or reset/confirm the Alpaca paper account to that baseline); bypassing this gate is not permitted.
+- **Next smallest unit:** inspect the persisted baseline evidence state, then either record a valid bounded USD 100,000 baseline verification or obtain the operator decision to reset the paper account before retrying the one-share order.
