@@ -2635,3 +2635,9 @@
 - The variable update triggered an automatic deployment from an old GitHub commit, which was detected because Worker health regressed to the legacy minimal contract. The current branch was immediately redeployed from the workspace as `ce74cc34-7dc5-491f-8648-6e478b5e425d`.
 - Current Worker health is restored: Alpaca/database configured, durable scheduler scheduled, research scheduler scheduled, paper-autopilot mode, kill switch inactive. No order was submitted.
 - **Next smallest unit:** verify the first scheduled research-preparation run and its persisted agent artifact, then complete the Alpaca baseline reset before attempting the first paper order.
+
+### 2026-08-26 — Phase 6.156 research scheduler runtime correction and guard check
+
+- The immediate guarded market-research attempt failed closed without submitting an order; no new provider data or credentials were exposed. Existing persisted research artifacts remain intact and the Worker stayed healthy.
+- A production deployment regression caused by Railway's automatic variable-triggered deploy was detected and corrected by redeploying the current workspace branch. The corrected Worker health contract now reports the full scheduler/research runtime state.
+- **Next smallest unit:** verify the first naturally scheduled research-preparation job and persisted artifact from the enabled research scheduler.
