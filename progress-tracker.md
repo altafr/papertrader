@@ -2662,3 +2662,9 @@
 - The pipeline reached the deterministic `risk_gate` stage and rejected the one-share attempt solely because the USD 100,000 starting baseline remains unverified. The broker submitter was never called.
 - This verifies the complete pre-order path: persisted research artifact → bounded market snapshot fallback → deterministic 5% risk calculation → fail-closed baseline gate. No order or persistent mode change occurred.
 - **Next smallest unit:** after the Alpaca reset and credential rotation, rerun the same command with snapshot fallback; it is ready to submit one paper share only if all gates pass.
+
+### 2026-08-26 — Phase 6.160 live baseline readiness reconciliation
+
+- Extended the guarded baseline-readiness command with `PAPER_BASELINE_READINESS_LIVE=true`. It now reads and reconciles the live paper account before classifying the current and initial snapshots, eliminating stale database evidence after credential rotation.
+- Deployment `afb01261-d8ad-4177-aa76-63bb9315db4b` reached `SUCCESS`; live verification returned `currentBaseline:"outside_tolerance"`, `initialBaseline:"outside_tolerance"`, `status:"blocked"` without exposing account values or submitting an order.
+- **Next smallest unit:** create the new USD 100,000 paper account and rotate Railway credentials, then rerun the live readiness command; a `ready` result will unlock the guarded order attempt.
