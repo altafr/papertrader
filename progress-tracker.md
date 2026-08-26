@@ -2655,3 +2655,10 @@
 - Production execution completed with a fresh persisted stock research artifact. The crypto plan failed closed because Alpaca returned fewer than two usable bars; the handler retained the successful stock result instead of failing the entire daily queue.
 - The command now returns per-asset result statuses, making partial success explicit in operator evidence. Verification: 266 tests, Worker typecheck/build, deployment `1becf05e-37eb-4def-8243-0697c15bda73` healthy.
 - **Next smallest unit:** allow the next natural scheduler cycle to persist the same per-asset outcomes, then use the fresh stock artifact for the baseline-gated one-share order once Alpaca is reset.
+
+### 2026-08-26 — Phase 6.159 fresh research-to-risk path verified
+
+- The fresh stock research artifact persisted successfully but contained zero actionable candidates. The guarded order command therefore used its explicit AAPL snapshot fallback.
+- The pipeline reached the deterministic `risk_gate` stage and rejected the one-share attempt solely because the USD 100,000 starting baseline remains unverified. The broker submitter was never called.
+- This verifies the complete pre-order path: persisted research artifact → bounded market snapshot fallback → deterministic 5% risk calculation → fail-closed baseline gate. No order or persistent mode change occurred.
+- **Next smallest unit:** after the Alpaca reset and credential rotation, rerun the same command with snapshot fallback; it is ready to submit one paper share only if all gates pass.
