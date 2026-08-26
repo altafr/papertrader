@@ -2620,3 +2620,10 @@
 - Verification passed: 265 tests, domain/database/API/Worker/web typechecks. Railway API deployment `318c9527-5b74-4031-a409-53c0857640a5` and Worker deployment `484f043d-8abc-4c83-bc58-fe5d4a047cb7` are `SUCCESS` and running; API health and Worker health are healthy.
 - The live account remains below baseline, so order submission remains blocked as designed.
 - **Next smallest unit:** after the paper-account reset and secret rotation, confirm the dashboard changes to `Baseline verification: Verified`, then execute and reconcile the first one-share paper order.
+
+### 2026-08-26 — Phase 6.154 daily scheduler cycle verified
+
+- Hosted read-only scheduler-audit verification confirmed the `2026-08-26` UTC cycle completed successfully (`scheduled-daily-preparation-2026-08-26`).
+- Reconciliation was fresh at capture, the audit status was completed, and both durable work/dead-letter queues were present with zero queued, active, or failed jobs.
+- This proves the daily server loop and recovery/audit path are operating end to end. It did not submit an order or alter the paper baseline gate.
+- **Next smallest unit:** after the Alpaca paper-account reset and credential rotation, run baseline readiness, then execute the guarded one-share order and verify its broker reconciliation.
