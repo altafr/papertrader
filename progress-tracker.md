@@ -2599,3 +2599,10 @@
 - The bounded one-share AAPL paper-order attempt failed closed at the deterministic risk gate with `Starting paper-equity baseline has not been verified.` No Alpaca order was submitted, no persistent Paper Autopilot flag changed, and no credentials or account values were exposed.
 - Local verification passed: 261 tests, worker typecheck, lint, and workspace build. The remaining blocker is to establish an approved USD 100,000 paper-account baseline evidence record (or reset/confirm the Alpaca paper account to that baseline); bypassing this gate is not permitted.
 - **Next smallest unit:** inspect the persisted baseline evidence state, then either record a valid bounded USD 100,000 baseline verification or obtain the operator decision to reset the paper account before retrying the one-share order.
+
+### 2026-08-26 — Phase 6.151 baseline readiness diagnostic verified in production
+
+- Added guarded `PAPER_BASELINE_READINESS=true` verification. It reports only baseline classifications and overall readiness; it never prints account balances, credentials, or provider responses.
+- Production result: `currentBaseline:"outside_tolerance"`, `initialBaseline:"outside_tolerance"`, `status:"blocked"`. This confirms the deterministic rejection is caused by missing USD 100,000 baseline evidence, not by a market-data, broker-connectivity, or order-submission error.
+- Worker runtime remains healthy in paper-autopilot mode, with broker/database configured, kill switch inactive, and the daily UTC scheduler scheduled. No order was submitted.
+- **Next smallest unit:** reset/confirm the Alpaca paper account at USD 100,000 or provide an approved baseline-evidence decision; then rerun the guarded one-share order.
