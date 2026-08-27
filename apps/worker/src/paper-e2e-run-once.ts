@@ -27,6 +27,7 @@ export function validatePaperE2ERunOnce(environment: NodeJS.ProcessEnv = process
   const orderOnce = environment.PAPER_E2E_ORDER_ONCE === "true";
   if (environment.PAPER_AUTOPILOT_ENABLED === "true" && !orderOnce) throw new Error("The evidence-only paper end-to-end command must not run while Paper Autopilot is enabled.");
   if (orderOnce && environment.PAPER_AUTOPILOT_ENABLED !== "true") throw new Error("PAPER_E2E_ORDER_ONCE requires command-scoped PAPER_AUTOPILOT_ENABLED=true.");
+  if (orderOnce && environment.PAPER_AUTOPILOT_ORDER_SUBMISSION_ENABLED !== "true") throw new Error("PAPER_E2E_ORDER_ONCE requires command-scoped PAPER_AUTOPILOT_ORDER_SUBMISSION_ENABLED=true.");
   if (orderOnce && environment.OPERATING_MODE !== "paper_autopilot") throw new Error("PAPER_E2E_ORDER_ONCE requires command-scoped OPERATING_MODE=paper_autopilot.");
   if (environment.BROKER_CONNECTION_ENABLED !== "true") throw new Error("BROKER_CONNECTION_ENABLED must be explicitly true for the paper end-to-end command.");
   if (!environment.DATABASE_URL?.trim()) throw new Error("DATABASE_URL is required for the paper end-to-end command.");

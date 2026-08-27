@@ -3043,3 +3043,10 @@
 - Documented one-share bounded execution verification, required reconciliation/Telegram evidence, and a rollback that disables both submission and Paper Autopilot.
 - Documentation-only change; no Railway variables or broker state were changed.
 - **Next smallest unit:** obtain the operator's explicit activation reference, run one bounded paper order through the guarded path, and verify broker/Telegram/dashboard evidence.
+
+### 2026-08-28 — Phase 6.217 unified broker-write gate
+
+- Updated the guarded one-shot paper-order and paper end-to-end order validators to require `PAPER_AUTOPILOT_ORDER_SUBMISSION_ENABLED=true` in addition to Paper Autopilot mode.
+- Every broker-writing path now shares the same explicit server-side submission gate; dry-run and risk-only paths remain unaffected.
+- Verification: targeted gate tests (9 passed), Worker typecheck, and lint passed.
+- **Next smallest unit:** obtain an operator-approved activation reference and run one bounded paper order through the now-unified gate.

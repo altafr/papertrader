@@ -8,6 +8,7 @@ import { createRuntimeAlertNotifier } from "./telegram-events.js";
 
 if (process.env.PAPER_ORDER_FROM_RESEARCH_ONCE !== "true") throw new Error("PAPER_ORDER_FROM_RESEARCH_ONCE must be exactly true.");
 if (process.env.PAPER_AUTOPILOT_ENABLED !== "true" || process.env.OPERATING_MODE !== "paper_autopilot") throw new Error("The one-shot paper order requires command-scoped Paper Autopilot flags.");
+if (process.env.PAPER_AUTOPILOT_ORDER_SUBMISSION_ENABLED !== "true") throw new Error("The one-shot paper order requires command-scoped PAPER_AUTOPILOT_ORDER_SUBMISSION_ENABLED=true.");
 getPaperOnlyRuntimeConfig();
 const researchRunId = process.env.PAPER_ORDER_RESEARCH_RUN_ID?.trim();
 const approvalReference = process.env.PAPER_ORDER_APPROVAL_REFERENCE?.trim();

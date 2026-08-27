@@ -24,6 +24,7 @@ describe("validatePaperE2ERunOnce", () => {
 
   it("requires both command-scoped paper-autopilot flags for an order run", () => {
     expect(() => validatePaperE2ERunOnce({ ...base, PAPER_E2E_ORDER_ONCE: "true" })).toThrow(/PAPER_AUTOPILOT_ENABLED/);
-    expect(validatePaperE2ERunOnce({ ...base, OPERATING_MODE: "paper_autopilot", PAPER_AUTOPILOT_ENABLED: "true", PAPER_E2E_ORDER_ONCE: "true" }).orderOnce).toBe(true);
+    expect(() => validatePaperE2ERunOnce({ ...base, OPERATING_MODE: "paper_autopilot", PAPER_AUTOPILOT_ENABLED: "true", PAPER_E2E_ORDER_ONCE: "true" })).toThrow(/PAPER_AUTOPILOT_ORDER_SUBMISSION_ENABLED/);
+    expect(validatePaperE2ERunOnce({ ...base, OPERATING_MODE: "paper_autopilot", PAPER_AUTOPILOT_ENABLED: "true", PAPER_AUTOPILOT_ORDER_SUBMISSION_ENABLED: "true", PAPER_E2E_ORDER_ONCE: "true" }).orderOnce).toBe(true);
   });
 });
