@@ -3034,4 +3034,5 @@
 - Scheduled research-to-risk processing now refreshes the persisted Alpaca paper account, positions, and orders immediately before evaluating candidates.
 - This protects the optional order handoff from stale account state while preserving the dry-run default and all deterministic risk gates.
 - Verification: 283 tests passed, Worker typecheck passed, and Worker lint passed.
+- Railway Worker deployment `5c2c53fc-78ef-4f75-92b3-9113321318f9` reached `SUCCESS`; startup logs show `paperAutopilotOrderSubmissionEnabled:false` and the durable scheduler started as `scheduled`.
 - **Next smallest unit:** verify the hosted dashboard/API displays the refreshed gate and risk decision, then decide whether to enable one bounded paper order for execution verification.
