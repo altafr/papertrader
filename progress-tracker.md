@@ -2762,3 +2762,8 @@
 
 - Worker deployment `de45fd52-e203-404e-96b1-7007f29aeaa3` reached `SUCCESS`; migration `0015` applied successfully.
 - The explicit legacy backfill command is available in production but was not executed. Existing AAPL metadata remains untouched until exact operator-reviewed plan values are supplied.
+
+### 2026-08-27 — Phase 6.176 legacy position runbook
+
+- Added [`docs/legacy-position-exit-plan-runbook.md`](docs/legacy-position-exit-plan-runbook.md) with the recorded AAPL entry snapshot, documented 5% stop/4% target proposal, guarded command template, and no-order mutation warning.
+- The runbook keeps operator approval explicit; no metadata backfill, exit order, or recurring schedule activation occurred.
