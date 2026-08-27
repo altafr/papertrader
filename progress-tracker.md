@@ -3292,3 +3292,11 @@
 - A close-and-reenter lifecycle for the same symbol can therefore produce a fresh detection alert while repeated scheduler passes remain deduplicated.
 - Verification: full suite passed with 288 tests across 77 files; Railway Worker deployment `958ece38-c0d4-4692-81eb-14840edf5664` reached `SUCCESS`; live Worker health remains `healthy` and position management `ready`.
 - **Next smallest unit:** verify a terminal broker transition updates the persisted ledger and emits the deduplicated Telegram status alert during an active paper session.
+
+### 2026-08-28 — Phase 6.251 run-scoped research notifications
+
+- Research recommendation alerts now use the persisted research run ID as their dedupe key, and research failures use a unique failed-run key.
+- Identical recommendations on separate scheduled runs are therefore reported independently, while retries within one run remain deduplicated.
+- Added regression coverage for the run-scoped recommendation keys; full suite passed with 288 tests across 77 files.
+- Railway Worker deployment `cfb077a0-6855-46f2-842a-32e3b104e73b` reached `SUCCESS`; live health remains `healthy`, research scheduling is `scheduled`, and Telegram alerts are `ready`.
+- **Next smallest unit:** verify a terminal broker transition updates the persisted ledger and emits the deduplicated Telegram status alert during an active paper session.

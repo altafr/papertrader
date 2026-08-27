@@ -61,12 +61,14 @@ describe("research preparation", () => {
     const source = { read: vi.fn(async (plan) => input(plan.assetClass)) };
     const calls: string[] = [];
     const candidateCounts: number[] = [];
+    const notifications: { readonly code: string; readonly dedupeKey?: string }[] = [];
     const handler = createResearchPreparationQueueHandler({
       clock: () => new Date("2026-08-23T02:01:00.000Z"),
       environment: { ALPACA_API_KEY: "paper-key", ALPACA_SECRET_KEY: "paper-secret", ALPACA_PAPER_TRADE: "true", BROKER_CONNECTION_ENABLED: "true", DATABASE_URL: "postgres://private", RESEARCH_CRYPTO_SYMBOLS: "BTC/USD", RESEARCH_HANDLER_ENABLED: "true", RESEARCH_SCHEDULER_ENABLED: "true", RESEARCH_STOCK_SYMBOLS: "AAPL", TRADING_MODE: "paper" },
       persistence: { enqueue: async () => { calls.push("enqueue"); }, start: async () => { calls.push("start"); }, succeed: async () => { calls.push("succeed"); }, fail: async () => { calls.push("fail"); } },
       source,
       onResult: (result) => { candidateCounts.push(result.candidates?.length ?? 0); },
+      notify: (alert) => { notifications.push(alert); },
     });
     const results = await handler({ kind: "research_preparation", version: 1 });
     expect(results).toHaveLength(2);
@@ -74,6 +76,10 @@ describe("research preparation", () => {
     expect(calls.filter((call) => call === "succeed")).toHaveLength(2);
     expect(candidateCounts).toEqual([1, 1]);
     expect(calls).not.toContain("fail");
+    expect(notifications.map((alert) => alert.dedupeKey)).toEqual([
+      "research_recommendations:research-preparation-stock_research-20260823020000",
+      "research_recommendations:research-preparation-crypto_research-20260823020000",
+    ]);
   });
 
   it("retains a successful asset artifact when another asset source is unavailable", async () => {

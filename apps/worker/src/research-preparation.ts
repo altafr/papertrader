@@ -121,7 +121,7 @@ export function createResearchPreparationQueueHandler(input: {
   readonly persistence: ResearchRunPersistence;
   readonly source: ResearchPreparationSource;
   readonly onResult?: (result: ResearchPreparationResult) => Promise<void> | void;
-  readonly notify?: (alert: { readonly code: string; readonly message: string; readonly severity: "critical" | "info" | "warning" }) => Promise<void> | void;
+  readonly notify?: (alert: { readonly code: string; readonly dedupeKey?: string; readonly message: string; readonly severity: "critical" | "info" | "warning" }) => Promise<void> | void;
 }) {
   const environment = input.environment ?? process.env;
   return async (job: ResearchPreparationJob): Promise<readonly ResearchPreparationResult[]> => {
@@ -135,10 +135,11 @@ export function createResearchPreparationQueueHandler(input: {
         const result = await executeResearchPreparation({ ...(input.clock ? { clock: input.clock } : {}), persistence: input.persistence, preparation, source: input.source });
         results.push(result);
         await input.onResult?.(result);
-        await input.notify?.({ code: "research_recommendations", message: `${result.agentType} produced ${result.recommendationSymbols?.length ?? 0} recommendation(s): ${(result.recommendationSymbols ?? []).join(", ") || "none"}. Evidence: ${(result.recommendationEvidence ?? []).join(" | ") || "not reported"}.`, severity: "info" });
+        await input.notify?.({ code: "research_recommendations", dedupeKey: `research_recommendations:${result.runId}`, message: `${result.agentType} produced ${result.recommendationSymbols?.length ?? 0} recommendation(s): ${(result.recommendationSymbols ?? []).join(", ") || "none"}. Evidence: ${(result.recommendationEvidence ?? []).join(" | ") || "not reported"}.`, severity: "info" });
       } catch {
-        results.push({ agentType: preparation.agentType, runId: `research-preparation-${preparation.agentType}-failed-${Date.now()}`, status: "failed" });
-        await input.notify?.({ code: "research_preparation_failed", message: `${preparation.agentType} research preparation failed closed; no trade was proposed from this run.`, severity: "critical" });
+        const failedRunId = `research-preparation-${preparation.agentType}-failed-${Date.now()}`;
+        results.push({ agentType: preparation.agentType, runId: failedRunId, status: "failed" });
+        await input.notify?.({ code: "research_preparation_failed", dedupeKey: `research_preparation_failed:${failedRunId}`, message: `${preparation.agentType} research preparation failed closed; no trade was proposed from this run.`, severity: "critical" });
       }
     }
     if (results.every((result) => result.status === "failed")) throw new Error("All research preparation plans failed.");
