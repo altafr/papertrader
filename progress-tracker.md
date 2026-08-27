@@ -3049,4 +3049,5 @@
 - Updated the guarded one-shot paper-order and paper end-to-end order validators to require `PAPER_AUTOPILOT_ORDER_SUBMISSION_ENABLED=true` in addition to Paper Autopilot mode.
 - Every broker-writing path now shares the same explicit server-side submission gate; dry-run and risk-only paths remain unaffected.
 - Verification: targeted gate tests (9 passed), Worker typecheck, and lint passed.
+- Railway Worker deployment `1db2b20e-e9f5-4ffa-ae99-69955d7ddf10` reached `SUCCESS`; production submission remains disabled.
 - **Next smallest unit:** obtain an operator-approved activation reference and run one bounded paper order through the now-unified gate.
