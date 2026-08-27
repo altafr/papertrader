@@ -3090,3 +3090,10 @@
 - Verification: targeted readiness/app health tests (12 passed), Worker typecheck, and lint passed.
 - Railway Worker deployment `166b15e5-235d-45fd-b32e-c73678085b5f` reached `SUCCESS`; persistent submission remains disabled.
 - **Next smallest unit:** run the no-write preflight with the activation reference, then execute one bounded paper order only with explicit operator authorization.
+
+### 2026-08-28 — Phase 6.223 final activation preflight
+
+- Ran the Railway no-write preflight with `PAPER_AUTOPILOT_ORDER_SUBMISSION_ENABLED=true` and bounded reference `PAPER-EXECUTION-BOUNDARY-001` supplied only to the command.
+- Result: `status:"ready"`, `blockedReasons:[]`, market snapshot available, and baseline evidence recognized.
+- Persistent Railway variables remain unchanged and no Alpaca order was submitted.
+- **Next smallest unit:** execute one bounded paper order through the unified gate with explicit operator authorization, then verify broker reconciliation, Telegram delivery, and dashboard history.
