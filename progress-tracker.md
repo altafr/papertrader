@@ -2727,3 +2727,9 @@
 - Worker deployment `41cee59c-03f6-4ceb-bb4a-117604927e67` reached `SUCCESS` with the exit-plan persistence changes.
 - Application migration `0014` applied successfully (`migrationCount:14`). Worker Health remains healthy in `paper_autopilot` mode with durable and research schedulers scheduled.
 - No new order was submitted. The next unit is the guarded position polling loop that consumes this metadata and submits/reconciles deterministic exits.
+
+### 2026-08-27 — Phase 6.170 position-management runner
+
+- Added a Worker runner that evaluates reconciled positions against their persisted entry/stop/target/time-stop plans and submits only deterministic paper exits.
+- Exit client IDs are derived from the originating intent and exit reason, providing idempotent retry behavior. The runner is dependency-injected and has tests for stop submission, hold behavior, and fail-closed broker errors.
+- This unit does not start a scheduler or mutate production state. Next: wire the runner to reconciled Alpaca positions, persisted plan metadata, market snapshots, and a guarded recurring Worker job.
