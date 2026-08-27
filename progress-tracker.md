@@ -3058,4 +3058,5 @@
 - A preflight is `ready` only when baseline, persisted research, fresh market data, and `PAPER_AUTOPILOT_ORDER_SUBMISSION_ENABLED=true` are all present; the command itself has no order authority.
 - Updated the activation runbook with the preflight contract and no-write guarantee.
 - Verification: 283 tests passed, Worker typecheck and lint passed.
+- Railway Worker deployment `8fc0e2e3-e935-443e-a2f8-e3f5e463b084` reached `SUCCESS`.
 - **Next smallest unit:** obtain an operator-approved activation reference, run the preflight in Railway, and only then decide whether to submit one bounded paper order.
