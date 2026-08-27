@@ -2881,3 +2881,10 @@
 - Railway Worker deployment `48333184-5ddb-4372-b2f6-6222b4a4d10f` reached `SUCCESS` from the current branch.
 - Production daily-summary formatting now runs through the tested pure calculation module.
 - **Next smallest unit:** run the explicitly authorized Telegram provider test, then verify the authenticated dashboard and CSV against the deployed API.
+
+### 2026-08-28 — Phase 6.194 Worker production smoke verification
+
+- Railway reports Worker deployment `48333184-5ddb-4372-b2f6-6222b4a4d10f` as `SUCCESS` with a `RUNNING` instance.
+- Latest runtime logs show normal container startup; no additional failure output was emitted.
+- This was a read-only smoke check; no scheduler mutation, broker call, order, or Telegram provider test was initiated.
+- **Next smallest unit:** run the explicitly authorized Telegram provider test, then verify the authenticated dashboard and CSV against the deployed API.
