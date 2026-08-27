@@ -3240,3 +3240,12 @@
 - The latest Telegram outbox remains delivered, including the risk rejection and prior paper-entry lifecycle event; no duplicate broker write was created.
 - The authorized AAPL order remains `accepted` with zero fills while Alpaca reports the market closed.
 - **Next smallest unit:** verify the Cycle card in an authenticated browser session and reconcile the AAPL order after the next active market window.
+
+### 2026-08-28 — Phase 6.244 crypto position-management coverage
+
+- Removed the equity-only filter from persisted exit-plan reads so crypto plans are eligible for management.
+- Position management now groups symbols by asset class and requests equity and crypto snapshots through their respective Alpaca market-data routes, preserving the originating asset class for deterministic exits.
+- Added regression coverage for asset-class grouping and duplicate-symbol handling.
+- Verification: full suite passed with 287 tests across 77 files; Worker typecheck and lint passed; Railway Worker deployment `f17d5398-5414-4659-9ebb-bf733397a0a1` reached `SUCCESS` and live health remains `healthy`.
+- Continuous entry submission remains disabled; this change only expands read/reconcile/exit coverage.
+- **Next smallest unit:** verify the authenticated Cycle card, then reconcile the authorized AAPL order after Alpaca's next active market window.

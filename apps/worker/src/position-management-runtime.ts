@@ -22,6 +22,17 @@ export function getPaperOrderStatusTransitions(before: ReadonlyArray<{ readonly 
   return after.filter((order) => previous.has(order.alpacaOrderId) && previous.get(order.alpacaOrderId) !== order.status).map((order) => ({ alpacaOrderId: order.alpacaOrderId, from: previous.get(order.alpacaOrderId)!, status: order.status, symbol: order.symbol }));
 }
 
+export function groupPositionSymbolsByAssetClass(positions: ReadonlyArray<{ readonly assetClass: string; readonly symbol: string }>): readonly { readonly assetClass: "crypto" | "us_equity"; readonly symbols: readonly string[] }[] {
+  const groups = new Map<"crypto" | "us_equity", string[]>();
+  for (const position of positions) {
+    const assetClass = position.assetClass === "crypto" ? "crypto" : "us_equity";
+    const symbols = groups.get(assetClass) ?? [];
+    if (!symbols.includes(position.symbol)) symbols.push(position.symbol);
+    groups.set(assetClass, symbols);
+  }
+  return [...groups.entries()].map(([assetClass, symbols]) => ({ assetClass, symbols }));
+}
+
 function parseBoolean(name: string, value: string | undefined, defaultValue: boolean): boolean {
   if (value === undefined) return defaultValue;
   if (value === "true") return true;
@@ -72,22 +83,25 @@ export async function runPositionManagementCycle(environment: NodeJS.ProcessEnv 
       await notifier.notify({ code: "paper_order_status_changed", dedupeKey: `paper_order_status_changed:${transition.alpacaOrderId}:${transition.status}`, message: `Paper order status changed: ${transition.symbol} ${transition.from} → ${transition.status}.`, severity: terminal && transition.status.toLowerCase() !== "filled" ? "warning" : "info" });
     }
     const rows = await createPaperOrderRepository(db).listExitPlans();
-    const plans = new Map(rows.filter((row) => row.alpacaOrderId && row.entryPrice && row.plannedStopPrice && row.strategyKey && row.strategyVersion).map((row) => [row.symbol, row]));
+    const plans = new Map(rows.filter((row) => row.alpacaOrderId && row.entryPrice && row.plannedStopPrice && row.strategyKey && row.strategyVersion).map((row) => [`${row.assetClass}:${row.symbol}`, row]));
     const positions = model?.positions ?? [];
-    const symbols = positions.map((position) => position.symbol).filter((symbol) => plans.has(symbol));
-    if (symbols.length === 0) return { managed: 0, submitted: 0 };
+    const managedPositions = positions.filter((position) => plans.has(`${position.assetClass}:${position.symbol}`));
+    if (managedPositions.length === 0) return { managed: 0, submitted: 0 };
+    const symbols = managedPositions.map((position) => position.symbol);
     for (const symbol of symbols) {
       if (alertedPositionKeys.has(symbol)) continue;
       alertedPositionKeys.add(symbol);
       await notifier.notify({ code: "position_detected", message: `Managed paper position detected: ${symbol}. Exit plan is active and being monitored.`, severity: "info" });
     }
-    const marks = await createPaperMarketDataReader({ apiKey, secretKey }).readSnapshots({ assetClass: "us_equity", symbols });
-    const managed = positions.flatMap((position) => {
-      const plan = plans.get(position.symbol);
-      const mark = marks.find((item) => item.symbol === position.symbol);
+    const reader = createPaperMarketDataReader({ apiKey, secretKey });
+    const markGroups = await Promise.all(groupPositionSymbolsByAssetClass(managedPositions).map(async (group) => ({ assetClass: group.assetClass, marks: await reader.readSnapshots(group) })));
+    const marks = markGroups.flatMap((group) => group.marks.map((mark) => ({ assetClass: group.assetClass, mark })));
+    const managed = managedPositions.flatMap((position) => {
+      const plan = plans.get(`${position.assetClass}:${position.symbol}`);
+      const mark = marks.find((item) => item.assetClass === (position.assetClass === "crypto" ? "crypto" : "us_equity") && item.mark.symbol === position.symbol)?.mark;
       const currentPrice = mark?.latestTrade?.price ?? mark?.dailyBar?.close ?? mark?.latestQuote?.askPrice;
       if (!plan || !currentPrice) return [];
-      return [{ assetClass: "us_equity" as const, currentPrice, entryPrice: plan.entryPrice!, plannedStopPrice: plan.plannedStopPrice!, ...(plan.plannedTargetPrice ? { plannedTargetPrice: plan.plannedTargetPrice } : {}), quantity: position.quantity, strategyKey: plan.strategyKey!, strategyVersion: plan.strategyVersion!, symbol: position.symbol, ...(plan.timeStopAt ? { timeStopAt: plan.timeStopAt.toISOString() } : {}), intentId: plan.intentId }];
+      return [{ assetClass: position.assetClass === "crypto" ? "crypto" as const : "us_equity" as const, currentPrice, entryPrice: plan.entryPrice!, plannedStopPrice: plan.plannedStopPrice!, ...(plan.plannedTargetPrice ? { plannedTargetPrice: plan.plannedTargetPrice } : {}), quantity: position.quantity, strategyKey: plan.strategyKey!, strategyVersion: plan.strategyVersion!, symbol: position.symbol, ...(plan.timeStopAt ? { timeStopAt: plan.timeStopAt.toISOString() } : {}), intentId: plan.intentId }];
     });
     const result = await runPaperPositionManagementOnce({ now: new Date().toISOString(), positions: managed, submitter: createPaperExitOrderSubmitter({ apiKey, brokerConnectionEnabled: true, secretKey }) });
     for (const decision of result.decisions) {
