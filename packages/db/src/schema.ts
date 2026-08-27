@@ -132,6 +132,7 @@ export const paperOrderSubmissions = pgTable(
     clientOrderId: text("client_order_id").notNull(),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
     entryPrice: numeric("entry_price", { precision: 20, scale: 8 }),
+    exitPlanReference: text("exit_plan_reference"),
     filledQuantity: numeric("filled_quantity", { precision: 20, scale: 8 }),
     intentId: text("intent_id").primaryKey(),
     marketSnapshot: jsonb("market_snapshot").$type<Readonly<Record<string, string | null>>>(),

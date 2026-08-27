@@ -2751,3 +2751,9 @@
 - Added a guarded recurring scheduler primitive for position-management passes with a minimum 30-second interval, immediate first run, clean shutdown, non-overlap protection, and bounded degraded error state.
 - Added health accessors and tests for successful and failed runs. It is not wired into production startup yet; this prevents accidental exit submissions before legacy position metadata is reviewed.
 - **Next smallest unit:** add the explicit legacy-position plan review/backfill path, then compose this scheduler with the live Alpaca position runner.
+
+### 2026-08-27 — Phase 6.174 legacy exit-plan backfill path
+
+- Added guarded `exit-plan-backfill`, requiring a bounded operator reference and exact entry/stop/target/strategy metadata for a legacy paper order.
+- The repository refuses to backfill a submission that already has plan metadata, preventing silent overwrites. The reference is retained with the record for audit provenance.
+- No production backfill or broker mutation was performed. The operator must supply the exact legacy entry and exit plan before the AAPL position can be managed automatically.

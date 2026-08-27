@@ -34,6 +34,7 @@ export interface PersistedPaperOrderSubmission {
   readonly riskDecision?: Readonly<{ readonly estimatedLoss?: string; readonly estimatedLossPercent?: string; readonly policyVersion?: string; readonly reasons?: readonly string[] }>;
   readonly quantity: string;
   readonly entryPrice?: string;
+  readonly exitPlanReference?: string;
   readonly plannedStopPrice?: string;
   readonly plannedTargetPrice?: string;
   readonly strategyKey?: string;
@@ -488,6 +489,7 @@ export function createPaperOrderRepository(db: Database) {
           status: submission.status,
           symbol: submission.symbol,
           ...(submission.entryPrice ? { entryPrice: submission.entryPrice } : {}),
+          ...(submission.exitPlanReference ? { exitPlanReference: submission.exitPlanReference } : {}),
           ...(submission.plannedStopPrice ? { plannedStopPrice: submission.plannedStopPrice } : {}),
           ...(submission.plannedTargetPrice ? { plannedTargetPrice: submission.plannedTargetPrice } : {}),
           ...(submission.strategyKey ? { strategyKey: submission.strategyKey } : {}),
@@ -536,6 +538,14 @@ export function createPaperOrderRepository(db: Database) {
 
     async listExitPlans() {
       return db.select().from(paperOrderSubmissions).where(eq(paperOrderSubmissions.assetClass, "us_equity")).orderBy(desc(paperOrderSubmissions.createdAt)).limit(100);
+    },
+
+    async backfillExitPlan(input: { readonly intentId: string; readonly entryPrice: string; readonly plannedStopPrice: string; readonly plannedTargetPrice?: string; readonly strategyKey: string; readonly strategyVersion: string; readonly timeStopAt?: Date; readonly exitPlanReference: string }) {
+      const [existing] = await db.select().from(paperOrderSubmissions).where(eq(paperOrderSubmissions.intentId, input.intentId)).limit(1);
+      if (!existing) throw new Error("Paper order submission was not found.");
+      if (existing.entryPrice || existing.plannedStopPrice || existing.strategyKey || existing.strategyVersion || existing.exitPlanReference) throw new Error("Paper order already has exit-plan metadata.");
+      const [row] = await db.update(paperOrderSubmissions).set({ entryPrice: input.entryPrice, plannedStopPrice: input.plannedStopPrice, ...(input.plannedTargetPrice ? { plannedTargetPrice: input.plannedTargetPrice } : {}), strategyKey: input.strategyKey, strategyVersion: input.strategyVersion, ...(input.timeStopAt ? { timeStopAt: input.timeStopAt } : {}), exitPlanReference: input.exitPlanReference }).where(eq(paperOrderSubmissions.intentId, input.intentId)).returning();
+      return row;
     },
   };
 }
