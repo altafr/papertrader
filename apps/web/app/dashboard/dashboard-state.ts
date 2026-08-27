@@ -25,6 +25,7 @@ export type OperationsHealth = {
     readonly operatingMode: "observe" | "recommend" | "paper_autopilot";
     readonly paperAutopilotEnabled: boolean;
     readonly paperAutopilotOrderSubmissionEnabled: boolean;
+    readonly paperAutopilotOrderSubmissionApprovalReferencePresent: boolean;
     readonly paperBaseline: { readonly current: PaperBaselineStatus; readonly initial: PaperBaselineStatus; readonly status: "blocked" | "ready" };
     readonly migration: { readonly blockedReasons: readonly MigrationBlockedReason[]; readonly status: "blocked" | "ready" };
     readonly riskPolicy: {
@@ -171,7 +172,7 @@ export function parseOperationsHealth(value: unknown): OperationsHealth | undefi
   if (!( ["blocked", "disabled", "enabled"] as const).includes(schedulerAuditGate.status as SchedulerAuditGateStatus)) return undefined;
   if (!( ["unverified", "verified"] as const).includes(recovery.status as RecoveryVerificationStatus)) return undefined;
   if (!( ["above_baseline", "below_baseline", "unavailable", "within_tolerance"] as const).includes(paperBaseline.current as PaperBaselineStatus) || !( ["above_baseline", "below_baseline", "unavailable", "within_tolerance"] as const).includes(paperBaseline.initial as PaperBaselineStatus) || !( ["blocked", "ready"] as const).includes(paperBaseline.status as "blocked" | "ready")) return undefined;
-  if (typeof scheduler.activationApprovalReferencePresent !== "boolean" || typeof scheduler.cron !== "string" || scheduler.cron.trim().length === 0 || scheduler.cron.length > 120 || typeof scheduler.enabled !== "boolean" || scheduler.timezone !== "UTC" || typeof researchSchedule.enabled !== "boolean" || typeof researchSchedule.handlerEnabled !== "boolean" || typeof telegramAlerts.enabled !== "boolean" || typeof telegramAlertTest.approvalReferencePresent !== "boolean" || typeof runtime.brokerConnectionEnabled !== "boolean" || typeof runtime.dailyPreparationHandlerEnabled !== "boolean" || typeof runtime.globalKillSwitchActive !== "boolean" || typeof runtime.paperAutopilotEnabled !== "boolean" || typeof runtime.paperAutopilotOrderSubmissionEnabled !== "boolean" || (dailyReconciliation.capturedAt !== undefined && typeof dailyReconciliation.capturedAt !== "string")) return undefined;
+  if (typeof scheduler.activationApprovalReferencePresent !== "boolean" || typeof scheduler.cron !== "string" || scheduler.cron.trim().length === 0 || scheduler.cron.length > 120 || typeof scheduler.enabled !== "boolean" || scheduler.timezone !== "UTC" || typeof researchSchedule.enabled !== "boolean" || typeof researchSchedule.handlerEnabled !== "boolean" || typeof telegramAlerts.enabled !== "boolean" || typeof telegramAlertTest.approvalReferencePresent !== "boolean" || typeof runtime.brokerConnectionEnabled !== "boolean" || typeof runtime.dailyPreparationHandlerEnabled !== "boolean" || typeof runtime.globalKillSwitchActive !== "boolean" || typeof runtime.paperAutopilotEnabled !== "boolean" || typeof runtime.paperAutopilotOrderSubmissionEnabled !== "boolean" || typeof runtime.paperAutopilotOrderSubmissionApprovalReferencePresent !== "boolean" || (dailyReconciliation.capturedAt !== undefined && typeof dailyReconciliation.capturedAt !== "string")) return undefined;
   for (const key of ["completedAt", "failureCode", "runId", "scheduledAt", "startedAt"] as const) if (schedulerAudit[key] !== undefined && typeof schedulerAudit[key] !== "string") return undefined;
   if (typeof schedulerAuditGate.activationApprovalReferencePresent !== "boolean" || typeof schedulerAuditGate.enabled !== "boolean" || typeof schedulerAuditGate.migrationReady !== "boolean") return undefined;
   if (!(runtime.migration.status === "blocked" || runtime.migration.status === "ready")) return undefined;
@@ -195,6 +196,7 @@ export function parseOperationsHealth(value: unknown): OperationsHealth | undefi
       operatingMode: runtime.operatingMode as OperationsHealth["runtime"]["operatingMode"],
       paperAutopilotEnabled: runtime.paperAutopilotEnabled,
       paperAutopilotOrderSubmissionEnabled: runtime.paperAutopilotOrderSubmissionEnabled,
+      paperAutopilotOrderSubmissionApprovalReferencePresent: runtime.paperAutopilotOrderSubmissionApprovalReferencePresent,
       paperBaseline: { current: paperBaseline.current as PaperBaselineStatus, initial: paperBaseline.initial as PaperBaselineStatus, status: paperBaseline.status as "blocked" | "ready" },
       migration: { blockedReasons: runtime.migration.blockedReasons as readonly MigrationBlockedReason[], status: runtime.migration.status },
       riskPolicy: {

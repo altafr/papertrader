@@ -3097,3 +3097,10 @@
 - Result: `status:"ready"`, `blockedReasons:[]`, market snapshot available, and baseline evidence recognized.
 - Persistent Railway variables remain unchanged and no Alpaca order was submitted.
 - **Next smallest unit:** execute one bounded paper order through the unified gate with explicit operator authorization, then verify broker reconciliation, Telegram delivery, and dashboard history.
+
+### 2026-08-28 — Phase 6.224 activation-reference visibility
+
+- Added a redacted API/dashboard health field for execution-approval-reference presence.
+- The dashboard now distinguishes a missing reference from a disabled submission flag without displaying the reference value or any credential.
+- Verification: dashboard contract tests (10 passed), API/web typechecks, lint, and web production build passed.
+- **Next smallest unit:** verify the hosted authenticated view, then execute one bounded paper order only with explicit operator authorization.

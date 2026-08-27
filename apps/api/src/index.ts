@@ -359,6 +359,7 @@ async function readOperationsHealth(request: IncomingMessage) {
         operatingMode: getPaperOperatingMode(),
         paperAutopilotEnabled: readBooleanEnvironmentFlag("PAPER_AUTOPILOT_ENABLED"),
         paperAutopilotOrderSubmissionEnabled: readBooleanEnvironmentFlag("PAPER_AUTOPILOT_ORDER_SUBMISSION_ENABLED"),
+        paperAutopilotOrderSubmissionApprovalReferencePresent: readBooleanEnvironmentFlag("PAPER_AUTOPILOT_ORDER_SUBMISSION_ENABLED") === false || Boolean(process.env.PAPER_AUTOPILOT_ORDER_SUBMISSION_APPROVAL_REFERENCE?.trim() && /^[A-Za-z0-9][A-Za-z0-9._:/-]{0,127}$/.test(process.env.PAPER_AUTOPILOT_ORDER_SUBMISSION_APPROVAL_REFERENCE.trim())),
         paperBaseline: {
           current: currentBaseline,
           initial: initialBaseline,
