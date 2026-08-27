@@ -303,6 +303,18 @@ export function createAccountStateRepository(db: Database) {
                 updatedAt: sql`excluded.updated_at`,
               },
             });
+          // Keep the auditable submission ledger aligned with broker truth for
+          // every reconciliation path, not only position management.
+          for (const order of state.orders) {
+            if (!order.clientOrderId) continue;
+            await transaction.update(paperOrderSubmissions).set({
+              alpacaOrderId: order.alpacaOrderId,
+              ...(order.filledQuantity !== undefined ? { filledQuantity: order.filledQuantity } : {}),
+              status: order.status,
+              ...(order.submittedAt !== undefined ? { submittedAt: order.submittedAt } : {}),
+              ...(order.updatedAt !== undefined ? { updatedAt: order.updatedAt } : {}),
+            }).where(eq(paperOrderSubmissions.clientOrderId, order.clientOrderId));
+          }
         }
         if (state.activities.length > 0) {
           await transaction.insert(activities).values([...state.activities]).onConflictDoNothing();

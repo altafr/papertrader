@@ -3300,3 +3300,10 @@
 - Added regression coverage for the run-scoped recommendation keys; full suite passed with 288 tests across 77 files.
 - Railway Worker deployment `cfb077a0-6855-46f2-842a-32e3b104e73b` reached `SUCCESS`; live health remains `healthy`, research scheduling is `scheduled`, and Telegram alerts are `ready`.
 - **Next smallest unit:** verify a terminal broker transition updates the persisted ledger and emits the deduplicated Telegram status alert during an active paper session.
+
+### 2026-08-28 — Phase 6.252 centralized reconciliation ledger sync
+
+- Moved broker-to-submission-ledger synchronization into the transactional account reconciliation repository, covering daily scheduler runs, one-shot commands, and position-management passes.
+- Matching client-order IDs now update status, fill quantity, broker ID, and timestamps atomically with the account snapshot; unmatched broker orders remain ignored.
+- Verification: full suite passed with 288 tests across 77 files; Worker/database TypeScript checks and lint passed; Railway deployment `904be044-b636-41b8-8a9b-30ecf5ec2c06` reached `SUCCESS`; hosted reconciliation completed successfully and live health remains `healthy`.
+- **Next smallest unit:** verify a terminal broker transition updates the persisted ledger and emits the deduplicated Telegram status alert during an active paper session.
