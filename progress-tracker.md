@@ -2996,3 +2996,11 @@
 - Verification: 75 test files / 282 tests passed, all eight TypeScript projects passed, ESLint passed with zero warnings, secret-surface audit passed, and the web production build passed.
 - Railway Worker deployment `3b92a9a4-64c3-41bd-adcb-d680dbed2a16` reached `SUCCESS`; startup logs confirm paper mode, scheduler scheduled, research ready, position management running, and Telegram ready.
 - **Next smallest unit:** exercise one scheduled risk cycle against a persisted paper account, then implement the separately gated broker-submission handoff.
+
+### 2026-08-28 — Phase 6.211 hosted scheduled risk-cycle exercise
+
+- Railway Worker deployment `2f5de86a-22ee-4803-8350-f48d14438654` reached `SUCCESS` with the guarded `paper-autopilot-risk-cycle-once` command available.
+- Ran guarded research preparation with reference `PAPER-RISK-CYCLE-0211`; the hosted paper runtime persisted fresh stock/crypto research runs, including a BTC/USD candidate with point-in-time indicators.
+- Ran the risk cycle with the same bounded reference. It persisted one deterministic decision for `BTC/USD` as `rejected`; no Alpaca order submission was attempted.
+- This confirms the scheduled research-to-risk path fails closed on a real hosted paper account and leaves auditable decision evidence for dashboard/Telegram history.
+- **Next smallest unit:** expose the persisted risk-cycle decision reason in the authenticated operator view, then implement the separately gated broker-submission handoff.

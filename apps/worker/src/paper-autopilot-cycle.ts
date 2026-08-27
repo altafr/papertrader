@@ -21,6 +21,7 @@ export async function runPaperAutopilotRiskCycle(input: {
   readonly quantity?: string;
   readonly now?: Date;
   readonly environment?: NodeJS.ProcessEnv;
+  readonly approvalReference?: string;
   readonly notify?: (alert: { readonly code: string; readonly message: string; readonly severity: "critical" | "info" | "warning" }) => Promise<void> | void;
 }): Promise<readonly PaperAutopilotRiskCycleResult[]> {
   if (input.candidates.length === 0) return [];
@@ -66,7 +67,7 @@ export async function runPaperAutopilotRiskCycle(input: {
     };
     await repository.recordSubmission(persisted);
     results.push({ approvalStatus: approval.status, intentId, symbol: candidate.symbol });
-    await input.notify?.({ code: "paper_risk_decision", message: `${candidate.symbol} scheduled paper risk decision: ${approval.status}; ${approval.assessment.reasons.join(" ") || "all deterministic checks passed"}.`, severity: approval.status === "approved" ? "info" : "warning" });
+    await input.notify?.({ code: "paper_risk_decision", message: `${candidate.symbol} scheduled paper risk decision: ${approval.status}; ${approval.assessment.reasons.join(" ") || "all deterministic checks passed"}.${input.approvalReference ? ` Reference ${input.approvalReference}.` : ""}`, severity: approval.status === "approved" ? "info" : "warning" });
   }
   return results;
 }
