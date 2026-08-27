@@ -3142,3 +3142,10 @@
 - Verified the live Worker `/health` response: `healthy`, Paper Autopilot active, research scheduler scheduled, position management ready, Telegram enabled, and paper order submission disabled.
 - Railway auto-detected the Worker port; the endpoint is now independently monitorable without exposing credentials or execution controls.
 - **Next smallest unit:** run the bounded paper order from inside this healthy Railway Worker with explicit operator authorization, then verify Alpaca reconciliation, Telegram delivery, and dashboard history.
+
+### 2026-08-28 — Phase 6.231 live scheduler and safety-gate audit
+
+- Rechecked the public Worker health endpoint after domain provisioning: durable scheduler is `scheduled` on UTC cron `0 0 * * *`, research scheduling is `scheduled`, and the global kill switch is inactive.
+- Position management reports `ready` with a 60-second interval; Telegram alerts are enabled and ready.
+- Confirmed `paperAutopilotOrderSubmissionEnabled:false`; no broker write path is active.
+- **Next smallest unit:** run the bounded paper order from inside this healthy Railway Worker with explicit operator authorization, then verify Alpaca reconciliation, Telegram delivery, and dashboard history.
