@@ -2721,3 +2721,9 @@
 - Paper order requests now carry the normalized entry price, planned stop, target, time-stop, and strategy identity into the persistent submission record.
 - This metadata is captured for approved and rejected research intents and is available to a future position manager without inferring intent from broker state.
 - Typechecks and focused broker/domain tests pass. Migration `0014` and the Worker orchestration remain to deploy and wire in the next unit.
+
+### 2026-08-27 — Phase 6.169 exit-plan metadata deployed
+
+- Worker deployment `41cee59c-03f6-4ceb-bb4a-117604927e67` reached `SUCCESS` with the exit-plan persistence changes.
+- Application migration `0014` applied successfully (`migrationCount:14`). Worker Health remains healthy in `paper_autopilot` mode with durable and research schedulers scheduled.
+- No new order was submitted. The next unit is the guarded position polling loop that consumes this metadata and submits/reconciles deterministic exits.
