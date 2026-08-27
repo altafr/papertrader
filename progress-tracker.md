@@ -3105,3 +3105,10 @@
 - Verification: dashboard contract tests (10 passed), API/web typechecks, lint, and web production build passed.
 - Railway API deployment `3c9cb976-e7a9-4ece-9682-828aa6d77c10` reached `SUCCESS`; the persistent submission gate remains off.
 - **Next smallest unit:** verify the hosted authenticated view, then execute one bounded paper order only with explicit operator authorization.
+
+### 2026-08-28 — Phase 6.225 hosted runtime-readiness evidence
+
+- Ran the guarded runtime-readiness command in Railway with command-scoped submission flag and reference `PAPER-EXECUTION-BOUNDARY-001`.
+- Result: `status:"ready"`, `blockedReasons:[]`, configuration `executionStatus:"enabled"`, global kill switch inactive, paper credentials/broker/database configured, and reconciliation fresh (30 seconds old at capture).
+- No persistent variables changed and no order was submitted.
+- **Next smallest unit:** execute one bounded paper order with explicit operator authorization, then verify Alpaca reconciliation, Telegram delivery, and dashboard history.
