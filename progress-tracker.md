@@ -3126,4 +3126,5 @@
 - Extracted the broker-cycle candidate selector as a pure function and added regression coverage: broker-enabled execution selects one candidate; dry-run analysis remains capped at ten.
 - Verification: focused Worker test (2 passed), Worker TypeScript, and lint passed.
 - A local `railway run` rehearsal could not reach Railway's private PostgreSQL hostname (`ENOTFOUND`); no application failure, Railway variable, or broker state was inferred from that tooling limitation.
+- Worker deployment `b360b55a-cf7a-498f-bd04-ccf1a38b2318` reached `SUCCESS` with the regression coverage included.
 - **Next smallest unit:** run the bounded paper order from inside a Railway runtime (or provide a public database connection path) with explicit operator authorization, then verify Alpaca reconciliation, Telegram delivery, and dashboard history.
