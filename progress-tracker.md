@@ -3060,3 +3060,10 @@
 - Verification: 283 tests passed, Worker typecheck and lint passed.
 - Railway Worker deployment `8fc0e2e3-e935-443e-a2f8-e3f5e463b084` reached `SUCCESS`.
 - **Next smallest unit:** obtain an operator-approved activation reference, run the preflight in Railway, and only then decide whether to submit one bounded paper order.
+
+### 2026-08-28 — Phase 6.219 hosted no-write preflight exercise
+
+- Ran the deployed preflight for `AAPL` inside Railway using the paper Worker environment.
+- Result: `status:"blocked"`, `orderSubmissionEnabled:false`, and the sole blocker was `paper_order_submission_gate_disabled`; a fresh account reconciliation and market snapshot were available.
+- No Alpaca order submission occurred. This confirms the production safety gate is functioning as designed before any execution activation.
+- **Next smallest unit:** obtain an explicit operator activation reference and decide whether to enable one bounded paper order.
