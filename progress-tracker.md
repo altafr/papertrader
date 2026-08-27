@@ -3181,6 +3181,14 @@
 - No new order, configuration change, or position attribution occurred.
 - **Next smallest unit:** recheck after Alpaca's next market open and verify the order's terminal state.
 
+### 2026-08-28 — Phase 6.239 broker status-transition alerts
+
+- Added a deduplicated Telegram alert at the recurring reconciliation boundary for broker order status transitions (filled, canceled, expired, rejected, or other changes).
+- Added a pure transition detector with regression coverage; full suite now passes 286 tests across 77 files, with lint and Worker typecheck clean.
+- Railway Worker deployment `7c58b2a9-044b-46fd-a7c0-7a17810e4cc0` reached `SUCCESS`.
+- The existing AAPL order remains accepted/unfilled; no additional broker write occurred during this change.
+- **Next smallest unit:** verify the new lifecycle alert when the pending order reaches a terminal state during an active market session.
+
 ### 2026-08-28 — Phase 6.235 market-closed pending state
 
 - Reconciled again from Railway and queried Alpaca's paper clock.
