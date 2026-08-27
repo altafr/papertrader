@@ -33,6 +33,7 @@ export function getWorkerHealth(now = new Date(), environment: NodeJS.ProcessEnv
     globalKillSwitchActive: isGlobalKillSwitchActive(environment),
     operatingMode: getPaperOperatingMode(environment),
     paperAutopilotOrderSubmissionEnabled: environment.PAPER_AUTOPILOT_ORDER_SUBMISSION_ENABLED === "true",
+    paperAutopilotOrderSubmissionApprovalReferencePresent: environment.PAPER_AUTOPILOT_ORDER_SUBMISSION_ENABLED !== "true" || Boolean(environment.PAPER_AUTOPILOT_ORDER_SUBMISSION_APPROVAL_REFERENCE?.trim() && /^[A-Za-z0-9][A-Za-z0-9._:/-]{0,127}$/.test(environment.PAPER_AUTOPILOT_ORDER_SUBMISSION_APPROVAL_REFERENCE.trim())),
     positionManagement: { blockedReasons: positionManagementReadiness.blockedReasons, enabled: getPositionManagementSchedulerEnabled(environment), intervalSeconds: getPositionManagementIntervalSeconds(environment), readiness: positionManagementReadiness.status, status: positionManagementHealth.status, ...(positionManagementHealth.lastError === undefined ? {} : { lastError: positionManagementHealth.lastError }), ...(positionManagementHealth.lastRunAt === undefined ? {} : { lastRunAt: positionManagementHealth.lastRunAt }) },
     researchSchedule: { enabled: research.enabled, handlerEnabled: research.handlerEnabled, ...(researchRuntime.lastRunAt ? { lastRunAt: researchRuntime.lastRunAt } : {}), ...(researchRuntime.nextRunAt ? { nextRunAt: researchRuntime.nextRunAt } : {}), status: researchStatus },
     shadowEvaluation: { ...shadow, ...schedule, status: shadow.enabled ? schedule.status : "disabled" },

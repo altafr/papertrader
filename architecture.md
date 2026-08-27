@@ -22,6 +22,8 @@ The scheduled risk cycle accepts an optional executor only when `PAPER_AUTOPILOT
 
 The guarded one-shot paper-order and end-to-end order commands enforce the same submission flag, preventing command paths from bypassing the scheduled execution gate.
 
+When submission is enabled, `PAPER_AUTOPILOT_ORDER_SUBMISSION_APPROVAL_REFERENCE` must also be present and bounded. Readiness reports a blocked execution state when the reference is missing; the reference is provenance only and never contains credentials.
+
 Before each scheduled risk cycle, the Worker refreshes the persisted account read model from Alpaca paper state. This keeps the candidate decision and any optionally enabled submission behind a current account/positions/orders reconciliation rather than relying on an older daily snapshot.
 
 ### Guarded paper end-to-end evidence run (2026-08-26)

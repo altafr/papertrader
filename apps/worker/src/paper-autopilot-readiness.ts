@@ -16,6 +16,7 @@ export interface PaperAutopilotReadiness {
     readonly paperMode: boolean;
     readonly paperRiskPolicyValid: boolean;
     readonly paperOrderSubmissionEnabled: boolean;
+    readonly paperOrderSubmissionApprovalReferencePresent: boolean;
     readonly runtimeFreshnessGateRequired: true;
     readonly schedulerActivationApprovalReferencePresent: boolean;
   };
@@ -24,7 +25,7 @@ export interface PaperAutopilotReadiness {
     readonly maxSingleTradeRiskPercentOfNotional: string;
     readonly maxSingleTradeStopLossPercent: string;
   };
-  readonly executionStatus: "dry_run" | "enabled";
+  readonly executionStatus: "blocked" | "dry_run" | "enabled";
   readonly status: PaperAutopilotReadinessStatus;
 }
 
@@ -43,6 +44,7 @@ export function getPaperAutopilotReadiness(environment: NodeJS.ProcessEnv = proc
   const orderSubmissionFlag = environment.PAPER_AUTOPILOT_ORDER_SUBMISSION_ENABLED;
   if (orderSubmissionFlag !== undefined && orderSubmissionFlag !== "true" && orderSubmissionFlag !== "false") throw new Error("PAPER_AUTOPILOT_ORDER_SUBMISSION_ENABLED must be exactly true or false.");
   const paperOrderSubmissionEnabled = orderSubmissionFlag === "true";
+  const paperOrderSubmissionApprovalReferencePresent = !paperOrderSubmissionEnabled || Boolean(environment.PAPER_AUTOPILOT_ORDER_SUBMISSION_APPROVAL_REFERENCE?.trim() && /^[A-Za-z0-9][A-Za-z0-9._:/-]{0,127}$/.test(environment.PAPER_AUTOPILOT_ORDER_SUBMISSION_APPROVAL_REFERENCE.trim()));
   let operatingModePaperAutopilot = false;
   try {
     operatingModePaperAutopilot = getPaperOperatingMode(environment) === "paper_autopilot";
@@ -60,14 +62,15 @@ export function getPaperAutopilotReadiness(environment: NodeJS.ProcessEnv = proc
     ...(durableSchedulerEnabled ? [] : ["durable_scheduler_disabled"]),
     ...(dailyPreparationHandlerEnabled ? [] : ["daily_preparation_handler_disabled"]),
     ...(schedulerActivationApprovalReferencePresent ? [] : ["scheduler_activation_approval_reference_missing"]),
+    ...(paperOrderSubmissionApprovalReferencePresent ? [] : ["paper_order_submission_approval_reference_missing"]),
     ...(globalKillSwitchActive ? ["global_kill_switch_active"] : []),
     ...(paperRiskPolicyValid ? [] : ["paper_risk_policy_invalid"]),
   ];
   const status = !autopilotEnabled ? "disabled" : blockedReasons.length === 0 ? "ready" : "blocked";
   return {
     blockedReasons: status === "disabled" ? [] : blockedReasons,
-    checks: { brokerConnectionEnabled, dailyPreparationHandlerEnabled, databaseConfigured, durableSchedulerEnabled, globalKillSwitchActive, operatingModePaperAutopilot, paperCredentialsConfigured, paperMode, paperOrderSubmissionEnabled, paperRiskPolicyValid, runtimeFreshnessGateRequired: true, schedulerActivationApprovalReferencePresent },
-    executionStatus: paperOrderSubmissionEnabled ? "enabled" : "dry_run",
+    checks: { brokerConnectionEnabled, dailyPreparationHandlerEnabled, databaseConfigured, durableSchedulerEnabled, globalKillSwitchActive, operatingModePaperAutopilot, paperCredentialsConfigured, paperMode, paperOrderSubmissionApprovalReferencePresent, paperOrderSubmissionEnabled, paperRiskPolicyValid, runtimeFreshnessGateRequired: true, schedulerActivationApprovalReferencePresent },
+    executionStatus: paperOrderSubmissionEnabled ? (paperOrderSubmissionApprovalReferencePresent ? "enabled" : "blocked") : "dry_run",
     policy: { initialEquityBaseline: PAPER_INITIAL_EQUITY_BASELINE, maxSingleTradeRiskPercentOfNotional: MAX_SINGLE_TRADE_RISK_PERCENT_OF_NOTIONAL, maxSingleTradeStopLossPercent: MAX_SINGLE_TRADE_STOP_LOSS_PERCENT },
     status,
   };

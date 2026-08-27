@@ -26,6 +26,8 @@ export function createResearchSchedulerFromEnvironment(environment: NodeJS.Proce
   const alertRepository = createTelegramAlertRepository(db);
   const orderSubmissionFlag = environment.PAPER_AUTOPILOT_ORDER_SUBMISSION_ENABLED;
   if (orderSubmissionFlag !== undefined && orderSubmissionFlag !== "true" && orderSubmissionFlag !== "false") throw new Error("PAPER_AUTOPILOT_ORDER_SUBMISSION_ENABLED must be exactly true or false.");
+  const orderSubmissionApprovalReference = environment.PAPER_AUTOPILOT_ORDER_SUBMISSION_APPROVAL_REFERENCE?.trim();
+  if (orderSubmissionFlag === "true" && (!orderSubmissionApprovalReference || !/^[A-Za-z0-9][A-Za-z0-9._:/-]{0,127}$/.test(orderSubmissionApprovalReference))) throw new Error("PAPER_AUTOPILOT_ORDER_SUBMISSION_ENABLED=true requires a bounded PAPER_AUTOPILOT_ORDER_SUBMISSION_APPROVAL_REFERENCE.");
   const persistence = {
     enqueue: (run: AgentRunRequest) => repository.enqueue({
       agentType: run.agentType,

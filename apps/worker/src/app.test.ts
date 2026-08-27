@@ -15,6 +15,7 @@ describe("worker health", () => {
       globalKillSwitchActive: false,
       operatingMode: "observe",
       paperAutopilotOrderSubmissionEnabled: false,
+      paperAutopilotOrderSubmissionApprovalReferencePresent: true,
       positionManagement: { blockedReasons: [], enabled: false, intervalSeconds: 60, readiness: "disabled", status: "disabled" },
       researchSchedule: { enabled: false, handlerEnabled: false, status: "disabled" },
       shadowEvaluation: { enabled: false, intervalSeconds: 3600, sourceConfigured: false, status: "disabled" },

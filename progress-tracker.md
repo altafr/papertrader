@@ -3081,3 +3081,11 @@
 - Documented that the command reconciles before/after submission, emits redacted outcome metadata, and must not be used to silently activate continuous scheduled submissions.
 - Documentation-only change; no persistent Railway variables or broker state changed.
 - **Next smallest unit:** provide an explicit activation reference and run the one-shot paper order through the guarded command.
+
+### 2026-08-28 — Phase 6.222 activation-reference gate
+
+- Added a required bounded `PAPER_AUTOPILOT_ORDER_SUBMISSION_APPROVAL_REFERENCE` whenever the server-side submission flag is enabled.
+- Worker readiness now distinguishes `blocked`, `dry_run`, and `enabled` execution status; missing or malformed references fail closed.
+- Worker health exposes only redacted presence booleans, never the reference or credentials.
+- Verification: targeted readiness/app health tests (12 passed), Worker typecheck, and lint passed.
+- **Next smallest unit:** run the no-write preflight with the activation reference, then execute one bounded paper order only with explicit operator authorization.

@@ -8,7 +8,8 @@ describe("paper autopilot readiness", () => {
   });
 
   it("keeps broker submission explicitly gated", () => {
-    expect(getPaperAutopilotReadiness({ PAPER_AUTOPILOT_ENABLED: "true", PAPER_AUTOPILOT_ORDER_SUBMISSION_ENABLED: "true" }).executionStatus).toBe("enabled");
+    expect(getPaperAutopilotReadiness({ PAPER_AUTOPILOT_ENABLED: "true", PAPER_AUTOPILOT_ORDER_SUBMISSION_ENABLED: "true" }).executionStatus).toBe("blocked");
+    expect(getPaperAutopilotReadiness({ PAPER_AUTOPILOT_ENABLED: "true", PAPER_AUTOPILOT_ORDER_SUBMISSION_APPROVAL_REFERENCE: "paper-execution-001", PAPER_AUTOPILOT_ORDER_SUBMISSION_ENABLED: "true" }).executionStatus).toBe("enabled");
     expect(getPaperAutopilotReadiness({ PAPER_AUTOPILOT_ENABLED: "true" }).executionStatus).toBe("dry_run");
     expect(() => getPaperAutopilotReadiness({ PAPER_AUTOPILOT_ORDER_SUBMISSION_ENABLED: "maybe" })).toThrow("exactly true or false");
   });
