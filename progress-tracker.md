@@ -3128,3 +3128,10 @@
 - A local `railway run` rehearsal could not reach Railway's private PostgreSQL hostname (`ENOTFOUND`); no application failure, Railway variable, or broker state was inferred from that tooling limitation.
 - Worker deployment `b360b55a-cf7a-498f-bd04-ccf1a38b2318` reached `SUCCESS` with the regression coverage included.
 - **Next smallest unit:** run the bounded paper order from inside a Railway runtime (or provide a public database connection path) with explicit operator authorization, then verify Alpaca reconciliation, Telegram delivery, and dashboard history.
+
+### 2026-08-28 — Phase 6.228 hosted API liveness
+
+- Confirmed the deployed Railway API responds healthy at `https://api-production-e0a6.up.railway.app/health`.
+- Confirmed the protected operations endpoint returns `401 unauthorized` without an operator token, preserving the authentication boundary.
+- No secrets were requested or printed; no Railway variables or broker state changed.
+- **Next smallest unit:** run the bounded paper order from inside a Railway runtime with explicit operator authorization, then verify Alpaca reconciliation, Telegram delivery, and dashboard history.
