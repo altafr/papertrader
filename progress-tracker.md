@@ -2745,3 +2745,9 @@
 - Worker deployment `357a39c6-4cac-4415-a94f-e860729bdb20` reached `SUCCESS`; migration target `0014` is applied and Worker Health remains healthy.
 - Production one-shot execution completed safely with `status:"no_managed_positions"` and zero submissions. The existing AAPL position predates exit-plan metadata, so it was intentionally skipped rather than given an inferred stop or target.
 - **Next smallest unit:** add an explicit operator-reviewed metadata backfill/close path for legacy positions, then activate recurring position management for newly created managed positions.
+
+### 2026-08-27 — Phase 6.173 recurring position-management scheduler primitive
+
+- Added a guarded recurring scheduler primitive for position-management passes with a minimum 30-second interval, immediate first run, clean shutdown, non-overlap protection, and bounded degraded error state.
+- Added health accessors and tests for successful and failed runs. It is not wired into production startup yet; this prevents accidental exit submissions before legacy position metadata is reviewed.
+- **Next smallest unit:** add the explicit legacy-position plan review/backfill path, then compose this scheduler with the live Alpaca position runner.
