@@ -358,6 +358,7 @@ async function readOperationsHealth(request: IncomingMessage) {
         globalKillSwitchActive: isGlobalKillSwitchActive(),
         operatingMode: getPaperOperatingMode(),
         paperAutopilotEnabled: readBooleanEnvironmentFlag("PAPER_AUTOPILOT_ENABLED"),
+        paperAutopilotOrderSubmissionEnabled: readBooleanEnvironmentFlag("PAPER_AUTOPILOT_ORDER_SUBMISSION_ENABLED"),
         paperBaseline: {
           current: currentBaseline,
           initial: initialBaseline,

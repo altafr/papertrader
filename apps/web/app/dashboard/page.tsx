@@ -192,6 +192,7 @@ function OperationsHealthCard({ health }: { readonly health: OperationsHealth | 
         <div><span className="label">Audit migration</span><strong>{migrationLabel}</strong></div>
         <div><span className="label">Broker read gate</span><strong>{health.runtime.brokerConnectionEnabled ? "Enabled" : "Disabled"}</strong></div>
         <div><span className="label">Paper Autopilot</span><strong>{health.runtime.paperAutopilotEnabled ? "Enabled" : "Disabled"}</strong></div>
+        <div><span className="label">Order submission gate</span><strong>{health.runtime.paperAutopilotOrderSubmissionEnabled ? "Enabled" : "Dry-run only"}</strong><small className="provenance">Server-side execution flag</small></div>
         <div><span className="label">Global kill switch</span><strong>{health.runtime.globalKillSwitchActive ? "ACTIVE" : "Inactive"}</strong></div>
         <div><span className="label">Paper baseline</span><strong>USD {health.runtime.riskPolicy.initialEquityBaseline}</strong></div>
         <div><span className="label">Baseline verification</span><strong>{health.runtime.paperBaseline.status === "ready" ? "Verified" : "Blocked"}</strong><small className="provenance">Current: {health.runtime.paperBaseline.current.replaceAll("_", " ")} · Initial: {health.runtime.paperBaseline.initial.replaceAll("_", " ")}</small></div>

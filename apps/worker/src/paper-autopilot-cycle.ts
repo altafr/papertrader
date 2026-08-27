@@ -1,4 +1,5 @@
 import type { ResearchWatchlistCandidate } from "@momentum/domain";
+import type { PaperOrderSubmissionRequest } from "@momentum/alpaca";
 import { isGlobalKillSwitchActive } from "@momentum/config";
 import { createAccountStateRepository, createPaperOrderRepository, type Database, type PersistedPaperOrderSubmission } from "@momentum/db";
 
@@ -6,6 +7,7 @@ import { assessResearchCandidateRisk, buildRiskCandidate, isPaperBaselineVerifie
 
 export interface PaperAutopilotRiskCycleResult {
   readonly approvalStatus: "approved" | "rejected";
+  readonly executionStatus: "not_submitted" | "reconciled";
   readonly intentId: string;
   readonly symbol: string;
 }
@@ -22,6 +24,7 @@ export async function runPaperAutopilotRiskCycle(input: {
   readonly now?: Date;
   readonly environment?: NodeJS.ProcessEnv;
   readonly approvalReference?: string;
+  readonly executeApproved?: (request: PaperOrderSubmissionRequest) => Promise<void>;
   readonly notify?: (alert: { readonly code: string; readonly message: string; readonly severity: "critical" | "info" | "warning" }) => Promise<void> | void;
 }): Promise<readonly PaperAutopilotRiskCycleResult[]> {
   if (input.candidates.length === 0) return [];
@@ -66,7 +69,12 @@ export async function runPaperAutopilotRiskCycle(input: {
       ...(riskCandidate.marketSnapshot ? { marketSnapshot: riskCandidate.marketSnapshot as unknown as Readonly<Record<string, string | null>> } : {}),
     };
     await repository.recordSubmission(persisted);
-    results.push({ approvalStatus: approval.status, intentId, symbol: candidate.symbol });
+    let executionStatus: PaperAutopilotRiskCycleResult["executionStatus"] = "not_submitted";
+    if (approval.status === "approved" && input.executeApproved) {
+      await input.executeApproved({ approval: { approvalId: approval.approvalId, intentId, riskDecision: { estimatedLoss: approval.assessment.estimatedLoss, estimatedLossPercent: approval.assessment.estimatedLossPercent, policyVersion: approval.policyVersion, reasons: approval.assessment.reasons }, status: "approved" }, assetClass: riskCandidate.assetClass, clientOrderId: `${intentId}-paper`, ...(riskCandidate.marketSnapshot ? { marketSnapshot: riskCandidate.marketSnapshot as unknown as Readonly<Record<string, string | null>> } : {}), quantity, entryPrice: riskCandidate.proposedEntryPrice, plannedStopPrice: riskCandidate.plannedStopPrice, plannedTargetPrice: riskCandidate.plannedExitPrice, strategyKey: riskCandidate.strategyKey, strategyVersion: riskCandidate.strategyVersion, side: "buy", symbol: riskCandidate.symbol, timeInForce: "day", type: "market" });
+      executionStatus = "reconciled";
+    }
+    results.push({ approvalStatus: approval.status, executionStatus, intentId, symbol: candidate.symbol });
     await input.notify?.({ code: "paper_risk_decision", message: `${candidate.symbol} scheduled paper risk decision: ${approval.status}; ${approval.assessment.reasons.join(" ") || "all deterministic checks passed"}.${input.approvalReference ? ` Reference ${input.approvalReference}.` : ""}`, severity: approval.status === "approved" ? "info" : "warning" });
   }
   return results;
