@@ -2959,3 +2959,10 @@
 - Telegram configuration is `ready` with token/chat formatting checks passing, while the overall test remains `blocked` solely because `TELEGRAM_ALERT_TEST_APPROVAL_REFERENCE` is missing.
 - No Telegram request, database write, broker call, or order action occurred.
 - **Next smallest unit:** configure an operator-approved bounded reference, run the provider test, and verify the authenticated dashboard/CSV.
+
+### 2026-08-28 — Phase 6.206 market-stream failure alerting
+
+- Added redacted Telegram events for supervised market-stream disconnects and message-processing failures when the stream is enabled.
+- Events use the durable notifier, so they are persisted, deduplicated, retried, and visible in the operator audit history; stream recovery remains independent of alert delivery.
+- Worker typecheck, lint, and diff checks pass. Market streaming remains disabled in production until its explicit feed configuration is supplied.
+- **Next smallest unit:** configure an operator-approved bounded Telegram test reference, run the provider test, and verify the authenticated dashboard/CSV.

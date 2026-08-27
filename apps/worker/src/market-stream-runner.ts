@@ -5,6 +5,8 @@ import {
   type MarketBarTimeframe,
   type MarketStreamSocket,
 } from "@momentum/alpaca";
+import { createDatabase, createTelegramAlertRepository } from "@momentum/db";
+import { createRuntimeAlertNotifier } from "./telegram-events.js";
 
 interface RuntimeSocket extends MarketStreamSocket {
   addEventListener(type: "close" | "message" | "open", listener: (event: { data?: unknown }) => void): void;
@@ -58,6 +60,8 @@ export function startPaperMarketStream(environment = process.env) {
   const WebSocketConstructor = getRuntimeWebSocket();
   let stopped = false;
   let socket: RuntimeSocket | undefined;
+  const alertDatabase = environment.DATABASE_URL?.trim() ? createDatabase(environment.DATABASE_URL) : undefined;
+  const notifier = createRuntimeAlertNotifier(environment, alertDatabase ? createTelegramAlertRepository(alertDatabase.db) : undefined);
 
   const connect = () => {
     if (stopped) return;
@@ -77,10 +81,11 @@ export function startPaperMarketStream(environment = process.env) {
     });
     transport.addEventListener("open", () => supervisor.handleSocketOpen());
     transport.addEventListener("message", (event) => {
-      if (typeof event.data === "string") void supervisor.handleSocketMessage(event.data);
+      if (typeof event.data === "string") void supervisor.handleSocketMessage(event.data).catch(() => notifier.notify({ code: "market_stream_message_failed", dedupeKey: `market_stream_message_failed:${configuration.assetClass}:${configuration.symbols.join(",")}:${Date.now()}`, message: "Market-stream message processing failed closed; the connection remains under supervised recovery.", severity: "critical" }));
     });
     transport.addEventListener("close", () => {
       supervisor.handleSocketClose();
+      void notifier.notify({ code: "market_stream_disconnected", dedupeKey: `market_stream_disconnected:${configuration.assetClass}:${supervisor.status().reconnectCount}`, message: `Market stream disconnected for ${configuration.assetClass}; supervised reconnect ${supervisor.status().reconnectCount} scheduled.`, severity: "critical" });
       if (!stopped) setTimeout(connect, Math.min(30_000, 1_000 * (supervisor.status().reconnectCount + 1)));
     });
   };
