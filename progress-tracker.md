@@ -2810,3 +2810,10 @@
 - Added a direct Telegram section link and preserved the unified audit timeline as the cross-system view.
 - Verified the web typecheck, lint, and diff checks; no trading or risk behavior changed.
 - **Next smallest unit:** run the explicitly authorized Telegram provider test, then verify the authenticated dashboard and CSV against the deployed API.
+
+### 2026-08-28 — Phase 6.183 hosted dashboard propagation check
+
+- Vercel preview `https://papertrader-6gtpmpkz8-altafrs-projects.vercel.app` reached `Ready` for the Telegram delivery panel commit.
+- The protected `/dashboard` route returns the expected unauthenticated `302`; authenticated inspection remains intentionally session-bound.
+- Railway API and Worker deployments remain successful; repository working tree is clean.
+- **Next smallest unit:** run the explicitly authorized Telegram provider test, then verify the authenticated dashboard and CSV against the deployed API.
