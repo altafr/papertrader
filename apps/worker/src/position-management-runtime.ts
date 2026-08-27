@@ -17,6 +17,11 @@ export interface PositionManagementRuntimeHealth {
   readonly lastRunAt?: string;
 }
 
+export function getPaperOrderStatusTransitions(before: ReadonlyArray<{ readonly alpacaOrderId: string; readonly status: string; readonly symbol: string }>, after: ReadonlyArray<{ readonly alpacaOrderId: string; readonly status: string; readonly symbol: string }>) {
+  const previous = new Map(before.map((order) => [order.alpacaOrderId, order.status]));
+  return after.filter((order) => previous.has(order.alpacaOrderId) && previous.get(order.alpacaOrderId) !== order.status).map((order) => ({ alpacaOrderId: order.alpacaOrderId, from: previous.get(order.alpacaOrderId)!, status: order.status, symbol: order.symbol }));
+}
+
 function parseBoolean(name: string, value: string | undefined, defaultValue: boolean): boolean {
   if (value === undefined) return defaultValue;
   if (value === "true") return true;
@@ -57,14 +62,20 @@ export async function runPositionManagementCycle(environment: NodeJS.ProcessEnv 
   try {
     const apiKey = environment.ALPACA_API_KEY!;
     const secretKey = environment.ALPACA_SECRET_KEY!;
-    await reconcilePaperAccount(createPaperAccountReader({ apiKey, secretKey }), createAccountStateRepository(db));
-    const model = await createAccountStateRepository(db).getLatestReadModel();
+    const accountRepository = createAccountStateRepository(db);
+    const beforeModel = await accountRepository.getLatestReadModel();
+    await reconcilePaperAccount(createPaperAccountReader({ apiKey, secretKey }), accountRepository);
+    const model = await accountRepository.getLatestReadModel();
+    const notifier = createRuntimeAlertNotifier(environment, createTelegramAlertRepository(db));
+    for (const transition of getPaperOrderStatusTransitions(beforeModel?.orders ?? [], model?.orders ?? [])) {
+      const terminal = ["filled", "canceled", "expired", "rejected"].includes(transition.status.toLowerCase());
+      await notifier.notify({ code: "paper_order_status_changed", dedupeKey: `paper_order_status_changed:${transition.alpacaOrderId}:${transition.status}`, message: `Paper order status changed: ${transition.symbol} ${transition.from} → ${transition.status}.`, severity: terminal && transition.status.toLowerCase() !== "filled" ? "warning" : "info" });
+    }
     const rows = await createPaperOrderRepository(db).listExitPlans();
     const plans = new Map(rows.filter((row) => row.alpacaOrderId && row.entryPrice && row.plannedStopPrice && row.strategyKey && row.strategyVersion).map((row) => [row.symbol, row]));
     const positions = model?.positions ?? [];
     const symbols = positions.map((position) => position.symbol).filter((symbol) => plans.has(symbol));
     if (symbols.length === 0) return { managed: 0, submitted: 0 };
-    const notifier = createRuntimeAlertNotifier(environment, createTelegramAlertRepository(db));
     for (const symbol of symbols) {
       if (alertedPositionKeys.has(symbol)) continue;
       alertedPositionKeys.add(symbol);
