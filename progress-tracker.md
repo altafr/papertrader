@@ -3181,6 +3181,12 @@
 - Account equity remains `99390.29`; no new position was attributed to the pending order during this check.
 - **Next smallest unit:** reconcile after the next market open and verify whether the order fills, expires, or is canceled, then validate position-management and Telegram lifecycle events.
 
+### 2026-08-28 — Phase 6.237 recurring pending-order monitoring
+
+- Confirmed the live Worker position-management loop continues to reconcile broker truth every 60 seconds (`lastRunAt: 2026-08-27T22:55:27.884Z`).
+- The pending AAPL order remains under recurring monitoring without enabling another submission path; order submission remains disabled outside the bounded handoff.
+- **Next smallest unit:** verify the order after the next market open and record its terminal broker state and any resulting exit-plan event.
+
 ### 2026-08-28 — Phase 6.236 paper-performance report
 
 - Generated the read-only performance report from the Railway Worker after reconciliation.
