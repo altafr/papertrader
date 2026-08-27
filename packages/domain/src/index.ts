@@ -92,3 +92,4 @@ export * from "./paper-recovery.js";
 export * from "./agent-runs.js";
 export * from "./research-agents.js";
 export * from "./macro-advisory.js";
+export * from "./position-management.js";
