@@ -2978,3 +2978,11 @@
 - Latest Railway Worker logs show healthy paper mode, broker/database configured, position management `running`, research schedule `ready`, Telegram alerts `ready`, and durable scheduler start result `started=true` with `status=scheduled`.
 - Telegram provider test remains blocked only by its missing approval reference; no provider request was made during this check.
 - **Next smallest unit:** configure an operator-approved bounded reference, run the provider test, and verify the authenticated dashboard/CSV.
+
+### 2026-08-28 — Phase 6.209 full repository regression after alerting changes
+
+- Vitest: 282 tests passed.
+- TypeScript no-emit checks passed for API, web dashboard, Worker, Alpaca, config, database, domain, and notifications packages.
+- ESLint passed with `--max-warnings=0`.
+- The two initially attempted non-existent tsconfig paths (`apps/dashboard`, `packages/shared`) were corrected to the repository's actual `apps/web` and package project paths; no code failure was found.
+- **Next smallest unit:** configure an operator-approved bounded Telegram test reference, run the provider test, and verify the authenticated dashboard/CSV.
