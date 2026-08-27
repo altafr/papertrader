@@ -2888,3 +2888,9 @@
 - Latest runtime logs show normal container startup; no additional failure output was emitted.
 - This was a read-only smoke check; no scheduler mutation, broker call, order, or Telegram provider test was initiated.
 - **Next smallest unit:** run the explicitly authorized Telegram provider test, then verify the authenticated dashboard and CSV against the deployed API.
+
+### 2026-08-28 — Phase 6.195 hosted Telegram gate audit
+
+- Read-only Railway variable-name audit confirms paper Alpaca credentials, PostgreSQL, broker/scheduler controls, and Telegram bot/chat configuration are present on the Worker.
+- `TELEGRAM_ALERT_TEST_APPROVAL_REFERENCE` is not configured, so the provider test remains correctly blocked; no secret values were read or exposed.
+- **Next smallest unit:** add a bounded `TELEGRAM_ALERT_TEST_APPROVAL_REFERENCE`, then run the guarded provider test and authenticated dashboard/CSV verification.
