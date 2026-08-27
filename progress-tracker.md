@@ -2894,3 +2894,9 @@
 - Read-only Railway variable-name audit confirms paper Alpaca credentials, PostgreSQL, broker/scheduler controls, and Telegram bot/chat configuration are present on the Worker.
 - `TELEGRAM_ALERT_TEST_APPROVAL_REFERENCE` is not configured, so the provider test remains correctly blocked; no secret values were read or exposed.
 - **Next smallest unit:** add a bounded `TELEGRAM_ALERT_TEST_APPROVAL_REFERENCE`, then run the guarded provider test and authenticated dashboard/CSV verification.
+
+### 2026-08-28 — Phase 6.196 Telegram test runbook
+
+- Added [`docs/telegram-alert-test-runbook.md`](docs/telegram-alert-test-runbook.md) with the exact bounded variables, command, post-test checks, and secret-handling rules for the one-message provider test.
+- Linked the runbook from the repository README; documentation-only change.
+- **Next smallest unit:** configure an operator-approved bounded reference, run the guarded provider test, and verify the authenticated dashboard/CSV.

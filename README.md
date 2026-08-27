@@ -20,6 +20,8 @@ Momentum Autopilot researches US stocks and supported crypto assets, prepares a 
 
 The engineer-facing layered architecture diagram is in [`docs/architecture-block-diagram.md`](docs/architecture-block-diagram.md).
 
+The guarded Telegram provider test procedure is in [`docs/telegram-alert-test-runbook.md`](docs/telegram-alert-test-runbook.md).
+
 ## Important integration distinction
 
 - The Alpaca MCP server can support research and operator workflows in a compatible MCP client.
