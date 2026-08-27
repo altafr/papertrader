@@ -3074,3 +3074,10 @@
 - Result: `status:"ready"`, no blocked reasons, fresh AAPL market snapshot available, and baseline evidence recognized.
 - The persistent Worker configuration was not changed and no broker order was submitted; this proves all execution prerequisites can pass without activating continuous order writes.
 - **Next smallest unit:** use an explicit operator activation reference to run one bounded paper order and verify Alpaca reconciliation, Telegram delivery, and dashboard history.
+
+### 2026-08-28 — Phase 6.221 bounded execution command documentation
+
+- Added the exact command-scoped variables for the one-shot paper-order handoff, including the unified submission gate, bounded approval reference, fresh research run ID, and one-share quantity.
+- Documented that the command reconciles before/after submission, emits redacted outcome metadata, and must not be used to silently activate continuous scheduled submissions.
+- Documentation-only change; no persistent Railway variables or broker state changed.
+- **Next smallest unit:** provide an explicit activation reference and run the one-shot paper order through the guarded command.
