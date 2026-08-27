@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, sql } from "drizzle-orm";
+import { and, asc, desc, eq, inArray, lt, sql } from "drizzle-orm";
 
 import type { Database } from "./client.js";
 import { accountSnapshots, activities, agentRuns, durableOneRunAudits, durableScheduleRuns, orders, paperBaselineConfirmations, paperOrderSubmissions, positions, shadowObservationOutcomes, shadowObservations, strategyLifecycleEvents, strategyPaperEvidence, telegramAlertEvents } from "./schema.js";
@@ -344,6 +344,10 @@ export function createTelegramAlertRepository(db: Database) {
     },
     async listRecent(limit = 100) {
       return db.select().from(telegramAlertEvents).orderBy(desc(telegramAlertEvents.occurredAt)).limit(limit);
+    },
+    async listRetryable(limit = 20, maxAttempts = 5) {
+      const rows = await db.select().from(telegramAlertEvents).where(and(inArray(telegramAlertEvents.deliveryStatus, ["pending", "failed"]), lt(telegramAlertEvents.attempts, maxAttempts))).orderBy(asc(telegramAlertEvents.occurredAt)).limit(limit);
+      return rows.map((row) => ({ code: row.code, eventId: row.eventId, message: row.message, occurredAt: row.occurredAt, severity: row.severity as "critical" | "info" | "warning" }));
     },
   };
 }

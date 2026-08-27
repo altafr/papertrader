@@ -4,6 +4,7 @@ export interface RuntimeAlertPersistence {
   enqueue(input: { readonly code: string; readonly dedupeKey: string; readonly message: string; readonly occurredAt: Date; readonly severity: "critical" | "info" | "warning" }): Promise<{ readonly eventId: string } | undefined>;
   markFailed(eventId: string, errorCode: string): Promise<unknown>;
   markSent(eventId: string): Promise<unknown>;
+  listRetryable?(limit?: number, maxAttempts?: number): Promise<readonly { readonly code: string; readonly eventId: string; readonly message: string; readonly occurredAt: Date; readonly severity: "critical" | "info" | "warning" }[]>;
 }
 
 export type RuntimeAlert = Omit<TelegramAlert, "occurredAt"> & { readonly occurredAt?: string; readonly dedupeKey?: string };
@@ -13,6 +14,21 @@ export function createRuntimeAlertNotifier(environment: NodeJS.ProcessEnv = proc
   const config = getTelegramNotificationConfig(environment);
   return {
     config,
+    async retryPersisted(limit = 20, maxAttempts = 5): Promise<number> {
+      if (!persistence?.listRetryable || !config.enabled) return 0;
+      const events = await persistence.listRetryable(limit, maxAttempts);
+      let delivered = 0;
+      for (const event of events) {
+        try {
+          await sendTelegramAlert(config, { code: event.code, message: event.message, occurredAt: event.occurredAt.toISOString(), severity: event.severity });
+          await persistence.markSent(event.eventId);
+          delivered += 1;
+        } catch {
+          await persistence.markFailed(event.eventId, "telegram_delivery_retry_failed");
+        }
+      }
+      return delivered;
+    },
     notify(alert: RuntimeAlert): Promise<void> {
       const occurredAt = alert.occurredAt ?? new Date().toISOString();
       return (async () => {

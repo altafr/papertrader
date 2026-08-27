@@ -2796,3 +2796,10 @@
 - Updated the dashboard contract and audit coverage summary to display Telegram alert counts and include alert events alongside agent, execution, lifecycle, and scheduler records.
 - Verified API/web typechecks and 14 focused operator-overview/dashboard tests; no credentials or broker behavior changed.
 - **Next smallest unit:** run the explicitly authorized Telegram provider test, then verify the authenticated dashboard and CSV against the deployed API.
+
+### 2026-08-28 — Phase 6.181 bounded Telegram delivery retry
+
+- Added a bounded retry query for pending/failed Telegram events with a five-attempt ceiling and oldest-first ordering.
+- Worker startup now performs an immediate retry pass and checks for retryable alert events every 60 seconds when Telegram and PostgreSQL are configured; retry failures remain isolated from trading decisions.
+- Added notifier retry coverage; database/worker typechecks, lint, and Telegram tests pass.
+- **Next smallest unit:** run the explicitly authorized Telegram provider test, then verify the authenticated dashboard and CSV against the deployed API.

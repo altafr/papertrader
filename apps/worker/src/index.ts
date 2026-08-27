@@ -49,6 +49,18 @@ if (positionManagementScheduler) void positionManagementScheduler.start();
 const shadowConfiguration = getShadowEvaluationConfig();
 const durableConfiguration = getDurableSchedulerConfig();
 const telegramNotificationConfig = getTelegramNotificationConfig();
+if (telegramNotificationConfig.enabled && process.env.DATABASE_URL?.trim()) {
+  const alertDatabase = createDatabase(process.env.DATABASE_URL);
+  const alertNotifier = createRuntimeAlertNotifier(process.env, createTelegramAlertRepository(alertDatabase.db));
+  let retryRunning = false;
+  const retryPersistedAlerts = async () => {
+    if (retryRunning) return;
+    retryRunning = true;
+    try { await alertNotifier.retryPersisted(); } finally { retryRunning = false; }
+  };
+  void retryPersistedAlerts();
+  setInterval(() => { void retryPersistedAlerts(); }, 60_000).unref();
+}
 if (shadowConfiguration.enabled) {
   if (process.env.BROKER_CONNECTION_ENABLED !== "true") throw new Error("SHADOW_EVALUATION_ENABLED=true requires BROKER_CONNECTION_ENABLED=true.");
   if (!process.env.DATABASE_URL?.trim()) throw new Error("SHADOW_EVALUATION_ENABLED=true requires DATABASE_URL.");
