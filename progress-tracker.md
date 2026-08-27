@@ -3233,3 +3233,10 @@
 - Alpaca still reports the market closed; the authorized AAPL order remains `accepted` with zero fills and no position attribution.
 - Added a direct `Cycle` dashboard navigation link and reverified dashboard tests, TypeScript, ESLint, and the production Next.js build.
 - **Next smallest unit:** verify the Cycle card after authenticated sign-in, then reconcile the AAPL order after Alpaca's next market open.
+
+### 2026-08-28 — Phase 6.243 hosted position-management exercise
+
+- Exercised the deployed position-management cycle inside Railway; it managed one persisted position and submitted zero exits.
+- The latest Telegram outbox remains delivered, including the risk rejection and prior paper-entry lifecycle event; no duplicate broker write was created.
+- The authorized AAPL order remains `accepted` with zero fills while Alpaca reports the market closed.
+- **Next smallest unit:** verify the Cycle card in an authenticated browser session and reconcile the AAPL order after the next active market window.
