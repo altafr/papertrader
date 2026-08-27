@@ -2912,3 +2912,10 @@
 - Vercel preview `https://papertrader-a3kq7z6bc-altafrs-projects.vercel.app` reached `Ready` with the explicit Telegram test-gate messaging.
 - The protected dashboard remains session-bound; unauthenticated access continues to redirect as designed.
 - **Next smallest unit:** configure an operator-approved bounded reference, run the guarded provider test, and verify the authenticated dashboard/CSV.
+
+### 2026-08-28 — Phase 6.199 recommendation evidence in Telegram alerts
+
+- Research recommendation alerts now include concise per-candidate momentum return, average volume, RSI14, and relative-volume context when available.
+- The evidence is derived from the persisted research artifact and remains informational; it cannot approve or submit an order.
+- Worker typecheck, research-preparation tests (6 tests), lint, and diff checks pass.
+- **Next smallest unit:** deploy and verify the Worker, then run the explicitly authorized Telegram provider test and authenticated dashboard/CSV verification.

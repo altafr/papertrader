@@ -31,6 +31,7 @@ export interface ResearchPreparationResult {
   readonly runId: string;
   readonly status: "failed" | "succeeded";
   readonly recommendationSymbols?: readonly string[];
+  readonly recommendationEvidence?: readonly string[];
 }
 
 const allowedTimeframes = new Set<ResearchPreparationInputPlan["timeframe"]>(["1Day", "1Hour", "1Min", "1Month", "1Week", "5Min", "15Min"]);
@@ -94,7 +95,16 @@ export async function executeResearchPreparation(input: {
   const result = await executeResearchRun({ ...(input.clock ? { clock: input.clock } : {}), handler, persistence: input.persistence, request });
   const rawCandidates = result.artifact?.payload && typeof result.artifact.payload === "object" ? (result.artifact.payload as { readonly candidates?: unknown }).candidates : undefined;
   const recommendationSymbols = Array.isArray(rawCandidates) ? rawCandidates.map((candidate) => candidate && typeof candidate === "object" && typeof (candidate as { readonly symbol?: unknown }).symbol === "string" ? (candidate as { readonly symbol: string }).symbol : "").filter(Boolean).slice(0, 10) : [];
-  return { agentType: input.preparation.agentType, runId: request.runId, status: result.status, ...(recommendationSymbols.length > 0 ? { recommendationSymbols } : {}) };
+  const recommendationEvidence = Array.isArray(rawCandidates) ? rawCandidates.slice(0, 5).flatMap((candidate) => {
+    if (!candidate || typeof candidate !== "object") return [];
+    const item = candidate as { readonly symbol?: unknown; readonly momentumReturn?: unknown; readonly averageVolume?: unknown; readonly marketSnapshot?: { readonly rsi14?: unknown; readonly relativeVolume20?: unknown } };
+    if (typeof item.symbol !== "string") return [];
+    const momentum = typeof item.momentumReturn === "string" ? `momentum ${item.momentumReturn}` : "momentum not reported";
+    const volume = typeof item.averageVolume === "string" ? `avg volume ${item.averageVolume}` : "avg volume not reported";
+    const indicators = item.marketSnapshot && typeof item.marketSnapshot === "object" ? `RSI14 ${typeof item.marketSnapshot.rsi14 === "string" ? item.marketSnapshot.rsi14 : "not reported"}, RV20 ${typeof item.marketSnapshot.relativeVolume20 === "string" ? item.marketSnapshot.relativeVolume20 : "not reported"}` : "indicators not reported";
+    return [`${item.symbol}: ${momentum}, ${volume}, ${indicators}`];
+  }) : [];
+  return { agentType: input.preparation.agentType, runId: request.runId, status: result.status, ...(recommendationSymbols.length > 0 ? { recommendationSymbols } : {}), ...(recommendationEvidence.length > 0 ? { recommendationEvidence } : {}) };
 }
 
 export function createResearchPreparationQueueHandler(input: {
@@ -115,7 +125,7 @@ export function createResearchPreparationQueueHandler(input: {
       try {
         const result = await executeResearchPreparation({ ...(input.clock ? { clock: input.clock } : {}), persistence: input.persistence, preparation, source: input.source });
         results.push(result);
-        await input.notify?.({ code: "research_recommendations", message: `${result.agentType} produced ${result.recommendationSymbols?.length ?? 0} recommendation(s): ${(result.recommendationSymbols ?? []).join(", ") || "none"}.`, severity: "info" });
+        await input.notify?.({ code: "research_recommendations", message: `${result.agentType} produced ${result.recommendationSymbols?.length ?? 0} recommendation(s): ${(result.recommendationSymbols ?? []).join(", ") || "none"}. Evidence: ${(result.recommendationEvidence ?? []).join(" | ") || "not reported"}.`, severity: "info" });
       } catch {
         results.push({ agentType: preparation.agentType, runId: `research-preparation-${preparation.agentType}-failed-${Date.now()}`, status: "failed" });
         await input.notify?.({ code: "research_preparation_failed", message: `${preparation.agentType} research preparation failed closed; no trade was proposed from this run.`, severity: "critical" });
