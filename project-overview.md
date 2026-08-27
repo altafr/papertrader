@@ -22,6 +22,10 @@ The product is designed for a single operator initially. It launches in Alpaca p
 4. Maintain safe operation through deterministic risk gates, bounded exposure, stale-data protection, idempotent execution, and global/strategy/asset kill switches.
 5. Produce evidence for or against strategy quality using reproducible historical replay and paper-forward performance, without promising returns.
 
+### Always-on multi-agent operating objective
+
+The production system is intended to be self-running and server-resident: specialist research, macro context, strategy evaluation, deterministic risk validation, execution, reconciliation, position management, and alerting must continue when the browser is closed. The agents cooperate through durable, versioned artifacts and auditable hand-offs; no agent may bypass the deterministic risk engine or safety gates. “Optimize profits” means continuously improve measured, risk-adjusted portfolio performance within the configured paper-risk policy, never a guarantee of returns or permission to loosen controls.
+
 ## Non-Goals for Version 1
 
 - Options, futures, forex, short selling, margin, or leveraged crypto.

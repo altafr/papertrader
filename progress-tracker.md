@@ -2767,3 +2767,10 @@
 
 - Added [`docs/legacy-position-exit-plan-runbook.md`](docs/legacy-position-exit-plan-runbook.md) with the recorded AAPL entry snapshot, documented 5% stop/4% target proposal, guarded command template, and no-order mutation warning.
 - The runbook keeps operator approval explicit; no metadata backfill, exit order, or recurring schedule activation occurred.
+
+### 2026-08-27 — Phase 6.177 AAPL exit plan applied and always-on objective recorded
+
+- Applied the operator-confirmed reference `AAPL-EXIT-PLAN-001` to the legacy AAPL position: entry `314.39`, stop `298.67` (5% adverse distance), target `326.97`, strategy `research-watchlist@1.0.0`.
+- Read-only database verification confirms the immutable exit metadata and reference are persisted. The guarded position-management pass evaluated AAPL at mark `314.66`, returned `shouldExit:false`, and submitted zero sell orders.
+- Updated the authoritative product and architecture documents to state that the intended system is self-running and always-on on the server, with coordinated specialist agents optimizing measured risk-adjusted performance while deterministic safety gates remain mandatory.
+- **Next smallest unit:** wire the recurring position-management scheduler into Worker startup, expose its last-run/next-run health, and verify restart/idempotency behavior before relying on it for unattended paper exits.

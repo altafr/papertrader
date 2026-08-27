@@ -4,6 +4,10 @@
 
 - **Stage:** Phase 6.202 Credential-free hosted auth-boundary verification; multi-day evidence collection continues.
 
+### Always-on multi-agent runtime requirement
+
+The target architecture is a continuously running server-side system. Railway's persistent Worker owns the durable orchestration loop while specialist research, macro, strategy, risk-explanation, execution, reconciliation, position-management, and monitoring agents communicate through persisted, versioned artifacts. The dashboard is an observer/control surface and must not be required for operation. Portfolio-profit optimization is measured as risk-adjusted performance improvement inside the deterministic paper-risk policy; it never overrides freshness checks, exposure limits, exit plans, kill switches, or paper/live mode gates.
+
 ### Guarded paper end-to-end evidence run (2026-08-26)
 
 - Added `paper-e2e-run-once`, which composes one paper-account reconciliation and one bounded market-research agent run so the operator can verify the complete read → persist → dashboard path quickly.
