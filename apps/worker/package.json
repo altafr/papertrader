@@ -45,6 +45,7 @@
     "paper-baseline-confirm": "tsx src/paper-baseline-confirm-command.ts",
     "research-preparation-once": "tsx src/research-preparation-once-command.ts",
     "paper-order-preflight": "tsx src/paper-order-preflight-command.ts",
+    "position-management-once": "tsx src/position-management-once-command.ts",
     "shadow-evaluate": "tsx src/shadow-evaluation-command.ts",
     "start": "node dist/index.js",
     "typecheck": "tsc --noEmit"

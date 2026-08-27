@@ -2733,3 +2733,9 @@
 - Added a Worker runner that evaluates reconciled positions against their persisted entry/stop/target/time-stop plans and submits only deterministic paper exits.
 - Exit client IDs are derived from the originating intent and exit reason, providing idempotent retry behavior. The runner is dependency-injected and has tests for stop submission, hold behavior, and fail-closed broker errors.
 - This unit does not start a scheduler or mutate production state. Next: wire the runner to reconciled Alpaca positions, persisted plan metadata, market snapshots, and a guarded recurring Worker job.
+
+### 2026-08-27 — Phase 6.171 guarded position-management command
+
+- Added `POSITION_MANAGEMENT_ONCE=true`, a paper-autopilot-only Worker command that reconciles Alpaca, joins open positions to persisted exit plans, reads current paper marks, evaluates deterministic exits, and submits idempotent sell orders when required.
+- The command fails closed on missing credentials/database, disabled broker, observe mode, or global kill switch; it is not connected to the recurring scheduler yet.
+- Added a bounded repository query for exit-plan metadata. Next: deploy migration/command, verify the current account has no unmanaged exit plan, then activate a recurring guarded position-management schedule.

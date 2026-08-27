@@ -533,5 +533,9 @@ export function createPaperOrderRepository(db: Database) {
       const [row] = await db.select().from(paperOrderSubmissions).where(eq(paperOrderSubmissions.intentId, intentId)).limit(1);
       return row;
     },
+
+    async listExitPlans() {
+      return db.select().from(paperOrderSubmissions).where(eq(paperOrderSubmissions.assetClass, "us_equity")).orderBy(desc(paperOrderSubmissions.createdAt)).limit(100);
+    },
   };
 }
