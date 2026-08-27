@@ -3166,3 +3166,10 @@
 - The one-share AAPL position currently visible in Alpaca is tied to a separate earlier filled order, not the new handoff. This prevents false attribution in portfolio history.
 - Telegram alert history still shows the new `paper_entry_submitted` event as `sent`; no additional order was created.
 - **Next smallest unit:** observe the accepted order through the next market session and reconcile its eventual fill/cancellation and position attribution.
+
+### 2026-08-28 — Phase 6.234 pending-order monitoring
+
+- Ran another Railway-hosted reconciliation and queried Alpaca for order `edcda79a-1c58-4b95-a908-07ca229ca6d8`.
+- The order remains `accepted`, quantity `1`, filled quantity `0`, with no fill timestamp; no new order or position attribution was created.
+- The reconciliation path completed successfully. The order remains pending for broker lifecycle monitoring rather than being canceled automatically.
+- **Next smallest unit:** observe the order during the next active market window and verify a terminal fill/cancel state plus any position-management response.
