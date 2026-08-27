@@ -2709,3 +2709,15 @@
 - Added a server-only Alpaca paper sell adapter that accepts only a `shouldExit:true` decision with a deterministic stop, target, or time-stop reason.
 - The adapter uses client-order-id idempotency and the paper endpoint; it has no AI, browser, or live endpoint authority.
 - Added mocked tests covering deterministic-exit enforcement and one-time sell submission. Position metadata and a Worker polling command remain to be wired next.
+
+### 2026-08-27 — Phase 6.167 persisted entry/exit metadata
+
+- Added migration `0014_paper_order_exit_metadata.sql` and typed fields for entry price, planned stop, planned target, time-stop, and strategy identity on paper-order submissions.
+- Approved and rejected research-driven entries now persist the original exit plan, allowing future position management to evaluate broker positions against immutable trade intent data.
+- No broker behavior or order authority changed in this unit; the Worker polling/exit orchestration remains the next phase.
+
+### 2026-08-27 — Phase 6.168 exit-plan propagation
+
+- Paper order requests now carry the normalized entry price, planned stop, target, time-stop, and strategy identity into the persistent submission record.
+- This metadata is captured for approved and rejected research intents and is available to a future position manager without inferring intent from broker state.
+- Typechecks and focused broker/domain tests pass. Migration `0014` and the Worker orchestration remain to deploy and wire in the next unit.

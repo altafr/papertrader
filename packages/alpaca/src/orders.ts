@@ -31,6 +31,12 @@ export interface PaperOrderSubmissionRequest {
   /** Point-in-time indicator values are persisted for audit and never sent to Alpaca. */
   readonly marketSnapshot?: Readonly<Record<string, string | null>>;
   readonly quantity: string;
+  readonly entryPrice?: string;
+  readonly plannedStopPrice?: string;
+  readonly plannedTargetPrice?: string;
+  readonly strategyKey?: string;
+  readonly strategyVersion?: string;
+  readonly timeStopAt?: string;
   readonly side: "buy";
   readonly symbol: string;
   readonly timeInForce: "day" | "gtc";

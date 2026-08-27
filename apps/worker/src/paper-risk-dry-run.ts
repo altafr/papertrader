@@ -4,7 +4,7 @@ export function isPaperBaselineVerified(equity: string | number | undefined, bas
   return classifyPaperBaseline(equity, String(baseline), String(tolerance)) === "within_tolerance";
 }
 
-export type RiskCandidate = ResearchWatchlistCandidate & { readonly expiresAt: string; readonly plannedExitPrice: string; readonly plannedStopPrice: string; readonly proposedEntryPrice: string; readonly rationale: string; readonly score: string; readonly signalTime: string; readonly side: "long"; readonly strategyKey: string; readonly strategyVersion: string };
+export type RiskCandidate = ResearchWatchlistCandidate & { readonly expiresAt: string; readonly plannedExitPrice: string; readonly plannedStopPrice: string; readonly proposedEntryPrice: string; readonly rationale: string; readonly score: string; readonly signalTime: string; readonly side: "long"; readonly strategyKey: string; readonly strategyVersion: string; readonly timeStopAt?: string };
 
 export function buildRiskCandidate(input: ResearchWatchlistCandidate, now = new Date()): RiskCandidate {
   const close = Number(input.marketSnapshot?.close ?? "NaN");

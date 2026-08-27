@@ -2,7 +2,7 @@ import { createPaperAccountReader, createPaperMarketDataReader, createPaperOrder
 import { getPaperOnlyRuntimeConfig, isGlobalKillSwitchActive } from "@momentum/config";
 import { createAccountStateRepository, createAgentRunRepository, createDatabase, createPaperOrderRepository } from "@momentum/db";
 import { executePaperAutopilotOrder } from "./paper-execution.js";
-import { assessResearchCandidateRisk, isPaperBaselineVerified } from "./paper-risk-dry-run.js";
+import { assessResearchCandidateRisk, buildRiskCandidate, isPaperBaselineVerified } from "./paper-risk-dry-run.js";
 import { reconcilePaperAccount } from "./reconcile.js";
 
 if (process.env.PAPER_ORDER_FROM_RESEARCH_ONCE !== "true") throw new Error("PAPER_ORDER_FROM_RESEARCH_ONCE must be exactly true.");
@@ -56,15 +56,16 @@ try {
   };
   const quantity = process.env.PAPER_ORDER_QUANTITY?.trim() || "1";
   stage = "risk_gate";
+  const riskCandidate = buildRiskCandidate(candidate, now);
   const { approval, intentId } = assessResearchCandidateRisk({ candidate, currentAt: now.toISOString(), equity: snapshot.equity, quantity, state });
   const orderRepository = createPaperOrderRepository(db);
   if (approval.status !== "approved") {
-    await orderRepository.recordSubmission({ approvalId: approval.approvalId, assetClass: candidate.assetClass, clientOrderId: `${intentId}:rejected`, intentId, quantity, riskDecision: { estimatedLoss: approval.assessment.estimatedLoss, estimatedLossPercent: approval.assessment.estimatedLossPercent, policyVersion: approval.policyVersion, reasons: approval.assessment.reasons }, status: "paper_order_risk_rejected", symbol: candidate.symbol });
+    await orderRepository.recordSubmission({ approvalId: approval.approvalId, assetClass: riskCandidate.assetClass, clientOrderId: `${intentId}:rejected`, intentId, entryPrice: riskCandidate.proposedEntryPrice, plannedStopPrice: riskCandidate.plannedStopPrice, ...(riskCandidate.plannedExitPrice ? { plannedTargetPrice: riskCandidate.plannedExitPrice } : {}), strategyKey: riskCandidate.strategyKey, strategyVersion: riskCandidate.strategyVersion, ...(riskCandidate.timeStopAt ? { timeStopAt: new Date(riskCandidate.timeStopAt) } : {}), quantity, riskDecision: { estimatedLoss: approval.assessment.estimatedLoss, estimatedLossPercent: approval.assessment.estimatedLossPercent, policyVersion: approval.policyVersion, reasons: approval.assessment.reasons }, status: "paper_order_risk_rejected", symbol: riskCandidate.symbol });
     console.error(JSON.stringify({ approvalStatus: approval.status, estimatedLossPercent: approval.assessment.estimatedLossPercent, reasons: approval.assessment.reasons }));
     throw new Error("Deterministic paper risk approval rejected the order.");
   }
   stage = "order_submit";
-  const result = await executePaperAutopilotOrder({ autopilot: { enabled: true, mode: "paper_autopilot" }, order: { approval: { approvalId: approval.approvalId, intentId, riskDecision: { estimatedLoss: approval.assessment.estimatedLoss, estimatedLossPercent: approval.assessment.estimatedLossPercent, policyVersion: approval.policyVersion, reasons: approval.assessment.reasons }, status: "approved" }, assetClass: candidate.assetClass, clientOrderId: `${intentId}-paper`, ...(candidate.marketSnapshot ? { marketSnapshot: candidate.marketSnapshot as unknown as Readonly<Record<string, string | null>> } : {}), quantity, side: "buy", symbol: candidate.symbol, timeInForce: "day", type: "market" }, persistence: orderRepository, submitter: createPaperOrderSubmitter({ apiKey: process.env.ALPACA_API_KEY ?? "", brokerConnectionEnabled: true, secretKey: process.env.ALPACA_SECRET_KEY ?? "" }) });
+  const result = await executePaperAutopilotOrder({ autopilot: { enabled: true, mode: "paper_autopilot" }, order: { approval: { approvalId: approval.approvalId, intentId, riskDecision: { estimatedLoss: approval.assessment.estimatedLoss, estimatedLossPercent: approval.assessment.estimatedLossPercent, policyVersion: approval.policyVersion, reasons: approval.assessment.reasons }, status: "approved" }, assetClass: riskCandidate.assetClass, clientOrderId: `${intentId}-paper`, entryPrice: riskCandidate.proposedEntryPrice, plannedStopPrice: riskCandidate.plannedStopPrice, ...(riskCandidate.plannedExitPrice ? { plannedTargetPrice: riskCandidate.plannedExitPrice } : {}), strategyKey: riskCandidate.strategyKey, strategyVersion: riskCandidate.strategyVersion, ...(riskCandidate.timeStopAt ? { timeStopAt: riskCandidate.timeStopAt } : {}), ...(riskCandidate.marketSnapshot ? { marketSnapshot: riskCandidate.marketSnapshot as unknown as Readonly<Record<string, string | null>> } : {}), quantity, side: "buy", symbol: riskCandidate.symbol, timeInForce: "day", type: "market" }, persistence: orderRepository, submitter: createPaperOrderSubmitter({ apiKey: process.env.ALPACA_API_KEY ?? "", brokerConnectionEnabled: true, secretKey: process.env.ALPACA_SECRET_KEY ?? "" }) });
   stage = "post_order_reconciliation";
   await reconcilePaperAccount(reader, accountRepository);
   console.log(JSON.stringify({ alpacaOrderId: result.brokerOrder.alpacaOrderId, approvalReference, approvalStatus: approval.status, filledQuantity: result.brokerOrder.filledQuantity ?? null, intentId, researchRunId, status: "paper_order_reconciled" }));
