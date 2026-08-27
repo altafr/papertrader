@@ -2966,3 +2966,9 @@
 - Events use the durable notifier, so they are persisted, deduplicated, retried, and visible in the operator audit history; stream recovery remains independent of alert delivery.
 - Worker typecheck, lint, and diff checks pass. Market streaming remains disabled in production until its explicit feed configuration is supplied.
 - **Next smallest unit:** configure an operator-approved bounded Telegram test reference, run the provider test, and verify the authenticated dashboard/CSV.
+
+### 2026-08-28 — Phase 6.207 market-stream alerting deployed
+
+- Railway Worker deployment `8a42004a-aeca-4e36-b7c9-9c7b7ff485f9` reached `SUCCESS` from the current branch.
+- Production now records supervised market-stream disconnect and processing-failure alerts when streaming is explicitly enabled; the current production stream flag remains off.
+- **Next smallest unit:** configure an operator-approved bounded Telegram test reference, run the provider test, and verify the authenticated dashboard/CSV.
