@@ -36,6 +36,15 @@ export interface WorkerHealth {
   };
   readonly globalKillSwitchActive: boolean;
   readonly operatingMode: RuntimeOperatingMode;
+  readonly positionManagement: {
+    readonly blockedReasons: readonly string[];
+    readonly enabled: boolean;
+    readonly intervalSeconds: number;
+    readonly lastError?: string;
+    readonly lastRunAt?: string;
+    readonly readiness: "blocked" | "disabled" | "ready";
+    readonly status: "degraded" | "disabled" | "ready" | "running";
+  };
   readonly researchSchedule: {
     readonly enabled: boolean;
     readonly handlerEnabled: boolean;

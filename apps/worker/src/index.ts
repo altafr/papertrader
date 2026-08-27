@@ -15,6 +15,7 @@ import { reconcilePaperAccount } from "./reconcile.js";
 import { getResearchScheduleReadiness } from "./research-scheduler.js";
 import { createResearchSchedulerFromEnvironment } from "./research-scheduler-runtime.js";
 import { reconcileBeforeSchedulerStart } from "./startup-recovery.js";
+import { createPositionManagementSchedulerFromEnvironment } from "./position-management-runtime.js";
 
 const streamEnabled = process.env.MARKET_STREAM_ENABLED;
 if (streamEnabled !== undefined && streamEnabled !== "true" && streamEnabled !== "false") {
@@ -42,6 +43,8 @@ if (researchScheduler) void researchScheduler.start().catch(() => { /* health en
 const autopilotConfiguration = getPaperAutopilotConfig();
 if (autopilotConfiguration.enabled && !process.env.DATABASE_URL?.trim()) throw new Error("PAPER_AUTOPILOT_ENABLED=true requires DATABASE_URL.");
 if (autopilotConfiguration.enabled && isGlobalKillSwitchActive()) throw new Error("PAPER_AUTOPILOT_ENABLED=true is blocked by GLOBAL_KILL_SWITCH_ACTIVE=true.");
+const positionManagementScheduler = createPositionManagementSchedulerFromEnvironment();
+if (positionManagementScheduler) void positionManagementScheduler.start();
 const shadowConfiguration = getShadowEvaluationConfig();
 const durableConfiguration = getDurableSchedulerConfig();
 const telegramNotificationConfig = getTelegramNotificationConfig();

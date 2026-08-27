@@ -14,6 +14,7 @@ describe("worker health", () => {
       durableScheduler: { activationApprovalReferencePresent: true, auditActivationApprovalReferencePresent: false, auditEnabled: false, cron: "0 0 * * *", enabled: false, status: "disabled", timezone: "UTC" },
       globalKillSwitchActive: false,
       operatingMode: "observe",
+      positionManagement: { blockedReasons: [], enabled: false, intervalSeconds: 60, readiness: "disabled", status: "disabled" },
       researchSchedule: { enabled: false, handlerEnabled: false, status: "disabled" },
       shadowEvaluation: { enabled: false, intervalSeconds: 3600, sourceConfigured: false, status: "disabled" },
       service: "worker",

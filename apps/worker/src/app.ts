@@ -4,6 +4,8 @@ import { getTelegramAlertTestReadiness, getTelegramNotificationReadiness } from 
 import { getShadowEvaluationConfig, getShadowScheduleHealth } from "./shadow-evaluation.js";
 import { getDurableSchedulerConfig, getDurableSchedulerHealth } from "./durable-scheduler.js";
 import { getResearchScheduleConfig, getResearchScheduleReadiness, getResearchSchedulerHealth } from "./research-scheduler.js";
+import { getPositionManagementIntervalSeconds, getPositionManagementReadiness, getPositionManagementSchedulerEnabled } from "./position-management-runtime.js";
+import { getPositionManagementHealth } from "./position-management-scheduler.js";
 
 export function getWorkerHealth(now = new Date(), environment: NodeJS.ProcessEnv = process.env): WorkerHealth {
   const shadow = getShadowEvaluationConfig(environment);
@@ -17,6 +19,8 @@ export function getWorkerHealth(now = new Date(), environment: NodeJS.ProcessEnv
   const researchReadiness = getResearchScheduleReadiness(environment);
   const researchRuntime = getResearchSchedulerHealth();
   const researchStatus: WorkerHealth["researchSchedule"]["status"] = researchReadiness.status === "blocked" ? "blocked" : researchRuntime.enabled ? researchRuntime.status : research.enabled ? "ready" : "disabled";
+  const positionManagementReadiness = getPositionManagementReadiness(environment);
+  const positionManagementHealth = getPositionManagementHealth();
   const paperCredentialsConfigured = Boolean(environment.ALPACA_API_KEY?.trim() && environment.ALPACA_SECRET_KEY?.trim() && environment.ALPACA_PAPER_TRADE !== "false");
   const telegram = getTelegramNotificationReadiness(environment);
   const telegramTest = getTelegramAlertTestReadiness(environment);
@@ -28,6 +32,7 @@ export function getWorkerHealth(now = new Date(), environment: NodeJS.ProcessEnv
     durableScheduler: { ...durable, auditActivationApprovalReferencePresent, auditEnabled, activationApprovalReferencePresent, cron: durableConfig.cron, enabled: durableConfig.enabled, timezone: DAILY_PREPARATION_TIMEZONE },
     globalKillSwitchActive: isGlobalKillSwitchActive(environment),
     operatingMode: getPaperOperatingMode(environment),
+    positionManagement: { blockedReasons: positionManagementReadiness.blockedReasons, enabled: getPositionManagementSchedulerEnabled(environment), intervalSeconds: getPositionManagementIntervalSeconds(environment), readiness: positionManagementReadiness.status, status: positionManagementHealth.status, ...(positionManagementHealth.lastError === undefined ? {} : { lastError: positionManagementHealth.lastError }), ...(positionManagementHealth.lastRunAt === undefined ? {} : { lastRunAt: positionManagementHealth.lastRunAt }) },
     researchSchedule: { enabled: research.enabled, handlerEnabled: research.handlerEnabled, ...(researchRuntime.lastRunAt ? { lastRunAt: researchRuntime.lastRunAt } : {}), ...(researchRuntime.nextRunAt ? { nextRunAt: researchRuntime.nextRunAt } : {}), status: researchStatus },
     shadowEvaluation: { ...shadow, ...schedule, status: shadow.enabled ? schedule.status : "disabled" },
     service: "worker",
