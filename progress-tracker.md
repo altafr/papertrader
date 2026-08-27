@@ -2675,3 +2675,10 @@
 - Production preflight returned: baseline blocked, latest stock artifact succeeded, candidate count `0`, AAPL snapshot fallback available, overall status blocked. This gives the post-reset order procedure a single deterministic readiness check.
 - Worker deployment `b9161dc4-692c-4a81-9b68-f87350ad6c30` reached `SUCCESS`; no trading or persistent mode change occurred.
 - **Next smallest unit:** after credential rotation, run the preflight until `status:"ready"`, then run the guarded one-share order with snapshot fallback.
+
+### 2026-08-27 — Phase 6.162 post-trade baseline confirmation path
+
+- Confirmed through the paper broker that the connected account is active and has a historical filled PFD order; current equity is below USD 100,000 because of that prior paper activity.
+- Added an append-only `paper_baseline_confirmations` table, repository methods, and guarded `paper-baseline-confirm` command. An operator can record the factual USD 100,000 starting baseline against the live reconciled account without fabricating a current balance or bypassing deterministic risk checks.
+- Baseline readiness, order preflight, and one-shot order execution now recognize only a persisted confirmation for the same broker account (or an exact baseline snapshot). No order has been submitted in this phase.
+- **Next smallest unit:** deploy and migrate `0013`, record the operator baseline confirmation, rerun preflight, then execute and reconcile the bounded one-share paper order.

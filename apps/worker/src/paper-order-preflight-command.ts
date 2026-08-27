@@ -18,6 +18,7 @@ try {
   const initial = await accountRepository.getInitial(snapshot.accountId);
   const currentBaseline = classifyPaperBaseline(snapshot.equity);
   const initialBaseline = classifyPaperBaseline(initial?.equity);
+  const confirmation = await accountRepository.getLatestPaperBaselineConfirmation(snapshot.accountId, "100000");
   const researchRuns = await createAgentRunRepository(db).listRecent(50);
   const research = researchRuns.find((run) => run.agentType === "stock_research" && run.status === "succeeded");
   const payload = research?.artifactPayload;
@@ -30,7 +31,7 @@ try {
   } catch {
     snapshotFallbackAvailable = false;
   }
-  const baselineReady = currentBaseline === "within_tolerance" || initialBaseline === "within_tolerance";
+  const baselineReady = Boolean(confirmation) || currentBaseline === "within_tolerance" || initialBaseline === "within_tolerance";
   const status = baselineReady && Boolean(research) && snapshotFallbackAvailable ? "ready" : "blocked";
   console.log(JSON.stringify({ baseline: { current: currentBaseline, initial: initialBaseline }, research: { candidateCount, runId: research?.runId ?? null, status: research?.status ?? "unavailable" }, snapshotFallbackAvailable, status, symbol }));
 } finally {

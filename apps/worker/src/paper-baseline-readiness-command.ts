@@ -20,9 +20,10 @@ try {
   }
   const model = await repository.getLatestReadModel();
   const initial = model ? await repository.getInitial(model.snapshot.accountId) : undefined;
+  const confirmation = model ? await repository.getLatestPaperBaselineConfirmation(model.snapshot.accountId, "100000") : undefined;
   const initialClassification = classifyPaperBaseline(initial?.equity);
   const currentClassification = classifyPaperBaseline(model?.snapshot.equity);
-  const status = initialClassification === "within_tolerance" || currentClassification === "within_tolerance" ? "ready" : "blocked";
+  const status = confirmation || initialClassification === "within_tolerance" || currentClassification === "within_tolerance" ? "ready" : "blocked";
   console.log(JSON.stringify({ currentBaseline: currentClassification, initialBaseline: initialClassification, status }));
 } finally {
   await pool.end();

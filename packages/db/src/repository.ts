@@ -1,7 +1,7 @@
 import { and, asc, desc, eq } from "drizzle-orm";
 
 import type { Database } from "./client.js";
-import { accountSnapshots, activities, agentRuns, durableOneRunAudits, durableScheduleRuns, orders, paperOrderSubmissions, positions, shadowObservationOutcomes, shadowObservations, strategyLifecycleEvents, strategyPaperEvidence } from "./schema.js";
+import { accountSnapshots, activities, agentRuns, durableOneRunAudits, durableScheduleRuns, orders, paperBaselineConfirmations, paperOrderSubmissions, positions, shadowObservationOutcomes, shadowObservations, strategyLifecycleEvents, strategyPaperEvidence } from "./schema.js";
 
 export interface PersistedAgentArtifact {
   readonly artifactConfidence: string;
@@ -106,6 +106,15 @@ export interface PersistedAccountSnapshot {
   readonly status: string;
 }
 
+export interface PersistedPaperBaselineConfirmation {
+  readonly accountId: string;
+  readonly baseline: string;
+  readonly confirmedAt: Date;
+  readonly note: string;
+  readonly reference: string;
+  readonly snapshotId: string;
+}
+
 export interface ReconciliationState {
   readonly account: PersistedAccountSnapshot;
   readonly activities: readonly {
@@ -194,6 +203,17 @@ export function createAccountStateRepository(db: Database) {
 
     async getInitial(accountId: string) {
       const [row] = await db.select().from(accountSnapshots).where(eq(accountSnapshots.accountId, accountId)).orderBy(asc(accountSnapshots.capturedAt)).limit(1);
+      return row;
+    },
+
+    async confirmPaperBaseline(input: PersistedPaperBaselineConfirmation) {
+      const [row] = await db.insert(paperBaselineConfirmations).values(input).onConflictDoNothing({ target: paperBaselineConfirmations.reference }).returning();
+      if (!row) throw new Error("Paper baseline confirmation reference already exists.");
+      return row;
+    },
+
+    async getLatestPaperBaselineConfirmation(accountId: string, baseline: string) {
+      const [row] = await db.select().from(paperBaselineConfirmations).where(and(eq(paperBaselineConfirmations.accountId, accountId), eq(paperBaselineConfirmations.baseline, baseline))).orderBy(desc(paperBaselineConfirmations.confirmedAt)).limit(1);
       return row;
     },
 

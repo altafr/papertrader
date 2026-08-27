@@ -14,6 +14,24 @@ export const accountSnapshots = pgTable("account_snapshots", {
   status: text("status").notNull(),
 });
 
+export const paperBaselineConfirmations = pgTable(
+  "paper_baseline_confirmations",
+  {
+    accountId: text("account_id").notNull(),
+    baseline: numeric("baseline", { precision: 20, scale: 8 }).notNull(),
+    confirmedAt: timestamp("confirmed_at", { withTimezone: true }).notNull(),
+    confirmationId: uuid("confirmation_id").defaultRandom().primaryKey(),
+    note: text("note").notNull(),
+    reference: text("reference").notNull().unique(),
+    snapshotId: uuid("snapshot_id").notNull().references(() => accountSnapshots.id, { onDelete: "restrict" }),
+  },
+  (table) => [
+    index("paper_baseline_confirmations_account_idx").on(table.accountId, table.confirmedAt),
+    check("paper_baseline_confirmations_positive_baseline", sql`${table.baseline} > 0`),
+    check("paper_baseline_confirmations_non_empty_text", sql`length(${table.accountId}) > 0 AND length(${table.note}) > 0 AND length(${table.reference}) > 0`),
+  ],
+);
+
 export const positions = pgTable(
   "positions",
   {

@@ -18,6 +18,12 @@
 
 - Added a separately gated, command-scoped order path for the first end-to-end paper validation. It can submit only after the same deterministic risk approval used by Autopilot, defaults to one share, uses Alpaca client-order idempotency, and reconciles broker state immediately; persistent Autopilot/scheduler flags remain unchanged.
 
+### Post-trade paper baseline confirmation (2026-08-27)
+
+- Added an append-only `paper_baseline_confirmations` record and guarded Worker command for an authenticated operator to confirm that an existing Alpaca paper account began at the USD 100,000 policy baseline after prior paper activity.
+- Baseline verification now accepts either a broker snapshot at the configured starting baseline or a confirmation tied to the reconciled broker account and snapshot. Current equity may therefore reflect prior paper P/L without weakening the 5% per-trade loss, freshness, exposure, kill-switch, or reconciliation gates.
+- The confirmation command is paper-only, requires a bounded non-secret reference and note, and never writes a synthetic account snapshot or changes broker state.
+
 ### Credential-free hosted auth-boundary verification (2026-08-26)
 
 - Added a credential-free verifier for the protected JSON and CSV operator-overview endpoints and included it in CI.
