@@ -432,6 +432,35 @@ h2 {
   border-color: rgb(98 184 246 / 32%);
 }
 
+.cycle-status-card {
+  border-color: rgb(54 199 140 / 32%);
+}
+
+.cycle-status-grid {
+  border-top: 1px solid var(--border);
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-top: 1.1rem;
+  padding-top: 1.1rem;
+}
+
+.cycle-status-grid > div {
+  display: grid;
+  gap: 0.3rem;
+  min-width: 0;
+}
+
+.cycle-status-grid strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 700px) {
+  .cycle-status-grid { grid-template-columns: 1fr; }
+}
+
 .export-link {
   align-self: center;
   color: var(--paper);

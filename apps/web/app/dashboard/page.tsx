@@ -225,6 +225,31 @@ function AgentRunsCard({ runs }: { readonly runs: readonly AgentRunSummary[] | u
   );
 }
 
+function latestRecord(rows: readonly Record<string, unknown>[], ...dateKeys: readonly string[]): Record<string, unknown> | undefined {
+  return rows.reduce<Record<string, unknown> | undefined>((latest, row) => {
+    const timestamp = dateKeys.map((key) => value(row, key)).find((candidate) => candidate !== "—");
+    if (!timestamp || Number.isNaN(Date.parse(timestamp))) return latest;
+    if (!latest) return row;
+    const latestTimestamp = dateKeys.map((key) => value(latest, key)).find((candidate) => candidate !== "—");
+    return latestTimestamp && Date.parse(timestamp) > Date.parse(latestTimestamp) ? row : latest;
+  }, undefined);
+}
+
+function CycleStatusCard({ overview }: { readonly overview: OperatorOverview | undefined }) {
+  const latestResearch = latestRecord((overview?.agents ?? []) as readonly Record<string, unknown>[], "createdAt");
+  const latestDecision = latestRecord(overview?.tradeDecisions ?? [], "updatedAt", "createdAt");
+  const latestAlert = latestRecord(overview?.telegramAlerts ?? [], "occurredAt");
+  return <article className="card full-width cycle-status-card" id="cycle-status" aria-label="Latest hosted cycle status">
+    <div className="card-heading"><div><p className="label">Hosted cycle status</p><h2>Latest agent → risk → alert hand-off</h2></div><span className={`state-badge ${latestDecision ? (value(latestDecision, "status").includes("rejected") ? "delayed" : "fresh") : "degraded"}`}>{latestDecision ? value(latestDecision, "status") : "No decision"}</span></div>
+    <div className="cycle-status-grid">
+      <div><span className="label">Research</span><strong>{latestResearch ? `${value(latestResearch, "agentType")} · ${value(latestResearch, "status")}` : "Unavailable"}</strong><small className="provenance">{latestResearch ? `${value(latestResearch, "runId")} · ${formatUtc(value(latestResearch, "createdAt"))}` : "No persisted agent run"}</small></div>
+      <div><span className="label">Risk decision</span><strong>{latestDecision ? `${value(latestDecision, "symbol")} · ${value(latestDecision, "status")}` : "Unavailable"}</strong><small className="provenance">{latestDecision ? riskDecisionSummary(latestDecision) : "No persisted risk decision"}</small></div>
+      <div><span className="label">Notification</span><strong>{latestAlert ? `${value(latestAlert, "code")} · ${value(latestAlert, "deliveryStatus")}` : "Unavailable"}</strong><small className="provenance">{latestAlert ? `${formatUtc(value(latestAlert, "occurredAt"))} · ${value(latestAlert, "severity")}` : "No persisted Telegram event"}</small></div>
+    </div>
+    <p className="provenance">Read-only summary of the newest persisted hosted artifacts. It reports what happened; it cannot approve, submit, or change an order.</p>
+  </article>;
+}
+
 function OperatorAuditCards({ historyQuery, overview }: { readonly historyQuery: string; readonly overview: OperatorOverview | undefined }) {
   const field = (row: Record<string, unknown>, key: string) => value(row, key);
   return <>
@@ -435,6 +460,7 @@ export default async function DashboardPage({ searchParams }: { readonly searchP
         <section className="grid" aria-label="Paper account dashboard">
           <OperationsHealthCard health={operationsHealth} />
           <AgentRunsCard runs={operatorOverview?.agents ?? agentRuns} />
+          <CycleStatusCard overview={operatorOverview} />
           <article className="card primary-card" id="overview">
             <div className="card-heading"><div><p className="label">Account equity</p><h2>{value(result.model.snapshot, "currency")} {value(result.model.snapshot, "equity")}</h2></div><StatusBadge state={freshness} /></div>
             <dl className="facts">
