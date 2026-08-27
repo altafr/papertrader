@@ -2817,3 +2817,10 @@
 - The protected `/dashboard` route returns the expected unauthenticated `302`; authenticated inspection remains intentionally session-bound.
 - Railway API and Worker deployments remain successful; repository working tree is clean.
 - **Next smallest unit:** run the explicitly authorized Telegram provider test, then verify the authenticated dashboard and CSV against the deployed API.
+
+### 2026-08-28 — Phase 6.184 full regression verification
+
+- Verified all seven TypeScript projects (domain, config, Alpaca, database, API, Worker, and web) with no errors.
+- Full Vitest suite passed: 74 files and 278 tests.
+- Repository ESLint passed for API, Worker, database, dashboard, and verification scripts.
+- **Next smallest unit:** run the explicitly authorized Telegram provider test, then verify the authenticated dashboard and CSV against the deployed API.
