@@ -2739,3 +2739,9 @@
 - Added `POSITION_MANAGEMENT_ONCE=true`, a paper-autopilot-only Worker command that reconciles Alpaca, joins open positions to persisted exit plans, reads current paper marks, evaluates deterministic exits, and submits idempotent sell orders when required.
 - The command fails closed on missing credentials/database, disabled broker, observe mode, or global kill switch; it is not connected to the recurring scheduler yet.
 - Added a bounded repository query for exit-plan metadata. Next: deploy migration/command, verify the current account has no unmanaged exit plan, then activate a recurring guarded position-management schedule.
+
+### 2026-08-27 — Phase 6.172 position-management command deployed
+
+- Worker deployment `357a39c6-4cac-4415-a94f-e860729bdb20` reached `SUCCESS`; migration target `0014` is applied and Worker Health remains healthy.
+- Production one-shot execution completed safely with `status:"no_managed_positions"` and zero submissions. The existing AAPL position predates exit-plan metadata, so it was intentionally skipped rather than given an inferred stop or target.
+- **Next smallest unit:** add an explicit operator-reviewed metadata backfill/close path for legacy positions, then activate recurring position management for newly created managed positions.
