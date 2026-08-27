@@ -58,6 +58,14 @@ GitHub Actions runs the same locked, paper-only verification loop on pushes to `
 
 Monitor runs or start a manual verification from the [GitHub Actions workflow page](https://github.com/altafr/papertrader/actions/workflows/ci.yml).
 
+Hosted health monitors:
+
+- [Railway API health](https://api-production-e0a6.up.railway.app/health)
+- [Railway Worker health](https://worker-production-b362.up.railway.app/health)
+- [Vercel dashboard](https://papertrader-a3kq7z6bc-altafrs-projects.vercel.app)
+
+The health endpoints expose redacted operational state only. They do not expose credentials or provide order authority.
+
 When the protected GitHub Actions secrets `OPERATOR_AUTH_TOKEN` and optional `OPERATOR_API_BASE_URL` are configured, the workflow also runs `pnpm verify:operator-overview` against the hosted authenticated overview and CSV contracts. If the token secret is absent, that live check is explicitly skipped; all local contract tests still run.
 
 The workflow always runs the credential-free `pnpm verify:operator-auth-boundary` check, which confirms the hosted operator JSON and CSV routes reject unauthenticated requests with `401`.
