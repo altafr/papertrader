@@ -2850,3 +2850,9 @@
 - Scheduler failures now receive the same deduplication, delivery-state, and bounded retry behavior as trade and reconciliation alerts.
 - Worker typecheck, focused scheduler/Telegram tests (18 tests), ESLint, and diff checks pass.
 - **Next smallest unit:** deploy and verify the Worker, then run the explicitly authorized Telegram provider test and authenticated hosted verification.
+
+### 2026-08-28 — Phase 6.189 scheduler alert persistence deployed
+
+- Railway Worker deployment `24bceb5e-69f6-4f16-9c06-3b4071b0b0e8` reached `SUCCESS` from the current branch.
+- Scheduler runtime and startup-failure alerts now run through the durable Telegram outbox in production.
+- **Next smallest unit:** run the explicitly authorized Telegram provider test, then verify the authenticated dashboard and CSV against the deployed API.
