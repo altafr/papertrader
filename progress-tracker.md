@@ -3173,3 +3173,10 @@
 - The order remains `accepted`, quantity `1`, filled quantity `0`, with no fill timestamp; no new order or position attribution was created.
 - The reconciliation path completed successfully. The order remains pending for broker lifecycle monitoring rather than being canceled automatically.
 - **Next smallest unit:** observe the order during the next active market window and verify a terminal fill/cancel state plus any position-management response.
+
+### 2026-08-28 — Phase 6.235 market-closed pending state
+
+- Reconciled again from Railway and queried Alpaca's paper clock.
+- Alpaca reports the market closed (`nextOpen: 2026-08-28T09:30:00-04:00`); the AAPL day order remains `accepted` with zero fills and is queued for the next session.
+- Account equity remains `99390.29`; no new position was attributed to the pending order during this check.
+- **Next smallest unit:** reconcile after the next market open and verify whether the order fills, expires, or is canceled, then validate position-management and Telegram lifecycle events.
