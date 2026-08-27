@@ -2690,3 +2690,10 @@
 - Submitted the bounded one-share AAPL market order using the persisted research run and snapshot fallback. Alpaca reconciliation confirmed the broker order as `filled` with quantity `1`; broker order ID is retained in the audit/read model but is not a credential.
 - Updated the authenticated Operations Health baseline status to recognize the same persisted confirmation. No live endpoint or live credential was used.
 - **Next smallest unit:** deploy the API visibility change, verify the authenticated dashboard shows baseline verified and the filled order, then continue daily paper-forward monitoring.
+
+### 2026-08-27 — Phase 6.164 broker reconciliation projection corrected
+
+- Production Worker deployment `176545f0-5b2b-4ac5-9c83-840b3f6fbf3b` reached `SUCCESS` with the PostgreSQL order upsert fix.
+- A read-only reconciliation rerun updated the persisted AAPL order projection from the initial acknowledgement to `filled` with filled quantity `1`, matching Alpaca broker truth.
+- Focused repository and risk tests passed (17 tests). No new order was submitted.
+- **Next smallest unit:** verify the authenticated dashboard’s order row, then continue monitoring the next natural daily research/reconciliation cycle.
