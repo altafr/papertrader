@@ -11,12 +11,14 @@ import { getResearchMarketInputRefs } from "./research-market-run-once-guard.js"
 import { validatePaperE2ERunOnce } from "./paper-e2e-run-once.js";
 import { assessResearchCandidateRisk, isPaperBaselineVerified } from "./paper-risk-dry-run.js";
 import { executePaperAutopilotOrder } from "./paper-execution.js";
+import { createRuntimeAlertNotifier } from "./telegram-events.js";
 
 const config = validatePaperE2ERunOnce();
 getPaperOnlyRuntimeConfig();
 const { db, pool } = createDatabase();
 const accountRepository = createAccountStateRepository(db);
 const agentRepository = createAgentRunRepository(db);
+const notifier = createRuntimeAlertNotifier();
 const persistence = {
   enqueue: (run: AgentRunRequest) => agentRepository.enqueue({ agentType: run.agentType, createdAt: new Date(run.createdAt), inputRefs: run.inputRefs, ...(run.modelProvider ? { modelProvider: run.modelProvider } : {}), promptVersion: run.promptVersion, runId: run.runId, status: "queued", task: run.task } satisfies PersistedAgentRun),
   fail: agentRepository.fail,
@@ -63,7 +65,7 @@ try {
   } else {
     stage = "order_submit";
     const orderRepository = createPaperOrderRepository(db);
-    const order = await executePaperAutopilotOrder({ autopilot: { enabled: true, mode: "paper_autopilot" }, order: { approval: { approvalId: approval.approvalId, intentId, riskDecision: { estimatedLoss: approval.assessment.estimatedLoss, estimatedLossPercent: approval.assessment.estimatedLossPercent, policyVersion: approval.policyVersion, reasons: approval.assessment.reasons }, status: "approved" }, assetClass: candidate.assetClass, clientOrderId: `${intentId}-paper`, ...(candidate.marketSnapshot ? { marketSnapshot: Object.fromEntries(Object.entries(candidate.marketSnapshot).map(([key, value]) => [key, value])) as Readonly<Record<string, string | null>> } : {}), quantity, side: "buy", symbol: candidate.symbol, timeInForce: "day", type: "market" }, persistence: orderRepository, submitter: createPaperOrderSubmitter({ apiKey: process.env.ALPACA_API_KEY ?? "", brokerConnectionEnabled: true, secretKey: process.env.ALPACA_SECRET_KEY ?? "" }) });
+    const order = await executePaperAutopilotOrder({ autopilot: { enabled: true, mode: "paper_autopilot" }, order: { approval: { approvalId: approval.approvalId, intentId, riskDecision: { estimatedLoss: approval.assessment.estimatedLoss, estimatedLossPercent: approval.assessment.estimatedLossPercent, policyVersion: approval.policyVersion, reasons: approval.assessment.reasons }, status: "approved" }, assetClass: candidate.assetClass, clientOrderId: `${intentId}-paper`, ...(candidate.marketSnapshot ? { marketSnapshot: Object.fromEntries(Object.entries(candidate.marketSnapshot).map(([key, value]) => [key, value])) as Readonly<Record<string, string | null>> } : {}), quantity, side: "buy", symbol: candidate.symbol, timeInForce: "day", type: "market" }, notify: notifier.notify, persistence: orderRepository, submitter: createPaperOrderSubmitter({ apiKey: process.env.ALPACA_API_KEY ?? "", brokerConnectionEnabled: true, secretKey: process.env.ALPACA_SECRET_KEY ?? "" }) });
     stage = "post_order_reconciliation";
     await reconcilePaperAccount(reader, accountRepository);
     console.log(JSON.stringify({ alpacaOrderId: order.brokerOrder.alpacaOrderId, approvalStatus: approval.status, approvalReference: config.approvalReference, capturedAt: snapshot.capturedAt.toISOString(), estimatedLossPercent: approval.assessment.estimatedLossPercent, filledQuantity: order.brokerOrder.filledQuantity ?? null, intentId, researchRunId: request.runId, runId: config.runId, status: "paper_order_reconciled" }));

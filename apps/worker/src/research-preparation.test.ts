@@ -46,7 +46,7 @@ describe("research preparation", () => {
       preparation: { agentType: "stock_research", assetClass: "us_equity", limit: 2, maxCandidates: 10, symbols: ["AAPL"], timeframe: "1Day" },
       source: { read: vi.fn(async () => input("us_equity")) },
     });
-    expect(result).toEqual({ agentType: "stock_research", runId: "research-preparation-stock_research-20260823020000", status: "succeeded" });
+    expect(result).toEqual({ agentType: "stock_research", recommendationSymbols: ["AAPL"], runId: "research-preparation-stock_research-20260823020000", status: "succeeded" });
     expect(calls).toEqual(["enqueue", "start", "succeed"]);
   });
 
@@ -83,6 +83,6 @@ describe("research preparation", () => {
       persistence: { enqueue: async () => {}, start: async () => {}, succeed: async () => {}, fail: async () => {} },
       source,
     });
-    await expect(handler({ kind: "research_preparation", version: 1 })).resolves.toEqual(expect.arrayContaining([{ agentType: "stock_research", status: "succeeded", runId: expect.any(String) }, { agentType: "crypto_research", status: "failed", runId: expect.any(String) }]));
+    await expect(handler({ kind: "research_preparation", version: 1 })).resolves.toEqual(expect.arrayContaining([{ agentType: "stock_research", recommendationSymbols: ["AAPL"], status: "succeeded", runId: expect.any(String) }, { agentType: "crypto_research", status: "failed", runId: expect.any(String) }]));
   });
 });

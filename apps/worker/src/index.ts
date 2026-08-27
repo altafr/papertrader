@@ -87,10 +87,16 @@ if (durableConfiguration.enabled) {
   const runDailyPreparation = async () => {
     const { db, pool } = createDatabase(process.env.DATABASE_URL);
     try {
+      const accountRepository = createAccountStateRepository(db);
       const snapshot = await reconcilePaperAccount(
         createPaperAccountReader({ apiKey: process.env.ALPACA_API_KEY ?? "", secretKey: process.env.ALPACA_SECRET_KEY ?? "" }),
-        createAccountStateRepository(db),
+        accountRepository,
       );
+      const model = await accountRepository.getLatestReadModel(snapshot.accountId);
+      const account = model?.snapshot;
+      if (account) {
+        void sendTelegramAlert(telegramNotificationConfig, { code: "daily_portfolio_summary", message: `Market session summary (paper): equity ${account.equity}, cash ${account.cash}, buying power ${account.buyingPower}, open positions ${model?.positions.length ?? 0}, tracked orders ${model?.orders.length ?? 0}.`, occurredAt: account.capturedAt.toISOString(), severity: "info" }).catch(() => undefined);
+      }
       return { accountSnapshotId: snapshot.id };
     } finally {
       await pool.end();

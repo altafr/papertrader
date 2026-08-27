@@ -7,6 +7,7 @@ import type { AgentRunRequest } from "@momentum/domain";
 import { createResearchPreparationQueueHandler } from "./research-preparation.js";
 import { createAlpacaResearchInputSource } from "./research-market-source.js";
 import { createResearchScheduler, getResearchScheduleReadiness, getResearchScheduleConfig } from "./research-scheduler.js";
+import { createRuntimeAlertNotifier } from "./telegram-events.js";
 
 export function createResearchSchedulerFromEnvironment(environment: NodeJS.ProcessEnv = process.env) {
   const config = getResearchScheduleConfig(environment);
@@ -38,6 +39,7 @@ export function createResearchSchedulerFromEnvironment(environment: NodeJS.Proce
     environment,
     persistence,
     source: createAlpacaResearchInputSource(createPaperMarketDataReader({ apiKey, secretKey })),
+    notify: createRuntimeAlertNotifier(environment).notify,
   });
   return createResearchScheduler({
     clientFactory: () => new PgBoss(databaseUrl),

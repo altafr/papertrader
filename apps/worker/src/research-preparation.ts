@@ -30,6 +30,7 @@ export interface ResearchPreparationResult {
   readonly agentType: ResearchPreparationInputPlan["agentType"];
   readonly runId: string;
   readonly status: "failed" | "succeeded";
+  readonly recommendationSymbols?: readonly string[];
 }
 
 const allowedTimeframes = new Set<ResearchPreparationInputPlan["timeframe"]>(["1Day", "1Hour", "1Min", "1Month", "1Week", "5Min", "15Min"]);
@@ -91,7 +92,9 @@ export async function executeResearchPreparation(input: {
   };
   const handler = input.preparation.agentType === "stock_research" ? createStockResearchAgent(marketInput) : createCryptoResearchAgent(marketInput);
   const result = await executeResearchRun({ ...(input.clock ? { clock: input.clock } : {}), handler, persistence: input.persistence, request });
-  return { agentType: input.preparation.agentType, runId: request.runId, status: result.status };
+  const rawCandidates = result.artifact?.payload && typeof result.artifact.payload === "object" ? (result.artifact.payload as { readonly candidates?: unknown }).candidates : undefined;
+  const recommendationSymbols = Array.isArray(rawCandidates) ? rawCandidates.map((candidate) => candidate && typeof candidate === "object" && typeof (candidate as { readonly symbol?: unknown }).symbol === "string" ? (candidate as { readonly symbol: string }).symbol : "").filter(Boolean).slice(0, 10) : [];
+  return { agentType: input.preparation.agentType, runId: request.runId, status: result.status, ...(recommendationSymbols.length > 0 ? { recommendationSymbols } : {}) };
 }
 
 export function createResearchPreparationQueueHandler(input: {
@@ -99,6 +102,7 @@ export function createResearchPreparationQueueHandler(input: {
   readonly environment?: NodeJS.ProcessEnv;
   readonly persistence: ResearchRunPersistence;
   readonly source: ResearchPreparationSource;
+  readonly notify?: (alert: { readonly code: string; readonly message: string; readonly severity: "critical" | "info" | "warning" }) => void;
 }) {
   const environment = input.environment ?? process.env;
   return async (job: ResearchPreparationJob): Promise<readonly ResearchPreparationResult[]> => {
@@ -109,9 +113,12 @@ export function createResearchPreparationQueueHandler(input: {
     const results: ResearchPreparationResult[] = [];
     for (const preparation of plans) {
       try {
-        results.push(await executeResearchPreparation({ ...(input.clock ? { clock: input.clock } : {}), persistence: input.persistence, preparation, source: input.source }));
+        const result = await executeResearchPreparation({ ...(input.clock ? { clock: input.clock } : {}), persistence: input.persistence, preparation, source: input.source });
+        results.push(result);
+        input.notify?.({ code: "research_recommendations", message: `${result.agentType} produced ${result.recommendationSymbols?.length ?? 0} recommendation(s): ${(result.recommendationSymbols ?? []).join(", ") || "none"}.`, severity: "info" });
       } catch {
         results.push({ agentType: preparation.agentType, runId: `research-preparation-${preparation.agentType}-failed-${Date.now()}`, status: "failed" });
+        input.notify?.({ code: "research_preparation_failed", message: `${preparation.agentType} research preparation failed closed; no trade was proposed from this run.`, severity: "critical" });
       }
     }
     if (results.every((result) => result.status === "failed")) throw new Error("All research preparation plans failed.");

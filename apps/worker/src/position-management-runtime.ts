@@ -1,10 +1,13 @@
 import { createPaperAccountReader, createPaperMarketDataReader, createPaperExitOrderSubmitter } from "@momentum/alpaca";
-import { getPaperOnlyRuntimeConfig, isGlobalKillSwitchActive } from "@momentum/config";
+import { isGlobalKillSwitchActive } from "@momentum/config";
 import { createAccountStateRepository, createDatabase, createPaperOrderRepository } from "@momentum/db";
 
 import { reconcilePaperAccount } from "./reconcile.js";
 import { runPaperPositionManagementOnce } from "./position-management-runner.js";
 import { createPositionManagementScheduler, type PositionManagementSchedulerStatus } from "./position-management-scheduler.js";
+import { createRuntimeAlertNotifier } from "./telegram-events.js";
+
+const alertedPositionKeys = new Set<string>();
 
 export interface PositionManagementRuntimeHealth {
   readonly enabled: boolean;
@@ -61,6 +64,12 @@ export async function runPositionManagementCycle(environment: NodeJS.ProcessEnv 
     const positions = model?.positions ?? [];
     const symbols = positions.map((position) => position.symbol).filter((symbol) => plans.has(symbol));
     if (symbols.length === 0) return { managed: 0, submitted: 0 };
+    const notifier = createRuntimeAlertNotifier(environment);
+    for (const symbol of symbols) {
+      if (alertedPositionKeys.has(symbol)) continue;
+      alertedPositionKeys.add(symbol);
+      notifier.notify({ code: "position_detected", message: `Managed paper position detected: ${symbol}. Exit plan is active and being monitored.`, severity: "info" });
+    }
     const marks = await createPaperMarketDataReader({ apiKey, secretKey }).readSnapshots({ assetClass: "us_equity", symbols });
     const managed = positions.flatMap((position) => {
       const plan = plans.get(position.symbol);
@@ -70,6 +79,11 @@ export async function runPositionManagementCycle(environment: NodeJS.ProcessEnv 
       return [{ assetClass: "us_equity" as const, currentPrice, entryPrice: plan.entryPrice!, plannedStopPrice: plan.plannedStopPrice!, ...(plan.plannedTargetPrice ? { plannedTargetPrice: plan.plannedTargetPrice } : {}), quantity: position.quantity, strategyKey: plan.strategyKey!, strategyVersion: plan.strategyVersion!, symbol: position.symbol, ...(plan.timeStopAt ? { timeStopAt: plan.timeStopAt.toISOString() } : {}), intentId: plan.intentId }];
     });
     const result = await runPaperPositionManagementOnce({ now: new Date().toISOString(), positions: managed, submitter: createPaperExitOrderSubmitter({ apiKey, brokerConnectionEnabled: true, secretKey }) });
+    for (const decision of result.decisions) {
+      if (!decision.shouldExit || !decision.reason) continue;
+      notifier.notify({ code: "position_exit_decision", message: `${decision.symbol} exit decision: ${decision.reason} at mark ${decision.exitPrice}. This was triggered by the stored deterministic exit plan.`, severity: decision.reason === "stop_loss" ? "critical" : "info" });
+    }
+    if (result.submitted > 0) notifier.notify({ code: "paper_exit_submitted", message: `Deterministic paper exit submitted for ${result.submitted} managed position(s). Broker reconciliation will confirm final status.`, severity: "warning" });
     return { managed: managed.length, submitted: result.submitted };
   } finally {
     await pool.end();
@@ -80,6 +94,7 @@ export function createPositionManagementSchedulerFromEnvironment(environment: No
   if (!getPositionManagementSchedulerEnabled(environment)) return undefined;
   const readiness = getPositionManagementReadiness(environment);
   if (readiness.status !== "ready") throw new Error(`POSITION_MANAGEMENT_SCHEDULER_ENABLED=true requires position-management readiness: ${readiness.blockedReasons.join(",")}.`);
-  const scheduler = createPositionManagementScheduler({ intervalSeconds: getPositionManagementIntervalSeconds(environment), run: async () => { await runPositionManagementCycle(environment); } });
+  const notifier = createRuntimeAlertNotifier(environment);
+  const scheduler = createPositionManagementScheduler({ intervalSeconds: getPositionManagementIntervalSeconds(environment), onFailure: () => notifier.notify({ code: "position_management_failed", message: "Position-management pass failed closed; no further action was taken by the scheduler.", severity: "critical" }), run: async () => { await runPositionManagementCycle(environment); } });
   return scheduler;
 }
