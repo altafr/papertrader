@@ -20,16 +20,21 @@ const maxCandidates = Number(process.env.RESEARCH_MAX_CANDIDATES ?? "10");
 const { db, pool } = createDatabase();
 const repository = createAgentRunRepository(db);
 const persistence = { ...repository, enqueue: (run: AgentRunRequest) => repository.enqueue({ agentType: run.agentType, createdAt: new Date(run.createdAt), inputRefs: run.inputRefs, ...(run.modelProvider ? { modelProvider: run.modelProvider } : {}), promptVersion: run.promptVersion, runId: run.runId, status: "queued", task: run.task }) };
+let stage: "market_input" | "research_execution" = "market_input";
 try {
   const reader = createPaperMarketDataReader({ apiKey: process.env.ALPACA_API_KEY ?? "", secretKey: process.env.ALPACA_SECRET_KEY ?? "" });
   const input = await createAlpacaResearchInputSource(reader).read({ assetClass, limit, maxCandidates, symbols, timeframe });
   const request: AgentRunRequest = { agentType, createdAt: new Date().toISOString(), inputRefs: getResearchMarketInputRefs(assetClass, input.capturedAt, approval.reference), promptVersion: "research-market-boundary@1", runId: `research-market-${Date.now()}`, task: `Read and rank ${assetClass} market bars once.` };
   const handler = agentType === "stock_research" ? createStockResearchAgent(input as ResearchAgentInput & { assetClass: "us_equity" }) : createCryptoResearchAgent(input as ResearchAgentInput & { assetClass: "crypto" });
+  stage = "research_execution";
   const result = await executeResearchRun({ handler, persistence, request });
   if (result.status !== "succeeded") throw new Error("research_market_run_failed");
   console.log("Market research run completed.");
-} catch {
-  console.error("Market research run failed.");
+} catch (error: unknown) {
+  const message = error instanceof Error ? error.message : "unknown";
+  const httpStatus = message.match(/HTTP (\d{3})/)?.[1];
+  const code = httpStatus ? `provider_http_${httpStatus}` : message.includes("ENOTFOUND") ? "network_dns_unavailable" : message.includes("credentials") ? "paper_credentials_unavailable" : "market_research_failed";
+  console.error(`Market research run failed (stage=${stage} code=${code}).`);
   process.exitCode = 1;
 } finally {
   await pool.end();
