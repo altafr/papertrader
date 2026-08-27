@@ -3174,6 +3174,13 @@
 - The reconciliation path completed successfully. The order remains pending for broker lifecycle monitoring rather than being canceled automatically.
 - **Next smallest unit:** observe the order during the next active market window and verify a terminal fill/cancel state plus any position-management response.
 
+### 2026-08-28 — Phase 6.238 recurring reconciliation confirmation
+
+- Ran another Railway-hosted reconciliation and checked the Alpaca paper clock; the market remains closed and the AAPL order remains `accepted` with zero fills.
+- Worker health confirms the recurring position-management/reconciliation loop is still `ready` with a recent run at `2026-08-27T22:56:28.377Z`.
+- No new order, configuration change, or position attribution occurred.
+- **Next smallest unit:** recheck after Alpaca's next market open and verify the order's terminal state.
+
 ### 2026-08-28 — Phase 6.235 market-closed pending state
 
 - Reconciled again from Railway and queried Alpaca's paper clock.
