@@ -2875,3 +2875,9 @@
 - Extracted daily portfolio-summary formatting into a pure Worker module using persisted account and position values.
 - Added boundary tests for normal P/L/exposure and unavailable/non-finite metrics; Worker typecheck, lint, focused tests, and diff checks pass.
 - **Next smallest unit:** deploy and verify the Worker, then run the explicitly authorized Telegram provider test and authenticated hosted verification.
+
+### 2026-08-28 — Phase 6.193 daily summary contract deployed
+
+- Railway Worker deployment `48333184-5ddb-4372-b2f6-6222b4a4d10f` reached `SUCCESS` from the current branch.
+- Production daily-summary formatting now runs through the tested pure calculation module.
+- **Next smallest unit:** run the explicitly authorized Telegram provider test, then verify the authenticated dashboard and CSV against the deployed API.
