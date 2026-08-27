@@ -23,8 +23,8 @@ describe("position market-data grouping", () => {
 
 describe("position alert deduplication", () => {
   it("uses stable keys across scheduler restarts and repeated passes", () => {
-    expect(getPositionDetectedDedupeKey("crypto", "BTC/USD")).toBe("position_detected:crypto:BTC/USD");
-    expect(getPositionDetectedDedupeKey("unexpected", "AAPL")).toBe("position_detected:us_equity:AAPL");
+    expect(getPositionDetectedDedupeKey("crypto", "BTC/USD", "intent-1")).toBe("position_detected:crypto:BTC/USD:intent-1");
+    expect(getPositionDetectedDedupeKey("unexpected", "AAPL")).toBe("position_detected:us_equity:AAPL:unknown");
     expect(getPositionExitDecisionDedupeKey("intent-1", "stop_loss")).toBe("position_exit_decision:intent-1:stop_loss");
     expect(getPositionExitIntentId("intent-1-exit-stop_loss")).toBe("intent-1:exit");
   });

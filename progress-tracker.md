@@ -3285,3 +3285,10 @@
 - Railway health remains `healthy`, position management is `ready`, and continuous entry submission remains disabled.
 - A direct database check shows the authorized AAPL entry remains `accepted` with zero fills; no exit record was fabricated while no exit threshold was reached.
 - **Next smallest unit:** verify a terminal broker transition updates the persisted ledger and emits the deduplicated Telegram status alert during an active paper session.
+
+### 2026-08-28 — Phase 6.250 intent-scoped position lifecycle alerts
+
+- Managed-position Telegram deduplication now keys on asset class, symbol, and originating intent rather than symbol alone.
+- A close-and-reenter lifecycle for the same symbol can therefore produce a fresh detection alert while repeated scheduler passes remain deduplicated.
+- Verification: full suite passed with 288 tests across 77 files; Railway Worker deployment `958ece38-c0d4-4692-81eb-14840edf5664` reached `SUCCESS`; live Worker health remains `healthy` and position management `ready`.
+- **Next smallest unit:** verify a terminal broker transition updates the persisted ledger and emits the deduplicated Telegram status alert during an active paper session.

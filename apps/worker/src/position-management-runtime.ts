@@ -33,8 +33,8 @@ export function groupPositionSymbolsByAssetClass(positions: ReadonlyArray<{ read
   return [...groups.entries()].map(([assetClass, symbols]) => ({ assetClass, symbols }));
 }
 
-export function getPositionDetectedDedupeKey(assetClass: string, symbol: string): string {
-  return `position_detected:${assetClass === "crypto" ? "crypto" : "us_equity"}:${symbol}`;
+export function getPositionDetectedDedupeKey(assetClass: string, symbol: string, intentId = "unknown"): string {
+  return `position_detected:${assetClass === "crypto" ? "crypto" : "us_equity"}:${symbol}:${intentId}`;
 }
 
 export function getPositionExitDecisionDedupeKey(intentId: string, reason: string): string {
@@ -107,12 +107,12 @@ export async function runPositionManagementCycle(environment: NodeJS.ProcessEnv 
     const positions = model?.positions ?? [];
     const managedPositions = positions.filter((position) => plans.has(`${position.assetClass}:${position.symbol}`));
     if (managedPositions.length === 0) return { managed: 0, submitted: 0 };
-    const symbols = managedPositions.map((position) => position.symbol);
-    for (const symbol of symbols) {
-      if (alertedPositionKeys.has(symbol)) continue;
-      alertedPositionKeys.add(symbol);
-      const position = managedPositions.find((candidate) => candidate.symbol === symbol);
-      await notifier.notify({ code: "position_detected", dedupeKey: getPositionDetectedDedupeKey(position?.assetClass ?? "us_equity", symbol), message: `Managed paper position detected: ${symbol}. Exit plan is active and being monitored.`, severity: "info" });
+    for (const position of managedPositions) {
+      const plan = plans.get(`${position.assetClass}:${position.symbol}`);
+      const alertKey = `${position.assetClass}:${position.symbol}:${plan?.intentId ?? "unknown"}`;
+      if (alertedPositionKeys.has(alertKey)) continue;
+      alertedPositionKeys.add(alertKey);
+      await notifier.notify({ code: "position_detected", dedupeKey: getPositionDetectedDedupeKey(position.assetClass, position.symbol, plan?.intentId), message: `Managed paper position detected: ${position.symbol}. Exit plan is active and being monitored.`, severity: "info" });
     }
     const reader = createPaperMarketDataReader({ apiKey, secretKey });
     const markGroups = await Promise.all(groupPositionSymbolsByAssetClass(managedPositions).map(async (group) => ({ assetClass: group.assetClass, marks: await reader.readSnapshots(group) })));
