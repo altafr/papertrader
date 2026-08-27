@@ -40,6 +40,8 @@ The no-write `paper-order-preflight` command reports `paper_order_submission_gat
 
 For a one-shot execution check, run `paper-order-from-research` inside the Worker with `PAPER_ORDER_FROM_RESEARCH_ONCE=true`, `PAPER_ORDER_RESEARCH_RUN_ID=<fresh-run-id>`, `PAPER_ORDER_APPROVAL_REFERENCE=<bounded-reference>`, `PAPER_AUTOPILOT_ENABLED=true`, `OPERATING_MODE=paper_autopilot`, and `PAPER_AUTOPILOT_ORDER_SUBMISSION_ENABLED=true`. Keep `PAPER_ORDER_QUANTITY=1`; the command reconciles before and after submission and prints only redacted outcome metadata. Scheduled broker-enabled cycles are additionally bounded to one candidate per cycle and re-reconcile before the next candidate. Do not persist the submission flag unless continuous scheduled order submission has separately been approved.
 
+Run this command from a Railway-hosted Worker runtime. `railway run` starts the child process locally, so a `DATABASE_URL` containing a `*.railway.internal` hostname is not resolvable from a developer laptop. If a local rehearsal is required, use a separately provisioned public PostgreSQL connection as a command-scoped `DATABASE_URL`; never print or commit that value. The production Worker should continue using the private database URL.
+
 ## Rollback
 
 Set `PAPER_AUTOPILOT_ORDER_SUBMISSION_ENABLED=false`, `PAPER_AUTOPILOT_ENABLED=false`, and `OPERATING_MODE=observe`, restart the Worker, and verify the scheduler/health state. If the kill switch or freshness gate blocks execution, do not override it; investigate and preserve the audit trail.
