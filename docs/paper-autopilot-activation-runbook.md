@@ -26,15 +26,19 @@ Require `status:"ready"`, a fresh reconciliation, `globalKillSwitchActive:false`
 
 ## Persistent activation
 
-1. In Railway Worker variables, set `PAPER_AUTOPILOT_ENABLED=true` and `OPERATING_MODE=paper_autopilot` together.
+1. In Railway Worker variables, set `PAPER_AUTOPILOT_ENABLED=true` and `OPERATING_MODE=paper_autopilot` together. Keep `PAPER_AUTOPILOT_ORDER_SUBMISSION_ENABLED=false` (or absent) while reviewing scheduled risk decisions.
 2. Keep `TRADING_MODE=paper`, `ALPACA_PAPER_TRADE=true`, and the existing server-side paper credentials unchanged.
 3. Restart/deploy the Worker and verify health. Startup reconciliation must complete before the scheduler becomes scheduled.
 4. Run the guarded Paper Autopilot readiness and runtime-readiness checks again.
 5. Start with a reviewed, deterministic, low-notional paper intent. No per-order operator confirmation is required after activation, but every submission still needs an unexpired risk approval and all execution-time gates.
 
+## One bounded paper-order handoff
+
+After the dry-run evidence is reviewed, enable `PAPER_AUTOPILOT_ORDER_SUBMISSION_ENABLED=true` only for the controlled execution check. Use a single-share quantity and a fresh research run, then verify the persisted client order ID, Alpaca order status, immediate reconciliation, and Telegram entry/reconciliation alerts. Disable the flag again after the check if continuous scheduled order submission is not yet approved. The scheduled path never treats an approved risk decision as broker authority while this flag is off.
+
 ## Rollback
 
-Set `PAPER_AUTOPILOT_ENABLED=false` and `OPERATING_MODE=observe`, restart the Worker, and verify the scheduler/health state. If the kill switch or freshness gate blocks execution, do not override it; investigate and preserve the audit trail.
+Set `PAPER_AUTOPILOT_ORDER_SUBMISSION_ENABLED=false`, `PAPER_AUTOPILOT_ENABLED=false`, and `OPERATING_MODE=observe`, restart the Worker, and verify the scheduler/health state. If the kill switch or freshness gate blocks execution, do not override it; investigate and preserve the audit trail.
 
 ## Evidence
 

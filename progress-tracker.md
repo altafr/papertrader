@@ -3036,3 +3036,10 @@
 - Verification: 283 tests passed, Worker typecheck passed, and Worker lint passed.
 - Railway Worker deployment `5c2c53fc-78ef-4f75-92b3-9113321318f9` reached `SUCCESS`; startup logs show `paperAutopilotOrderSubmissionEnabled:false` and the durable scheduler started as `scheduled`.
 - **Next smallest unit:** verify the hosted dashboard/API displays the refreshed gate and risk decision, then decide whether to enable one bounded paper order for execution verification.
+
+### 2026-08-28 — Phase 6.216 execution runbook synchronization
+
+- Updated the Paper Autopilot activation runbook for the two-stage model: risk dry-run first, then the explicit `PAPER_AUTOPILOT_ORDER_SUBMISSION_ENABLED=true` handoff.
+- Documented one-share bounded execution verification, required reconciliation/Telegram evidence, and a rollback that disables both submission and Paper Autopilot.
+- Documentation-only change; no Railway variables or broker state were changed.
+- **Next smallest unit:** obtain the operator's explicit activation reference, run one bounded paper order through the guarded path, and verify broker/Telegram/dashboard evidence.
