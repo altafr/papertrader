@@ -3225,3 +3225,11 @@
 - Verification: dashboard state tests passed (10 tests), web TypeScript and ESLint passed, and the production Next.js build completed successfully.
 - Change pushed to branch `phase-6-10-operator-health` as commit `c428579`; no broker or Railway configuration changed.
 - **Next smallest unit:** verify the new card on the authenticated Vercel deployment, then continue market-session reconciliation for the pending AAPL order.
+
+### 2026-08-28 — Phase 6.242 hosted status and navigation verification
+
+- Confirmed the latest Vercel previews protect `/dashboard` with the expected authentication redirect and confirmed the Railway Worker remains healthy.
+- Confirmed the durable daily scheduler and research schedule are scheduled, position management is ready, Telegram alerts are configured, and continuous order submission remains disabled.
+- Alpaca still reports the market closed; the authorized AAPL order remains `accepted` with zero fills and no position attribution.
+- Added a direct `Cycle` dashboard navigation link and reverified dashboard tests, TypeScript, ESLint, and the production Next.js build.
+- **Next smallest unit:** verify the Cycle card after authenticated sign-in, then reconcile the AAPL order after Alpaca's next market open.

@@ -417,6 +417,7 @@ export default async function DashboardPage({ searchParams }: { readonly searchP
         <a className="active" href="#overview">Overview</a>
         <a href="#positions">Positions</a>
           <a href="#orders">Orders &amp; fills</a>
+          <a href="#cycle-status">Cycle</a>
           <a href="#filtered-trades">Filtered trades</a>
           <a href="#decision-log">Decision log</a>
           <a href="#strategy-performance">Strategies</a>
