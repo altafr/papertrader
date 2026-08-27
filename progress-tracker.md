@@ -3209,3 +3209,11 @@
 - Performance metrics are available, while stability remains blocked until the required 30 consecutive calendar days are observed (`minimum_30_consecutive_calendar_days_not_met`).
 - No order or configuration state changed.
 - **Next smallest unit:** continue daily snapshots and monitor the pending AAPL order through the next active market window.
+
+### 2026-08-28 — Phase 6.240 hosted research-to-risk cycle acceleration
+
+- Ran fresh stock and crypto research inside the deployed Railway Worker using the paper broker and a bounded command-scoped reference.
+- The deterministic risk cycle evaluated the latest persisted candidate (`BTC/USD`) and persisted a `risk_dry_run_rejected` decision; reasons were `position cap` and `gross-exposure cap` violations, with estimated loss and policy version recorded.
+- A redacted `paper_risk_decision` Telegram event was persisted as a warning. Continuous broker submission remains disabled, and no new Alpaca order or position was created.
+- This confirms the always-on research-to-risk safety path can be exercised quickly on hosted infrastructure while preserving fail-closed execution boundaries.
+- **Next smallest unit:** verify the pending AAPL order during the next active market session; then add a bounded operator-facing cycle status summary so hosted progress and blockers are visible without log access.
