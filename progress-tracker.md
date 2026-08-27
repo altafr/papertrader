@@ -3112,3 +3112,10 @@
 - Result: `status:"ready"`, `blockedReasons:[]`, configuration `executionStatus:"enabled"`, global kill switch inactive, paper credentials/broker/database configured, and reconciliation fresh (30 seconds old at capture).
 - No persistent variables changed and no order was submitted.
 - **Next smallest unit:** execute one bounded paper order with explicit operator authorization, then verify Alpaca reconciliation, Telegram delivery, and dashboard history.
+
+### 2026-08-28 — Phase 6.226 bounded broker-enabled cycle
+
+- Broker-enabled scheduled risk cycles now process at most one candidate per cycle; the next cycle re-reconciles account, positions, and orders before considering another entry.
+- Dry-run cycles may still evaluate up to ten candidates for research visibility, while broker submission cannot batch multiple approvals against one stale portfolio snapshot.
+- Updated the activation runbook with the bound; no production submission flag or broker state changed.
+- **Next smallest unit:** execute one bounded paper order with explicit operator authorization, then verify reconciliation, Telegram delivery, and dashboard history.

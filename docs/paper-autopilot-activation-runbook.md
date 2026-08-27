@@ -38,7 +38,7 @@ After the dry-run evidence is reviewed, enable `PAPER_AUTOPILOT_ORDER_SUBMISSION
 
 The no-write `paper-order-preflight` command reports `paper_order_submission_gate_disabled` until this flag is set. A `ready` preflight requires the paper baseline, a persisted research artifact, a fresh market snapshot, and the explicit submission gate; it never submits an order itself.
 
-For a one-shot execution check, run `paper-order-from-research` inside the Worker with `PAPER_ORDER_FROM_RESEARCH_ONCE=true`, `PAPER_ORDER_RESEARCH_RUN_ID=<fresh-run-id>`, `PAPER_ORDER_APPROVAL_REFERENCE=<bounded-reference>`, `PAPER_AUTOPILOT_ENABLED=true`, `OPERATING_MODE=paper_autopilot`, and `PAPER_AUTOPILOT_ORDER_SUBMISSION_ENABLED=true`. Keep `PAPER_ORDER_QUANTITY=1`; the command reconciles before and after submission and prints only redacted outcome metadata. Do not persist the submission flag unless continuous scheduled order submission has separately been approved.
+For a one-shot execution check, run `paper-order-from-research` inside the Worker with `PAPER_ORDER_FROM_RESEARCH_ONCE=true`, `PAPER_ORDER_RESEARCH_RUN_ID=<fresh-run-id>`, `PAPER_ORDER_APPROVAL_REFERENCE=<bounded-reference>`, `PAPER_AUTOPILOT_ENABLED=true`, `OPERATING_MODE=paper_autopilot`, and `PAPER_AUTOPILOT_ORDER_SUBMISSION_ENABLED=true`. Keep `PAPER_ORDER_QUANTITY=1`; the command reconciles before and after submission and prints only redacted outcome metadata. Scheduled broker-enabled cycles are additionally bounded to one candidate per cycle and re-reconcile before the next candidate. Do not persist the submission flag unless continuous scheduled order submission has separately been approved.
 
 ## Rollback
 

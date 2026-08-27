@@ -47,7 +47,10 @@ export async function runPaperAutopilotRiskCycle(input: {
   };
   const repository = createPaperOrderRepository(input.db);
   const results: PaperAutopilotRiskCycleResult[] = [];
-  for (const candidate of input.candidates.slice(0, 10)) {
+  // A broker-enabled cycle is deliberately bounded to one entry. The next
+  // cycle re-reconciles account/positions before considering another candidate.
+  const candidates = input.executeApproved ? input.candidates.slice(0, 1) : input.candidates.slice(0, 10);
+  for (const candidate of candidates) {
     const candidateAge = now.getTime() - Date.parse(candidate.dataAsOf);
     const state = { ...baseState, dataFresh: Number.isFinite(candidateAge) && candidateAge >= 0 && candidateAge <= 172_800_000 };
     const { approval, intentId } = assessResearchCandidateRisk({ candidate, currentAt: now.toISOString(), equity: snapshot.equity, quantity, state });
