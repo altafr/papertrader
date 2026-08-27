@@ -2932,3 +2932,9 @@
 - Duplicate approval references are rejected; the command closes its database pool and prints only generic success/failure output.
 - Worker typecheck, lint, and diff checks pass without sending a provider message.
 - **Next smallest unit:** configure an operator-approved bounded reference, run the auditable provider test, and verify the authenticated dashboard/CSV.
+
+### 2026-08-28 — Phase 6.202 auditable provider test deployed
+
+- Railway Worker deployment `8a3a1418-bb71-467c-ac91-6ae791e5f215` reached `SUCCESS` from the current branch.
+- The guarded Telegram provider test now persists its outcome in production while remaining disabled until an approved reference is configured.
+- **Next smallest unit:** configure an operator-approved bounded reference, run the provider test, and verify the authenticated dashboard/CSV.
