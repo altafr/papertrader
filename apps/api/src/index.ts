@@ -304,6 +304,7 @@ async function readOperationsHealth(request: IncomingMessage) {
   }
   const model = await readModelRepository.getLatestReadModel();
   const initialSnapshot = model ? await readModelRepository.getInitial(model.snapshot.accountId) : undefined;
+  const baselineConfirmation = model ? await readModelRepository.getLatestPaperBaselineConfirmation(model.snapshot.accountId, "100000") : undefined;
   const currentBaseline: PaperBaselineStatus = classifyPaperBaseline(model?.snapshot.equity);
   const initialBaseline: PaperBaselineStatus = classifyPaperBaseline(initialSnapshot?.equity);
   const lastDailyRun = await readModelRepository.getLatestDurableOneRunAudit();
@@ -360,7 +361,7 @@ async function readOperationsHealth(request: IncomingMessage) {
         paperBaseline: {
           current: currentBaseline,
           initial: initialBaseline,
-          status: currentBaseline === "within_tolerance" || initialBaseline === "within_tolerance" ? "ready" : "blocked",
+          status: baselineConfirmation || currentBaseline === "within_tolerance" || initialBaseline === "within_tolerance" ? "ready" : "blocked",
         },
         riskPolicy: {
           initialEquityBaseline: PAPER_INITIAL_EQUITY_BASELINE,

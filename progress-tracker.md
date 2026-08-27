@@ -2682,3 +2682,11 @@
 - Added an append-only `paper_baseline_confirmations` table, repository methods, and guarded `paper-baseline-confirm` command. An operator can record the factual USD 100,000 starting baseline against the live reconciled account without fabricating a current balance or bypassing deterministic risk checks.
 - Baseline readiness, order preflight, and one-shot order execution now recognize only a persisted confirmation for the same broker account (or an exact baseline snapshot). No order has been submitted in this phase.
 - **Next smallest unit:** deploy and migrate `0013`, record the operator baseline confirmation, rerun preflight, then execute and reconcile the bounded one-share paper order.
+
+### 2026-08-27 — Phase 6.163 first end-to-end paper order completed
+
+- Deployed Worker commit `37af5fd` and applied application migration `0013` for baseline confirmations.
+- Recorded operator confirmation `PAPER-BASELINE-CONFIRM-20260827` against the reconciled active Alpaca paper account. Readiness and order preflight both returned `status:"ready"` while correctly redacting account values.
+- Submitted the bounded one-share AAPL market order using the persisted research run and snapshot fallback. Alpaca reconciliation confirmed the broker order as `filled` with quantity `1`; broker order ID is retained in the audit/read model but is not a credential.
+- Updated the authenticated Operations Health baseline status to recognize the same persisted confirmation. No live endpoint or live credential was used.
+- **Next smallest unit:** deploy the API visibility change, verify the authenticated dashboard shows baseline verified and the filled order, then continue daily paper-forward monitoring.
