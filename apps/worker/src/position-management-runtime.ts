@@ -41,6 +41,10 @@ export function getPositionExitDecisionDedupeKey(intentId: string, reason: strin
   return `position_exit_decision:${intentId}:${reason}`;
 }
 
+export function getPositionExitIntentId(clientOrderId: string): string {
+  return clientOrderId.replace(/-exit-(?:profit_target|stop_loss|time_stop)$/, ":exit");
+}
+
 function parseBoolean(name: string, value: string | undefined, defaultValue: boolean): boolean {
   if (value === undefined) return defaultValue;
   if (value === "true") return true;
@@ -90,7 +94,8 @@ export async function runPositionManagementCycle(environment: NodeJS.ProcessEnv 
       const terminal = ["filled", "canceled", "expired", "rejected"].includes(transition.status.toLowerCase());
       await notifier.notify({ code: "paper_order_status_changed", dedupeKey: `paper_order_status_changed:${transition.alpacaOrderId}:${transition.status}`, message: `Paper order status changed: ${transition.symbol} ${transition.from} → ${transition.status}.`, severity: terminal && transition.status.toLowerCase() !== "filled" ? "warning" : "info" });
     }
-    const rows = await createPaperOrderRepository(db).listExitPlans();
+    const orderRepository = createPaperOrderRepository(db);
+    const rows = await orderRepository.listExitPlans();
     const plans = new Map(rows.filter((row) => row.alpacaOrderId && row.entryPrice && row.plannedStopPrice && row.strategyKey && row.strategyVersion).map((row) => [`${row.assetClass}:${row.symbol}`, row]));
     const positions = model?.positions ?? [];
     const managedPositions = positions.filter((position) => plans.has(`${position.assetClass}:${position.symbol}`));
@@ -112,7 +117,24 @@ export async function runPositionManagementCycle(environment: NodeJS.ProcessEnv 
       if (!plan || !currentPrice) return [];
       return [{ assetClass: position.assetClass === "crypto" ? "crypto" as const : "us_equity" as const, currentPrice, entryPrice: plan.entryPrice!, plannedStopPrice: plan.plannedStopPrice!, ...(plan.plannedTargetPrice ? { plannedTargetPrice: plan.plannedTargetPrice } : {}), quantity: position.quantity, strategyKey: plan.strategyKey!, strategyVersion: plan.strategyVersion!, symbol: position.symbol, ...(plan.timeStopAt ? { timeStopAt: plan.timeStopAt.toISOString() } : {}), intentId: plan.intentId }];
     });
-    const result = await runPaperPositionManagementOnce({ now: new Date().toISOString(), positions: managed, submitter: createPaperExitOrderSubmitter({ apiKey, brokerConnectionEnabled: true, secretKey }) });
+    const brokerExitSubmitter = createPaperExitOrderSubmitter({ apiKey, brokerConnectionEnabled: true, secretKey });
+    const exitSubmitter = {
+      submitExit: async (request: Parameters<typeof brokerExitSubmitter.submitExit>[0]) => {
+        const intentId = getPositionExitIntentId(request.clientOrderId);
+        const sourceIntentId = intentId.replace(/:exit$/, "");
+        const source = managed.find((position) => position.intentId === sourceIntentId);
+        await orderRepository.recordSubmission({ approvalId: `${intentId}:approval`, assetClass: request.assetClass, clientOrderId: request.clientOrderId, intentId, quantity: request.quantity, status: "pending", symbol: request.decision.symbol, ...(source?.strategyKey ? { strategyKey: source.strategyKey } : {}), ...(source?.strategyVersion ? { strategyVersion: source.strategyVersion } : {}) });
+        try {
+          const brokerOrder = await brokerExitSubmitter.submitExit(request);
+          await orderRepository.reconcile({ alpacaOrderId: brokerOrder.alpacaOrderId, ...(brokerOrder.filledQuantity ? { filledQuantity: brokerOrder.filledQuantity } : {}), intentId, status: brokerOrder.status, ...(brokerOrder.submittedAt ? { submittedAt: new Date(brokerOrder.submittedAt) } : {}), ...(brokerOrder.updatedAt ? { updatedAt: new Date(brokerOrder.updatedAt) } : {}) });
+          return brokerOrder;
+        } catch (error) {
+          await orderRepository.markFailed(intentId);
+          throw error;
+        }
+      },
+    };
+    const result = await runPaperPositionManagementOnce({ now: new Date().toISOString(), positions: managed, submitter: exitSubmitter });
     for (const decision of result.decisions) {
       if (!decision.shouldExit || !decision.reason) continue;
       const intentId = managed.find((position) => position.symbol === decision.symbol)?.intentId ?? decision.symbol;

@@ -3256,3 +3256,11 @@
 - Repeated 60-second passes and Worker restarts can now re-enqueue the same operational fact without producing duplicate Telegram deliveries; broker idempotency remains unchanged.
 - Verification: full suite passed with 288 tests across 77 files; Railway Worker deployment `a1dd0040-99d1-46a5-b77e-9fdae012d641` reached `SUCCESS`; live health is `healthy`, position management is `ready`, and continuous entry submission remains disabled.
 - **Next smallest unit:** verify the authenticated Cycle card, then reconcile the authorized AAPL order after Alpaca's next active market window.
+
+### 2026-08-28 — Phase 6.246 persisted deterministic exit lifecycle
+
+- Position-management exits now create a durable pending exit record before the broker call, reconcile the returned Alpaca status into that record, and mark the record failed if the broker call errors.
+- Exit records retain the originating intent relationship and strategy metadata, so the dashboard and audit history can distinguish entries from deterministic exits and recover safely after a Worker restart.
+- Verification: full suite passed with 288 tests across 77 files; Railway Worker deployment `8d009ed3-5eae-4bc1-bca8-f13784486fd7` reached `SUCCESS`; live health is `healthy`; hosted position-management exercised with `managed:1, submitted:0`.
+- Continuous entry submission remains disabled and no new broker order was created by this phase.
+- **Next smallest unit:** verify persisted exit records and terminal status alerts when a managed position reaches an exit threshold during an active paper session.

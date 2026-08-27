@@ -7,7 +7,7 @@ describe("paper position management runner", () => {
   it("submits one idempotent exit for a deterministic stop", async () => {
     const submitExit = vi.fn().mockResolvedValue({});
     const result = await runPaperPositionManagementOnce({ now: "2026-08-27T00:00:00Z", positions: [position], submitter: { submitExit } });
-    expect(result).toMatchObject({ submitted: 1 });
+    expect(result).toMatchObject({ submitted: 1, submissions: [{}] });
     expect(submitExit).toHaveBeenCalledWith(expect.objectContaining({ clientOrderId: "intent-1-exit-stop_loss", quantity: "1" }));
   });
 
