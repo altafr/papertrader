@@ -136,3 +136,7 @@ if (durableConfiguration.enabled) {
   });
 }
 server.listen(getServerPort(), "0.0.0.0");
+server.once("listening", () => {
+  const health = getWorkerHealth();
+  console.log(JSON.stringify({ event: "worker_started", health }));
+});
