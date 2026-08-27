@@ -2919,3 +2919,9 @@
 - The evidence is derived from the persisted research artifact and remains informational; it cannot approve or submit an order.
 - Worker typecheck, research-preparation tests (6 tests), lint, and diff checks pass.
 - **Next smallest unit:** deploy and verify the Worker, then run the explicitly authorized Telegram provider test and authenticated dashboard/CSV verification.
+
+### 2026-08-28 — Phase 6.200 research alert evidence deployed
+
+- Railway Worker deployment `ebe5bc9e-b089-4a87-95e4-99300f021511` reached `SUCCESS` from the current branch.
+- Production recommendation notifications now include the tested evidence summary while preserving paper-only, risk-gated behavior.
+- **Next smallest unit:** run the explicitly authorized Telegram provider test, then verify the authenticated dashboard and CSV against the deployed API.
