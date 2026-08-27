@@ -2906,3 +2906,9 @@
 - Updated the dashboard operations-health card to explain that the Telegram test is blocked because an approval reference is required, and that no message has been sent.
 - When ready, the same field states that one guarded message may be sent; web typecheck, lint, and diff checks pass.
 - **Next smallest unit:** configure an operator-approved bounded reference, run the guarded provider test, and verify the authenticated dashboard/CSV.
+
+### 2026-08-28 — Phase 6.198 dashboard gate messaging deployed
+
+- Vercel preview `https://papertrader-a3kq7z6bc-altafrs-projects.vercel.app` reached `Ready` with the explicit Telegram test-gate messaging.
+- The protected dashboard remains session-bound; unauthenticated access continues to redirect as designed.
+- **Next smallest unit:** configure an operator-approved bounded reference, run the guarded provider test, and verify the authenticated dashboard/CSV.
