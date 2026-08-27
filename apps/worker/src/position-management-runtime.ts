@@ -33,6 +33,14 @@ export function groupPositionSymbolsByAssetClass(positions: ReadonlyArray<{ read
   return [...groups.entries()].map(([assetClass, symbols]) => ({ assetClass, symbols }));
 }
 
+export function getPositionDetectedDedupeKey(assetClass: string, symbol: string): string {
+  return `position_detected:${assetClass === "crypto" ? "crypto" : "us_equity"}:${symbol}`;
+}
+
+export function getPositionExitDecisionDedupeKey(intentId: string, reason: string): string {
+  return `position_exit_decision:${intentId}:${reason}`;
+}
+
 function parseBoolean(name: string, value: string | undefined, defaultValue: boolean): boolean {
   if (value === undefined) return defaultValue;
   if (value === "true") return true;
@@ -91,7 +99,8 @@ export async function runPositionManagementCycle(environment: NodeJS.ProcessEnv 
     for (const symbol of symbols) {
       if (alertedPositionKeys.has(symbol)) continue;
       alertedPositionKeys.add(symbol);
-      await notifier.notify({ code: "position_detected", message: `Managed paper position detected: ${symbol}. Exit plan is active and being monitored.`, severity: "info" });
+      const position = managedPositions.find((candidate) => candidate.symbol === symbol);
+      await notifier.notify({ code: "position_detected", dedupeKey: getPositionDetectedDedupeKey(position?.assetClass ?? "us_equity", symbol), message: `Managed paper position detected: ${symbol}. Exit plan is active and being monitored.`, severity: "info" });
     }
     const reader = createPaperMarketDataReader({ apiKey, secretKey });
     const markGroups = await Promise.all(groupPositionSymbolsByAssetClass(managedPositions).map(async (group) => ({ assetClass: group.assetClass, marks: await reader.readSnapshots(group) })));
@@ -106,9 +115,13 @@ export async function runPositionManagementCycle(environment: NodeJS.ProcessEnv 
     const result = await runPaperPositionManagementOnce({ now: new Date().toISOString(), positions: managed, submitter: createPaperExitOrderSubmitter({ apiKey, brokerConnectionEnabled: true, secretKey }) });
     for (const decision of result.decisions) {
       if (!decision.shouldExit || !decision.reason) continue;
-      await notifier.notify({ code: "position_exit_decision", message: `${decision.symbol} exit decision: ${decision.reason} at mark ${decision.exitPrice}. This was triggered by the stored deterministic exit plan.`, severity: decision.reason === "stop_loss" ? "critical" : "info" });
+      const intentId = managed.find((position) => position.symbol === decision.symbol)?.intentId ?? decision.symbol;
+      await notifier.notify({ code: "position_exit_decision", dedupeKey: getPositionExitDecisionDedupeKey(intentId, decision.reason), message: `${decision.symbol} exit decision: ${decision.reason} at mark ${decision.exitPrice}. This was triggered by the stored deterministic exit plan.`, severity: decision.reason === "stop_loss" ? "critical" : "info" });
     }
-    if (result.submitted > 0) await notifier.notify({ code: "paper_exit_submitted", message: `Deterministic paper exit submitted for ${result.submitted} managed position(s). Broker reconciliation will confirm final status.`, severity: "warning" });
+    if (result.submitted > 0) {
+      const submittedSymbols = result.decisions.filter((decision) => decision.shouldExit).map((decision) => decision.symbol).sort().join(",");
+      await notifier.notify({ code: "paper_exit_submitted", dedupeKey: `paper_exit_submitted:${submittedSymbols}`, message: `Deterministic paper exit submitted for ${result.submitted} managed position(s). Broker reconciliation will confirm final status.`, severity: "warning" });
+    }
     return { managed: managed.length, submitted: result.submitted };
   } finally {
     await pool.end();

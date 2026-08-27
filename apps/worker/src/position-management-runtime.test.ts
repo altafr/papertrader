@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { getPaperOrderStatusTransitions, groupPositionSymbolsByAssetClass } from "./position-management-runtime.js";
+import { getPaperOrderStatusTransitions, getPositionDetectedDedupeKey, getPositionExitDecisionDedupeKey, groupPositionSymbolsByAssetClass } from "./position-management-runtime.js";
 
 describe("paper order status transitions", () => {
   it("returns only changed orders", () => {
@@ -18,5 +18,13 @@ describe("position market-data grouping", () => {
       { assetClass: "us_equity", symbols: ["AAPL"] },
       { assetClass: "crypto", symbols: ["BTC/USD"] },
     ]);
+  });
+});
+
+describe("position alert deduplication", () => {
+  it("uses stable keys across scheduler restarts and repeated passes", () => {
+    expect(getPositionDetectedDedupeKey("crypto", "BTC/USD")).toBe("position_detected:crypto:BTC/USD");
+    expect(getPositionDetectedDedupeKey("unexpected", "AAPL")).toBe("position_detected:us_equity:AAPL");
+    expect(getPositionExitDecisionDedupeKey("intent-1", "stop_loss")).toBe("position_exit_decision:intent-1:stop_loss");
   });
 });

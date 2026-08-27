@@ -3249,3 +3249,10 @@
 - Verification: full suite passed with 287 tests across 77 files; Worker typecheck and lint passed; Railway Worker deployment `f17d5398-5414-4659-9ebb-bf733397a0a1` reached `SUCCESS` and live health remains `healthy`.
 - Continuous entry submission remains disabled; this change only expands read/reconcile/exit coverage.
 - **Next smallest unit:** verify the authenticated Cycle card, then reconcile the authorized AAPL order after Alpaca's next active market window.
+
+### 2026-08-28 — Phase 6.245 durable position-alert deduplication
+
+- Added stable dedupe keys for managed-position, deterministic-exit-decision, and paper-exit-submitted Telegram events.
+- Repeated 60-second passes and Worker restarts can now re-enqueue the same operational fact without producing duplicate Telegram deliveries; broker idempotency remains unchanged.
+- Verification: full suite passed with 288 tests across 77 files; Railway Worker deployment `a1dd0040-99d1-46a5-b77e-9fdae012d641` reached `SUCCESS`; live health is `healthy`, position management is `ready`, and continuous entry submission remains disabled.
+- **Next smallest unit:** verify the authenticated Cycle card, then reconcile the authorized AAPL order after Alpaca's next active market window.
