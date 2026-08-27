@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, inArray, lt, sql } from "drizzle-orm";
+import { and, asc, desc, eq, inArray, isNotNull, lt, sql } from "drizzle-orm";
 
 import type { Database } from "./client.js";
 import { accountSnapshots, activities, agentRuns, durableOneRunAudits, durableScheduleRuns, orders, paperBaselineConfirmations, paperOrderSubmissions, positions, shadowObservationOutcomes, shadowObservations, strategyLifecycleEvents, strategyPaperEvidence, telegramAlertEvents } from "./schema.js";
@@ -569,7 +569,12 @@ export function createPaperOrderRepository(db: Database) {
     async listExitPlans() {
       // Exit-plan metadata is shared by equities and crypto.  Filtering this
       // read to equities would silently leave crypto positions unmanaged.
-      return db.select().from(paperOrderSubmissions).orderBy(desc(paperOrderSubmissions.createdAt)).limit(100);
+      return db.select().from(paperOrderSubmissions).where(and(
+        isNotNull(paperOrderSubmissions.entryPrice),
+        isNotNull(paperOrderSubmissions.plannedStopPrice),
+        isNotNull(paperOrderSubmissions.strategyKey),
+        isNotNull(paperOrderSubmissions.strategyVersion),
+      )).orderBy(desc(paperOrderSubmissions.createdAt));
     },
 
     async backfillExitPlan(input: { readonly intentId: string; readonly entryPrice: string; readonly plannedStopPrice: string; readonly plannedTargetPrice?: string; readonly strategyKey: string; readonly strategyVersion: string; readonly timeStopAt?: Date; readonly exitPlanReference: string }) {
