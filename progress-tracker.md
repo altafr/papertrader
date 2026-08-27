@@ -2863,3 +2863,9 @@
 - Values are derived from the persisted reconciliation snapshot and positions; unavailable/non-finite values are reported as `not reported`.
 - Worker typecheck, lint, focused Telegram tests, and diff checks pass.
 - **Next smallest unit:** deploy and verify the Worker, then run the explicitly authorized Telegram provider test and authenticated hosted verification.
+
+### 2026-08-28 — Phase 6.191 daily summary deployed
+
+- Railway Worker deployment `9468bfa3-2d34-4ec3-a0cb-e845467b682e` reached `SUCCESS` from the current branch.
+- The production end-of-session summary now includes equity, cash, buying power, day P/L, unrealized P/L, gross exposure, open positions, and tracked orders.
+- **Next smallest unit:** run the explicitly authorized Telegram provider test, then verify the authenticated dashboard and CSV against the deployed API.
