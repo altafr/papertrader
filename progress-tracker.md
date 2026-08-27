@@ -2938,3 +2938,10 @@
 - Railway Worker deployment `8a3a1418-bb71-467c-ac91-6ae791e5f215` reached `SUCCESS` from the current branch.
 - The guarded Telegram provider test now persists its outcome in production while remaining disabled until an approved reference is configured.
 - **Next smallest unit:** configure an operator-approved bounded reference, run the provider test, and verify the authenticated dashboard/CSV.
+
+### 2026-08-28 — Phase 6.203 hosted paper runtime flag audit
+
+- Read-only Railway Worker configuration confirms `TRADING_MODE=paper`, `ALPACA_PAPER_TRADE=true`, broker/database access, durable daily scheduler, research scheduler/handler, position management, Paper Autopilot, and Telegram alerts are enabled.
+- `MARKET_STREAM_ENABLED` is not configured; streaming remains intentionally off while scheduled finalized-bar workflows and reconciliation continue.
+- No credential values were read or exposed; latest Worker logs show normal startup and no emitted runtime failure.
+- **Next smallest unit:** configure an operator-approved bounded Telegram test reference, run the provider test, and verify the authenticated dashboard/CSV.
