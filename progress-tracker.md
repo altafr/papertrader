@@ -2830,3 +2830,10 @@
 - Extended the operator-overview verifier to validate Telegram event IDs, codes, severity, delivery status, attempts, message, and occurrence timestamps.
 - Added malformed-alert regression coverage; focused contract tests and lint pass.
 - **Next smallest unit:** run the explicitly authorized Telegram provider test, then verify the authenticated dashboard and CSV against the deployed API.
+
+### 2026-08-28 — Phase 6.186 layered architecture reference
+
+- Added [`docs/architecture-block-diagram.md`](docs/architecture-block-diagram.md), a box-and-layer Mermaid diagram covering operator surfaces, Clerk/API, Railway Worker agents, PostgreSQL, Alpaca, market data, and Telegram.
+- Documented the engineer-facing decision path and the deterministic risk-engine boundary.
+- Linked the diagram from the repository README; documentation-only change.
+- **Next smallest unit:** run the explicitly authorized Telegram provider test, then verify the authenticated dashboard and CSV against the deployed API.

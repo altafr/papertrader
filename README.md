@@ -18,6 +18,8 @@ Momentum Autopilot researches US stocks and supported crypto assets, prepares a 
 6. `progress-tracker.md` — delivery phases, decisions, blockers, and verification state.
 7. `AGENTS.md` — root-level instructions telling development agents how to use the context pack.
 
+The engineer-facing layered architecture diagram is in [`docs/architecture-block-diagram.md`](docs/architecture-block-diagram.md).
+
 ## Important integration distinction
 
 - The Alpaca MCP server can support research and operator workflows in a compatible MCP client.
