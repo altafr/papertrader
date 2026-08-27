@@ -2824,3 +2824,9 @@
 - Full Vitest suite passed: 74 files and 278 tests.
 - Repository ESLint passed for API, Worker, database, dashboard, and verification scripts.
 - **Next smallest unit:** run the explicitly authorized Telegram provider test, then verify the authenticated dashboard and CSV against the deployed API.
+
+### 2026-08-28 — Phase 6.185 Telegram contract validation
+
+- Extended the operator-overview verifier to validate Telegram event IDs, codes, severity, delivery status, attempts, message, and occurrence timestamps.
+- Added malformed-alert regression coverage; focused contract tests and lint pass.
+- **Next smallest unit:** run the explicitly authorized Telegram provider test, then verify the authenticated dashboard and CSV against the deployed API.

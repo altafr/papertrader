@@ -9,6 +9,7 @@ export function validateOperatorOverviewContract(value: unknown): { readonly rea
   for (const key of ["agents", "filteredTrades", "tradeDecisions", "strategyLifecycle", "strategyCatalog", "auditTimeline", "telegramAlerts"]) {
     if (!Array.isArray(value[key])) return { reason: `missing_array:${key}`, valid: false };
   }
+  if (value.telegramAlerts.some((alert) => !isRecord(alert) || typeof alert.eventId !== "string" || typeof alert.code !== "string" || typeof alert.severity !== "string" || typeof alert.deliveryStatus !== "string" || typeof alert.attempts !== "number" || !Number.isSafeInteger(alert.attempts) || typeof alert.message !== "string" || typeof alert.occurredAt !== "string")) return { reason: "invalid_telegram_alert", valid: false };
   const history = value.history;
   if (!isRecord(history) || typeof history.page !== "number" || typeof history.limit !== "number" || typeof history.hasNext !== "boolean" || !isRecord(history.totals)) return { reason: "invalid_history_metadata", valid: false };
   for (const key of ["agents", "filteredTrades", "submissions", "lifecycle", "schedules", "telegramAlerts"]) {
