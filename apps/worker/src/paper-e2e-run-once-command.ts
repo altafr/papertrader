@@ -1,6 +1,6 @@
 import { createPaperAccountReader, createPaperMarketDataReader, createPaperOrderSubmitter } from "@momentum/alpaca";
 import { getPaperOnlyRuntimeConfig } from "@momentum/config";
-import { createAgentRunRepository, createAccountStateRepository, createDatabase, createPaperOrderRepository, type PersistedAgentRun } from "@momentum/db";
+import { createAgentRunRepository, createAccountStateRepository, createDatabase, createPaperOrderRepository, createTelegramAlertRepository, type PersistedAgentRun } from "@momentum/db";
 import { isGlobalKillSwitchActive } from "@momentum/config";
 import { createCryptoResearchAgent, createStockResearchAgent, type AgentRunRequest, type ResearchAgentInput } from "@momentum/domain";
 
@@ -18,7 +18,7 @@ getPaperOnlyRuntimeConfig();
 const { db, pool } = createDatabase();
 const accountRepository = createAccountStateRepository(db);
 const agentRepository = createAgentRunRepository(db);
-const notifier = createRuntimeAlertNotifier();
+const notifier = createRuntimeAlertNotifier(process.env, createTelegramAlertRepository(db));
 const persistence = {
   enqueue: (run: AgentRunRequest) => agentRepository.enqueue({ agentType: run.agentType, createdAt: new Date(run.createdAt), inputRefs: run.inputRefs, ...(run.modelProvider ? { modelProvider: run.modelProvider } : {}), promptVersion: run.promptVersion, runId: run.runId, status: "queued", task: run.task } satisfies PersistedAgentRun),
   fail: agentRepository.fail,

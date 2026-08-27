@@ -1,6 +1,6 @@
 import { createPaperAccountReader, createPaperMarketDataReader, createPaperOrderSubmitter } from "@momentum/alpaca";
 import { getPaperOnlyRuntimeConfig, isGlobalKillSwitchActive } from "@momentum/config";
-import { createAccountStateRepository, createAgentRunRepository, createDatabase, createPaperOrderRepository } from "@momentum/db";
+import { createAccountStateRepository, createAgentRunRepository, createDatabase, createPaperOrderRepository, createTelegramAlertRepository } from "@momentum/db";
 import { executePaperAutopilotOrder } from "./paper-execution.js";
 import { assessResearchCandidateRisk, buildRiskCandidate, isPaperBaselineVerified } from "./paper-risk-dry-run.js";
 import { reconcilePaperAccount } from "./reconcile.js";
@@ -14,7 +14,7 @@ const approvalReference = process.env.PAPER_ORDER_APPROVAL_REFERENCE?.trim();
 if (!researchRunId || !/^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/.test(researchRunId)) throw new Error("PAPER_ORDER_RESEARCH_RUN_ID must be a bounded identifier.");
 if (!approvalReference || !/^[A-Za-z0-9][A-Za-z0-9._:/-]{0,127}$/.test(approvalReference)) throw new Error("PAPER_ORDER_APPROVAL_REFERENCE must be a bounded non-secret reference.");
 const { db, pool } = createDatabase();
-const notifier = createRuntimeAlertNotifier();
+const notifier = createRuntimeAlertNotifier(process.env, createTelegramAlertRepository(db));
 const accountRepository = createAccountStateRepository(db);
 const agentRepository = createAgentRunRepository(db);
 const reader = createPaperAccountReader({ apiKey: process.env.ALPACA_API_KEY ?? "", secretKey: process.env.ALPACA_SECRET_KEY ?? "" });

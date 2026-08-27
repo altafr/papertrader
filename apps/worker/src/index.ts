@@ -2,7 +2,7 @@ import { createServer } from "node:http";
 
 import { createPaperAccountReader, createPaperMarketDataReader } from "@momentum/alpaca";
 import { getPaperAutopilotConfig, getPaperOperatingMode, getPaperOnlyRuntimeConfig, getServerPort, isGlobalKillSwitchActive } from "@momentum/config";
-import { createAccountStateRepository, createDatabase, createDurableScheduleRunRepository, createShadowObservationRepository } from "@momentum/db";
+import { createAccountStateRepository, createDatabase, createDurableScheduleRunRepository, createShadowObservationRepository, createTelegramAlertRepository } from "@momentum/db";
 import { getTelegramNotificationConfig, sendTelegramAlert } from "@momentum/notifications";
 
 import { getWorkerHealth } from "./app.js";
@@ -16,6 +16,7 @@ import { getResearchScheduleReadiness } from "./research-scheduler.js";
 import { createResearchSchedulerFromEnvironment } from "./research-scheduler-runtime.js";
 import { reconcileBeforeSchedulerStart } from "./startup-recovery.js";
 import { createPositionManagementSchedulerFromEnvironment } from "./position-management-runtime.js";
+import { createRuntimeAlertNotifier } from "./telegram-events.js";
 
 const streamEnabled = process.env.MARKET_STREAM_ENABLED;
 if (streamEnabled !== undefined && streamEnabled !== "true" && streamEnabled !== "false") {
@@ -95,7 +96,7 @@ if (durableConfiguration.enabled) {
       const model = await accountRepository.getLatestReadModel(snapshot.accountId);
       const account = model?.snapshot;
       if (account) {
-        void sendTelegramAlert(telegramNotificationConfig, { code: "daily_portfolio_summary", message: `Market session summary (paper): equity ${account.equity}, cash ${account.cash}, buying power ${account.buyingPower}, open positions ${model?.positions.length ?? 0}, tracked orders ${model?.orders.length ?? 0}.`, occurredAt: account.capturedAt.toISOString(), severity: "info" }).catch(() => undefined);
+        createRuntimeAlertNotifier(process.env, createTelegramAlertRepository(db)).notify({ code: "daily_portfolio_summary", dedupeKey: `daily_portfolio_summary:${account.capturedAt.toISOString()}`, message: `Market session summary (paper): equity ${account.equity}, cash ${account.cash}, buying power ${account.buyingPower}, open positions ${model?.positions.length ?? 0}, tracked orders ${model?.orders.length ?? 0}.`, occurredAt: account.capturedAt.toISOString(), severity: "info" });
       }
       return { accountSnapshotId: snapshot.id };
     } finally {

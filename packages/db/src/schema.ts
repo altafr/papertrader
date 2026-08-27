@@ -221,6 +221,30 @@ export const durableScheduleRuns = pgTable(
   ],
 );
 
+export const telegramAlertEvents = pgTable(
+  "telegram_alert_events",
+  {
+    attempts: integer("attempts").notNull().default(0),
+    code: text("code").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    dedupeKey: text("dedupe_key").notNull().unique(),
+    deliveredAt: timestamp("delivered_at", { withTimezone: true }),
+    deliveryStatus: text("delivery_status").notNull().default("pending"),
+    eventId: uuid("event_id").defaultRandom().primaryKey(),
+    lastError: text("last_error"),
+    message: text("message").notNull(),
+    occurredAt: timestamp("occurred_at", { withTimezone: true }).notNull(),
+    severity: text("severity").notNull(),
+  },
+  (table) => [
+    index("telegram_alert_events_occurred_idx").on(table.occurredAt),
+    check("telegram_alert_events_non_empty", sql`length(${table.dedupeKey}) > 0 AND length(${table.code}) > 0 AND length(${table.message}) > 0`),
+    check("telegram_alert_events_severity_valid", sql`${table.severity} IN ('critical', 'info', 'warning')`),
+    check("telegram_alert_events_status_valid", sql`${table.deliveryStatus} IN ('pending', 'sent', 'failed')`),
+    check("telegram_alert_events_attempts_valid", sql`${table.attempts} >= 0`),
+  ],
+);
+
 export const shadowObservations = pgTable(
   "shadow_observations",
   {

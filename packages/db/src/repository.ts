@@ -1,7 +1,15 @@
 import { and, asc, desc, eq, sql } from "drizzle-orm";
 
 import type { Database } from "./client.js";
-import { accountSnapshots, activities, agentRuns, durableOneRunAudits, durableScheduleRuns, orders, paperBaselineConfirmations, paperOrderSubmissions, positions, shadowObservationOutcomes, shadowObservations, strategyLifecycleEvents, strategyPaperEvidence } from "./schema.js";
+import { accountSnapshots, activities, agentRuns, durableOneRunAudits, durableScheduleRuns, orders, paperBaselineConfirmations, paperOrderSubmissions, positions, shadowObservationOutcomes, shadowObservations, strategyLifecycleEvents, strategyPaperEvidence, telegramAlertEvents } from "./schema.js";
+
+export interface PersistedTelegramAlertEvent {
+  readonly code: string;
+  readonly dedupeKey: string;
+  readonly message: string;
+  readonly occurredAt: Date;
+  readonly severity: "critical" | "info" | "warning";
+}
 
 export interface PersistedAgentArtifact {
   readonly artifactConfidence: string;
@@ -318,6 +326,24 @@ export function createAccountStateRepository(db: Database) {
     async getLatestDurableOneRunAudit() {
       const [row] = await db.select().from(durableOneRunAudits).orderBy(desc(durableOneRunAudits.capturedAt)).limit(1);
       return row;
+    },
+  };
+}
+
+export function createTelegramAlertRepository(db: Database) {
+  return {
+    async enqueue(input: PersistedTelegramAlertEvent) {
+      const [row] = await db.insert(telegramAlertEvents).values({ code: input.code, dedupeKey: input.dedupeKey, message: input.message, occurredAt: input.occurredAt, severity: input.severity }).onConflictDoNothing({ target: telegramAlertEvents.dedupeKey }).returning();
+      return row;
+    },
+    async markSent(eventId: string) {
+      return db.update(telegramAlertEvents).set({ attempts: sql`${telegramAlertEvents.attempts} + 1`, deliveredAt: new Date(), deliveryStatus: "sent", lastError: null }).where(eq(telegramAlertEvents.eventId, eventId)).returning();
+    },
+    async markFailed(eventId: string, errorCode: string) {
+      return db.update(telegramAlertEvents).set({ attempts: sql`${telegramAlertEvents.attempts} + 1`, deliveryStatus: "failed", lastError: errorCode }).where(eq(telegramAlertEvents.eventId, eventId)).returning();
+    },
+    async listRecent(limit = 100) {
+      return db.select().from(telegramAlertEvents).orderBy(desc(telegramAlertEvents.occurredAt)).limit(limit);
     },
   };
 }

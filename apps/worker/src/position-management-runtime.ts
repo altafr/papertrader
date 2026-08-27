@@ -1,6 +1,6 @@
 import { createPaperAccountReader, createPaperMarketDataReader, createPaperExitOrderSubmitter } from "@momentum/alpaca";
 import { isGlobalKillSwitchActive } from "@momentum/config";
-import { createAccountStateRepository, createDatabase, createPaperOrderRepository } from "@momentum/db";
+import { createAccountStateRepository, createDatabase, createPaperOrderRepository, createTelegramAlertRepository } from "@momentum/db";
 
 import { reconcilePaperAccount } from "./reconcile.js";
 import { runPaperPositionManagementOnce } from "./position-management-runner.js";
@@ -64,7 +64,7 @@ export async function runPositionManagementCycle(environment: NodeJS.ProcessEnv 
     const positions = model?.positions ?? [];
     const symbols = positions.map((position) => position.symbol).filter((symbol) => plans.has(symbol));
     if (symbols.length === 0) return { managed: 0, submitted: 0 };
-    const notifier = createRuntimeAlertNotifier(environment);
+    const notifier = createRuntimeAlertNotifier(environment, createTelegramAlertRepository(db));
     for (const symbol of symbols) {
       if (alertedPositionKeys.has(symbol)) continue;
       alertedPositionKeys.add(symbol);

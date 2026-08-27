@@ -1,7 +1,7 @@
 import { PgBoss } from "pg-boss";
 
 import { createPaperMarketDataReader } from "@momentum/alpaca";
-import { createAgentRunRepository, createDatabase, type PersistedAgentRun } from "@momentum/db";
+import { createAgentRunRepository, createDatabase, createTelegramAlertRepository, type PersistedAgentRun } from "@momentum/db";
 import type { AgentRunRequest } from "@momentum/domain";
 
 import { createResearchPreparationQueueHandler } from "./research-preparation.js";
@@ -20,6 +20,7 @@ export function createResearchSchedulerFromEnvironment(environment: NodeJS.Proce
   const secretKey = environment.ALPACA_SECRET_KEY ?? "";
   const { db } = createDatabase(databaseUrl);
   const repository = createAgentRunRepository(db);
+  const alertRepository = createTelegramAlertRepository(db);
   const persistence = {
     enqueue: (run: AgentRunRequest) => repository.enqueue({
       agentType: run.agentType,
@@ -39,7 +40,7 @@ export function createResearchSchedulerFromEnvironment(environment: NodeJS.Proce
     environment,
     persistence,
     source: createAlpacaResearchInputSource(createPaperMarketDataReader({ apiKey, secretKey })),
-    notify: createRuntimeAlertNotifier(environment).notify,
+    notify: createRuntimeAlertNotifier(environment, alertRepository).notify,
   });
   return createResearchScheduler({
     clientFactory: () => new PgBoss(databaseUrl),
