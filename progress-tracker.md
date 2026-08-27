@@ -3217,3 +3217,11 @@
 - A redacted `paper_risk_decision` Telegram event was persisted as a warning. Continuous broker submission remains disabled, and no new Alpaca order or position was created.
 - This confirms the always-on research-to-risk safety path can be exercised quickly on hosted infrastructure while preserving fail-closed execution boundaries.
 - **Next smallest unit:** verify the pending AAPL order during the next active market session; then add a bounded operator-facing cycle status summary so hosted progress and blockers are visible without log access.
+
+### 2026-08-28 — Phase 6.241 operator cycle-status summary
+
+- Added a read-only dashboard card that joins the newest persisted research run, deterministic risk decision, and Telegram delivery event into one hosted cycle hand-off view.
+- The card displays status, timestamps, identifiers, and bounded risk reasons without exposing credentials, private model reasoning, or any order controls.
+- Verification: dashboard state tests passed (10 tests), web TypeScript and ESLint passed, and the production Next.js build completed successfully.
+- Change pushed to branch `phase-6-10-operator-health` as commit `c428579`; no broker or Railway configuration changed.
+- **Next smallest unit:** verify the new card on the authenticated Vercel deployment, then continue market-session reconciliation for the pending AAPL order.
