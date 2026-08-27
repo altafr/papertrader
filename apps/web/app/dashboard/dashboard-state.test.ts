@@ -75,8 +75,8 @@ describe("dashboard state", () => {
   });
 
   it("preserves complete audit totals for the coverage summary", () => {
-    const overview = parseOperatorOverview({ agents: [], filteredTrades: [], tradeDecisions: [], strategyLifecycle: [], strategyCatalog: [], auditTimeline: [], history: { page: 1, limit: 100, hasNext: false, latestCapturedAt: "2026-08-26T12:00:00.000Z", totals: { agents: 2, filteredTrades: 3, submissions: 4, lifecycle: 5, schedules: 6 } } });
-    expect(overview?.history?.totals).toEqual({ agents: 2, filteredTrades: 3, submissions: 4, lifecycle: 5, schedules: 6 });
+    const overview = parseOperatorOverview({ agents: [], filteredTrades: [], tradeDecisions: [], strategyLifecycle: [], strategyCatalog: [], auditTimeline: [], telegramAlerts: [], history: { page: 1, limit: 100, hasNext: false, latestCapturedAt: "2026-08-26T12:00:00.000Z", totals: { agents: 2, filteredTrades: 3, submissions: 4, lifecycle: 5, schedules: 6, telegramAlerts: 7 } } });
+    expect(overview?.history?.totals).toEqual({ agents: 2, filteredTrades: 3, submissions: 4, lifecycle: 5, schedules: 6, telegramAlerts: 7 });
     expect(overview?.history?.latestCapturedAt).toBe("2026-08-26T12:00:00.000Z");
   });
 
@@ -96,7 +96,7 @@ describe("dashboard state", () => {
   });
 
   it("calculates total audit pages from the largest category", () => {
-    expect(auditPageCount({ agents: 1, filteredTrades: 201, lifecycle: 0, schedules: 2, submissions: 100 }, 100)).toBe(3);
-    expect(auditPageCount({ agents: 0, filteredTrades: 0, lifecycle: 0, schedules: 0, submissions: 0 }, 100)).toBe(1);
+    expect(auditPageCount({ agents: 1, filteredTrades: 201, lifecycle: 0, schedules: 2, submissions: 100, telegramAlerts: 3 }, 100)).toBe(3);
+    expect(auditPageCount({ agents: 0, filteredTrades: 0, lifecycle: 0, schedules: 0, submissions: 0, telegramAlerts: 0 }, 100)).toBe(1);
   });
 });

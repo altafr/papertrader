@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import { verifyOperatorOverview } from "./verify-operator-overview";
 
-const validOverview = { agents: [], filteredTrades: [], tradeDecisions: [], strategyLifecycle: [], strategyCatalog: [], auditTimeline: [], history: { page: 1, limit: 1, hasNext: false, totals: { agents: 0, filteredTrades: 0, submissions: 0, lifecycle: 0, schedules: 0 } } };
+const validOverview = { agents: [], filteredTrades: [], tradeDecisions: [], strategyLifecycle: [], strategyCatalog: [], auditTimeline: [], telegramAlerts: [], history: { page: 1, limit: 1, hasNext: false, totals: { agents: 0, filteredTrades: 0, submissions: 0, lifecycle: 0, schedules: 0, telegramAlerts: 0 } } };
 
 describe("verifyOperatorOverview", () => {
   it("checks both authenticated endpoints and returns statuses", async () => {

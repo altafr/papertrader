@@ -2789,3 +2789,10 @@
 - Railway migration `0016` applied successfully. Worker deployment `3968606f-537f-4f6c-9095-0ed789080af0` reached `SUCCESS`; hosted health remains healthy with position management enabled and Telegram configured.
 - Read-only production verification found `daily_portfolio_summary` and `position_detected` events persisted with status `sent` and one attempt each. Provider delivery verification remains separately gated by the explicit Telegram test reference.
 - **Next smallest unit:** add the persisted alert events to the authenticated operator-overview timeline, then run the explicitly authorized Telegram channel test.
+
+### 2026-08-28 — Phase 6.180 Telegram alert history in operator overview
+
+- Added persisted Telegram alert events to the authenticated `/v1/operator-overview` response, unified audit timeline, filtered history totals, and CSV export.
+- Updated the dashboard contract and audit coverage summary to display Telegram alert counts and include alert events alongside agent, execution, lifecycle, and scheduler records.
+- Verified API/web typechecks and 14 focused operator-overview/dashboard tests; no credentials or broker behavior changed.
+- **Next smallest unit:** run the explicitly authorized Telegram provider test, then verify the authenticated dashboard and CSV against the deployed API.
