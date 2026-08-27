@@ -3278,3 +3278,10 @@
 - This keeps entry and deterministic-exit history aligned with Alpaca after fills, cancellations, expirations, or Worker restarts; unmatched broker orders are ignored safely.
 - Verification: 288 tests across 77 files passed; Worker/database TypeScript checks and lint passed; Railway Worker deployment `2b9e7175-f625-47ae-8676-da797c2c3b8c` reached `SUCCESS`; live Worker health remains `healthy` and position management `ready`.
 - **Next smallest unit:** verify a terminal broker transition updates the persisted ledger and emits the deduplicated Telegram status alert during an active paper session.
+
+### 2026-08-28 — Phase 6.249 hosted ledger-sync verification
+
+- Ran the deployed position-management command after the broker-to-ledger sync release; it completed with `managed:1, submitted:0` and no unexpected broker write.
+- Railway health remains `healthy`, position management is `ready`, and continuous entry submission remains disabled.
+- A direct database check shows the authorized AAPL entry remains `accepted` with zero fills; no exit record was fabricated while no exit threshold was reached.
+- **Next smallest unit:** verify a terminal broker transition updates the persisted ledger and emits the deduplicated Telegram status alert during an active paper session.
