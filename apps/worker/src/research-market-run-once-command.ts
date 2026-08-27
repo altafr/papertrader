@@ -14,7 +14,9 @@ const agentType = process.env.RESEARCH_AGENT_TYPE;
 if (agentType !== "stock_research" && agentType !== "crypto_research") throw new Error("RESEARCH_AGENT_TYPE must be stock_research or crypto_research.");
 const assetClass = agentType === "stock_research" ? "us_equity" : "crypto";
 const symbols = (process.env.RESEARCH_SYMBOLS ?? "").split(",").map((symbol) => symbol.trim().toUpperCase()).filter(Boolean);
-const timeframe = (process.env.RESEARCH_TIMEFRAME ?? "1Day") as MarketBarTimeframe;
+// Hourly bars provide enough recent history for the minimum two-bar research
+// invariant when Alpaca's daily endpoint currently exposes only one bar.
+const timeframe = (process.env.RESEARCH_TIMEFRAME ?? "1Hour") as MarketBarTimeframe;
 const limit = Number(process.env.RESEARCH_LIMIT ?? "100");
 const maxCandidates = Number(process.env.RESEARCH_MAX_CANDIDATES ?? "10");
 const { db, pool } = createDatabase();
@@ -29,7 +31,7 @@ try {
   stage = "research_execution";
   const result = await executeResearchRun({ handler, persistence, request });
   if (result.status !== "succeeded") throw new Error("research_market_run_failed");
-  console.log("Market research run completed.");
+  console.log(JSON.stringify({ agentType, runId: request.runId, status: "market_research_completed" }));
 } catch (error: unknown) {
   const message = error instanceof Error ? error.message : "unknown";
   const httpStatus = message.match(/HTTP (\d{3})/)?.[1];
