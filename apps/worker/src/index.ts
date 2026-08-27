@@ -133,6 +133,8 @@ if (durableConfiguration.enabled) {
       await runtimeAlertNotifier.notify({ code: "durable_scheduler_start_failed", message: "Durable scheduler startup reconciliation failed; scheduling remains paused.", occurredAt: new Date().toISOString(), severity: "critical" });
     },
     startScheduler: () => durableScheduler.start().catch(() => { /* health endpoint reports the degraded state */ }),
+  }).then((started) => {
+    console.log(JSON.stringify({ event: "durable_scheduler_start_result", started, status: getWorkerHealth().durableScheduler }));
   });
 }
 server.listen(getServerPort(), "0.0.0.0");
