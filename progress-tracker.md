@@ -2925,3 +2925,10 @@
 - Railway Worker deployment `ebe5bc9e-b089-4a87-95e4-99300f021511` reached `SUCCESS` from the current branch.
 - Production recommendation notifications now include the tested evidence summary while preserving paper-only, risk-gated behavior.
 - **Next smallest unit:** run the explicitly authorized Telegram provider test, then verify the authenticated dashboard and CSV against the deployed API.
+
+### 2026-08-28 — Phase 6.201 auditable Telegram provider test path
+
+- Updated the guarded Telegram provider-test command to require PostgreSQL, enqueue a deduplicated `telegram_channel_test` event, mark it `sent` only after a successful provider response, and mark it failed on delivery error.
+- Duplicate approval references are rejected; the command closes its database pool and prints only generic success/failure output.
+- Worker typecheck, lint, and diff checks pass without sending a provider message.
+- **Next smallest unit:** configure an operator-approved bounded reference, run the auditable provider test, and verify the authenticated dashboard/CSV.
