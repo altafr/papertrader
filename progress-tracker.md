@@ -2837,3 +2837,9 @@
 - Documented the engineer-facing decision path and the deterministic risk-engine boundary.
 - Linked the diagram from the repository README; documentation-only change.
 - **Next smallest unit:** run the explicitly authorized Telegram provider test, then verify the authenticated dashboard and CSV against the deployed API.
+
+### 2026-08-28 — Phase 6.187 dashboard alert parser coverage
+
+- Added dashboard parser coverage proving a persisted Telegram event retains delivery status and remains available to the delivery panel.
+- Focused dashboard and overview contract tests passed: 14 tests.
+- **Next smallest unit:** run the explicitly authorized Telegram provider test, then verify the authenticated dashboard and CSV against the deployed API.

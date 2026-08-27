@@ -80,6 +80,12 @@ describe("dashboard state", () => {
     expect(overview?.history?.latestCapturedAt).toBe("2026-08-26T12:00:00.000Z");
   });
 
+  it("preserves Telegram alert records for the delivery panel", () => {
+    const overview = parseOperatorOverview({ agents: [], filteredTrades: [], tradeDecisions: [], strategyLifecycle: [], strategyCatalog: [], auditTimeline: [], telegramAlerts: [{ eventId: "event-1", code: "position_detected", severity: "info", deliveryStatus: "sent", attempts: 1, message: "AAPL position detected", occurredAt: "2026-08-28T00:00:00.000Z", deliveredAt: "2026-08-28T00:00:01.000Z" }] });
+    expect(overview?.telegramAlerts).toHaveLength(1);
+    expect(overview?.telegramAlerts[0]?.deliveryStatus).toBe("sent");
+  });
+
   it("rejects an unavailable overview instead of treating it as an empty audit", () => {
     expect(parseOperatorOverview({ error: "operator_overview_unavailable" })).toBeUndefined();
   });
