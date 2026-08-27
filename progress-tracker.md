@@ -3067,3 +3067,10 @@
 - Result: `status:"blocked"`, `orderSubmissionEnabled:false`, and the sole blocker was `paper_order_submission_gate_disabled`; a fresh account reconciliation and market snapshot were available.
 - No Alpaca order submission occurred. This confirms the production safety gate is functioning as designed before any execution activation.
 - **Next smallest unit:** obtain an explicit operator activation reference and decide whether to enable one bounded paper order.
+
+### 2026-08-28 — Phase 6.220 command-scoped ready preflight
+
+- Re-ran the Railway preflight with `PAPER_AUTOPILOT_ORDER_SUBMISSION_ENABLED=true` supplied only to the command process.
+- Result: `status:"ready"`, no blocked reasons, fresh AAPL market snapshot available, and baseline evidence recognized.
+- The persistent Worker configuration was not changed and no broker order was submitted; this proves all execution prerequisites can pass without activating continuous order writes.
+- **Next smallest unit:** use an explicit operator activation reference to run one bounded paper order and verify Alpaca reconciliation, Telegram delivery, and dashboard history.
