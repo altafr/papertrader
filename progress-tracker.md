@@ -3011,3 +3011,12 @@
 - Rejected and approved scheduled risk decisions therefore expose why the gate passed or failed without exposing private model reasoning or adding order authority to the UI.
 - Web production build, web typecheck, and web lint passed.
 - **Next smallest unit:** verify the hosted authenticated view contains the `BTC/USD` rejection and reason, then implement the separately gated broker-submission handoff.
+
+### 2026-08-28 — Phase 6.213 separately gated paper order handoff
+
+- Added `PAPER_AUTOPILOT_ORDER_SUBMISSION_ENABLED`, absent/off by default, as the explicit server-side gate before scheduled approved candidates can reach the paper order executor.
+- The enabled path reuses deterministic approval, idempotent client order IDs, durable persistence, broker reconciliation, and Telegram lifecycle notifications; the UI exposes the gate as `Dry-run only` or `Enabled`.
+- Railway deployments succeeded: Worker `da762565-56d1-4d2e-8a70-35e7bc9ad34a`; API `76d4a94c-0c2c-45ef-811e-0f8a35163cae`.
+- Production order-submission gate remains absent/off, so no new broker order authority was activated by this phase.
+- Verification: 282 tests passed, all TypeScript projects passed, ESLint passed, and the web production build passed.
+- **Next smallest unit:** review the hosted risk-cycle evidence and explicitly decide whether to enable one bounded paper order submission for end-to-end execution verification.

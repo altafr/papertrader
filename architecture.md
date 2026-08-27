@@ -16,6 +16,10 @@ The research preparation worker now passes validated watchlist candidates to a p
 
 The Worker emits redacted operational events for recommendation outputs, entry submission/reconciliation, managed-position detection, deterministic exit decisions, failed-closed runs, and end-of-session portfolio summaries. Formatting and delivery are centralized in the notification package; provider failures are swallowed after recording degraded delivery state so alerting cannot affect broker calls, risk outcomes, or scheduler control flow.
 
+### Separately gated order handoff (Phase 6.213)
+
+The scheduled risk cycle accepts an optional executor only when `PAPER_AUTOPILOT_ORDER_SUBMISSION_ENABLED=true` is explicitly configured server-side. That executor reuses `executePaperAutopilotOrder`, including deterministic approval, idempotent client order IDs, persistence, broker reconciliation, and lifecycle alerts. When the flag is absent or `false`, approved candidates remain persisted dry-run decisions and no broker write is reachable from the scheduled path.
+
 ### Guarded paper end-to-end evidence run (2026-08-26)
 
 - Added `paper-e2e-run-once`, which composes one paper-account reconciliation and one bounded market-research agent run so the operator can verify the complete read → persist → dashboard path quickly.
