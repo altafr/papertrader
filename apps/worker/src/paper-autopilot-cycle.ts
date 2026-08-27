@@ -5,6 +5,11 @@ import { createAccountStateRepository, createPaperOrderRepository, type Database
 
 import { assessResearchCandidateRisk, buildRiskCandidate, isPaperBaselineVerified } from "./paper-risk-dry-run.js";
 
+/** Keep broker-enabled cycles to one approval against a single reconciled snapshot. */
+export function selectPaperAutopilotCandidates<T>(candidates: readonly T[], executeApproved: boolean): readonly T[] {
+  return candidates.slice(0, executeApproved ? 1 : 10);
+}
+
 export interface PaperAutopilotRiskCycleResult {
   readonly approvalStatus: "approved" | "rejected";
   readonly executionStatus: "not_submitted" | "reconciled";
@@ -49,7 +54,7 @@ export async function runPaperAutopilotRiskCycle(input: {
   const results: PaperAutopilotRiskCycleResult[] = [];
   // A broker-enabled cycle is deliberately bounded to one entry. The next
   // cycle re-reconciles account/positions before considering another candidate.
-  const candidates = input.executeApproved ? input.candidates.slice(0, 1) : input.candidates.slice(0, 10);
+  const candidates = selectPaperAutopilotCandidates(input.candidates, Boolean(input.executeApproved));
   for (const candidate of candidates) {
     const candidateAge = now.getTime() - Date.parse(candidate.dataAsOf);
     const state = { ...baseState, dataFresh: Number.isFinite(candidateAge) && candidateAge >= 0 && candidateAge <= 172_800_000 };

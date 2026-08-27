@@ -3120,3 +3120,10 @@
 - Updated the activation runbook with the bound; no production submission flag or broker state changed.
 - Verification: 283 tests passed, Worker TypeScript and lint passed; Railway Worker deployment `50b83fcf-45cf-45f8-a6ad-c5d37f5cdd12` reached `SUCCESS`.
 - **Next smallest unit:** execute one bounded paper order with explicit operator authorization, then verify reconciliation, Telegram delivery, and dashboard history.
+
+### 2026-08-28 — Phase 6.227 bounded-cycle regression evidence
+
+- Extracted the broker-cycle candidate selector as a pure function and added regression coverage: broker-enabled execution selects one candidate; dry-run analysis remains capped at ten.
+- Verification: focused Worker test (2 passed), Worker TypeScript, and lint passed.
+- A local `railway run` rehearsal could not reach Railway's private PostgreSQL hostname (`ENOTFOUND`); no application failure, Railway variable, or broker state was inferred from that tooling limitation.
+- **Next smallest unit:** run the bounded paper order from inside a Railway runtime (or provide a public database connection path) with explicit operator authorization, then verify Alpaca reconciliation, Telegram delivery, and dashboard history.
