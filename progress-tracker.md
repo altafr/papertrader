@@ -2986,3 +2986,13 @@
 - ESLint passed with `--max-warnings=0`.
 - The two initially attempted non-existent tsconfig paths (`apps/dashboard`, `packages/shared`) were corrected to the repository's actual `apps/web` and package project paths; no code failure was found.
 - **Next smallest unit:** configure an operator-approved bounded Telegram test reference, run the provider test, and verify the authenticated dashboard/CSV.
+
+### 2026-08-28 — Phase 6.210 scheduled candidate-to-risk boundary
+
+- Research preparation now returns validated watchlist candidates to the Worker runtime instead of exposing only symbol summaries.
+- In Paper Autopilot mode, scheduled candidates are evaluated through the existing deterministic risk engine using the latest account read model, freshness checks, baseline verification, exposure limits, loss policy, and kill-switch state.
+- Each decision is persisted as `risk_dry_run_approved` or `risk_dry_run_rejected` with strategy metadata, risk evidence, and point-in-time market indicators; Telegram receives a concise decision notification when enabled.
+- Broker submission remains a separate gated boundary; this change cannot place an order merely because research produced a candidate.
+- Verification: 75 test files / 282 tests passed, all eight TypeScript projects passed, ESLint passed with zero warnings, secret-surface audit passed, and the web production build passed.
+- Railway Worker deployment `3b92a9a4-64c3-41bd-adcb-d680dbed2a16` reached `SUCCESS`; startup logs confirm paper mode, scheduler scheduled, research ready, position management running, and Telegram ready.
+- **Next smallest unit:** exercise one scheduled risk cycle against a persisted paper account, then implement the separately gated broker-submission handoff.

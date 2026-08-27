@@ -46,7 +46,7 @@ describe("research preparation", () => {
       preparation: { agentType: "stock_research", assetClass: "us_equity", limit: 2, maxCandidates: 10, symbols: ["AAPL"], timeframe: "1Day" },
       source: { read: vi.fn(async () => input("us_equity")) },
     });
-    expect(result).toEqual({ agentType: "stock_research", recommendationEvidence: ["AAPL: momentum 0.01000000, avg volume 1050.00000000, RSI14 not reported, RV20 not reported"], recommendationSymbols: ["AAPL"], runId: "research-preparation-stock_research-20260823020000", status: "succeeded" });
+    expect(result).toMatchObject({ agentType: "stock_research", candidates: [expect.objectContaining({ assetClass: "us_equity", symbol: "AAPL", dataAsOf: "2026-08-23T01:00:00.000Z" })], recommendationEvidence: ["AAPL: momentum 0.01000000, avg volume 1050.00000000, RSI14 not reported, RV20 not reported"], recommendationSymbols: ["AAPL"], runId: "research-preparation-stock_research-20260823020000", status: "succeeded" });
     expect(calls).toEqual(["enqueue", "start", "succeed"]);
   });
 
@@ -60,16 +60,19 @@ describe("research preparation", () => {
   it("runs both bounded asset-class plans only with explicit readiness", async () => {
     const source = { read: vi.fn(async (plan) => input(plan.assetClass)) };
     const calls: string[] = [];
+    const candidateCounts: number[] = [];
     const handler = createResearchPreparationQueueHandler({
       clock: () => new Date("2026-08-23T02:01:00.000Z"),
       environment: { ALPACA_API_KEY: "paper-key", ALPACA_SECRET_KEY: "paper-secret", ALPACA_PAPER_TRADE: "true", BROKER_CONNECTION_ENABLED: "true", DATABASE_URL: "postgres://private", RESEARCH_CRYPTO_SYMBOLS: "BTC/USD", RESEARCH_HANDLER_ENABLED: "true", RESEARCH_SCHEDULER_ENABLED: "true", RESEARCH_STOCK_SYMBOLS: "AAPL", TRADING_MODE: "paper" },
       persistence: { enqueue: async () => { calls.push("enqueue"); }, start: async () => { calls.push("start"); }, succeed: async () => { calls.push("succeed"); }, fail: async () => { calls.push("fail"); } },
       source,
+      onResult: (result) => { candidateCounts.push(result.candidates?.length ?? 0); },
     });
     const results = await handler({ kind: "research_preparation", version: 1 });
     expect(results).toHaveLength(2);
     expect(source.read).toHaveBeenCalledTimes(2);
     expect(calls.filter((call) => call === "succeed")).toHaveLength(2);
+    expect(candidateCounts).toEqual([1, 1]);
     expect(calls).not.toContain("fail");
   });
 

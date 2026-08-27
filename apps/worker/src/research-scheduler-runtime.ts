@@ -8,6 +8,7 @@ import { createResearchPreparationQueueHandler } from "./research-preparation.js
 import { createAlpacaResearchInputSource } from "./research-market-source.js";
 import { createResearchScheduler, getResearchScheduleReadiness, getResearchScheduleConfig } from "./research-scheduler.js";
 import { createRuntimeAlertNotifier } from "./telegram-events.js";
+import { runPaperAutopilotRiskCycle } from "./paper-autopilot-cycle.js";
 
 export function createResearchSchedulerFromEnvironment(environment: NodeJS.ProcessEnv = process.env) {
   const config = getResearchScheduleConfig(environment);
@@ -41,6 +42,12 @@ export function createResearchSchedulerFromEnvironment(environment: NodeJS.Proce
     persistence,
     source: createAlpacaResearchInputSource(createPaperMarketDataReader({ apiKey, secretKey })),
     notify: createRuntimeAlertNotifier(environment, alertRepository).notify,
+    ...(environment.PAPER_AUTOPILOT_ENABLED === "true" && environment.OPERATING_MODE === "paper_autopilot" ? {
+      onResult: async (result) => {
+        if (result.status !== "succeeded" || !result.candidates?.length) return;
+        await runPaperAutopilotRiskCycle({ candidates: result.candidates, db, environment, quantity: environment.PAPER_AUTOPILOT_QUANTITY?.trim() || "1", notify: createRuntimeAlertNotifier(environment, alertRepository).notify });
+      },
+    } : {}),
   });
   return createResearchScheduler({
     clientFactory: () => new PgBoss(databaseUrl),

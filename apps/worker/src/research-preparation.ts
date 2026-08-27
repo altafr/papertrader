@@ -1,4 +1,4 @@
-import type { AgentRunRequest, ResearchAgentInput, StrategyAssetClass } from "@momentum/domain";
+import type { AgentRunRequest, ResearchAgentInput, ResearchWatchlistCandidate, StrategyAssetClass } from "@momentum/domain";
 import { createCryptoResearchAgent, createStockResearchAgent } from "@momentum/domain";
 
 import { executeResearchRun, type ResearchRunPersistence } from "./research-runner.js";
@@ -28,6 +28,7 @@ export interface ResearchPreparationSource {
 
 export interface ResearchPreparationResult {
   readonly agentType: ResearchPreparationInputPlan["agentType"];
+  readonly candidates?: readonly ResearchWatchlistCandidate[];
   readonly runId: string;
   readonly status: "failed" | "succeeded";
   readonly recommendationSymbols?: readonly string[];
@@ -35,6 +36,12 @@ export interface ResearchPreparationResult {
 }
 
 const allowedTimeframes = new Set<ResearchPreparationInputPlan["timeframe"]>(["1Day", "1Hour", "1Min", "1Month", "1Week", "5Min", "15Min"]);
+
+function isResearchCandidate(candidate: unknown): candidate is ResearchWatchlistCandidate {
+  if (!candidate || typeof candidate !== "object") return false;
+  const value = candidate as Partial<ResearchWatchlistCandidate>;
+  return (value.assetClass === "us_equity" || value.assetClass === "crypto") && typeof value.symbol === "string" && typeof value.dataAsOf === "string" && typeof value.momentumReturn === "string" && typeof value.averageVolume === "string";
+}
 
 function parseBoundedInteger(name: string, value: string | undefined, defaultValue: number, min: number, max: number): number {
   const result = Number(value ?? String(defaultValue));
@@ -104,7 +111,8 @@ export async function executeResearchPreparation(input: {
     const indicators = item.marketSnapshot && typeof item.marketSnapshot === "object" ? `RSI14 ${typeof item.marketSnapshot.rsi14 === "string" ? item.marketSnapshot.rsi14 : "not reported"}, RV20 ${typeof item.marketSnapshot.relativeVolume20 === "string" ? item.marketSnapshot.relativeVolume20 : "not reported"}` : "indicators not reported";
     return [`${item.symbol}: ${momentum}, ${volume}, ${indicators}`];
   }) : [];
-  return { agentType: input.preparation.agentType, runId: request.runId, status: result.status, ...(recommendationSymbols.length > 0 ? { recommendationSymbols } : {}), ...(recommendationEvidence.length > 0 ? { recommendationEvidence } : {}) };
+  const candidates = Array.isArray(rawCandidates) ? rawCandidates.filter(isResearchCandidate).slice(0, input.preparation.maxCandidates) : [];
+  return { agentType: input.preparation.agentType, runId: request.runId, status: result.status, ...(candidates.length > 0 ? { candidates } : {}), ...(recommendationSymbols.length > 0 ? { recommendationSymbols } : {}), ...(recommendationEvidence.length > 0 ? { recommendationEvidence } : {}) };
 }
 
 export function createResearchPreparationQueueHandler(input: {
@@ -112,6 +120,7 @@ export function createResearchPreparationQueueHandler(input: {
   readonly environment?: NodeJS.ProcessEnv;
   readonly persistence: ResearchRunPersistence;
   readonly source: ResearchPreparationSource;
+  readonly onResult?: (result: ResearchPreparationResult) => Promise<void> | void;
   readonly notify?: (alert: { readonly code: string; readonly message: string; readonly severity: "critical" | "info" | "warning" }) => Promise<void> | void;
 }) {
   const environment = input.environment ?? process.env;
@@ -125,6 +134,7 @@ export function createResearchPreparationQueueHandler(input: {
       try {
         const result = await executeResearchPreparation({ ...(input.clock ? { clock: input.clock } : {}), persistence: input.persistence, preparation, source: input.source });
         results.push(result);
+        await input.onResult?.(result);
         await input.notify?.({ code: "research_recommendations", message: `${result.agentType} produced ${result.recommendationSymbols?.length ?? 0} recommendation(s): ${(result.recommendationSymbols ?? []).join(", ") || "none"}. Evidence: ${(result.recommendationEvidence ?? []).join(" | ") || "not reported"}.`, severity: "info" });
       } catch {
         results.push({ agentType: preparation.agentType, runId: `research-preparation-${preparation.agentType}-failed-${Date.now()}`, status: "failed" });
