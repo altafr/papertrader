@@ -3158,3 +3158,11 @@
 - Telegram `paper_entry_submitted` was persisted and delivered (`status: sent`, one attempt). The dashboard reads the same persisted order and alert history after authenticated login.
 - Continuous scheduled order submission remains disabled; no additional order was submitted.
 - **Next smallest unit:** monitor this accepted order through the next market session, verify fill/reconciliation and exit-plan handling, then decide whether continuous paper submission should be enabled separately.
+
+### 2026-08-28 — Phase 6.233 post-order reconciliation audit
+
+- Ran the guarded paper reconciliation inside Railway after the handoff.
+- The new order `edcda79a-1c58-4b95-a908-07ca229ca6d8` remains `accepted` with zero filled quantity; no fill should be reported yet.
+- The one-share AAPL position currently visible in Alpaca is tied to a separate earlier filled order, not the new handoff. This prevents false attribution in portfolio history.
+- Telegram alert history still shows the new `paper_entry_submitted` event as `sent`; no additional order was created.
+- **Next smallest unit:** observe the accepted order through the next market session and reconcile its eventual fill/cancellation and position attribution.
