@@ -2757,3 +2757,8 @@
 - Added guarded `exit-plan-backfill`, requiring a bounded operator reference and exact entry/stop/target/strategy metadata for a legacy paper order.
 - The repository refuses to backfill a submission that already has plan metadata, preventing silent overwrites. The reference is retained with the record for audit provenance.
 - No production backfill or broker mutation was performed. The operator must supply the exact legacy entry and exit plan before the AAPL position can be managed automatically.
+
+### 2026-08-27 — Phase 6.175 legacy backfill guard deployed
+
+- Worker deployment `de45fd52-e203-404e-96b1-7007f29aeaa3` reached `SUCCESS`; migration `0015` applied successfully.
+- The explicit legacy backfill command is available in production but was not executed. Existing AAPL metadata remains untouched until exact operator-reviewed plan values are supplied.
