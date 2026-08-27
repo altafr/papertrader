@@ -283,6 +283,11 @@ function AuditTimelineCard({ overview }: { readonly overview: OperatorOverview |
   return <article className="card full-width" id="audit-timeline"><div className="card-heading"><div><p className="label">Audit timeline</p><h2>{events.length ? `${events.length} persisted events` : "No persisted events"}</h2></div><span className="provenance">Read-only unified view</span></div>{events.length === 0 ? <p className="empty-state">No agent, lifecycle, scheduler, execution, or Telegram events are available.</p> : <div className="audit-timeline-list">{events.map((event) => <div className="audit-timeline-row" key={`${value(event, "category")}-${value(event, "reference")}`}><span className="audit-timeline-time">{formatUtc(value(event, "capturedAt"))}</span><strong>{value(event, "title")}</strong><span>{value(event, "detail")}</span><small>{value(event, "category")}</small></div>)}</div>}<p className="provenance">This view combines immutable persisted records for orientation; it does not replace source records or authorize actions.</p></article>;
 }
 
+function TelegramAlertsCard({ overview }: { readonly overview: OperatorOverview | undefined }) {
+  const alerts = overview?.telegramAlerts ?? [];
+  return <article className="card full-width" id="telegram-alerts"><div className="card-heading"><div><p className="label">Telegram delivery</p><h2>{alerts.length ? `${alerts.length} persisted alerts` : "No persisted alerts"}</h2></div><span className="provenance">Delivery provenance</span></div>{alerts.length === 0 ? <p className="empty-state">No Telegram alert events are available in the selected history window.</p> : <div className="responsive-table"><table><thead><tr><th>Occurred</th><th>Code</th><th>Severity</th><th>Delivery</th><th>Attempts</th><th>Message</th></tr></thead><tbody>{alerts.map((alert) => <tr key={value(alert, "eventId")}><th scope="row">{formatUtc(value(alert, "occurredAt"))}</th><td>{value(alert, "code")}</td><td>{value(alert, "severity")}</td><td>{value(alert, "deliveryStatus")}{value(alert, "deliveredAt") ? ` · ${formatUtc(value(alert, "deliveredAt"))}` : ""}</td><td>{value(alert, "attempts")}</td><td className="table-reason">{value(alert, "message")}</td></tr>)}</tbody></table></div>}<p className="provenance">A failed delivery is retried by the server with a bounded attempt ceiling. Alert state never changes order or risk decisions.</p></article>;
+}
+
 function PaperPerformanceCard({ historyFrom, historyTo, performance }: { readonly historyFrom: string | undefined; readonly historyTo: string | undefined; readonly performance: PaperPerformance | undefined }) {
   if (!performance) return <article className="card" id="performance"><p className="label">Performance</p><h2>Unavailable</h2><p>Authenticated performance data is currently unavailable.</p></article>;
   const metrics = performance.metrics;
@@ -390,6 +395,7 @@ export default async function DashboardPage({ searchParams }: { readonly searchP
           <a href="#strategy-lifecycle">Lifecycle</a>
           <a href="#strategy-catalog">Catalog</a>
           <a href="#audit-timeline">Audit</a>
+          <a href="#telegram-alerts">Telegram</a>
           <a href="#performance">Performance</a>
         <a href="#alerts">Alerts</a>
       </nav>
@@ -470,6 +476,8 @@ export default async function DashboardPage({ searchParams }: { readonly searchP
           <StrategyCatalogCard overview={operatorOverview} />
 
           <AuditTimelineCard overview={operatorOverview} />
+
+          <TelegramAlertsCard overview={operatorOverview} />
 
           <OperatorAuditCards historyQuery={historyQuery} overview={operatorOverview} />
 

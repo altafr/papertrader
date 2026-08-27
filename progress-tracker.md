@@ -2803,3 +2803,10 @@
 - Worker startup now performs an immediate retry pass and checks for retryable alert events every 60 seconds when Telegram and PostgreSQL are configured; retry failures remain isolated from trading decisions.
 - Added notifier retry coverage; database/worker typechecks, lint, and Telegram tests pass.
 - **Next smallest unit:** run the explicitly authorized Telegram provider test, then verify the authenticated dashboard and CSV against the deployed API.
+
+### 2026-08-28 — Phase 6.182 Telegram delivery dashboard panel
+
+- Added a dedicated authenticated dashboard panel listing persisted Telegram alerts, severity, delivery status, attempt count, delivery timestamp, and redacted message text.
+- Added a direct Telegram section link and preserved the unified audit timeline as the cross-system view.
+- Verified the web typecheck, lint, and diff checks; no trading or risk behavior changed.
+- **Next smallest unit:** run the explicitly authorized Telegram provider test, then verify the authenticated dashboard and CSV against the deployed API.
