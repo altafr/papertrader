@@ -2869,3 +2869,9 @@
 - Railway Worker deployment `9468bfa3-2d34-4ec3-a0cb-e845467b682e` reached `SUCCESS` from the current branch.
 - The production end-of-session summary now includes equity, cash, buying power, day P/L, unrealized P/L, gross exposure, open positions, and tracked orders.
 - **Next smallest unit:** run the explicitly authorized Telegram provider test, then verify the authenticated dashboard and CSV against the deployed API.
+
+### 2026-08-28 — Phase 6.192 daily summary calculation contract
+
+- Extracted daily portfolio-summary formatting into a pure Worker module using persisted account and position values.
+- Added boundary tests for normal P/L/exposure and unavailable/non-finite metrics; Worker typecheck, lint, focused tests, and diff checks pass.
+- **Next smallest unit:** deploy and verify the Worker, then run the explicitly authorized Telegram provider test and authenticated hosted verification.

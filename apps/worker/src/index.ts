@@ -17,6 +17,7 @@ import { createResearchSchedulerFromEnvironment } from "./research-scheduler-run
 import { reconcileBeforeSchedulerStart } from "./startup-recovery.js";
 import { createPositionManagementSchedulerFromEnvironment } from "./position-management-runtime.js";
 import { createRuntimeAlertNotifier } from "./telegram-events.js";
+import { formatDailyPortfolioSummary } from "./daily-summary.js";
 
 const streamEnabled = process.env.MARKET_STREAM_ENABLED;
 if (streamEnabled !== undefined && streamEnabled !== "true" && streamEnabled !== "false") {
@@ -109,11 +110,7 @@ if (durableConfiguration.enabled) {
       const model = await accountRepository.getLatestReadModel(snapshot.accountId);
       const account = model?.snapshot;
       if (account) {
-        const unrealizedPnl = model?.positions.reduce((sum, position) => sum + Number(position.unrealizedPl), 0);
-        const dayPnl = account.lastEquity === undefined ? undefined : Number(account.equity) - Number(account.lastEquity);
-        const exposure = model?.positions.reduce((sum, position) => sum + Number(position.marketValue), 0);
-        const metric = (value: number | undefined) => value === undefined || !Number.isFinite(value) ? "not reported" : value.toFixed(2);
-        await createRuntimeAlertNotifier(process.env, createTelegramAlertRepository(db)).notify({ code: "daily_portfolio_summary", dedupeKey: `daily_portfolio_summary:${account.capturedAt.toISOString()}`, message: `Market session summary (paper): equity ${account.equity}, cash ${account.cash}, buying power ${account.buyingPower}, day P/L ${metric(dayPnl)}, unrealized P/L ${metric(unrealizedPnl)}, gross exposure ${metric(exposure)}, open positions ${model?.positions.length ?? 0}, tracked orders ${model?.orders.length ?? 0}.`, occurredAt: account.capturedAt.toISOString(), severity: "info" });
+        await createRuntimeAlertNotifier(process.env, createTelegramAlertRepository(db)).notify({ code: "daily_portfolio_summary", dedupeKey: `daily_portfolio_summary:${account.capturedAt.toISOString()}`, message: formatDailyPortfolioSummary({ buyingPower: account.buyingPower, cash: account.cash, equity: account.equity, ...(account.lastEquity == null ? {} : { lastEquity: account.lastEquity }), orders: model?.orders.length ?? 0, positions: model?.positions ?? [] }), occurredAt: account.capturedAt.toISOString(), severity: "info" });
       }
       return { accountSnapshotId: snapshot.id };
     } finally {
