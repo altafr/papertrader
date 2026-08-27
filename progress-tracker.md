@@ -3180,3 +3180,11 @@
 - Alpaca reports the market closed (`nextOpen: 2026-08-28T09:30:00-04:00`); the AAPL day order remains `accepted` with zero fills and is queued for the next session.
 - Account equity remains `99390.29`; no new position was attributed to the pending order during this check.
 - **Next smallest unit:** reconcile after the next market open and verify whether the order fills, expires, or is canceled, then validate position-management and Telegram lifecycle events.
+
+### 2026-08-28 — Phase 6.236 paper-performance report
+
+- Generated the read-only performance report from the Railway Worker after reconciliation.
+- Persisted history contains 100 snapshots across 1 calendar day; current equity is `99390.29`, total P/L is `0.16`, and maximum drawdown is `0.00026160%`.
+- Performance metrics are available, while stability remains blocked until the required 30 consecutive calendar days are observed (`minimum_30_consecutive_calendar_days_not_met`).
+- No order or configuration state changed.
+- **Next smallest unit:** continue daily snapshots and monitor the pending AAPL order through the next active market window.
