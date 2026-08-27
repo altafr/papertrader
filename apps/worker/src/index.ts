@@ -109,7 +109,11 @@ if (durableConfiguration.enabled) {
       const model = await accountRepository.getLatestReadModel(snapshot.accountId);
       const account = model?.snapshot;
       if (account) {
-        await createRuntimeAlertNotifier(process.env, createTelegramAlertRepository(db)).notify({ code: "daily_portfolio_summary", dedupeKey: `daily_portfolio_summary:${account.capturedAt.toISOString()}`, message: `Market session summary (paper): equity ${account.equity}, cash ${account.cash}, buying power ${account.buyingPower}, open positions ${model?.positions.length ?? 0}, tracked orders ${model?.orders.length ?? 0}.`, occurredAt: account.capturedAt.toISOString(), severity: "info" });
+        const unrealizedPnl = model?.positions.reduce((sum, position) => sum + Number(position.unrealizedPl), 0);
+        const dayPnl = account.lastEquity === undefined ? undefined : Number(account.equity) - Number(account.lastEquity);
+        const exposure = model?.positions.reduce((sum, position) => sum + Number(position.marketValue), 0);
+        const metric = (value: number | undefined) => value === undefined || !Number.isFinite(value) ? "not reported" : value.toFixed(2);
+        await createRuntimeAlertNotifier(process.env, createTelegramAlertRepository(db)).notify({ code: "daily_portfolio_summary", dedupeKey: `daily_portfolio_summary:${account.capturedAt.toISOString()}`, message: `Market session summary (paper): equity ${account.equity}, cash ${account.cash}, buying power ${account.buyingPower}, day P/L ${metric(dayPnl)}, unrealized P/L ${metric(unrealizedPnl)}, gross exposure ${metric(exposure)}, open positions ${model?.positions.length ?? 0}, tracked orders ${model?.orders.length ?? 0}.`, occurredAt: account.capturedAt.toISOString(), severity: "info" });
       }
       return { accountSnapshotId: snapshot.id };
     } finally {

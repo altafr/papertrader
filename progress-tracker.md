@@ -2856,3 +2856,10 @@
 - Railway Worker deployment `24bceb5e-69f6-4f16-9c06-3b4071b0b0e8` reached `SUCCESS` from the current branch.
 - Scheduler runtime and startup-failure alerts now run through the durable Telegram outbox in production.
 - **Next smallest unit:** run the explicitly authorized Telegram provider test, then verify the authenticated dashboard and CSV against the deployed API.
+
+### 2026-08-28 — Phase 6.190 richer daily Telegram portfolio summary
+
+- Extended the end-of-session Telegram summary with day P/L, unrealized P/L, and gross exposure, while retaining equity, cash, buying power, open positions, and tracked orders.
+- Values are derived from the persisted reconciliation snapshot and positions; unavailable/non-finite values are reported as `not reported`.
+- Worker typecheck, lint, focused Telegram tests, and diff checks pass.
+- **Next smallest unit:** deploy and verify the Worker, then run the explicitly authorized Telegram provider test and authenticated hosted verification.
