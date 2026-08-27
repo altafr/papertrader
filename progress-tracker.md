@@ -3135,3 +3135,10 @@
 - Confirmed the protected operations endpoint returns `401 unauthorized` without an operator token, preserving the authentication boundary.
 - No secrets were requested or printed; no Railway variables or broker state changed.
 - **Next smallest unit:** run the bounded paper order from inside a Railway runtime with explicit operator authorization, then verify Alpaca reconciliation, Telegram delivery, and dashboard history.
+
+### 2026-08-28 — Phase 6.229 Worker observability endpoint
+
+- Added a Railway service domain for the Worker: `https://worker-production-b362.up.railway.app`.
+- Verified the live Worker `/health` response: `healthy`, Paper Autopilot active, research scheduler scheduled, position management ready, Telegram enabled, and paper order submission disabled.
+- Railway auto-detected the Worker port; the endpoint is now independently monitorable without exposing credentials or execution controls.
+- **Next smallest unit:** run the bounded paper order from inside this healthy Railway Worker with explicit operator authorization, then verify Alpaca reconciliation, Telegram delivery, and dashboard history.
