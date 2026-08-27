@@ -25,7 +25,16 @@ const persistence = { ...repository, enqueue: (run: AgentRunRequest) => reposito
 let stage: "market_input" | "research_execution" = "market_input";
 try {
   const reader = createPaperMarketDataReader({ apiKey: process.env.ALPACA_API_KEY ?? "", secretKey: process.env.ALPACA_SECRET_KEY ?? "" });
-  const input = await createAlpacaResearchInputSource(reader).read({ assetClass, limit, maxCandidates, symbols, timeframe });
+  let input: ResearchAgentInput;
+  try {
+    input = await createAlpacaResearchInputSource(reader).read({ assetClass, limit, maxCandidates, symbols, timeframe });
+  } catch (error: unknown) {
+    // Alpaca may expose only one daily bar for a newly opened paper feed. A
+    // bounded hourly retry preserves the two-bar research invariant without
+    // weakening validation or changing the persistent scheduler settings.
+    if (timeframe !== "1Day" || !(error instanceof Error) || !error.message.includes("fewer than 2 bars")) throw error;
+    input = await createAlpacaResearchInputSource(reader).read({ assetClass, limit, maxCandidates, symbols, timeframe: "1Hour" });
+  }
   const request: AgentRunRequest = { agentType, createdAt: new Date().toISOString(), inputRefs: getResearchMarketInputRefs(assetClass, input.capturedAt, approval.reference), promptVersion: "research-market-boundary@1", runId: `research-market-${Date.now()}`, task: `Read and rank ${assetClass} market bars once.` };
   const handler = agentType === "stock_research" ? createStockResearchAgent(input as ResearchAgentInput & { assetClass: "us_equity" }) : createCryptoResearchAgent(input as ResearchAgentInput & { assetClass: "crypto" });
   stage = "research_execution";
