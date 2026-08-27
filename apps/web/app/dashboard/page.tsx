@@ -155,7 +155,8 @@ function riskDecisionSummary(row: Record<string, unknown>) {
   const loss = value(risk, "estimatedLoss");
   const percent = value(risk, "estimatedLossPercent");
   const policy = value(risk, "policyVersion");
-  return [loss !== "—" ? `loss ${loss}` : "", percent !== "—" ? `${percent}% invested value` : "", policy !== "—" ? policy : ""].filter(Boolean).join(" · ") || "Structured risk decision recorded";
+  const reasons = Array.isArray(risk.reasons) ? risk.reasons.filter((reason): reason is string => typeof reason === "string").join("; ") : "";
+  return [loss !== "—" ? `loss ${loss}` : "", percent !== "—" ? `${percent}% invested value` : "", policy !== "—" ? policy : "", reasons].filter(Boolean).join(" · ") || "Structured risk decision recorded";
 }
 
 function StatusBadge({ state }: { readonly state: "degraded" | "delayed" | "fresh" | "stale" }) {

@@ -3004,3 +3004,10 @@
 - Ran the risk cycle with the same bounded reference. It persisted one deterministic decision for `BTC/USD` as `rejected`; no Alpaca order submission was attempted.
 - This confirms the scheduled research-to-risk path fails closed on a real hosted paper account and leaves auditable decision evidence for dashboard/Telegram history.
 - **Next smallest unit:** expose the persisted risk-cycle decision reason in the authenticated operator view, then implement the separately gated broker-submission handoff.
+
+### 2026-08-28 — Phase 6.212 risk-decision reason visibility
+
+- The dashboard execution-decision table now renders persisted deterministic risk reasons alongside estimated loss, invested-notional percentage, and policy version.
+- Rejected and approved scheduled risk decisions therefore expose why the gate passed or failed without exposing private model reasoning or adding order authority to the UI.
+- Web production build, web typecheck, and web lint passed.
+- **Next smallest unit:** verify the hosted authenticated view contains the `BTC/USD` rejection and reason, then implement the separately gated broker-submission handoff.
