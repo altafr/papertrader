@@ -3088,4 +3088,5 @@
 - Worker readiness now distinguishes `blocked`, `dry_run`, and `enabled` execution status; missing or malformed references fail closed.
 - Worker health exposes only redacted presence booleans, never the reference or credentials.
 - Verification: targeted readiness/app health tests (12 passed), Worker typecheck, and lint passed.
+- Railway Worker deployment `166b15e5-235d-45fd-b32e-c73678085b5f` reached `SUCCESS`; persistent submission remains disabled.
 - **Next smallest unit:** run the no-write preflight with the activation reference, then execute one bounded paper order only with explicit operator authorization.
