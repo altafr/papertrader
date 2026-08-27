@@ -2781,3 +2781,11 @@
 - Railway Worker deployment `34b90424-d36b-4ab3-a471-a4677be63c60` reached `SUCCESS`. Hosted health confirms `paper_autopilot`, position-management `enabled:true`, readiness `ready`, and a completed recurring pass; no exit was triggered during the observed pass.
 - Added centralized redacted Telegram event notifications for research recommendations, paper entries and failures, managed positions, deterministic exit reasons, position-management failures, and daily portfolio summaries after reconciliation. Telegram configuration is ready; provider delivery remains separately `unverified` until an explicitly authorized channel test is recorded.
 - **Next smallest unit:** run the authorized Telegram delivery test, then add durable alert-delivery provenance/deduplication and expose the new event categories in the dashboard timeline.
+
+### 2026-08-28 — Phase 6.179 durable Telegram alert provenance
+
+- Added migration `0016_telegram_alert_events.sql` and a PostgreSQL repository for deduplicated alert events with `pending`, `sent`, and `failed` delivery states, attempt counts, and redacted error codes.
+- Updated Worker lifecycle notifications to persist before delivery and await completion at database-owning boundaries, eliminating a shutdown race that could lose events. Duplicate events with the same key are skipped safely.
+- Railway migration `0016` applied successfully. Worker deployment `3968606f-537f-4f6c-9095-0ed789080af0` reached `SUCCESS`; hosted health remains healthy with position management enabled and Telegram configured.
+- Read-only production verification found `daily_portfolio_summary` and `position_detected` events persisted with status `sent` and one attempt each. Provider delivery verification remains separately gated by the explicit Telegram test reference.
+- **Next smallest unit:** add the persisted alert events to the authenticated operator-overview timeline, then run the explicitly authorized Telegram channel test.
