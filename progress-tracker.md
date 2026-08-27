@@ -3149,3 +3149,12 @@
 - Position management reports `ready` with a 60-second interval; Telegram alerts are enabled and ready.
 - Confirmed `paperAutopilotOrderSubmissionEnabled:false`; no broker write path is active.
 - **Next smallest unit:** run the bounded paper order from inside this healthy Railway Worker with explicit operator authorization, then verify Alpaca reconciliation, Telegram delivery, and dashboard history.
+
+### 2026-08-28 — Phase 6.232 bounded paper-order verification
+
+- Used operator reference `PAPER-ORDER-ACTIVATE-001` to run one AAPL research-to-order handoff inside the Railway Worker, with quantity `1` and command-scoped submission enabled only for that run.
+- Research completed as `research-market-1787871000382`; deterministic risk approval passed and Alpaca accepted order `edcda79a-1c58-4b95-a908-07ca229ca6d8`.
+- PostgreSQL reconciliation persisted the order as `accepted`, quantity `1.00000000`, filled quantity `0.00000000`; the order remains open for broker fill processing.
+- Telegram `paper_entry_submitted` was persisted and delivered (`status: sent`, one attempt). The dashboard reads the same persisted order and alert history after authenticated login.
+- Continuous scheduled order submission remains disabled; no additional order was submitted.
+- **Next smallest unit:** monitor this accepted order through the next market session, verify fill/reconciliation and exit-plan handling, then decide whether continuous paper submission should be enabled separately.
