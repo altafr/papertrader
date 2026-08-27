@@ -2972,3 +2972,9 @@
 - Railway Worker deployment `8a42004a-aeca-4e36-b7c9-9c7b7ff485f9` reached `SUCCESS` from the current branch.
 - Production now records supervised market-stream disconnect and processing-failure alerts when streaming is explicitly enabled; the current production stream flag remains off.
 - **Next smallest unit:** configure an operator-approved bounded Telegram test reference, run the provider test, and verify the authenticated dashboard/CSV.
+
+### 2026-08-28 — Phase 6.208 post-deployment runtime check
+
+- Latest Railway Worker logs show healthy paper mode, broker/database configured, position management `running`, research schedule `ready`, Telegram alerts `ready`, and durable scheduler start result `started=true` with `status=scheduled`.
+- Telegram provider test remains blocked only by its missing approval reference; no provider request was made during this check.
+- **Next smallest unit:** configure an operator-approved bounded reference, run the provider test, and verify the authenticated dashboard/CSV.
