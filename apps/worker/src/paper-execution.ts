@@ -20,7 +20,7 @@ export async function executePaperAutopilotOrder(input: {
   readonly order: PaperOrderSubmissionRequest;
   readonly persistence: PaperSubmissionPersistence;
   readonly submitter: PaperOrderSubmitter;
-  readonly notify?: (alert: { readonly code: string; readonly message: string; readonly severity: "critical" | "info" | "warning" }) => void;
+  readonly notify?: (alert: { readonly code: string; readonly message: string; readonly severity: "critical" | "info" | "warning" }) => Promise<void> | void;
 }): Promise<PaperExecutionResult> {
   const mode = input.autopilot ?? getPaperAutopilotConfig();
   if (!mode.enabled || mode.mode !== "paper_autopilot") throw new Error("Paper Autopilot mode is disabled.");
@@ -32,11 +32,11 @@ export async function executePaperAutopilotOrder(input: {
     const brokerOrder = await input.submitter.submit(input.order);
     const recovery = reconcilePaperOrder({ brokerClientOrderId: brokerOrder.clientOrderId, brokerStatus: brokerOrder.status, expectedClientOrderId: input.order.clientOrderId, expectedQuantity: input.order.quantity, ...(brokerOrder.filledQuantity ? { filledQuantity: brokerOrder.filledQuantity } : {}) });
     await input.persistence.reconcile({ alpacaOrderId: brokerOrder.alpacaOrderId, ...(recovery.filledQuantity ? { filledQuantity: recovery.filledQuantity } : {}), intentId, status: recovery.status, ...(brokerOrder.submittedAt ? { submittedAt: new Date(brokerOrder.submittedAt) } : {}), ...(brokerOrder.updatedAt ? { updatedAt: new Date(brokerOrder.updatedAt) } : {}) });
-    input.notify?.({ code: "paper_entry_submitted", message: `Paper entry submitted and reconciled: ${input.order.symbol} (${input.order.quantity}). Status: ${recovery.status}.`, severity: "info" });
+    await input.notify?.({ code: "paper_entry_submitted", message: `Paper entry submitted and reconciled: ${input.order.symbol} (${input.order.quantity}). Status: ${recovery.status}.`, severity: "info" });
     return { brokerOrder, intentId, status: "reconciled" };
   } catch (error) {
     await input.persistence.markFailed(intentId);
-    input.notify?.({ code: "paper_entry_failed", message: `Paper entry failed closed for ${input.order.symbol}; broker state requires reconciliation before retry.`, severity: "critical" });
+    await input.notify?.({ code: "paper_entry_failed", message: `Paper entry failed closed for ${input.order.symbol}; broker state requires reconciliation before retry.`, severity: "critical" });
     throw error;
   }
 }

@@ -7,7 +7,7 @@ let lastError: string | undefined;
 export function getPositionManagementHealth() { return { lastError, lastRunAt, status }; }
 
 /** Schedule deterministic position-management passes without overlapping broker operations. */
-export function createPositionManagementScheduler(input: { readonly intervalSeconds: number; readonly run: () => Promise<void>; readonly onFailure?: (error: unknown) => void }) {
+export function createPositionManagementScheduler(input: { readonly intervalSeconds: number; readonly run: () => Promise<void>; readonly onFailure?: (error: unknown) => Promise<void> | void }) {
   if (!Number.isSafeInteger(input.intervalSeconds) || input.intervalSeconds < 30 || input.intervalSeconds > 86_400) throw new Error("Position-management interval must be between 30 and 86400 seconds.");
   let timer: ReturnType<typeof setTimeout> | undefined;
   let stopped = true;
@@ -17,7 +17,7 @@ export function createPositionManagementScheduler(input: { readonly intervalSeco
     if (stopped || running) return;
     running = true; status = "running";
     try { await input.run(); lastRunAt = new Date().toISOString(); lastError = undefined; status = "ready"; }
-    catch (error) { lastError = error instanceof Error ? error.message : "position_management_failed"; status = "degraded"; input.onFailure?.(error); }
+    catch (error) { lastError = error instanceof Error ? error.message : "position_management_failed"; status = "degraded"; await input.onFailure?.(error); }
     finally { running = false; }
   };
   return {

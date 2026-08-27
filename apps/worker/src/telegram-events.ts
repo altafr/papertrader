@@ -13,9 +13,9 @@ export function createRuntimeAlertNotifier(environment: NodeJS.ProcessEnv = proc
   const config = getTelegramNotificationConfig(environment);
   return {
     config,
-    notify(alert: RuntimeAlert): void {
+    notify(alert: RuntimeAlert): Promise<void> {
       const occurredAt = alert.occurredAt ?? new Date().toISOString();
-      void (async () => {
+      return (async () => {
         const event = persistence ? await persistence.enqueue({ code: alert.code, dedupeKey: alert.dedupeKey ?? `${alert.code}:${alert.message}`, message: alert.message, occurredAt: new Date(occurredAt), severity: alert.severity }) : undefined;
         if (persistence && !event) return;
         try {

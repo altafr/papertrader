@@ -102,7 +102,7 @@ export function createResearchPreparationQueueHandler(input: {
   readonly environment?: NodeJS.ProcessEnv;
   readonly persistence: ResearchRunPersistence;
   readonly source: ResearchPreparationSource;
-  readonly notify?: (alert: { readonly code: string; readonly message: string; readonly severity: "critical" | "info" | "warning" }) => void;
+  readonly notify?: (alert: { readonly code: string; readonly message: string; readonly severity: "critical" | "info" | "warning" }) => Promise<void> | void;
 }) {
   const environment = input.environment ?? process.env;
   return async (job: ResearchPreparationJob): Promise<readonly ResearchPreparationResult[]> => {
@@ -115,10 +115,10 @@ export function createResearchPreparationQueueHandler(input: {
       try {
         const result = await executeResearchPreparation({ ...(input.clock ? { clock: input.clock } : {}), persistence: input.persistence, preparation, source: input.source });
         results.push(result);
-        input.notify?.({ code: "research_recommendations", message: `${result.agentType} produced ${result.recommendationSymbols?.length ?? 0} recommendation(s): ${(result.recommendationSymbols ?? []).join(", ") || "none"}.`, severity: "info" });
+        await input.notify?.({ code: "research_recommendations", message: `${result.agentType} produced ${result.recommendationSymbols?.length ?? 0} recommendation(s): ${(result.recommendationSymbols ?? []).join(", ") || "none"}.`, severity: "info" });
       } catch {
         results.push({ agentType: preparation.agentType, runId: `research-preparation-${preparation.agentType}-failed-${Date.now()}`, status: "failed" });
-        input.notify?.({ code: "research_preparation_failed", message: `${preparation.agentType} research preparation failed closed; no trade was proposed from this run.`, severity: "critical" });
+        await input.notify?.({ code: "research_preparation_failed", message: `${preparation.agentType} research preparation failed closed; no trade was proposed from this run.`, severity: "critical" });
       }
     }
     if (results.every((result) => result.status === "failed")) throw new Error("All research preparation plans failed.");

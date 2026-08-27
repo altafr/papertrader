@@ -68,7 +68,7 @@ export async function runPositionManagementCycle(environment: NodeJS.ProcessEnv 
     for (const symbol of symbols) {
       if (alertedPositionKeys.has(symbol)) continue;
       alertedPositionKeys.add(symbol);
-      notifier.notify({ code: "position_detected", message: `Managed paper position detected: ${symbol}. Exit plan is active and being monitored.`, severity: "info" });
+      await notifier.notify({ code: "position_detected", message: `Managed paper position detected: ${symbol}. Exit plan is active and being monitored.`, severity: "info" });
     }
     const marks = await createPaperMarketDataReader({ apiKey, secretKey }).readSnapshots({ assetClass: "us_equity", symbols });
     const managed = positions.flatMap((position) => {
@@ -81,9 +81,9 @@ export async function runPositionManagementCycle(environment: NodeJS.ProcessEnv 
     const result = await runPaperPositionManagementOnce({ now: new Date().toISOString(), positions: managed, submitter: createPaperExitOrderSubmitter({ apiKey, brokerConnectionEnabled: true, secretKey }) });
     for (const decision of result.decisions) {
       if (!decision.shouldExit || !decision.reason) continue;
-      notifier.notify({ code: "position_exit_decision", message: `${decision.symbol} exit decision: ${decision.reason} at mark ${decision.exitPrice}. This was triggered by the stored deterministic exit plan.`, severity: decision.reason === "stop_loss" ? "critical" : "info" });
+      await notifier.notify({ code: "position_exit_decision", message: `${decision.symbol} exit decision: ${decision.reason} at mark ${decision.exitPrice}. This was triggered by the stored deterministic exit plan.`, severity: decision.reason === "stop_loss" ? "critical" : "info" });
     }
-    if (result.submitted > 0) notifier.notify({ code: "paper_exit_submitted", message: `Deterministic paper exit submitted for ${result.submitted} managed position(s). Broker reconciliation will confirm final status.`, severity: "warning" });
+    if (result.submitted > 0) await notifier.notify({ code: "paper_exit_submitted", message: `Deterministic paper exit submitted for ${result.submitted} managed position(s). Broker reconciliation will confirm final status.`, severity: "warning" });
     return { managed: managed.length, submitted: result.submitted };
   } finally {
     await pool.end();

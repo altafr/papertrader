@@ -9,7 +9,7 @@ describe("paper execution wiring", () => {
     const events: string[] = [];
     const alerts: string[] = [];
     let recordedRisk: unknown;
-    const result = await executePaperAutopilotOrder({ autopilot: mode, order, notify: (alert) => alerts.push(alert.code), persistence: { recordSubmission: async (input) => { recordedRisk = input.riskDecision; events.push("pending"); }, reconcile: async () => { events.push("reconcile"); }, markFailed: async () => { events.push("failed"); } }, submitter: { submit: async () => ({ alpacaOrderId: "alpaca-1", assetClass: "us_equity", clientOrderId: order.clientOrderId, quantity: order.quantity, status: "accepted", symbol: order.symbol, type: "market" }) } });
+    const result = await executePaperAutopilotOrder({ autopilot: mode, order, notify: (alert) => { alerts.push(alert.code); }, persistence: { recordSubmission: async (input) => { recordedRisk = input.riskDecision; events.push("pending"); }, reconcile: async () => { events.push("reconcile"); }, markFailed: async () => { events.push("failed"); } }, submitter: { submit: async () => ({ alpacaOrderId: "alpaca-1", assetClass: "us_equity", clientOrderId: order.clientOrderId, quantity: order.quantity, status: "accepted", symbol: order.symbol, type: "market" }) } });
     expect(result).toMatchObject({ intentId: "intent-1", status: "reconciled" }); expect(events).toEqual(["pending", "reconcile"]);
     expect(recordedRisk).toEqual(order.approval.riskDecision);
     expect(alerts).toEqual(["paper_entry_submitted"]);
