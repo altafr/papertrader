@@ -3051,3 +3051,11 @@
 - Verification: targeted gate tests (9 passed), Worker typecheck, and lint passed.
 - Railway Worker deployment `1db2b20e-e9f5-4ffa-ae99-69955d7ddf10` reached `SUCCESS`; production submission remains disabled.
 - **Next smallest unit:** obtain an operator-approved activation reference and run one bounded paper order through the now-unified gate.
+
+### 2026-08-28 — Phase 6.218 no-write execution preflight
+
+- Extended `paper-order-preflight` to report the explicit submission-gate state and bounded reasons for any remaining blocker.
+- A preflight is `ready` only when baseline, persisted research, fresh market data, and `PAPER_AUTOPILOT_ORDER_SUBMISSION_ENABLED=true` are all present; the command itself has no order authority.
+- Updated the activation runbook with the preflight contract and no-write guarantee.
+- Verification: 283 tests passed, Worker typecheck and lint passed.
+- **Next smallest unit:** obtain an operator-approved activation reference, run the preflight in Railway, and only then decide whether to submit one bounded paper order.

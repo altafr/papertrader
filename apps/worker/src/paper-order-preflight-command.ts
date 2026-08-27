@@ -10,6 +10,8 @@ if (!runtime.brokerConnectionEnabled || !process.env.DATABASE_URL?.trim()) throw
 if (!process.env.ALPACA_API_KEY?.trim() || !process.env.ALPACA_SECRET_KEY?.trim()) throw new Error("PAPER_ORDER_PREFLIGHT requires paper credentials.");
 
 const symbol = (process.env.PAPER_ORDER_SYMBOL ?? "AAPL").trim().toUpperCase();
+const orderSubmissionFlag = process.env.PAPER_AUTOPILOT_ORDER_SUBMISSION_ENABLED;
+if (orderSubmissionFlag !== undefined && orderSubmissionFlag !== "true" && orderSubmissionFlag !== "false") throw new Error("PAPER_AUTOPILOT_ORDER_SUBMISSION_ENABLED must be exactly true or false.");
 const { db, pool } = createDatabase();
 try {
   const accountRepository = createAccountStateRepository(db);
@@ -32,8 +34,14 @@ try {
     snapshotFallbackAvailable = false;
   }
   const baselineReady = Boolean(confirmation) || currentBaseline === "within_tolerance" || initialBaseline === "within_tolerance";
-  const status = baselineReady && Boolean(research) && snapshotFallbackAvailable ? "ready" : "blocked";
-  console.log(JSON.stringify({ baseline: { current: currentBaseline, initial: initialBaseline }, research: { candidateCount, runId: research?.runId ?? null, status: research?.status ?? "unavailable" }, snapshotFallbackAvailable, status, symbol }));
+  const blockedReasons = [
+    ...(baselineReady ? [] : ["paper_baseline_not_verified"]),
+    ...(research ? [] : ["research_artifact_unavailable"]),
+    ...(snapshotFallbackAvailable ? [] : ["fresh_market_snapshot_unavailable"]),
+    ...(orderSubmissionFlag === "true" ? [] : ["paper_order_submission_gate_disabled"]),
+  ];
+  const status = blockedReasons.length === 0 ? "ready" : "blocked";
+  console.log(JSON.stringify({ baseline: { current: currentBaseline, initial: initialBaseline }, blockedReasons, orderSubmissionEnabled: orderSubmissionFlag === "true", research: { candidateCount, runId: research?.runId ?? null, status: research?.status ?? "unavailable" }, snapshotFallbackAvailable, status, symbol }));
 } finally {
   await pool.end();
 }

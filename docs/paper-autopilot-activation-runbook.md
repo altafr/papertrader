@@ -36,6 +36,8 @@ Require `status:"ready"`, a fresh reconciliation, `globalKillSwitchActive:false`
 
 After the dry-run evidence is reviewed, enable `PAPER_AUTOPILOT_ORDER_SUBMISSION_ENABLED=true` only for the controlled execution check. Use a single-share quantity and a fresh research run, then verify the persisted client order ID, Alpaca order status, immediate reconciliation, and Telegram entry/reconciliation alerts. Disable the flag again after the check if continuous scheduled order submission is not yet approved. The scheduled path never treats an approved risk decision as broker authority while this flag is off.
 
+The no-write `paper-order-preflight` command reports `paper_order_submission_gate_disabled` until this flag is set. A `ready` preflight requires the paper baseline, a persisted research artifact, a fresh market snapshot, and the explicit submission gate; it never submits an order itself.
+
 ## Rollback
 
 Set `PAPER_AUTOPILOT_ORDER_SUBMISSION_ENABLED=false`, `PAPER_AUTOPILOT_ENABLED=false`, and `OPERATING_MODE=observe`, restart the Worker, and verify the scheduler/health state. If the kill switch or freshness gate blocks execution, do not override it; investigate and preserve the audit trail.
