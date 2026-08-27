@@ -8,6 +8,10 @@
 
 The target architecture is a continuously running server-side system. Railway's persistent Worker owns the durable orchestration loop while specialist research, macro, strategy, risk-explanation, execution, reconciliation, position-management, and monitoring agents communicate through persisted, versioned artifacts. The dashboard is an observer/control surface and must not be required for operation. Portfolio-profit optimization is measured as risk-adjusted performance improvement inside the deterministic paper-risk policy; it never overrides freshness checks, exposure limits, exit plans, kill switches, or paper/live mode gates.
 
+### Telegram event contract
+
+The Worker emits redacted operational events for recommendation outputs, entry submission/reconciliation, managed-position detection, deterministic exit decisions, failed-closed runs, and end-of-session portfolio summaries. Formatting and delivery are centralized in the notification package; provider failures are swallowed after recording degraded delivery state so alerting cannot affect broker calls, risk outcomes, or scheduler control flow.
+
 ### Guarded paper end-to-end evidence run (2026-08-26)
 
 - Added `paper-e2e-run-once`, which composes one paper-account reconciliation and one bounded market-research agent run so the operator can verify the complete read → persist → dashboard path quickly.

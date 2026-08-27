@@ -96,6 +96,10 @@ In Paper Autopilot, “no approval required” means no operator confirmation is
 4. The system records the actor, time, reason, requested action, Alpaca responses, and final reconciled state.
 5. Resuming requires re-authentication and a health/risk checklist.
 
+### Telegram operational reporting
+
+When Telegram alerts are enabled, the server sends redacted, real-time notifications for research recommendations (including concise evidence), paper entries and their risk/strategy context, detected managed positions, deterministic exits and their trigger reason, reconciliation or scheduler failures, and a portfolio summary after each market-session close. Delivery is best-effort and independently monitored; a Telegram outage never changes an order decision or safety-gate result.
+
 ## Strategy Plug-In Contract
 
 Every strategy must provide:

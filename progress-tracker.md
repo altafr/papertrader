@@ -2774,3 +2774,10 @@
 - Read-only database verification confirms the immutable exit metadata and reference are persisted. The guarded position-management pass evaluated AAPL at mark `314.66`, returned `shouldExit:false`, and submitted zero sell orders.
 - Updated the authoritative product and architecture documents to state that the intended system is self-running and always-on on the server, with coordinated specialist agents optimizing measured risk-adjusted performance while deterministic safety gates remain mandatory.
 - **Next smallest unit:** wire the recurring position-management scheduler into Worker startup, expose its last-run/next-run health, and verify restart/idempotency behavior before relying on it for unattended paper exits.
+
+### 2026-08-27 — Phase 6.178 continuous position management and Telegram lifecycle alerts
+
+- Wired the guarded position-management scheduler into Worker startup with a 60-second interval. It reconciles broker truth, reads persisted exit plans, evaluates deterministic stop/target/time-stop rules, and submits only idempotent paper exits.
+- Railway Worker deployment `34b90424-d36b-4ab3-a471-a4677be63c60` reached `SUCCESS`. Hosted health confirms `paper_autopilot`, position-management `enabled:true`, readiness `ready`, and a completed recurring pass; no exit was triggered during the observed pass.
+- Added centralized redacted Telegram event notifications for research recommendations, paper entries and failures, managed positions, deterministic exit reasons, position-management failures, and daily portfolio summaries after reconciliation. Telegram configuration is ready; provider delivery remains separately `unverified` until an explicitly authorized channel test is recorded.
+- **Next smallest unit:** run the authorized Telegram delivery test, then add durable alert-delivery provenance/deduplication and expose the new event categories in the dashboard timeline.
