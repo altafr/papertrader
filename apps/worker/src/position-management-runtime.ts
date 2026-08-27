@@ -90,11 +90,18 @@ export async function runPositionManagementCycle(environment: NodeJS.ProcessEnv 
     await reconcilePaperAccount(createPaperAccountReader({ apiKey, secretKey }), accountRepository);
     const model = await accountRepository.getLatestReadModel();
     const notifier = createRuntimeAlertNotifier(environment, createTelegramAlertRepository(db));
+    const orderRepository = createPaperOrderRepository(db);
+    const brokerOrdersByClientId = new Map((model?.orders ?? []).filter((order) => order.clientOrderId).map((order) => [order.clientOrderId!, order]));
+    for (const submission of await orderRepository.listRecent()) {
+      if (!submission.clientOrderId) continue;
+      const brokerOrder = brokerOrdersByClientId.get(submission.clientOrderId);
+      if (!brokerOrder || (submission.alpacaOrderId === brokerOrder.alpacaOrderId && submission.status === brokerOrder.status && submission.filledQuantity === brokerOrder.filledQuantity)) continue;
+      await orderRepository.reconcile({ alpacaOrderId: brokerOrder.alpacaOrderId, ...(brokerOrder.filledQuantity ? { filledQuantity: brokerOrder.filledQuantity } : {}), intentId: submission.intentId, status: brokerOrder.status, ...(brokerOrder.submittedAt ? { submittedAt: brokerOrder.submittedAt } : {}), ...(brokerOrder.updatedAt ? { updatedAt: brokerOrder.updatedAt } : {}) });
+    }
     for (const transition of getPaperOrderStatusTransitions(beforeModel?.orders ?? [], model?.orders ?? [])) {
       const terminal = ["filled", "canceled", "expired", "rejected"].includes(transition.status.toLowerCase());
       await notifier.notify({ code: "paper_order_status_changed", dedupeKey: `paper_order_status_changed:${transition.alpacaOrderId}:${transition.status}`, message: `Paper order status changed: ${transition.symbol} ${transition.from} → ${transition.status}.`, severity: terminal && transition.status.toLowerCase() !== "filled" ? "warning" : "info" });
     }
-    const orderRepository = createPaperOrderRepository(db);
     const rows = await orderRepository.listExitPlans();
     const plans = new Map(rows.filter((row) => row.alpacaOrderId && row.entryPrice && row.plannedStopPrice && row.strategyKey && row.strategyVersion).map((row) => [`${row.assetClass}:${row.symbol}`, row]));
     const positions = model?.positions ?? [];

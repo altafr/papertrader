@@ -566,6 +566,10 @@ export function createPaperOrderRepository(db: Database) {
       return row;
     },
 
+    async listRecent(limit = 500) {
+      return db.select().from(paperOrderSubmissions).orderBy(desc(paperOrderSubmissions.createdAt)).limit(limit);
+    },
+
     async listExitPlans() {
       // Exit-plan metadata is shared by equities and crypto.  Filtering this
       // read to equities would silently leave crypto positions unmanaged.

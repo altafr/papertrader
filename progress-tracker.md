@@ -3271,3 +3271,10 @@
 - The query remains asset-class agnostic, so older open equity or crypto positions cannot be silently dropped as order history grows.
 - Verification: 288 tests across 77 files passed; Worker and database TypeScript checks plus lint passed; Railway deployment `aef2ad2b-f25f-4c2e-9d8e-2e27f047a964` reached `SUCCESS`; live Worker health remains `healthy` and position management `ready`.
 - **Next smallest unit:** verify persisted exit records and terminal status alerts when a managed position reaches an exit threshold during an active paper session.
+
+### 2026-08-28 — Phase 6.248 broker-to-ledger status synchronization
+
+- Each position-management reconciliation now matches persisted submissions to broker orders by client order ID and updates the durable submission ledger when status, fill quantity, or broker ID changes.
+- This keeps entry and deterministic-exit history aligned with Alpaca after fills, cancellations, expirations, or Worker restarts; unmatched broker orders are ignored safely.
+- Verification: 288 tests across 77 files passed; Worker/database TypeScript checks and lint passed; Railway Worker deployment `2b9e7175-f625-47ae-8676-da797c2c3b8c` reached `SUCCESS`; live Worker health remains `healthy` and position management `ready`.
+- **Next smallest unit:** verify a terminal broker transition updates the persisted ledger and emits the deduplicated Telegram status alert during an active paper session.
