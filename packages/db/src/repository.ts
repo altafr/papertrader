@@ -1,4 +1,4 @@
-import { and, asc, desc, eq } from "drizzle-orm";
+import { and, asc, desc, eq, sql } from "drizzle-orm";
 
 import type { Database } from "./client.js";
 import { accountSnapshots, activities, agentRuns, durableOneRunAudits, durableScheduleRuns, orders, paperBaselineConfirmations, paperOrderSubmissions, positions, shadowObservationOutcomes, shadowObservations, strategyLifecycleEvents, strategyPaperEvidence } from "./schema.js";
@@ -280,12 +280,12 @@ export function createAccountStateRepository(db: Database) {
             .onConflictDoUpdate({
               target: orders.alpacaOrderId,
               set: {
-                clientOrderId: orders.clientOrderId,
-                filledQuantity: orders.filledQuantity,
-                quantity: orders.quantity,
-                status: orders.status,
-                submittedAt: orders.submittedAt,
-                updatedAt: orders.updatedAt,
+                clientOrderId: sql`excluded.client_order_id`,
+                filledQuantity: sql`excluded.filled_quantity`,
+                quantity: sql`excluded.quantity`,
+                status: sql`excluded.status`,
+                submittedAt: sql`excluded.submitted_at`,
+                updatedAt: sql`excluded.updated_at`,
               },
             });
         }
