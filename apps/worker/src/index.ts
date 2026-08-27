@@ -3,7 +3,7 @@ import { createServer } from "node:http";
 import { createPaperAccountReader, createPaperMarketDataReader } from "@momentum/alpaca";
 import { getPaperAutopilotConfig, getPaperOperatingMode, getPaperOnlyRuntimeConfig, getServerPort, isGlobalKillSwitchActive } from "@momentum/config";
 import { createAccountStateRepository, createDatabase, createDurableScheduleRunRepository, createShadowObservationRepository, createTelegramAlertRepository } from "@momentum/db";
-import { getTelegramNotificationConfig, sendTelegramAlert } from "@momentum/notifications";
+import { getTelegramNotificationConfig } from "@momentum/notifications";
 
 import { getWorkerHealth } from "./app.js";
 import { startPaperMarketStream } from "./market-stream-runner.js";
@@ -49,14 +49,15 @@ if (positionManagementScheduler) void positionManagementScheduler.start();
 const shadowConfiguration = getShadowEvaluationConfig();
 const durableConfiguration = getDurableSchedulerConfig();
 const telegramNotificationConfig = getTelegramNotificationConfig();
+let runtimeAlertNotifier = createRuntimeAlertNotifier(process.env);
 if (telegramNotificationConfig.enabled && process.env.DATABASE_URL?.trim()) {
   const alertDatabase = createDatabase(process.env.DATABASE_URL);
-  const alertNotifier = createRuntimeAlertNotifier(process.env, createTelegramAlertRepository(alertDatabase.db));
+  runtimeAlertNotifier = createRuntimeAlertNotifier(process.env, createTelegramAlertRepository(alertDatabase.db));
   let retryRunning = false;
   const retryPersistedAlerts = async () => {
     if (retryRunning) return;
     retryRunning = true;
-    try { await alertNotifier.retryPersisted(); } finally { retryRunning = false; }
+    try { await runtimeAlertNotifier.retryPersisted(); } finally { retryRunning = false; }
   };
   void retryPersistedAlerts();
   setInterval(() => { void retryPersistedAlerts(); }, 60_000).unref();
@@ -118,7 +119,7 @@ if (durableConfiguration.enabled) {
   const durableScheduler = createDurableScheduler({
     config: durableConfiguration,
     connectionString: process.env.DATABASE_URL,
-    notify: (alert) => sendTelegramAlert(telegramNotificationConfig, { ...alert, occurredAt: new Date().toISOString() }),
+    notify: (alert) => runtimeAlertNotifier.notify({ ...alert, occurredAt: new Date().toISOString() }),
     ...(scheduleAuditCallbacks ? { audit: scheduleAuditCallbacks } : {}),
     runDailyPreparation,
   });
@@ -128,7 +129,7 @@ if (durableConfiguration.enabled) {
     reconcile: runDailyPreparation,
     onFailure: async () => {
       setDurableSchedulerHealth({ enabled: true, status: "degraded" });
-      await sendTelegramAlert(telegramNotificationConfig, { code: "durable_scheduler_start_failed", message: "Durable scheduler startup reconciliation failed; scheduling remains paused.", occurredAt: new Date().toISOString(), severity: "critical" }).catch(() => undefined);
+      await runtimeAlertNotifier.notify({ code: "durable_scheduler_start_failed", message: "Durable scheduler startup reconciliation failed; scheduling remains paused.", occurredAt: new Date().toISOString(), severity: "critical" });
     },
     startScheduler: () => durableScheduler.start().catch(() => { /* health endpoint reports the degraded state */ }),
   });

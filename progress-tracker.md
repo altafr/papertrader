@@ -2843,3 +2843,10 @@
 - Added dashboard parser coverage proving a persisted Telegram event retains delivery status and remains available to the delivery panel.
 - Focused dashboard and overview contract tests passed: 14 tests.
 - **Next smallest unit:** run the explicitly authorized Telegram provider test, then verify the authenticated dashboard and CSV against the deployed API.
+
+### 2026-08-28 — Phase 6.188 durable scheduler alert outbox coverage
+
+- Routed durable-scheduler runtime and startup-failure notifications through the persisted Telegram notifier instead of the raw provider sender.
+- Scheduler failures now receive the same deduplication, delivery-state, and bounded retry behavior as trade and reconciliation alerts.
+- Worker typecheck, focused scheduler/Telegram tests (18 tests), ESLint, and diff checks pass.
+- **Next smallest unit:** deploy and verify the Worker, then run the explicitly authorized Telegram provider test and authenticated hosted verification.
