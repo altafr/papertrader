@@ -2703,3 +2703,9 @@
 - Added the domain-level position-management contract and evaluator for long-position stop-loss, profit-target, and time-stop exits.
 - The evaluator is pure and decimal-safe: it produces a structured exit decision and never accesses Alpaca or submits an order. Stop-loss takes precedence over a target when the current mark satisfies both thresholds.
 - Added focused tests for stop, target, time-stop, and hold outcomes. The next unit is wiring this evaluator to reconciled positions and an idempotent paper sell-order path.
+
+### 2026-08-27 — Phase 6.166 deterministic paper exit adapter
+
+- Added a server-only Alpaca paper sell adapter that accepts only a `shouldExit:true` decision with a deterministic stop, target, or time-stop reason.
+- The adapter uses client-order-id idempotency and the paper endpoint; it has no AI, browser, or live endpoint authority.
+- Added mocked tests covering deterministic-exit enforcement and one-time sell submission. Position metadata and a Worker polling command remain to be wired next.

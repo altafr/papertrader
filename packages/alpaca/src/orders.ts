@@ -54,6 +54,19 @@ export interface PaperOrderSubmitter {
   submit(request: PaperOrderSubmissionRequest): Promise<PaperOrderSubmission>;
 }
 
+export interface PaperExitOrderRequest {
+  readonly assetClass: "crypto" | "us_equity";
+  readonly clientOrderId: string;
+  readonly decision: { readonly exitPrice: string; readonly reason?: "profit_target" | "stop_loss" | "time_stop"; readonly shouldExit: boolean; readonly symbol: string };
+  readonly quantity: string;
+  readonly timeInForce: "day" | "gtc";
+  readonly type: "market" | "limit";
+}
+
+export interface PaperExitOrderSubmitter {
+  submitExit(request: PaperExitOrderRequest): Promise<PaperOrderSubmission>;
+}
+
 export interface PaperOrderSubmitterOptions {
   readonly apiKey: string;
   readonly brokerConnectionEnabled: boolean;
@@ -92,6 +105,31 @@ export function createPaperOrderSubmitter(options: PaperOrderSubmitterOptions): 
       const response = await requestJson("/v2/orders", { body: JSON.stringify(body), method: "POST" });
       if (!response.ok) throw new Error(`Paper order submission failed with HTTP ${response.status}.`);
       return normalizeOrder(orderSchema.parse(await response.json()), request);
+    },
+  };
+}
+
+/** Submit a deterministic paper exit; AI output cannot call this adapter directly. */
+export function createPaperExitOrderSubmitter(options: PaperOrderSubmitterOptions): PaperExitOrderSubmitter {
+  const apiKey = options.apiKey.trim();
+  const secretKey = options.secretKey.trim();
+  if (!apiKey || !secretKey) throw new Error("Paper Alpaca credentials are required server-side.");
+  const fetchImpl = options.fetchImpl ?? fetch;
+  const requestJson = async (path: string, init: RequestInit): Promise<Response> => fetchImpl(`${PAPER_TRADING_API_BASE_URL}${path}`, {
+    ...init,
+    headers: { ...init.headers, "APCA-API-KEY-ID": apiKey, "APCA-API-SECRET-KEY": secretKey, accept: "application/json", "content-type": "application/json" },
+  });
+  return {
+    async submitExit(request) {
+      if (!options.brokerConnectionEnabled) throw new Error("Paper broker connection is disabled.");
+      if (!request.decision.shouldExit || !request.decision.reason) throw new Error("A deterministic exit decision is required.");
+      if (!/^[A-Za-z0-9._:-]{1,48}$/.test(request.clientOrderId)) throw new Error("Client order ID has an invalid format.");
+      const existingResponse = await requestJson(`/v2/orders:by_client_order_id?client_order_id=${encodeURIComponent(request.clientOrderId)}`, { method: "GET" });
+      if (existingResponse.ok) return normalizeOrder(orderSchema.parse(await existingResponse.json()), { approval: { approvalId: request.clientOrderId, intentId: request.clientOrderId, status: "approved" }, assetClass: request.assetClass, clientOrderId: request.clientOrderId, quantity: request.quantity, side: "buy", symbol: request.decision.symbol, timeInForce: request.timeInForce, type: request.type });
+      if (existingResponse.status !== 404) throw new Error("Paper exit idempotency lookup failed.");
+      const response = await requestJson("/v2/orders", { body: JSON.stringify({ client_order_id: request.clientOrderId, order_class: "simple", qty: request.quantity, side: "sell", symbol: request.decision.symbol, time_in_force: request.timeInForce, type: request.type }), method: "POST" });
+      if (!response.ok) throw new Error(`Paper exit submission failed with HTTP ${response.status}.`);
+      return normalizeOrder(orderSchema.parse(await response.json()), { approval: { approvalId: request.clientOrderId, intentId: request.clientOrderId, status: "approved" }, assetClass: request.assetClass, clientOrderId: request.clientOrderId, quantity: request.quantity, side: "buy", symbol: request.decision.symbol, timeInForce: request.timeInForce, type: request.type });
     },
   };
 }
