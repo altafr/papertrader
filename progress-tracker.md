@@ -2945,3 +2945,10 @@
 - `MARKET_STREAM_ENABLED` is not configured; streaming remains intentionally off while scheduled finalized-bar workflows and reconciliation continue.
 - No credential values were read or exposed; latest Worker logs show normal startup and no emitted runtime failure.
 - **Next smallest unit:** configure an operator-approved bounded Telegram test reference, run the provider test, and verify the authenticated dashboard/CSV.
+
+### 2026-08-28 — Phase 6.204 durable scheduler runtime evidence
+
+- Added redacted Worker startup and post-recovery scheduler result events to Railway logs.
+- Production deployment `2119d549-d97c-4915-9310-aefed647f5d5` reached `SUCCESS`; logs confirm `started=true`, scheduler `status=scheduled`, cron `0 0 * * *` UTC, and next run timestamp.
+- This proves the durable daily scheduler starts after reconciliation, not merely that its flag is enabled.
+- **Next smallest unit:** configure an operator-approved bounded Telegram test reference, run the provider test, and verify the authenticated dashboard/CSV.
