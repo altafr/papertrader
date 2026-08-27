@@ -1,7 +1,7 @@
 import { PgBoss } from "pg-boss";
 
-import { createPaperMarketDataReader, createPaperOrderSubmitter } from "@momentum/alpaca";
-import { createAgentRunRepository, createDatabase, createPaperOrderRepository, createTelegramAlertRepository, type PersistedAgentRun } from "@momentum/db";
+import { createPaperAccountReader, createPaperMarketDataReader, createPaperOrderSubmitter } from "@momentum/alpaca";
+import { createAccountStateRepository, createAgentRunRepository, createDatabase, createPaperOrderRepository, createTelegramAlertRepository, type PersistedAgentRun } from "@momentum/db";
 import type { AgentRunRequest } from "@momentum/domain";
 
 import { createResearchPreparationQueueHandler } from "./research-preparation.js";
@@ -10,6 +10,7 @@ import { createResearchScheduler, getResearchScheduleReadiness, getResearchSched
 import { createRuntimeAlertNotifier } from "./telegram-events.js";
 import { runPaperAutopilotRiskCycle } from "./paper-autopilot-cycle.js";
 import { executePaperAutopilotOrder } from "./paper-execution.js";
+import { reconcilePaperAccount } from "./reconcile.js";
 
 export function createResearchSchedulerFromEnvironment(environment: NodeJS.ProcessEnv = process.env) {
   const config = getResearchScheduleConfig(environment);
@@ -49,6 +50,7 @@ export function createResearchSchedulerFromEnvironment(environment: NodeJS.Proce
       onResult: async (result) => {
         if (result.status !== "succeeded" || !result.candidates?.length) return;
         const notifier = createRuntimeAlertNotifier(environment, alertRepository);
+        await reconcilePaperAccount(createPaperAccountReader({ apiKey, secretKey }), createAccountStateRepository(db));
         const orderRepository = createPaperOrderRepository(db);
         const executeApproved = orderSubmissionFlag === "true" ? async (order: Parameters<typeof executePaperAutopilotOrder>[0]["order"]) => {
           await executePaperAutopilotOrder({ autopilot: { enabled: true, mode: "paper_autopilot" }, order, notify: notifier.notify, persistence: orderRepository, submitter: createPaperOrderSubmitter({ apiKey, brokerConnectionEnabled: true, secretKey }) });

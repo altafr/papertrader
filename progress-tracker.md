@@ -3028,3 +3028,10 @@
 - Invalid gate values fail closed; credentials and secret values are never included in the health payload.
 - Verification: readiness tests, Worker typecheck, and lint passed.
 - **Next smallest unit:** verify the hosted API/dashboard displays the redacted gate, then decide whether to enable one bounded paper order for end-to-end execution.
+
+### 2026-08-28 — Phase 6.215 pre-cycle broker reconciliation
+
+- Scheduled research-to-risk processing now refreshes the persisted Alpaca paper account, positions, and orders immediately before evaluating candidates.
+- This protects the optional order handoff from stale account state while preserving the dry-run default and all deterministic risk gates.
+- Verification: 283 tests passed, Worker typecheck passed, and Worker lint passed.
+- **Next smallest unit:** verify the hosted dashboard/API displays the refreshed gate and risk decision, then decide whether to enable one bounded paper order for execution verification.
