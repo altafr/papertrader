@@ -3118,4 +3118,5 @@
 - Broker-enabled scheduled risk cycles now process at most one candidate per cycle; the next cycle re-reconciles account, positions, and orders before considering another entry.
 - Dry-run cycles may still evaluate up to ten candidates for research visibility, while broker submission cannot batch multiple approvals against one stale portfolio snapshot.
 - Updated the activation runbook with the bound; no production submission flag or broker state changed.
+- Verification: 283 tests passed, Worker TypeScript and lint passed; Railway Worker deployment `50b83fcf-45cf-45f8-a6ad-c5d37f5cdd12` reached `SUCCESS`.
 - **Next smallest unit:** execute one bounded paper order with explicit operator authorization, then verify reconciliation, Telegram delivery, and dashboard history.
