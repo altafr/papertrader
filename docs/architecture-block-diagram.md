@@ -69,3 +69,42 @@ Market data → Research → Strategy signal → Deterministic risk validation
 
 The risk engine is the mandatory boundary. No research agent, strategy agent, dashboard action, or Telegram event can bypass it. PostgreSQL is the durable source of truth; Telegram is a notification channel, not an execution control.
 
+## Simplified explanation view
+
+```mermaid
+flowchart TB
+  subgraph L1["1. OPERATOR SURFACE"]
+    UI["Vercel / Sites dashboard\npositions • trades • agent rationale • health"]
+    TG["Telegram\nentry/exit/failure alerts • daily summary"]
+  end
+  subgraph L2["2. ACCESS"]
+    AUTH["Clerk authentication"]
+    API["Railway API\nread models and controls"]
+  end
+  subgraph L3["3. ALWAYS-ON WORKER"]
+    CLOCK["Scheduler\ndaily cycles + reconciliation"]
+    AGENTS["Research + strategy agents\nevidence → versioned signal"]
+    GATE["RISK GATE (mandatory)\n5% max loss of invested notional\nfreshness • exposure • duplicates • kill switch • paper mode"]
+    TRADE["Execution + position manager\norders • stops • targets • time stops"]
+    WATCH["Reconciliation + alert dispatcher\nfills • P/L • discrepancies • retries"]
+  end
+  subgraph L4["4. DURABLE STATE"]
+    DB["Railway PostgreSQL\naccount, positions, orders, fills\nsignals • decisions • audits • Telegram outbox"]
+  end
+  subgraph L5["5. EXTERNALS"]
+    ALPACA["Alpaca Paper API\naccount • quotes • orders • fills"]
+    SOURCES["Market/news sources\nprices • volume • indicators • macro"]
+  end
+  UI --> AUTH --> API
+  API --> DB
+  CLOCK --> AGENTS
+  SOURCES --> AGENTS --> GATE
+  GATE -->|"approved only"| TRADE
+  TRADE <--> ALPACA
+  TRADE --> WATCH
+  ALPACA --> WATCH
+  CLOCK --> WATCH
+  WATCH --> DB
+  WATCH --> TG
+  DB --> API
+```
