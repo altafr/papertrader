@@ -3103,4 +3103,5 @@
 - Added a redacted API/dashboard health field for execution-approval-reference presence.
 - The dashboard now distinguishes a missing reference from a disabled submission flag without displaying the reference value or any credential.
 - Verification: dashboard contract tests (10 passed), API/web typechecks, lint, and web production build passed.
+- Railway API deployment `3c9cb976-e7a9-4ece-9682-828aa6d77c10` reached `SUCCESS`; the persistent submission gate remains off.
 - **Next smallest unit:** verify the hosted authenticated view, then execute one bounded paper order only with explicit operator authorization.
