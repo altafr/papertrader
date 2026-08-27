@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { Database } from "./client.js";
-import { createAgentRunRepository, createPaperOrderRepository, createShadowObservationRepository, createStrategyLifecycleRepository, type PersistedAgentArtifact, type PersistedAgentRun, type PersistedPaperOrderSubmission, type PersistedShadowObservation, type PersistedShadowObservationOutcome, type PersistedStrategyLifecycleEvent } from "./repository.js";
-import { agentRuns, paperOrderSubmissions, shadowObservationOutcomes, shadowObservations } from "./schema.js";
+import { createAccountStateRepository, createAgentRunRepository, createPaperOrderRepository, createShadowObservationRepository, createStrategyLifecycleRepository, type PersistedAccountSnapshot, type PersistedAgentArtifact, type PersistedAgentRun, type PersistedPaperOrderSubmission, type PersistedShadowObservation, type PersistedShadowObservationOutcome, type PersistedStrategyLifecycleEvent } from "./repository.js";
+import { accountSnapshots, agentRuns, paperOrderSubmissions, shadowObservationOutcomes, shadowObservations } from "./schema.js";
 
 const event = (revision: number): PersistedStrategyLifecycleEvent => ({
   actorId: "operator-1", approvedAt: new Date("2026-01-10T00:00:00Z"), approvedBy: "operator-1", approvalNote: "Reviewed.", evidenceKey: "cross-sectional-momentum@1.0.0", eventId: `event-${revision}`, fromStage: "disabled", reason: "Replay approval.", requestedAt: new Date("2026-01-10T00:00:00Z"), revision, strategyKey: "cross-sectional-momentum", strategyVersion: "1.0.0", toStage: "replay",
@@ -107,5 +107,31 @@ describe("paper order submission repository", () => {
     await expect(repository.recordSubmission(submission)).resolves.toMatchObject({ intentId: "intent-1" });
     await expect(repository.reconcile({ alpacaOrderId: "alpaca-1", filledQuantity: "0.02", intentId: "intent-1", status: "filled" })).resolves.toMatchObject({ alpacaOrderId: "alpaca-1", status: "filled" });
     await expect(repository.getByClientOrderId("intent-1-order")).resolves.toMatchObject({ status: "filled" });
+  });
+});
+
+describe("account reconciliation ledger sync", () => {
+  it("updates matching persisted submissions from broker order truth", async () => {
+    const updates: Record<string, unknown>[] = [];
+    const transaction = {
+      insert: (table: unknown) => ({
+        values: (value: unknown) => ({
+          onConflictDoUpdate: () => undefined,
+          returning: async () => table === accountSnapshots ? [{ id: "snapshot-1", ...(value as PersistedAccountSnapshot) }] : [],
+        }),
+      }),
+      update: (table: unknown) => ({
+        set: (value: Record<string, unknown>) => ({ where: async () => { if (table === paperOrderSubmissions) updates.push(value); return []; } }),
+      }),
+    };
+    const database = { transaction: async <T>(callback: (value: never) => Promise<T>) => callback(transaction as never) } as unknown as Database;
+    const repository = createAccountStateRepository(database);
+    await expect(repository.reconcile({
+      account: { accountId: "account-1", buyingPower: "100", capturedAt: new Date("2026-08-28T00:00:00Z"), cash: "100", currency: "USD", equity: "100", status: "ACTIVE" },
+      activities: [],
+      orders: [{ accountId: "account-1", alpacaOrderId: "alpaca-1", assetClass: "us_equity", clientOrderId: "intent-1-paper", filledQuantity: "1", quantity: "1", side: "buy", status: "filled", submittedAt: new Date("2026-08-28T00:00:00Z"), symbol: "AAPL", type: "market", updatedAt: new Date("2026-08-28T00:01:00Z") }],
+      positions: [],
+    })).resolves.toMatchObject({ id: "snapshot-1" });
+    expect(updates).toEqual([expect.objectContaining({ alpacaOrderId: "alpaca-1", filledQuantity: "1", status: "filled" })]);
   });
 });

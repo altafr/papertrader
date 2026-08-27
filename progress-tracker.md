@@ -3307,3 +3307,9 @@
 - Matching client-order IDs now update status, fill quantity, broker ID, and timestamps atomically with the account snapshot; unmatched broker orders remain ignored.
 - Verification: full suite passed with 288 tests across 77 files; Worker/database TypeScript checks and lint passed; Railway deployment `904be044-b636-41b8-8a9b-30ecf5ec2c06` reached `SUCCESS`; hosted reconciliation completed successfully and live health remains `healthy`.
 - **Next smallest unit:** verify a terminal broker transition updates the persisted ledger and emits the deduplicated Telegram status alert during an active paper session.
+
+### 2026-08-28 — Phase 6.253 reconciliation ledger regression coverage
+
+- Added a repository-level regression test proving a normal account reconciliation updates a matching persisted submission with broker ID, status, and fill quantity.
+- Verification: full suite passed with 289 tests across 77 files; Worker/database TypeScript checks and lint passed; Railway deployment `df36e1ff-24a6-47a4-bf5b-7eaa985687cb` reached `SUCCESS`; live Worker health remains `healthy`.
+- **Next smallest unit:** verify a terminal broker transition updates the persisted ledger and emits the deduplicated Telegram status alert during an active paper session.
