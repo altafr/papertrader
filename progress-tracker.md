@@ -2900,3 +2900,9 @@
 - Added [`docs/telegram-alert-test-runbook.md`](docs/telegram-alert-test-runbook.md) with the exact bounded variables, command, post-test checks, and secret-handling rules for the one-message provider test.
 - Linked the runbook from the repository README; documentation-only change.
 - **Next smallest unit:** configure an operator-approved bounded reference, run the guarded provider test, and verify the authenticated dashboard/CSV.
+
+### 2026-08-28 — Phase 6.197 explicit Telegram test gate messaging
+
+- Updated the dashboard operations-health card to explain that the Telegram test is blocked because an approval reference is required, and that no message has been sent.
+- When ready, the same field states that one guarded message may be sent; web typecheck, lint, and diff checks pass.
+- **Next smallest unit:** configure an operator-approved bounded reference, run the guarded provider test, and verify the authenticated dashboard/CSV.
