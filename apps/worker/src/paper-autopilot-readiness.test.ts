@@ -4,7 +4,13 @@ import { getPaperAutopilotReadiness } from "./paper-autopilot-readiness.js";
 
 describe("paper autopilot readiness", () => {
   it("is disabled by default and reports no activation reasons", () => {
-    expect(getPaperAutopilotReadiness({})).toMatchObject({ status: "disabled", blockedReasons: [], policy: { initialEquityBaseline: "100000", maxSingleTradeRiskPercentOfNotional: "5", maxSingleTradeStopLossPercent: "5" } });
+    expect(getPaperAutopilotReadiness({})).toMatchObject({ status: "disabled", blockedReasons: [], executionStatus: "dry_run", policy: { initialEquityBaseline: "100000", maxSingleTradeRiskPercentOfNotional: "5", maxSingleTradeStopLossPercent: "5" } });
+  });
+
+  it("keeps broker submission explicitly gated", () => {
+    expect(getPaperAutopilotReadiness({ PAPER_AUTOPILOT_ENABLED: "true", PAPER_AUTOPILOT_ORDER_SUBMISSION_ENABLED: "true" }).executionStatus).toBe("enabled");
+    expect(getPaperAutopilotReadiness({ PAPER_AUTOPILOT_ENABLED: "true" }).executionStatus).toBe("dry_run");
+    expect(() => getPaperAutopilotReadiness({ PAPER_AUTOPILOT_ORDER_SUBMISSION_ENABLED: "maybe" })).toThrow("exactly true or false");
   });
 
   it("reports bounded missing-gate reasons without exposing credentials", () => {

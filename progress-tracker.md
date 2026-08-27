@@ -3020,3 +3020,11 @@
 - Production order-submission gate remains absent/off, so no new broker order authority was activated by this phase.
 - Verification: 282 tests passed, all TypeScript projects passed, ESLint passed, and the web production build passed.
 - **Next smallest unit:** review the hosted risk-cycle evidence and explicitly decide whether to enable one bounded paper order submission for end-to-end execution verification.
+
+### 2026-08-28 — Phase 6.214 order-gate readiness contract
+
+- Added the paper order-submission gate to the Worker health/readiness contract and tests.
+- Readiness now reports `executionStatus: "dry_run" | "enabled"`; this is descriptive and does not activate or disable production execution.
+- Invalid gate values fail closed; credentials and secret values are never included in the health payload.
+- Verification: readiness tests, Worker typecheck, and lint passed.
+- **Next smallest unit:** verify the hosted API/dashboard displays the redacted gate, then decide whether to enable one bounded paper order for end-to-end execution.

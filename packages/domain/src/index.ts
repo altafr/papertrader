@@ -36,6 +36,7 @@ export interface WorkerHealth {
   };
   readonly globalKillSwitchActive: boolean;
   readonly operatingMode: RuntimeOperatingMode;
+  readonly paperAutopilotOrderSubmissionEnabled: boolean;
   readonly positionManagement: {
     readonly blockedReasons: readonly string[];
     readonly enabled: boolean;

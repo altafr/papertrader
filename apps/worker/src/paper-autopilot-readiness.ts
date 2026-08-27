@@ -15,6 +15,7 @@ export interface PaperAutopilotReadiness {
     readonly paperCredentialsConfigured: boolean;
     readonly paperMode: boolean;
     readonly paperRiskPolicyValid: boolean;
+    readonly paperOrderSubmissionEnabled: boolean;
     readonly runtimeFreshnessGateRequired: true;
     readonly schedulerActivationApprovalReferencePresent: boolean;
   };
@@ -23,6 +24,7 @@ export interface PaperAutopilotReadiness {
     readonly maxSingleTradeRiskPercentOfNotional: string;
     readonly maxSingleTradeStopLossPercent: string;
   };
+  readonly executionStatus: "dry_run" | "enabled";
   readonly status: PaperAutopilotReadinessStatus;
 }
 
@@ -38,6 +40,9 @@ export function getPaperAutopilotReadiness(environment: NodeJS.ProcessEnv = proc
     try { return isGlobalKillSwitchActive(environment); } catch { return true; }
   })();
   const autopilotEnabled = environment.PAPER_AUTOPILOT_ENABLED === "true";
+  const orderSubmissionFlag = environment.PAPER_AUTOPILOT_ORDER_SUBMISSION_ENABLED;
+  if (orderSubmissionFlag !== undefined && orderSubmissionFlag !== "true" && orderSubmissionFlag !== "false") throw new Error("PAPER_AUTOPILOT_ORDER_SUBMISSION_ENABLED must be exactly true or false.");
+  const paperOrderSubmissionEnabled = orderSubmissionFlag === "true";
   let operatingModePaperAutopilot = false;
   try {
     operatingModePaperAutopilot = getPaperOperatingMode(environment) === "paper_autopilot";
@@ -61,7 +66,8 @@ export function getPaperAutopilotReadiness(environment: NodeJS.ProcessEnv = proc
   const status = !autopilotEnabled ? "disabled" : blockedReasons.length === 0 ? "ready" : "blocked";
   return {
     blockedReasons: status === "disabled" ? [] : blockedReasons,
-    checks: { brokerConnectionEnabled, dailyPreparationHandlerEnabled, databaseConfigured, durableSchedulerEnabled, globalKillSwitchActive, operatingModePaperAutopilot, paperCredentialsConfigured, paperMode, paperRiskPolicyValid, runtimeFreshnessGateRequired: true, schedulerActivationApprovalReferencePresent },
+    checks: { brokerConnectionEnabled, dailyPreparationHandlerEnabled, databaseConfigured, durableSchedulerEnabled, globalKillSwitchActive, operatingModePaperAutopilot, paperCredentialsConfigured, paperMode, paperOrderSubmissionEnabled, paperRiskPolicyValid, runtimeFreshnessGateRequired: true, schedulerActivationApprovalReferencePresent },
+    executionStatus: paperOrderSubmissionEnabled ? "enabled" : "dry_run",
     policy: { initialEquityBaseline: PAPER_INITIAL_EQUITY_BASELINE, maxSingleTradeRiskPercentOfNotional: MAX_SINGLE_TRADE_RISK_PERCENT_OF_NOTIONAL, maxSingleTradeStopLossPercent: MAX_SINGLE_TRADE_STOP_LOSS_PERCENT },
     status,
   };
