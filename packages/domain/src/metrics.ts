@@ -168,7 +168,7 @@ export function calculateRoundTripPnl(input: RoundTripPnlInput): RoundTripPnlRes
 }
 
 export function calculateTradeRisk(input: TradeRiskInput): TradeRiskResult {
-  const equity = nonNegative(input.equity, "equity");
+  nonNegative(input.equity, "equity");
   const quantity = nonNegative(input.quantity, "quantity");
   const fees = nonNegative(input.estimatedFees, "estimated fees");
   const slippage = nonNegative(input.estimatedSlippage, "estimated slippage");
@@ -181,7 +181,10 @@ export function calculateTradeRisk(input: TradeRiskInput): TradeRiskResult {
   return {
     allowedRisk: output(allowedRisk),
     estimatedLoss: output(estimatedLoss),
-    estimatedLossPercent: output(equity.isZero() ? new Decimal(0) : estimatedLoss.div(equity).times(100)),
+    // The risk policy is defined against the capital invested in this trade,
+    // not the account's total equity. Keep the reported percentage aligned
+    // with `passes` and `maximumRiskByNotional`.
+    estimatedLossPercent: output(investedNotional.isZero() ? new Decimal(0) : estimatedLoss.div(investedNotional).times(100)),
     investedNotional: output(investedNotional),
     maximumRiskByNotional: output(maximumRiskByNotional),
     passes: estimatedLoss.lessThanOrEqualTo(allowedRisk),
