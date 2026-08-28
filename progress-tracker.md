@@ -564,6 +564,12 @@
 - [x] Add a success-path regression test; focused tests pass.
 - [ ] Run the unified command against the newly deployed Worker release after Railway rollout.
 
+### Phase 6.474 — Unified hosted verification passed (2026-08-29)
+
+- [x] Run `pnpm verify:hosted` against the live Railway API/Worker and Vercel dashboard URLs.
+- [x] Confirm the combined result reports runtime `verified: true` and public dashboard HTTP `200`.
+- [x] Confirm paper mode, approval evidence, inactive kill switch, connected stream, ready position management, and active schedulers in the combined result.
+
 ### Phase 6.458 — Natural hosted cycle continuity (2026-08-29)
 
 - [x] Verify the hosted Worker remains healthy on release `febcda5f7a5…` with Paper Autopilot and order submission still enabled.
