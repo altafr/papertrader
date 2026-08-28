@@ -783,6 +783,13 @@
 - [x] Add precision regression coverage and update the financial-calculation contract.
 - [ ] Deploy the Worker revision and verify the next persisted summary after market close.
 
+### Phase 6.508 — Decimal-safe summary deployed (2026-08-29)
+
+- [x] Deploy Worker commit `7e9bc00` to Railway; deployment `20bc2897-3668-4ee6-989d-42e50beeef5f` reached `SUCCESS`.
+- [x] Confirm live Worker health remains `healthy`, Paper Autopilot, and position-management `ready` after rollout.
+- [x] Verify decimal-summary tests and Worker typecheck/lint passed before deployment.
+- [ ] Verify the next persisted market-close summary delivery and continue the paper-forward evidence window.
+
 ### Phase 6.458 — Natural hosted cycle continuity (2026-08-29)
 
 - [x] Verify the hosted Worker remains healthy on release `febcda5f7a5…` with Paper Autopilot and order submission still enabled.
