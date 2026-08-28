@@ -22,6 +22,10 @@ export function getPaperOrderStatusTransitions(before: ReadonlyArray<{ readonly 
   return after.filter((order) => previous.has(order.alpacaOrderId) && previous.get(order.alpacaOrderId) !== order.status).map((order) => ({ alpacaOrderId: order.alpacaOrderId, from: previous.get(order.alpacaOrderId)!, status: order.status, symbol: order.symbol }));
 }
 
+export function isTerminalPaperOrderStatus(status: string): boolean {
+  return new Set(["filled", "canceled", "cancelled", "expired", "rejected", "failed"]).has(status.trim().toLowerCase());
+}
+
 export function groupPositionSymbolsByAssetClass(positions: ReadonlyArray<{ readonly assetClass: string; readonly symbol: string }>): readonly { readonly assetClass: "crypto" | "us_equity"; readonly symbols: readonly string[] }[] {
   const groups = new Map<"crypto" | "us_equity", string[]>();
   for (const position of positions) {
@@ -114,7 +118,7 @@ export async function runPositionManagementCycle(environment: NodeJS.ProcessEnv 
     const notifier = createRuntimeAlertNotifier(environment, createTelegramAlertRepository(db));
     const orderRepository = createPaperOrderRepository(db);
     for (const transition of getPaperOrderStatusTransitions(beforeModel?.orders ?? [], model?.orders ?? [])) {
-      const terminal = ["filled", "canceled", "expired", "rejected"].includes(transition.status.toLowerCase());
+      const terminal = isTerminalPaperOrderStatus(transition.status);
       await notifier.notify({ code: "paper_order_status_changed", dedupeKey: `paper_order_status_changed:${transition.alpacaOrderId}:${transition.status}`, message: `Paper order status changed: ${transition.symbol} ${transition.from} → ${transition.status}.`, severity: terminal && transition.status.toLowerCase() !== "filled" ? "warning" : "info" });
     }
     const rows = await orderRepository.listExitPlans();

@@ -1,11 +1,18 @@
 import { describe, expect, it } from "vitest";
 
-import { buildPositionExitDecisionLog, buildPositionManagementLog, buildUnmanagedPositionLog, getActiveExitIntentIds, getPaperOrderStatusTransitions, getPositionDetectedDedupeKey, getPositionExitDecisionDedupeKey, getPositionExitIntentId, groupPositionSymbolsByAssetClass } from "./position-management-runtime.js";
+import { buildPositionExitDecisionLog, buildPositionManagementLog, buildUnmanagedPositionLog, getActiveExitIntentIds, getPaperOrderStatusTransitions, getPositionDetectedDedupeKey, getPositionExitDecisionDedupeKey, getPositionExitIntentId, groupPositionSymbolsByAssetClass, isTerminalPaperOrderStatus } from "./position-management-runtime.js";
 import { assessPositionManagementLiveness } from "./position-management-scheduler.js";
 
 describe("paper order status transitions", () => {
   it("returns only changed orders", () => {
     expect(getPaperOrderStatusTransitions([{ alpacaOrderId: "one", status: "accepted", symbol: "AAPL" }, { alpacaOrderId: "two", status: "filled", symbol: "MSFT" }], [{ alpacaOrderId: "one", status: "filled", symbol: "AAPL" }, { alpacaOrderId: "two", status: "filled", symbol: "MSFT" }, { alpacaOrderId: "three", status: "accepted", symbol: "TSLA" }])).toEqual([{ alpacaOrderId: "one", from: "accepted", status: "filled", symbol: "AAPL" }]);
+  });
+
+  it("classifies broker terminal states including failure and cancellation variants", () => {
+    expect(isTerminalPaperOrderStatus("filled")).toBe(true);
+    expect(isTerminalPaperOrderStatus("CANCELLED")).toBe(true);
+    expect(isTerminalPaperOrderStatus("failed")).toBe(true);
+    expect(isTerminalPaperOrderStatus("accepted")).toBe(false);
   });
 });
 

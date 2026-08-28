@@ -5321,3 +5321,17 @@
 - Added regression coverage for the alert contract; full suite passed with 290 tests across 77 files.
 - Railway Worker deployment `28673fe4-f882-4199-8434-3863e2817bef` reached `SUCCESS`; live health remains `healthy`, research scheduling is `scheduled`, and continuous entry submission remains disabled.
 - **Next smallest unit:** verify a terminal broker transition updates the persisted ledger and emits the deduplicated Telegram status alert during an active paper session.
+
+### 2026-08-28 — Phase 6.255 Telegram outbox verification deployed
+
+- Deployed the guarded, read-only `telegram-alert-status` command to the Railway Worker.
+- Live outbox verification reports `71` sent events and latest event `paper_risk_decision` with delivery status `sent`; no raw notification content or credentials were exposed.
+- Railway deployment `49873b64-f02b-4cf4-845c-e2b22a7aff29` reached `SUCCESS`; Worker health is `healthy`, position management is `ready`, and operating mode remains `paper_autopilot`.
+- **Next smallest unit:** add a bounded terminal-order transition smoke check so a broker status change is proven to update the ledger and emit one deduplicated Telegram event.
+
+### 2026-08-28 — Phase 6.256 terminal-order alert classification
+
+- Centralized terminal paper-order status recognition across `filled`, `canceled`, `cancelled`, `expired`, `rejected`, and `failed` states.
+- This ensures failed or alternate-cancellation broker transitions are surfaced as warning-level lifecycle events while preserving the existing dedupe key and paper-only execution boundary.
+- Verification: position-management runtime tests passed (9 tests), Worker TypeScript check passed, and targeted ESLint passed.
+- **Next smallest unit:** deploy this alert hardening and run the hosted reconciliation smoke check against the Railway Worker.
