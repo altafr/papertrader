@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.288 Position provenance projection; continuous Paper Autopilot and multi-day evidence collection continue.
+- **Stage:** Phase 6.302 Post-deploy runtime checkpoint; continuous Paper Autopilot and multi-day evidence collection continue.
 
 ### Always-on multi-agent runtime requirement
 
