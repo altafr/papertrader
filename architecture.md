@@ -32,6 +32,8 @@ The same projection is included in the protected account CSV export, including `
 
 Risk evidence stores an explicit `approvalStatus` alongside the policy assessment. Summary queries use the presence of this evidence rather than the transient broker/order status, so an approved decision remains auditable after it becomes filled, canceled, or otherwise reconciled.
 
+During rollout, approved rows written before the explicit field was introduced remain counted through their legacy `risk_dry_run_approved` status; this compatibility path does not broaden execution authority.
+
 Position provenance and managed-state queries accept only approved risk evidence or a broker-bound order identity. Rejected research candidates therefore cannot accidentally mark an unrelated live position as managed.
 
 ### Separately gated order handoff (Phase 6.213)

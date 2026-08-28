@@ -5659,3 +5659,10 @@
 - Ran the enhanced hosted verifier against Railway; result is `verified:true` with `riskTelemetryValid:true`.
 - Current Worker health reports valid risk-cycle telemetry alongside healthy API/Worker state, connected market stream, scheduled research/durable schedulers, ready position management, and inactive kill switch.
 - **Next smallest unit:** continue collecting the scheduled paper-forward evidence and complete authenticated operator verification when the protected token is available.
+
+### 2026-08-29 — Phase 6.305 legacy risk-evidence compatibility
+
+- Updated API and Worker risk summaries to count pre-migration approved rows via their legacy `risk_dry_run_approved` status while using explicit `approvalStatus` for new rows.
+- This preserves historical accuracy without changing any order or risk gate.
+- Verification: API/Worker typechecks, ESLint, and full regression passed (88 files, 354 tests).
+- **Next smallest unit:** deploy the compatibility query and verify the next cycle’s approved/decision totals.
