@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { buildPositionExitDecisionLog, buildPositionManagementLog, buildUnmanagedPositionLog, getActiveExitIntentIds, getFreshPositionMark, getPaperOrderStatusTransitions, getPositionDetectedDedupeKey, getPositionExitDecisionDedupeKey, getPositionExitIntentId, groupPositionSymbolsByAssetClass, isTerminalPaperOrderStatus } from "./position-management-runtime.js";
+import { buildPositionExitDecisionLog, buildPositionExitDecisionMessage, buildPositionManagementLog, buildUnmanagedPositionLog, getActiveExitIntentIds, getFreshPositionMark, getPaperOrderStatusTransitions, getPositionDetectedDedupeKey, getPositionExitDecisionDedupeKey, getPositionExitIntentId, groupPositionSymbolsByAssetClass, isTerminalPaperOrderStatus } from "./position-management-runtime.js";
 import { assessPositionManagementLiveness } from "./position-management-scheduler.js";
 
 describe("paper order status transitions", () => {
@@ -74,5 +74,9 @@ describe("position pass observability", () => {
   it("builds a bounded decision record with an explicit no-exit reason", () => {
     expect(buildPositionExitDecisionLog({ shouldExit: false, symbol: "AAPL" })).toEqual({ event: "position_exit_decision", reason: null, shouldExit: false, submitted: false, symbol: "AAPL" });
     expect(buildPositionExitDecisionLog({ reason: "stop_loss", shouldExit: true, submitted: true, symbol: "BTC/USD" })).toEqual({ event: "position_exit_decision", reason: "stop_loss", shouldExit: true, submitted: true, symbol: "BTC/USD" });
+  });
+
+  it("explains an exit with the stored deterministic plan", () => {
+    expect(buildPositionExitDecisionMessage({ currentPrice: "95", entryPrice: "100", plannedStopPrice: "95", plannedTargetPrice: "104", reason: "stop_loss", strategyKey: "momentum", strategyVersion: "1.0.0", symbol: "AAPL" })).toContain("Strategy momentum 1.0.0; entry 100, stop 95, target 104");
   });
 });

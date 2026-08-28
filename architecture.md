@@ -50,6 +50,8 @@ The hosted paper-runtime verifier also fails closed when the Worker explicitly r
 
 Approved-entry Telegram events include a bounded explanation with symbol/asset class, momentum, entry, stop, optional target, and captured RSI/EMA/relative-volume indicators. This is structured decision evidence only; it never includes hidden chain-of-thought or credentials.
 
+Exit decision alerts use the persisted position plan to include the trigger reason, executable mark, strategy/version, entry, stop, and target. This keeps exit notifications explainable without allowing Telegram delivery to influence execution.
+
 Repository tooling pins the minimum Node runtime to `22.13.0`, matching pnpm `11.22.0`; CI workflows use the same version so hosted verification does not silently run against an incompatible Node image.
 
 Hosted verification retries API and Worker health up to four times with a short delay, preventing transient edge/startup responses from being misclassified as a failed runtime while still failing closed after bounded attempts.

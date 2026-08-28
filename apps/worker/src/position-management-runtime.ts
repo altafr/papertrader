@@ -84,6 +84,11 @@ export function buildPositionExitDecisionLog(input: { readonly reason?: string; 
   return { event: "position_exit_decision", reason: input.reason ?? null, shouldExit: input.shouldExit, submitted: input.submitted ?? false, symbol: input.symbol } as const;
 }
 
+/** Bounded Telegram explanation for an exit decision using the stored plan. */
+export function buildPositionExitDecisionMessage(input: { readonly currentPrice: string; readonly entryPrice: string; readonly plannedStopPrice: string; readonly plannedTargetPrice?: string; readonly reason: string; readonly strategyKey: string; readonly strategyVersion: string; readonly symbol: string }): string {
+  return `Paper exit decision: ${input.symbol} ${input.reason} at ${input.currentPrice}. Strategy ${input.strategyKey} ${input.strategyVersion}; entry ${input.entryPrice}, stop ${input.plannedStopPrice}${input.plannedTargetPrice ? `, target ${input.plannedTargetPrice}` : ""}. Triggered by the stored deterministic exit plan.`.slice(0, 900);
+}
+
 /** Bounded record for positions that cannot yet be managed by a stored exit plan. */
 export function buildUnmanagedPositionLog(symbols: readonly string[]) {
   return { event: "unmanaged_position_detected", level: "warn", symbols: symbols.filter((symbol) => symbol.trim().length > 0).slice(0, 10) } as const;
@@ -198,8 +203,9 @@ export async function runPositionManagementCycle(environment: NodeJS.ProcessEnv 
     for (const decision of result.decisions) {
       console.log(JSON.stringify(buildPositionExitDecisionLog({ ...decision, submitted: result.submissions.some((submission) => submission.symbol === decision.symbol) })));
       if (!decision.shouldExit || !decision.reason) continue;
-      const intentId = managed.find((position) => position.symbol === decision.symbol)?.intentId ?? decision.symbol;
-      await notifier.notify({ code: "position_exit_decision", dedupeKey: getPositionExitDecisionDedupeKey(intentId, decision.reason), message: `${decision.symbol} exit decision: ${decision.reason} at mark ${decision.exitPrice}. This was triggered by the stored deterministic exit plan.`, severity: decision.reason === "stop_loss" ? "critical" : "info" });
+      const source = managed.find((position) => position.symbol === decision.symbol);
+      const intentId = source?.intentId ?? decision.symbol;
+      await notifier.notify({ code: "position_exit_decision", dedupeKey: getPositionExitDecisionDedupeKey(intentId, decision.reason), message: source ? buildPositionExitDecisionMessage({ currentPrice: decision.exitPrice, entryPrice: source.entryPrice, plannedStopPrice: source.plannedStopPrice, ...(source.plannedTargetPrice ? { plannedTargetPrice: source.plannedTargetPrice } : {}), reason: decision.reason, strategyKey: source.strategyKey, strategyVersion: source.strategyVersion, symbol: decision.symbol }) : `${decision.symbol} exit decision: ${decision.reason} at mark ${decision.exitPrice}. This was triggered by the stored deterministic exit plan.`, severity: decision.reason === "stop_loss" ? "critical" : "info" });
     }
     if (result.submitted > 0) {
       const submittedSymbols = result.decisions.filter((decision) => decision.shouldExit).map((decision) => decision.symbol).sort().join(",");
