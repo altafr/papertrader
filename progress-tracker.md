@@ -42,6 +42,14 @@
 - [x] Run full verification: 79 files and 314 tests passed; Worker typecheck and lint passed.
 - [x] Deploy Worker `4a41b0a7-0b66-4776-b8b3-4114af169b2f` with `SUCCESS` and verify hosted health remains healthy, scheduled, and position-management ready.
 - [ ] Verify the next position pass emits the new submission field and reconcile any eligible paper order.
+
+### Phase 6.391 — Natural 15:30 cycle decision evidence (2026-08-28)
+
+- [x] Confirm the hosted Worker completed the 15:30 UTC research tick and advanced `nextRunAt` to 15:45 UTC.
+- [x] Confirm the position pass emitted an explicit no-exit decision for AAPL with `submitted: false`.
+- [x] Confirm BTC/USD produced a deterministic rejection with position-cap and gross-exposure-cap reasons.
+- [x] Confirm no broker order was submitted for the rejected candidate.
+- [ ] Reconcile a successful paper order when a candidate passes the configured exposure gates.
 - [x] Run full verification: 79 files and 314 tests passed; Worker typecheck and lint passed.
 - [x] Deploy Worker `23e99f53-0266-489c-b6df-c7f0c8b0f922` with `SUCCESS` and verify hosted health remains healthy, scheduled, and position-management ready.
 - [ ] Verify the next position pass emits per-decision records and reconcile any eligible paper order.
