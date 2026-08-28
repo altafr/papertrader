@@ -3,7 +3,7 @@
 ## Snapshot
 
 - **Phase:** Phase 6.327 — Asset-aware crypto order execution.
-- **Status:** Alpaca-compatible crypto order handling is now deployed: crypto entries and exits are normalized to `gtc`, while equities remain `day`. This removes the broker rejection observed on the earlier BTC/USD paper path without weakening risk controls. Continuous Worker health, live positions, dashboard route, and Telegram delivery remain verified. The next step is verifying a crypto candidate through approved submission and observing the natural scheduled cycle.
+- **Status:** Alpaca-compatible crypto order handling is now deployed: crypto entries and exits are normalized to `gtc`, while equities remain `day`; crypto symbols also receive safe internal intent IDs. This removes application-level rejection causes observed on the earlier BTC/USD path. A fresh ETH/USD run now reaches Alpaca and receives HTTP 403, indicating an external account/provider permission gate remains. Continuous Worker health, live positions, dashboard route, and Telegram delivery remain verified.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Verify the first natural paper research/order cycle and authenticated dashboard portfolio/position rendering, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
@@ -15,7 +15,7 @@
 - [x] Add regression coverage for crypto market-order time-in-force normalization.
 - [x] Verify focused Alpaca/Worker tests, type checks, and lint pass.
 - [x] Deploy current Worker build successfully (`61b80fd4-ffca-4bd7-80fe-a999e661dc44`).
-- [ ] Run an approved crypto paper candidate through the deployed path and reconcile its broker state; the fresh 1-minute verification failed closed during market-input validation, so the broker-specific crypto path still needs diagnosis.
+- [ ] Run an approved crypto paper candidate through the deployed path and reconcile its broker state; the deployed request now reaches Alpaca but returns redacted HTTP 403, requiring crypto trading permission/asset eligibility to be checked in the Alpaca paper account.
 
 ### Phase 6.326 — Continuous paper-trading activation checkpoint (2026-08-28)
 
