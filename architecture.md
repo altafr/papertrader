@@ -46,6 +46,8 @@ The public Vercel heartbeat safely renders that bounded stream-freshness classif
 
 The freshness-enabled web revision is published to the production Vercel alias. The public route renders the bounded heartbeat, while `/dashboard` remains behind Clerk authentication.
 
+The hosted paper-runtime verifier also fails closed when the Worker explicitly reports a stale market stream, while remaining backward-compatible with older health payloads that omit the optional freshness field.
+
 The public heartbeat also renders the server-reported next research run in UTC, with invalid or missing timestamps shown as unavailable rather than guessed.
 
 It also shows the last market-stream message timestamp as bounded UTC metadata, allowing operators to distinguish a fresh connection from a recently active data feed without exposing payloads.

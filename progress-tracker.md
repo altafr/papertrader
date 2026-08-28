@@ -2,7 +2,7 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.326 — Hosted end-to-end safety verification.
+- **Phase:** Phase 6.327 — Hosted stream freshness verifier.
 - **Status:** The hosted Worker and API are healthy in Paper Autopilot mode with deterministic entry/exit safeguards, durable reconciliation, Telegram alerting, lifecycle-stable PostgreSQL-backed risk evidence, and a read-only portfolio status command. The latest provenance and evidence guards are deployed and verified. Vercel production publication remains limited by the free-plan daily deployment quota, while the 30-day paper-forward evidence window and authenticated dashboard verification remain ongoing.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading, verify authenticated portfolio/P&L rendering and exports, and accumulate the 30-day evidence gate without loosening risk controls.
@@ -5795,6 +5795,13 @@
 - Result: `verified:true`; API/Worker healthy, paper mode active, order submission approval present, market stream connected, position management ready, research and durable schedulers scheduled, kill switch inactive, risk telemetry valid, next runs future, and Vercel HTTP 200.
 - The verifier reported no release mismatch and exposed no credentials or account values.
 - **Next smallest unit:** continue the 30-day paper-forward evidence window and validate authenticated portfolio/read-model data.
+
+### Phase 6.327 hosted stream freshness verifier
+
+- Extended the credential-free hosted paper-runtime verifier to require an explicitly reported market stream to be `fresh`; an explicit `stale` value now fails verification.
+- Preserved compatibility with pre-freshness health payloads while adding regression coverage for fresh and stale states.
+- Focused verifier tests and ESLint pass.
+- **Next smallest unit:** run the strengthened verifier against the live Worker and continue paper-forward monitoring.
 
 ### 2026-08-29 — Phase 6.306 compatibility deployment verified
 

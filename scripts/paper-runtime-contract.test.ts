@@ -34,4 +34,9 @@ describe("paper runtime contract", () => {
     const stale = { ...healthyWorker, researchSchedule: { ...healthyWorker.researchSchedule, nextRunAt: "2026-08-28T10:00:00.000Z" } };
     expect(evaluatePaperRuntime(stale, { status: "healthy" })).toMatchObject({ nextRunsFuture: false, verified: false });
   });
+
+  it("fails closed when the market stream reports stale data", () => {
+    expect(evaluatePaperRuntime({ ...healthyWorker, marketStream: { freshness: "stale", status: "connected" } }, { status: "healthy" })).toMatchObject({ marketStreamFreshnessValid: false, verified: false });
+    expect(evaluatePaperRuntime({ ...healthyWorker, marketStream: { freshness: "fresh", status: "connected" } }, { status: "healthy" })).toMatchObject({ marketStreamFreshnessValid: true, verified: true });
+  });
 });
