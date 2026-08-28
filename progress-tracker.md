@@ -5667,6 +5667,12 @@
 - Verification: focused and full regression tests pass (88 files, 355 tests); ESLint passes.
 - **Next smallest unit:** run the strengthened verifier against the next natural cycle and continue paper-forward monitoring.
 
+### 2026-08-29 — Phase 6.308 dashboard production build readiness
+
+- Built the current Next.js dashboard source successfully with compilation, TypeScript, static generation, and route analysis all passing.
+- The authenticated dashboard, account export proxy, and agent detail routes are ready for publication; no browser credentials or broker secrets are embedded.
+- **Next smallest unit:** publish the verified web build when Vercel’s deployment quota permits and complete authenticated visual verification.
+
 ### 2026-08-29 — Phase 6.305 legacy risk-evidence compatibility
 
 - Updated API and Worker risk summaries to count pre-migration approved rows via their legacy `risk_dry_run_approved` status while using explicit `approvalStatus` for new rows.
