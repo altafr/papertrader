@@ -664,6 +664,12 @@
 - [x] Confirm successive branch-triggered unified checks remain green.
 - [ ] Observe the first cron-triggered run after default-branch activation and publish the queued Vercel heartbeat revision when quota permits.
 
+### Phase 6.490 — Default-branch activation checkpoint (2026-08-29)
+
+- [x] Confirm the active branch has a newer commit than `main`; the monitor workflow is not yet present on the default branch.
+- [x] Preserve explicit operator control: no implicit merge or default-branch mutation was performed.
+- [ ] Merge the verified branch to `main` through the repository review process to activate the scheduled cron trigger.
+
 ### Phase 6.458 — Natural hosted cycle continuity (2026-08-29)
 
 - [x] Verify the hosted Worker remains healthy on release `febcda5f7a5…` with Paper Autopilot and order submission still enabled.
