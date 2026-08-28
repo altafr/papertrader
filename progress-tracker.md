@@ -8,6 +8,13 @@
 - **Current goal:** Verify the first natural paper research/order cycle and authenticated dashboard portfolio/position rendering, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
 
+### Phase 6.387 — Hosted cycle baseline after reason-logging rollout (2026-08-28)
+
+- [x] Verify Worker deployment `8cabc43d-b343-47c1-9a0f-257198dabdcf` is `SUCCESS` and health is `healthy`.
+- [x] Verify crypto stream is connected, position management is ready, and the next research tick is scheduled for `15:30 UTC`.
+- [x] Run the repository lint gate successfully after the reason-logging change.
+- [ ] Capture the 15:30 cycle's structured risk reasons and broker reconciliation outcome.
+
 ### Phase 6.384 — Hosted cadence and submission configuration audit (2026-08-28)
 
 - [x] Confirm the production research cadence is `*/15 * * * *` (15-minute ticks).
