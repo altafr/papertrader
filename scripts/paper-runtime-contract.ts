@@ -19,6 +19,8 @@ export function evaluatePaperRuntime(worker: HealthObject, api: HealthObject) {
   const result = {
     api: api.status === "healthy" ? "healthy" : "degraded",
     worker: worker.status === "healthy" ? "healthy" : "degraded",
+    alpaca: worker.alpaca === "configured" ? "configured" : "not_configured",
+    database: worker.database === "configured" ? "configured" : "not_configured",
     paperMode: worker.operatingMode === "paper_autopilot",
     orderSubmissionEnabled: worker.paperAutopilotOrderSubmissionEnabled === true,
     marketStream: streamConnected ? "connected" : "not_connected",
@@ -26,5 +28,5 @@ export function evaluatePaperRuntime(worker: HealthObject, api: HealthObject) {
     researchSchedule: researchScheduled ? "scheduled" : "not_scheduled",
     durableScheduler: durableScheduled ? "scheduled" : "not_scheduled",
   } as const;
-  return { ...result, verified: result.api === "healthy" && result.worker === "healthy" && result.paperMode && result.orderSubmissionEnabled && streamConnected && positionsReady && researchScheduled && durableScheduled };
+  return { ...result, verified: result.api === "healthy" && result.worker === "healthy" && result.alpaca === "configured" && result.database === "configured" && result.paperMode && result.orderSubmissionEnabled && streamConnected && positionsReady && researchScheduled && durableScheduled };
 }
