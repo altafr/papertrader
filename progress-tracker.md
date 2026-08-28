@@ -2,11 +2,20 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.308 — Domain risk-contract regression hardening.
-- **Status:** Added a domain-level regression assertion proving the reported loss percentage is 5% of invested notional. The full suite remains green with 295 tests and clean lint.
+- **Phase:** Phase 6.309 — Pre-cycle post-deployment heartbeat.
+- **Status:** At `2026-08-28T04:08Z`, the deployed Worker remains healthy in paper mode; both research and durable schedulers target `2026-08-29T00:00Z`, and position management remains ready. No additional cycle is claimed before the boundary.
 - **Current operating mode:** Paper Autopilot; continuous order submission is not enabled.
 - **Current goal:** Complete authenticated dashboard verification and reconcile the authorized AAPL order through its terminal broker state, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
+
+### Phase 6.309 — Pre-cycle post-deployment heartbeat (2026-08-28)
+
+- [x] Confirm the deployed Worker remains `healthy` in `paper_autopilot` mode.
+- [x] Confirm research and durable schedulers remain scheduled for `2026-08-29T00:00:00Z`.
+- [x] Confirm position management remains `ready` with no blocked reasons.
+- [x] Confirm Telegram policy remains approved-only with a 24-hour routine cooldown.
+- [x] Confirm continuous order submission remains disabled.
+- [ ] Verify the natural UTC cycle after the scheduled boundary.
 
 ### Phase 6.308 — Domain risk-contract regression hardening (2026-08-28)
 
