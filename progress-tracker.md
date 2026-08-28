@@ -706,6 +706,13 @@
 - [x] Confirm the latest hosted monitor run completed successfully.
 - [x] Run the unified verifier against the new Worker release; runtime returned `verified: true` and the public dashboard returned HTTP `200`.
 
+### Phase 6.497 — Cron activation audit (2026-08-29)
+
+- [x] Confirm the hosted monitor workflow is active and branch-triggered runs continue to pass.
+- [x] Confirm the default branch remains at `6cb7c4d`, so the workflow's cron trigger is not yet observable on the default branch.
+- [x] Preserve explicit release control by not merging to `main` implicitly.
+- [ ] Merge the verified branch through the repository review process, then verify the first cron-triggered run.
+
 ### Phase 6.458 — Natural hosted cycle continuity (2026-08-29)
 
 - [x] Verify the hosted Worker remains healthy on release `febcda5f7a5…` with Paper Autopilot and order submission still enabled.
