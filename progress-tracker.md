@@ -2,8 +2,8 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.282 — Scheduled-cycle verification enabled.
-- **Status:** The hosted daily-cycle verifier now returns `verified` for the latest scheduled cycle with fresh reconciliation and no queued or active work/dead-letter jobs. Retained historical failed rows no longer block a valid cycle. The Worker remains healthy and continuous order submission remains disabled.
+- **Phase:** Phase 6.283 — Durable position-alert cooldown.
+- **Status:** Position-detection notifications now use the same durable 24-hour persistence cooldown as routine digests, preventing Worker restarts from repeating the same alert. The change is deployed successfully; scheduler, position management, and continuous paper-order gates remain unchanged.
 - **Current operating mode:** Paper Autopilot; continuous order submission is not enabled.
 - **Current goal:** Complete authenticated dashboard verification and reconcile the authorized AAPL order through its terminal broker state, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
@@ -104,6 +104,14 @@
 - [x] Confirm both durable queues are present with zero queued/active jobs; retained work-queue failure history does not block verification.
 - [x] Confirm the hosted verifier returned `status: "verified"` without changing execution settings.
 - [ ] Verify the next natural UTC cycle and add its digest/evidence record.
+
+### Phase 6.283 — Durable position-alert cooldown (2026-08-28)
+
+- [x] Replace process-local position-detection deduplication with a durable 24-hour cooldown key.
+- [x] Preserve immediate lifecycle alerts while preventing duplicate alerts after Worker restarts.
+- [x] Pass position-runtime and Telegram notifier tests, Worker typecheck, and lint.
+- [x] Deploy Worker release `6dccdf55-d556-4fe7-a9af-1ba107bcae8e`; deployment reached `SUCCESS`.
+- [ ] Verify the next natural cycle and confirm alert counts remain within policy.
 
 ### Phase 6.269 — Paper Autopilot runtime readiness (2026-08-28)
 
