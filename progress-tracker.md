@@ -519,6 +519,13 @@
 - [x] Confirm the Worker self-healed (`reconnectCount: 1`, stream `connected`) without changing paper mode, risk policy, kill switch, or order authority.
 - [x] Re-run the hosted runtime verifier; it returned `verified: true` with API/Worker healthy and schedulers ready.
 
+### Phase 6.467 — Monitor-trigger release deployed (2026-08-29)
+
+- [x] Confirm Railway deployment for commit `ed455f1` reached `SUCCESS`.
+- [x] Verify the deployed Worker/API contract returned `verified: true` after rollout.
+- [x] Confirm paper mode, order-submission gate, connected stream, unblocked position management, inactive kill switch, and both schedulers remain healthy.
+- [ ] Observe the first GitHub Actions branch-triggered monitor run.
+
 ### Phase 6.458 — Natural hosted cycle continuity (2026-08-29)
 
 - [x] Verify the hosted Worker remains healthy on release `febcda5f7a5…` with Paper Autopilot and order submission still enabled.
