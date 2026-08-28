@@ -85,13 +85,15 @@ try {
   } else {
     stage = "order_submit";
     const orderRepository = createPaperOrderRepository(db);
-    const order = await executePaperAutopilotOrder({ autopilot: { enabled: true, mode: "paper_autopilot" }, order: { approval: { approvalId: approval.approvalId, intentId, riskDecision: { estimatedLoss: approval.assessment.estimatedLoss, estimatedLossPercent: approval.assessment.estimatedLossPercent, policyVersion: approval.policyVersion, reasons: approval.assessment.reasons }, status: "approved" }, assetClass: candidate.assetClass, clientOrderId: `${intentId}-paper`, ...(candidate.marketSnapshot ? { marketSnapshot: Object.fromEntries(Object.entries(candidate.marketSnapshot).map(([key, value]) => [key, value])) as Readonly<Record<string, string | null>> } : {}), quantity, side: "buy", symbol: candidate.symbol, timeInForce: "day", type: "market" }, notify: notifier.notify, persistence: orderRepository, submitter: createPaperOrderSubmitter({ apiKey: process.env.ALPACA_API_KEY ?? "", brokerConnectionEnabled: true, secretKey: process.env.ALPACA_SECRET_KEY ?? "" }) });
+    const order = await executePaperAutopilotOrder({ autopilot: { enabled: true, mode: "paper_autopilot" }, order: { approval: { approvalId: approval.approvalId, intentId, riskDecision: { estimatedLoss: approval.assessment.estimatedLoss, estimatedLossPercent: approval.assessment.estimatedLossPercent, policyVersion: approval.policyVersion, reasons: approval.assessment.reasons }, status: "approved" }, assetClass: candidate.assetClass, clientOrderId: `${intentId}-paper`, ...(candidate.marketSnapshot ? { marketSnapshot: Object.fromEntries(Object.entries(candidate.marketSnapshot).map(([key, value]) => [key, value])) as Readonly<Record<string, string | null>> } : {}), quantity, side: "buy", symbol: candidate.symbol, timeInForce: candidate.assetClass === "crypto" ? "gtc" : "day", type: "market" }, notify: notifier.notify, persistence: orderRepository, submitter: createPaperOrderSubmitter({ apiKey: process.env.ALPACA_API_KEY ?? "", brokerConnectionEnabled: true, secretKey: process.env.ALPACA_SECRET_KEY ?? "" }) });
     stage = "post_order_reconciliation";
     await reconcilePaperAccount(reader, accountRepository);
     console.log(JSON.stringify({ alpacaOrderId: order.brokerOrder.alpacaOrderId, approvalStatus: approval.status, approvalReference: config.approvalReference, capturedAt: snapshot.capturedAt.toISOString(), estimatedLossPercent: approval.assessment.estimatedLossPercent, filledQuantity: order.brokerOrder.filledQuantity ?? null, intentId, researchRunId: request.runId, runId: config.runId, status: "paper_order_reconciled" }));
   }
-} catch {
-  console.error(`Paper end-to-end evidence run failed (stage=${stage}).`);
+} catch (error: unknown) {
+  const message = error instanceof Error ? error.message : "unknown";
+  const errorCode = message.match(/HTTP \d{3}/)?.[0] ?? (message.includes("order") ? "order_submission_error" : "unknown");
+  console.error(JSON.stringify({ errorCode, stage }));
   process.exitCode = 1;
 } finally {
   await pool.end();
