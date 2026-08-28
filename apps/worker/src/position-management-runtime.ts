@@ -58,7 +58,7 @@ export function buildPositionExitDecisionLog(input: { readonly reason?: string; 
 
 /** Bounded record for positions that cannot yet be managed by a stored exit plan. */
 export function buildUnmanagedPositionLog(symbols: readonly string[]) {
-  return { event: "unmanaged_position_detected", symbols: symbols.filter((symbol) => symbol.trim().length > 0).slice(0, 10) } as const;
+  return { event: "unmanaged_position_detected", level: "warn", symbols: symbols.filter((symbol) => symbol.trim().length > 0).slice(0, 10) } as const;
 }
 
 function parseBoolean(name: string, value: string | undefined, defaultValue: boolean): boolean {

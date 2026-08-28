@@ -95,6 +95,12 @@
 - [x] Confirm `BTCUSD` and `PFD` continue to emit bounded unmanaged-position warnings with zero automatic exits submitted.
 - [ ] Publish the matching web revision after Vercel's deployment quota resets and verify the authenticated warning UI.
 
+### Phase 6.406 — Unmanaged-position log severity (2026-08-29)
+
+- [x] Classify `unmanaged_position_detected` records as structured `warn` events while preserving bounded symbols and fail-closed behavior.
+- [x] Add regression coverage and pass the full 318-test suite plus Worker typecheck.
+- [ ] Deploy and verify the warning-level record in hosted logs.
+
 ### Phase 6.387 — Hosted cycle baseline after reason-logging rollout (2026-08-28)
 
 - [x] Verify Worker deployment `8cabc43d-b343-47c1-9a0f-257198dabdcf` is `SUCCESS` and health is `healthy`.

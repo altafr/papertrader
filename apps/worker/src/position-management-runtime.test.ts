@@ -32,7 +32,7 @@ describe("position alert deduplication", () => {
 
 describe("position pass observability", () => {
   it("builds a bounded unmanaged-position warning", () => {
-    expect(buildUnmanagedPositionLog(["BTC/USD", "", "ETH/USD"])).toEqual({ event: "unmanaged_position_detected", symbols: ["BTC/USD", "ETH/USD"] });
+    expect(buildUnmanagedPositionLog(["BTC/USD", "", "ETH/USD"])).toEqual({ event: "unmanaged_position_detected", level: "warn", symbols: ["BTC/USD", "ETH/USD"] });
   });
 
   it("builds a bounded credential-free pass record", () => {
