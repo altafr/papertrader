@@ -187,6 +187,13 @@
 - [x] Add regression coverage; the full 318-test suite, all typechecks, and lint pass.
 - [ ] Run the verifier against production with the protected operator token and publish the matching dashboard revision after Vercel quota reset.
 
+### Phase 6.419 — Protected verification preflight (2026-08-29)
+
+- [x] Confirm the local environment does not contain `OPERATOR_AUTH_TOKEN`; no credential was printed or inferred.
+- [x] Confirm the production `/v1/read-model` boundary returns HTTP `401` without authentication.
+- [x] Confirm the Worker remains healthy, Paper Autopilot, scheduled, and position-management ready.
+- [ ] Run the authenticated verifier once the protected operator token is supplied through the approved secret channel.
+
 ### Phase 6.387 — Hosted cycle baseline after reason-logging rollout (2026-08-28)
 
 - [x] Verify Worker deployment `8cabc43d-b343-47c1-9a0f-257198dabdcf` is `SUCCESS` and health is `healthy`.
