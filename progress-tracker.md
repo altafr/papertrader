@@ -833,6 +833,13 @@
 - [x] Add fake-timer regression coverage; no broker, risk, or order authority changed.
 - [ ] Deploy the Worker revision and verify hosted health remains healthy with a fresh pass.
 
+### Phase 6.515 — Position liveness alert deployed (2026-08-29)
+
+- [x] Deploy Worker commit `8887459` to Railway; deployment `e2658aa1-3b82-4852-9f52-34331c45b4c7` reached `SUCCESS`.
+- [x] Confirm live Worker health remains `healthy`, Paper Autopilot, and position management `ready` with a fresh pass.
+- [x] Confirm stale episodes invoke one failure callback and successful recovery clears the latch; focused scheduler tests pass.
+- [ ] Continue hosted observation and verify a real market-close summary delivery.
+
 ### Phase 6.458 — Natural hosted cycle continuity (2026-08-29)
 
 - [x] Verify the hosted Worker remains healthy on release `febcda5f7a5…` with Paper Autopilot and order submission still enabled.
