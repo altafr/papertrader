@@ -2,8 +2,8 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.342 — Runtime verification contract tests.
-- **Status:** The regression-verified runtime is deployed successfully to Railway. The read-only verification command has documented non-secret URL configuration and now uses a separately unit-tested fail-closed contract for API/Worker health, paper mode, order submission, connected market stream, and position-management readiness. The hosted Worker remains healthy in Paper Autopilot; the remaining execution blocker is Alpaca's external crypto-order entitlement response. The current dashboard preview remains Ready, while production promotion is limited by Vercel's free-tier quota.
+- **Phase:** Phase 6.343 — Natural 13:00 crypto cycle.
+- **Status:** The hosted Worker completed the naturally scheduled `13:00 UTC` crypto preparation cycle at `13:00:26 UTC` and advanced the next run to `13:15 UTC`. It remained healthy with a connected market stream and ready position management. The read-only runtime verifier is unit-tested and passes; the remaining execution blocker is Alpaca's external crypto-order entitlement response, while authenticated dashboard verification and Vercel production promotion remain pending.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Verify the first natural paper research/order cycle and authenticated dashboard portfolio/position rendering, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
@@ -120,6 +120,14 @@
 - [x] Extract the runtime acceptance decision into a side-effect-free contract module.
 - [x] Add regression coverage for both healthy and fail-closed prerequisite states.
 - [ ] Run the verifier after the next natural scheduler cycle and record successful paper order reconciliation separately.
+
+### Phase 6.343 — Natural 13:00 crypto cycle (2026-08-28)
+
+- [x] Observe the scheduled 15-minute cycle without forcing a manual run.
+- [x] Confirm Worker health reports `lastRunAt: 13:00:26 UTC` and `nextRunAt: 13:15 UTC`.
+- [x] Confirm the Worker remained healthy and position management remained ready after the cycle.
+- [ ] Confirm the persisted candidate/risk decision and whether a broker submission was attempted through the authenticated audit view.
+- [ ] Resolve Alpaca's external crypto-order entitlement response before an approved crypto candidate can submit.
 
 ### Phase 6.327 — Asset-aware crypto order execution (2026-08-28)
 
