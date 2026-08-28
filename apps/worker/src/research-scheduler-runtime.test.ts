@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { ResearchWatchlistCandidate } from "@momentum/domain";
 
-import { buildPaperRiskCycleFailureAlert, buildPaperRiskCycleLog, buildResearchCycleLog, createResearchSchedulerFromEnvironment, dedupeResearchCandidates } from "./research-scheduler-runtime.js";
+import { buildPaperRiskCycleFailureAlert, buildPaperRiskCycleLog, buildResearchCycleLog, createResearchSchedulerFromEnvironment, dedupeResearchCandidates, isUsMarketCloseSummaryWindow } from "./research-scheduler-runtime.js";
 
 describe("research scheduler startup composition", () => {
   it("does not construct external clients when the schedule is disabled", () => {
@@ -25,6 +25,12 @@ describe("research scheduler startup composition", () => {
     const duplicate = { ...candidate };
     const equity = { assetClass: "us_equity" as const, symbol: "BTC/USD" } as never;
     expect(dedupeResearchCandidates([candidate, duplicate, equity])).toHaveLength(2);
+  });
+
+  it("detects the weekday New York market-close hour across timezone conversion", () => {
+    expect(isUsMarketCloseSummaryWindow(new Date("2026-08-28T20:15:00.000Z"))).toBe(true);
+    expect(isUsMarketCloseSummaryWindow(new Date("2026-08-29T20:15:00.000Z"))).toBe(false);
+    expect(isUsMarketCloseSummaryWindow(new Date("2026-01-02T21:15:00.000Z"))).toBe(true);
   });
 
   it("bounds risk-cycle log reasons and run identifiers", () => {

@@ -12,6 +12,16 @@ import { runPaperAutopilotRiskCycle } from "./paper-autopilot-cycle.js";
 import { executePaperAutopilotOrder } from "./paper-execution.js";
 import { reconcilePaperAccount } from "./reconcile.js";
 import { getPaperAutopilotQuantity } from "./paper-quantity.js";
+import { formatDailyPortfolioSummary } from "./daily-summary.js";
+import { getDailyNotificationDedupeKey } from "./notification-dedupe.js";
+
+/** True during the weekday New York 16:00 close hour, including DST. */
+export function isUsMarketCloseSummaryWindow(now = new Date()): boolean {
+  const parts = new Intl.DateTimeFormat("en-US", { hour: "2-digit", hour12: false, timeZone: "America/New_York", weekday: "short" }).formatToParts(now);
+  const weekday = parts.find((part) => part.type === "weekday")?.value;
+  const hour = Number(parts.find((part) => part.type === "hour")?.value);
+  return ["Mon", "Tue", "Wed", "Thu", "Fri"].includes(weekday ?? "") && hour === 16;
+}
 
 export function buildPaperRiskCycleFailureAlert(input: { readonly agentType: string; readonly runId: string }) {
   return { code: "paper_risk_cycle_failed", dedupeKey: `paper_risk_cycle_failed:${input.runId}`, message: `Paper risk cycle failed closed after ${input.agentType} research run ${input.runId}; no additional order decision was authorized.`, severity: "critical" as const };
@@ -86,10 +96,15 @@ export function createResearchSchedulerFromEnvironment(environment: NodeJS.Proce
       },
       onBatchResult: async (results) => {
         const candidates = dedupeResearchCandidates(results.flatMap((result) => result.candidates ?? []));
-        if (candidates.length === 0) return;
         const notifier = createRuntimeAlertNotifier(environment, alertRepository);
         try {
-          await reconcilePaperAccount(createPaperAccountReader({ apiKey, secretKey }), createAccountStateRepository(db));
+          const accountRepository = createAccountStateRepository(db);
+          const snapshot = await reconcilePaperAccount(createPaperAccountReader({ apiKey, secretKey }), accountRepository);
+          const model = await accountRepository.getLatestReadModel(snapshot.accountId);
+          if (model?.snapshot && isUsMarketCloseSummaryWindow(model.snapshot.capturedAt)) {
+            await notifier.notify({ code: "daily_portfolio_summary", cooldownKey: "daily_portfolio_summary:portfolio", cooldownMs: 86_400_000, dedupeKey: getDailyNotificationDedupeKey("daily_portfolio_summary", "portfolio", model.snapshot.capturedAt), message: formatDailyPortfolioSummary({ buyingPower: model.snapshot.buyingPower, cash: model.snapshot.cash, equity: model.snapshot.equity, ...(model.snapshot.lastEquity == null ? {} : { lastEquity: model.snapshot.lastEquity }), orders: model.orders.length, positions: model.positions }), occurredAt: model.snapshot.capturedAt.toISOString(), severity: "info" });
+          }
+          if (candidates.length === 0) return;
           const orderRepository = createPaperOrderRepository(db);
           const executeApproved = orderSubmissionFlag === "true" ? async (order: Parameters<typeof executePaperAutopilotOrder>[0]["order"]) => {
             await executePaperAutopilotOrder({ autopilot: { enabled: true, mode: "paper_autopilot" }, order, notify: notifier.notify, persistence: orderRepository, submitter: createPaperOrderSubmitter({ apiKey, brokerConnectionEnabled: true, secretKey }) });

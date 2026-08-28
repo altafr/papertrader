@@ -302,6 +302,14 @@
 - [x] Confirm daily portfolio-summary delivery is durable and deduplicated, but record that the current trigger is a UTC daily schedule rather than an exact US-market-close trigger.
 - [ ] Add and verify a market-calendar-aware end-of-session summary trigger, while preserving the existing daily fallback and notification cooldown.
 
+### Phase 6.435 — Market-close portfolio summary trigger (2026-08-29)
+
+- [x] Add a daylight-saving-aware New York 16:00 weekday close-hour detector to the continuous research runtime.
+- [x] Emit the daily portfolio summary from the freshly reconciled account model during that close hour, even when no candidates are produced.
+- [x] Reuse the existing once-per-day cooldown and dedupe key so the durable UTC daily fallback cannot create duplicate Telegram notifications.
+- [x] Add timezone-boundary regression coverage; full test suite passes with 319 tests, Worker typecheck passes, and lint passes.
+- [ ] Deploy the Worker revision and verify one hosted close-hour summary event without exposing Telegram credentials.
+
 ### Phase 6.387 — Hosted cycle baseline after reason-logging rollout (2026-08-28)
 
 - [x] Verify Worker deployment `8cabc43d-b343-47c1-9a0f-257198dabdcf` is `SUCCESS` and health is `healthy`.
