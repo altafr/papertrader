@@ -60,6 +60,14 @@
 - [x] Deploy Worker revision `5b39dd9e9166ec57190f42ed70185880e9d54a40`; Railway deployment `674e7458-bbb8-44e3-ae15-4b7ff187b544` reached `SUCCESS`.
 - [x] Verify the next hosted pass remained healthy and emitted bounded managed-symbol evidence (`AAPL`) with three persisted positions.
 
+### Phase 6.402 — Unmanaged-position safety alert (2026-08-28)
+
+- [x] Detect persisted positions that have no stored deterministic exit plan instead of silently excluding them from management.
+- [x] Emit a bounded structured `unmanaged_position_detected` record and one critical, 24-hour-deduplicated Telegram review alert per asset.
+- [x] Keep unmanaged positions fail-closed: no automatic order is submitted until an exit plan is present.
+- [x] Add regression coverage; focused worker tests pass with 318 total tests.
+- [ ] Deploy and verify the hosted Worker alert/log behavior against the existing unmanaged positions.
+
 ### Phase 6.387 — Hosted cycle baseline after reason-logging rollout (2026-08-28)
 
 - [x] Verify Worker deployment `8cabc43d-b343-47c1-9a0f-257198dabdcf` is `SUCCESS` and health is `healthy`.

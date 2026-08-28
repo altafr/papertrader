@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { buildPositionExitDecisionLog, buildPositionManagementLog, getPaperOrderStatusTransitions, getPositionDetectedDedupeKey, getPositionExitDecisionDedupeKey, getPositionExitIntentId, groupPositionSymbolsByAssetClass } from "./position-management-runtime.js";
+import { buildPositionExitDecisionLog, buildPositionManagementLog, buildUnmanagedPositionLog, getPaperOrderStatusTransitions, getPositionDetectedDedupeKey, getPositionExitDecisionDedupeKey, getPositionExitIntentId, groupPositionSymbolsByAssetClass } from "./position-management-runtime.js";
 
 describe("paper order status transitions", () => {
   it("returns only changed orders", () => {
@@ -31,6 +31,10 @@ describe("position alert deduplication", () => {
 });
 
 describe("position pass observability", () => {
+  it("builds a bounded unmanaged-position warning", () => {
+    expect(buildUnmanagedPositionLog(["BTC/USD", "", "ETH/USD"])).toEqual({ event: "unmanaged_position_detected", symbols: ["BTC/USD", "ETH/USD"] });
+  });
+
   it("builds a bounded credential-free pass record", () => {
     expect(buildPositionManagementLog({ managed: 1, positions: 2, submitted: 0 })).toEqual({ event: "position_management_pass", managed: 1, positions: 2, submitted: 0 });
     expect(buildPositionManagementLog({ managed: 2, positions: 3, submitted: 0, symbols: ["AAPL", "BTC/USD"] })).toEqual({ event: "position_management_pass", managed: 2, positions: 3, submitted: 0, symbols: ["AAPL", "BTC/USD"] });

@@ -56,6 +56,11 @@ export function buildPositionExitDecisionLog(input: { readonly reason?: string; 
   return { event: "position_exit_decision", reason: input.reason ?? null, shouldExit: input.shouldExit, submitted: input.submitted ?? false, symbol: input.symbol } as const;
 }
 
+/** Bounded record for positions that cannot yet be managed by a stored exit plan. */
+export function buildUnmanagedPositionLog(symbols: readonly string[]) {
+  return { event: "unmanaged_position_detected", symbols: symbols.filter((symbol) => symbol.trim().length > 0).slice(0, 10) } as const;
+}
+
 function parseBoolean(name: string, value: string | undefined, defaultValue: boolean): boolean {
   if (value === undefined) return defaultValue;
   if (value === "true") return true;
@@ -110,6 +115,14 @@ export async function runPositionManagementCycle(environment: NodeJS.ProcessEnv 
     const plans = new Map(rows.filter((row) => row.alpacaOrderId && row.entryPrice && row.plannedStopPrice && row.strategyKey && row.strategyVersion).map((row) => [`${row.assetClass}:${row.symbol}`, row]));
     const positions = model?.positions ?? [];
     const managedPositions = positions.filter((position) => plans.has(`${position.assetClass}:${position.symbol}`));
+    const unmanagedPositions = positions.filter((position) => !plans.has(`${position.assetClass}:${position.symbol}`));
+    if (unmanagedPositions.length > 0) {
+      const symbols = unmanagedPositions.map((position) => position.symbol);
+      console.log(JSON.stringify(buildUnmanagedPositionLog(symbols)));
+      for (const position of unmanagedPositions) {
+        await notifier.notify({ code: "unmanaged_position_detected", cooldownKey: `unmanaged_position_detected:${position.assetClass}:${position.symbol}`, cooldownMs: POSITION_DETECTED_COOLDOWN_MS, dedupeKey: `unmanaged_position_detected:${position.assetClass}:${position.symbol}`, message: `Paper position requires review: ${position.symbol} has no stored deterministic exit plan and was not managed.`, severity: "critical" });
+      }
+    }
     if (managedPositions.length === 0) {
       console.log(JSON.stringify(buildPositionManagementLog({ managed: 0, positions: positions.length, submitted: 0 })));
       return { managed: 0, submitted: 0 };
