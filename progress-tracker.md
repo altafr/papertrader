@@ -194,6 +194,12 @@
 - [x] Confirm the Worker remains healthy, Paper Autopilot, scheduled, and position-management ready.
 - [ ] Run the authenticated verifier once the protected operator token is supplied through the approved secret channel.
 
+### Phase 6.420 — Repository release and secret-surface gate (2026-08-29)
+
+- [x] Run the repository-wide build successfully across all packages and applications.
+- [x] Run the secret-surface audit successfully; no credential-like values were found in source or browser output.
+- [ ] Publish the resulting dashboard revision after Vercel's deployment quota resets.
+
 ### Phase 6.387 — Hosted cycle baseline after reason-logging rollout (2026-08-28)
 
 - [x] Verify Worker deployment `8cabc43d-b343-47c1-9a0f-257198dabdcf` is `SUCCESS` and health is `healthy`.
