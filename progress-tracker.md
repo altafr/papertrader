@@ -2,11 +2,20 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.307 — Hosted broker-truth reconciliation.
-- **Status:** A guarded hosted paper reconciliation completed successfully with no order submission. Performance remains ready with 100 snapshots and the only stability block is the intentional 30-day evidence requirement.
+- **Phase:** Phase 6.308 — Domain risk-contract regression hardening.
+- **Status:** Added a domain-level regression assertion proving the reported loss percentage is 5% of invested notional. The full suite remains green with 295 tests and clean lint.
 - **Current operating mode:** Paper Autopilot; continuous order submission is not enabled.
 - **Current goal:** Complete authenticated dashboard verification and reconcile the authorized AAPL order through its terminal broker state, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
+
+### Phase 6.308 — Domain risk-contract regression hardening (2026-08-28)
+
+- [x] Add a direct domain assertion for `estimatedLossPercent = 5.00000000` at the invested-notional limit.
+- [x] Rebuild the domain package successfully.
+- [x] Run the complete suite: 77 files and 295 tests passed.
+- [x] Run ESLint with zero warnings.
+- [x] Preserve the deployed paper-only runtime and deterministic risk gates.
+- [ ] Continue daily evidence and verify the next natural scheduler cycle.
 
 ### Phase 6.307 — Hosted broker-truth reconciliation (2026-08-28)
 

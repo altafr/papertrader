@@ -39,6 +39,7 @@ describe("decimal-safe metrics", () => {
     expect(result.allowedRisk).toBe("0.10000000");
     expect(result.investedNotional).toBe("2.00000000");
     expect(result.estimatedLoss).toBe("0.10000000");
+    expect(result.estimatedLossPercent).toBe("5.00000000");
     expect(result.passes).toBe(true);
     expect(calculateTradeRisk({ ...resultInput(), quantity: "1" }).passes).toBe(false);
   });
