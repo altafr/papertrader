@@ -797,6 +797,13 @@
 - [x] Add regression coverage for equity and crypto position labels.
 - [ ] Deploy the Worker revision and verify the next market-close delivery.
 
+### Phase 6.510 — Position-level summary deployed (2026-08-29)
+
+- [x] Deploy Worker commit `64c1e40` to Railway; deployment `1f9b4550-2155-4cb6-b752-21153294d5c1` reached `SUCCESS`.
+- [x] Confirm live Worker health remains `healthy`, Paper Autopilot, and position-management `ready` after rollout.
+- [x] Preserve the once-daily cooldown and bounded maximum-ten position digest.
+- [ ] Verify the next market-close Telegram delivery and continue the paper-forward evidence window.
+
 ### Phase 6.458 — Natural hosted cycle continuity (2026-08-29)
 
 - [x] Verify the hosted Worker remains healthy on release `febcda5f7a5…` with Paper Autopilot and order submission still enabled.
