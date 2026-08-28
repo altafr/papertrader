@@ -5410,3 +5410,10 @@
 - Railway API deployment `b28000cc-8063-43fa-ba19-548f01e865bc` reached `SUCCESS`.
 - Live API health remains `healthy`; risk-cycle evidence is now validated and bounded before dashboard consumption.
 - **Next smallest unit:** verify the authenticated dashboard after Vercel publication becomes available, while the Worker continues its scheduled paper cycles.
+
+### 2026-08-29 — Phase 6.268 durable risk-cycle evidence verification
+
+- Full regression remains green after the durable risk-cycle summary work; the API and Worker deployment paths are healthy.
+- Vercel production publication remains constrained by the free-plan `api-deployments-free-per-day` limit. The feature branch remains the authoritative verified dashboard source.
+- The Railway Worker continues in paper-autopilot mode with research scheduling and 60-second position management enabled.
+- **Next smallest unit:** publish the dashboard after the Vercel quota resets and validate the authenticated risk-cycle card against PostgreSQL.
