@@ -23,6 +23,7 @@
 - Use decimal-safe arithmetic and explicit rounding rules compatible with the asset/order requirements.
 - Store currency, unit, precision, price source, and as-of timestamp with calculated values.
 - Separate realized P/L, unrealized P/L, fees, slippage, deposits/withdrawals, and mark-to-market changes.
+- Operational summaries must aggregate and format persisted monetary strings with decimal-safe helpers; JavaScript `Number` is not permitted for P/L, exposure, or threshold arithmetic.
 - Add tests around zero, negative values, fractional quantities, partial fills, rounding boundaries, and missing marks.
 
 ## Time and Market Data

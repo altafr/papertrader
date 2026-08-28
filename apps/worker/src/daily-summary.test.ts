@@ -9,4 +9,8 @@ describe("daily portfolio summary", () => {
   it("reports unavailable metrics without inventing values", () => {
     expect(formatDailyPortfolioSummary({ buyingPower: "not reported", cash: "not reported", equity: "not reported", orders: 0, positions: [{ marketValue: "bad", unrealizedPl: "bad" }] })).toContain("day P/L not reported, unrealized P/L not reported, gross exposure not reported");
   });
+
+  it("keeps decimal precision when aggregating very small values", () => {
+    expect(formatDailyPortfolioSummary({ buyingPower: "0", cash: "0", equity: "1000.00000001", lastEquity: "1000", orders: 0, positions: [{ marketValue: "0.1", unrealizedPl: "0.1" }, { marketValue: "0.2", unrealizedPl: "0.2" }] })).toContain("day P/L 0.00, unrealized P/L 0.30, gross exposure 0.30");
+  });
 });

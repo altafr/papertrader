@@ -53,6 +53,15 @@ export function addDecimalStrings(left: DecimalString, right: DecimalString): De
   return output(decimal(left).plus(decimal(right)));
 }
 
+export function subtractDecimalStrings(left: DecimalString, right: DecimalString): DecimalString {
+  return output(decimal(left).minus(decimal(right)));
+}
+
+export function formatDecimalString(value: DecimalString, decimalPlaces = 2): string {
+  if (!Number.isSafeInteger(decimalPlaces) || decimalPlaces < 0 || decimalPlaces > 20) throw new Error("decimalPlaces must be an integer from 0 to 20.");
+  return decimal(value).toDecimalPlaces(decimalPlaces).toFixed(decimalPlaces);
+}
+
 export interface PerformancePoint {
   readonly capturedAt: string;
   readonly equity: DecimalString;

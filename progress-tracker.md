@@ -776,6 +776,13 @@
 - [x] Preserve the 5% deterministic risk/stop policy and paper-only execution boundary.
 - [ ] Publish the pending web revision after Vercel quota reset and complete authenticated dashboard verification.
 
+### Phase 6.507 — Decimal-safe Telegram portfolio summary (2026-08-29)
+
+- [x] Replace floating-point P/L and exposure aggregation in the daily Telegram summary with domain decimal helpers.
+- [x] Preserve unavailable-data fail-closed behavior and two-decimal operator formatting.
+- [x] Add precision regression coverage and update the financial-calculation contract.
+- [ ] Deploy the Worker revision and verify the next persisted summary after market close.
+
 ### Phase 6.458 — Natural hosted cycle continuity (2026-08-29)
 
 - [x] Verify the hosted Worker remains healthy on release `febcda5f7a5…` with Paper Autopilot and order submission still enabled.
