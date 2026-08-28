@@ -257,6 +257,13 @@
 - [x] Confirm the separate one-shot market preflight remains approval-gated and refuses to run without its explicit operator approval flag; no safety boundary was bypassed.
 - [ ] Continue observing scheduled market-data cycles and accumulate the 30-day paper-forward evidence window.
 
+### Phase 6.429 — Dashboard publication boundary recheck (2026-08-29)
+
+- [x] Re-attempt the linked Vercel production publication with the verified dashboard source.
+- [x] Confirm the provider still rejects the deployment with `api-deployments-free-per-day`; no partial or unverified publication was reported.
+- [x] Keep the existing production dashboard and server-side paper runtime unchanged while the quota is exhausted.
+- [ ] Publish the queued dashboard source after the provider quota resets, then verify authenticated positions, P/L, review-required state, and CSV export.
+
 ### Phase 6.387 — Hosted cycle baseline after reason-logging rollout (2026-08-28)
 
 - [x] Verify Worker deployment `8cabc43d-b343-47c1-9a0f-257198dabdcf` is `SUCCESS` and health is `healthy`.
