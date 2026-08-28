@@ -2,8 +2,8 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.370 — Hosted release identity deployment.
-- **Status:** Deployment `dd729cb2-4cf1-4380-8a8e-632d10b0990a` reached `SUCCESS`; live health confirms Alpaca and PostgreSQL remain configured and Paper Autopilot remains active. Railway does not currently provide a commit SHA environment value, so the optional release field is correctly omitted. Authenticated dashboard rendering and a successful broker-reconciled order remain pending.
+- **Phase:** Phase 6.371 — Hosted paper runtime acceptance recheck.
+- **Status:** The strengthened hosted verifier passes against the live API and Worker: both healthy, Alpaca and PostgreSQL configured, Paper Autopilot/order submission enabled, market stream connected, position management ready, research and durable schedulers scheduled. Authenticated dashboard rendering and a successful broker-reconciled order remain pending.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Verify the first natural paper research/order cycle and authenticated dashboard portfolio/position rendering, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
@@ -97,6 +97,13 @@
 - [x] Confirm deployment `dd729cb2-4cf1-4380-8a8e-632d10b0990a` reached `SUCCESS`.
 - [x] Confirm live health remains configured and healthy; absent host SHA is represented as omitted rather than fabricated.
 - [ ] Configure a non-secret release SHA at the host if exact revision display is required.
+
+### Phase 6.371 — Hosted paper runtime acceptance recheck (2026-08-28)
+
+- [x] Run `verify:paper-runtime` against the live Railway API and Worker endpoints.
+- [x] Confirm all configuration, scheduler, stream, position, and paper-execution prerequisites pass.
+- [x] Confirm the Worker remains in `paper_autopilot` mode with no kill switch activation.
+- [ ] Observe a natural research cycle and reconcile a successful paper order.
 
 ### Phase 6.368 — Configuration-aware hosted acceptance (2026-08-28)
 
