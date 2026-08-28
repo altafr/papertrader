@@ -5,9 +5,10 @@ export interface RuntimeAlertPersistence {
   markFailed(eventId: string, errorCode: string): Promise<unknown>;
   markSent(eventId: string): Promise<unknown>;
   listRetryable?(limit?: number, maxAttempts?: number): Promise<readonly { readonly code: string; readonly eventId: string; readonly message: string; readonly occurredAt: Date; readonly severity: "critical" | "info" | "warning" }[]>;
+  hasRecent?(code: string, dedupeKeyPrefix: string, since: Date): Promise<boolean>;
 }
 
-export type RuntimeAlert = Omit<TelegramAlert, "occurredAt"> & { readonly occurredAt?: string; readonly dedupeKey?: string };
+export type RuntimeAlert = Omit<TelegramAlert, "occurredAt"> & { readonly cooldownKey?: string; readonly cooldownMs?: number; readonly occurredAt?: string; readonly dedupeKey?: string };
 
 /** Best-effort operational alerting; notification failure never changes trading state. */
 export function createRuntimeAlertNotifier(environment: NodeJS.ProcessEnv = process.env, persistence?: RuntimeAlertPersistence) {
@@ -32,6 +33,10 @@ export function createRuntimeAlertNotifier(environment: NodeJS.ProcessEnv = proc
     notify(alert: RuntimeAlert): Promise<void> {
       const occurredAt = alert.occurredAt ?? new Date().toISOString();
       return (async () => {
+        if (persistence?.hasRecent && alert.cooldownKey && alert.cooldownMs && alert.cooldownMs > 0) {
+          const occurredAtDate = new Date(occurredAt);
+          if (await persistence.hasRecent(alert.code, alert.cooldownKey, new Date(occurredAtDate.getTime() - alert.cooldownMs))) return;
+        }
         const event = persistence ? await persistence.enqueue({ code: alert.code, dedupeKey: alert.dedupeKey ?? `${alert.code}:${alert.message}`, message: alert.message, occurredAt: new Date(occurredAt), severity: alert.severity }) : undefined;
         if (persistence && !event) return;
         try {

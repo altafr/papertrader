@@ -111,7 +111,7 @@ if (durableConfiguration.enabled) {
       const model = await accountRepository.getLatestReadModel(snapshot.accountId);
       const account = model?.snapshot;
       if (account) {
-        await createRuntimeAlertNotifier(process.env, createTelegramAlertRepository(db)).notify({ code: "daily_portfolio_summary", dedupeKey: getDailyNotificationDedupeKey("daily_portfolio_summary", "portfolio", account.capturedAt), message: formatDailyPortfolioSummary({ buyingPower: account.buyingPower, cash: account.cash, equity: account.equity, ...(account.lastEquity == null ? {} : { lastEquity: account.lastEquity }), orders: model?.orders.length ?? 0, positions: model?.positions ?? [] }), occurredAt: account.capturedAt.toISOString(), severity: "info" });
+        await createRuntimeAlertNotifier(process.env, createTelegramAlertRepository(db)).notify({ code: "daily_portfolio_summary", cooldownKey: "daily_portfolio_summary:portfolio", cooldownMs: 86_400_000, dedupeKey: getDailyNotificationDedupeKey("daily_portfolio_summary", "portfolio", account.capturedAt), message: formatDailyPortfolioSummary({ buyingPower: account.buyingPower, cash: account.cash, equity: account.equity, ...(account.lastEquity == null ? {} : { lastEquity: account.lastEquity }), orders: model?.orders.length ?? 0, positions: model?.positions ?? [] }), occurredAt: account.capturedAt.toISOString(), severity: "info" });
       }
       return { accountSnapshotId: snapshot.id };
     } finally {

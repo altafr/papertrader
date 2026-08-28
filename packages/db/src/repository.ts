@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, inArray, isNotNull, lt, sql } from "drizzle-orm";
+import { and, asc, desc, eq, gte, inArray, isNotNull, lt, sql } from "drizzle-orm";
 
 import type { Database } from "./client.js";
 import { accountSnapshots, activities, agentRuns, durableOneRunAudits, durableScheduleRuns, orders, paperBaselineConfirmations, paperOrderSubmissions, positions, shadowObservationOutcomes, shadowObservations, strategyLifecycleEvents, strategyPaperEvidence, telegramAlertEvents } from "./schema.js";
@@ -356,6 +356,10 @@ export function createTelegramAlertRepository(db: Database) {
     },
     async listRecent(limit = 100) {
       return db.select().from(telegramAlertEvents).orderBy(desc(telegramAlertEvents.occurredAt)).limit(limit);
+    },
+    async hasRecent(code: string, dedupeKeyPrefix: string, since: Date) {
+      const [row] = await db.select({ eventId: telegramAlertEvents.eventId }).from(telegramAlertEvents).where(and(eq(telegramAlertEvents.code, code), sql`${telegramAlertEvents.dedupeKey} LIKE ${`${dedupeKeyPrefix}:%`}`, gte(telegramAlertEvents.occurredAt, since))).limit(1);
+      return Boolean(row);
     },
     async listRetryable(limit = 20, maxAttempts = 5) {
       const rows = await db.select().from(telegramAlertEvents).where(and(inArray(telegramAlertEvents.deliveryStatus, ["pending", "failed"]), lt(telegramAlertEvents.attempts, maxAttempts))).orderBy(asc(telegramAlertEvents.occurredAt)).limit(limit);

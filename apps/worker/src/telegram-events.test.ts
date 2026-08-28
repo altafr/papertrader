@@ -37,4 +37,13 @@ describe("runtime Telegram event notifier", () => {
       globalThis.fetch = original;
     }
   });
+
+  it("honors a durable cooldown across UTC day boundaries", async () => {
+    const enqueue = vi.fn(async () => ({ eventId: "event-3" }));
+    const hasRecent = vi.fn(async () => true);
+    const notifier = createRuntimeAlertNotifier({ TELEGRAM_ALERTS_ENABLED: "true", TELEGRAM_BOT_TOKEN: "123456:ABC_def-123", TELEGRAM_CHAT_ID: "123" }, { enqueue, hasRecent, markSent: vi.fn(), markFailed: vi.fn() });
+    await notifier.notify({ code: "daily_portfolio_summary", cooldownKey: "daily_portfolio_summary:portfolio", cooldownMs: 86_400_000, dedupeKey: "daily_portfolio_summary:portfolio:2026-08-29", message: "summary", occurredAt: "2026-08-29T00:01:00.000Z", severity: "info" });
+    expect(hasRecent).toHaveBeenCalledWith("daily_portfolio_summary", "daily_portfolio_summary:portfolio", new Date("2026-08-28T00:01:00.000Z"));
+    expect(enqueue).not.toHaveBeenCalled();
+  });
 });

@@ -126,7 +126,7 @@ export function createResearchPreparationQueueHandler(input: {
   readonly persistence: ResearchRunPersistence;
   readonly source: ResearchPreparationSource;
   readonly onResult?: (result: ResearchPreparationResult) => Promise<void> | void;
-  readonly notify?: (alert: { readonly code: string; readonly dedupeKey?: string; readonly message: string; readonly severity: "critical" | "info" | "warning" }) => Promise<void> | void;
+  readonly notify?: (alert: { readonly code: string; readonly cooldownKey?: string; readonly cooldownMs?: number; readonly dedupeKey?: string; readonly message: string; readonly severity: "critical" | "info" | "warning" }) => Promise<void> | void;
 }) {
   const environment = input.environment ?? process.env;
   return async (job: ResearchPreparationJob): Promise<readonly ResearchPreparationResult[]> => {
@@ -142,7 +142,7 @@ export function createResearchPreparationQueueHandler(input: {
         await input.onResult?.(result);
         if (result.recommendationSymbols?.length) {
           const occurredAt = input.clock?.() ?? new Date();
-          await input.notify?.({ code: "research_recommendations", dedupeKey: getResearchRecommendationDedupeKey(result.agentType, occurredAt), message: `${result.agentType} selected ${result.recommendationSymbols.length} candidate(s): ${result.recommendationSymbols.join(", ")}. Evidence: ${(result.recommendationEvidence ?? []).join(" | ") || "not reported"}.`, severity: "info" });
+          await input.notify?.({ code: "research_recommendations", cooldownKey: `research_recommendations:${result.agentType}`, cooldownMs: 86_400_000, dedupeKey: getResearchRecommendationDedupeKey(result.agentType, occurredAt), message: `${result.agentType} selected ${result.recommendationSymbols.length} candidate(s): ${result.recommendationSymbols.join(", ")}. Evidence: ${(result.recommendationEvidence ?? []).join(" | ") || "not reported"}.`, severity: "info" });
         }
       } catch {
         const failedRunId = `research-preparation-${preparation.agentType}-failed-${Date.now()}`;
