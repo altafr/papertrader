@@ -5459,6 +5459,13 @@
 - Verification: focused test (2 tests), Worker TypeScript, and ESLint passed.
 - **Next smallest unit:** deploy the command and run it against the Railway PostgreSQL ledger after the next scheduled cycle.
 
+### 2026-08-29 — Phase 6.277 hosted risk-cycle status verification
+
+- Railway Worker deployment for the read-only status command reached `SUCCESS` (`11c6c8b4-3ef1-4b72-ac73-5ce3a3237b3c`).
+- Live command output reports 7 persisted risk-cycle decisions; the latest is a `risk_dry_run_rejected` state at `2026-08-28T14:15:11.041Z`. Output contained only bounded counters/status metadata.
+- This confirms the operator verification path can inspect durable risk evidence without dashboard access or broker mutation.
+- **Next smallest unit:** verify the next scheduled cycle’s retained Worker counters and reconcile any approved decision with its corresponding paper submission/position state.
+
 ### 2026-08-29 — Phase 6.275 architecture evidence contract
 
 - Documented the durable risk-cycle evidence contract in `architecture.md`, including its PostgreSQL source, seven-day window, bounded serialization, and restart-safe behavior.
