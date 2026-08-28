@@ -2,11 +2,19 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.265 — Legacy queue cleanup and scheduler recovery.
+- **Phase:** Phase 6.266 — Post-release notification verification.
 - **Status:** Notification delivery remains enabled, but routine research selections and portfolio/P&L summaries now use durable 24-hour cooldown checks. Individual rejected risk candidates are retained in the audit/dashboard and no longer generate Telegram warnings; approved selections, order/position lifecycle events, and failures remain immediate. Local tests, Worker typecheck, and lint pass; Railway deployment is healthy and reports the active policy. GitHub-triggered Vercel previews are Ready; production publish remains quota-limited.
 - **Current operating mode:** Paper Autopilot; continuous order submission is not enabled.
 - **Current goal:** Complete authenticated dashboard verification and reconcile the authorized AAPL order through its terminal broker state, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
+
+### Phase 6.266 — Post-release notification verification (2026-08-28)
+
+- [x] Compare Telegram event counts after the cooldown release against the historical 24-hour window.
+- [x] Confirm no post-release routine portfolio or research digest duplicates were persisted.
+- [x] Confirm the only post-release Telegram event was the expected critical legacy scheduler retry failure.
+- [x] Confirm the latest scheduled daily audit remains completed and Worker health remains healthy/scheduled.
+- [ ] Verify the next UTC scheduled cycle produces at most one routine digest per scope.
 
 ### Phase 6.265 — Legacy queue cleanup and scheduler recovery (2026-08-28)
 
