@@ -492,6 +492,13 @@
 - [x] Add regression coverage for both fail-closed conditions; focused runtime-contract tests pass.
 - [ ] Observe the hardened contract in the next scheduled hosted monitor run.
 
+### Phase 6.463 — Hardened hosted contract verified (2026-08-29)
+
+- [x] Run the hardened paper-runtime verifier against the live Railway API and Worker.
+- [x] Confirm `verified: true`, inactive global kill switch, no blocked position-management reasons, connected market stream, and both schedulers active.
+- [x] Confirm the live Worker release matches the observed contract (`8476393eb5ca…`).
+- [ ] Observe the same result from the first scheduled GitHub Actions monitor run.
+
 ### Phase 6.458 — Natural hosted cycle continuity (2026-08-29)
 
 - [x] Verify the hosted Worker remains healthy on release `febcda5f7a5…` with Paper Autopilot and order submission still enabled.
