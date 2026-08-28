@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { buildPaperRiskCycleFailureAlert, createResearchSchedulerFromEnvironment } from "./research-scheduler-runtime.js";
+import { buildPaperRiskCycleFailureAlert, buildResearchCycleLog, createResearchSchedulerFromEnvironment } from "./research-scheduler-runtime.js";
 
 describe("research scheduler startup composition", () => {
   it("does not construct external clients when the schedule is disabled", () => {
@@ -13,5 +13,9 @@ describe("research scheduler startup composition", () => {
 
   it("builds a run-scoped risk-cycle failure alert", () => {
     expect(buildPaperRiskCycleFailureAlert({ agentType: "crypto_research", runId: "research-1" })).toEqual({ code: "paper_risk_cycle_failed", dedupeKey: "paper_risk_cycle_failed:research-1", message: "Paper risk cycle failed closed after crypto_research research run research-1; no additional order decision was authorized.", severity: "critical" });
+  });
+
+  it("builds a bounded credential-free cycle log", () => {
+    expect(buildResearchCycleLog({ agentType: "crypto_research", runId: "run-1", status: "succeeded", candidates: [{ symbol: "BTC/USD" }, { symbol: "ETH/USD" }] })).toEqual({ agentType: "crypto_research", candidateCount: 2, event: "research_cycle_result", runId: "run-1", status: "succeeded", symbols: ["BTC/USD", "ETH/USD"] });
   });
 });

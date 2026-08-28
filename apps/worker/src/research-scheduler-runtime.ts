@@ -16,6 +16,11 @@ export function buildPaperRiskCycleFailureAlert(input: { readonly agentType: str
   return { code: "paper_risk_cycle_failed", dedupeKey: `paper_risk_cycle_failed:${input.runId}`, message: `Paper risk cycle failed closed after ${input.agentType} research run ${input.runId}; no additional order decision was authorized.`, severity: "critical" as const };
 }
 
+/** Structured, credential-free log record for hosted cycle observability. */
+export function buildResearchCycleLog(result: { readonly agentType: string; readonly runId: string; readonly status: string; readonly candidates?: readonly { readonly symbol: string }[] }) {
+  return { agentType: result.agentType, candidateCount: result.candidates?.length ?? 0, event: "research_cycle_result", runId: result.runId, status: result.status, symbols: (result.candidates ?? []).map((candidate) => candidate.symbol).slice(0, 10) } as const;
+}
+
 export function createResearchSchedulerFromEnvironment(environment: NodeJS.ProcessEnv = process.env) {
   const config = getResearchScheduleConfig(environment);
   if (!config.enabled) return undefined;
@@ -55,6 +60,7 @@ export function createResearchSchedulerFromEnvironment(environment: NodeJS.Proce
     ...(environment.PAPER_AUTOPILOT_ENABLED === "true" && environment.OPERATING_MODE === "paper_autopilot" ? {
       onResult: async (result) => {
         if (result.status !== "succeeded" || !result.candidates?.length) return;
+        console.log(JSON.stringify(buildResearchCycleLog(result)));
         const notifier = createRuntimeAlertNotifier(environment, alertRepository);
         try {
           await reconcilePaperAccount(createPaperAccountReader({ apiKey, secretKey }), createAccountStateRepository(db));
@@ -62,7 +68,8 @@ export function createResearchSchedulerFromEnvironment(environment: NodeJS.Proce
           const executeApproved = orderSubmissionFlag === "true" ? async (order: Parameters<typeof executePaperAutopilotOrder>[0]["order"]) => {
             await executePaperAutopilotOrder({ autopilot: { enabled: true, mode: "paper_autopilot" }, order, notify: notifier.notify, persistence: orderRepository, submitter: createPaperOrderSubmitter({ apiKey, brokerConnectionEnabled: true, secretKey }) });
           } : undefined;
-          await runPaperAutopilotRiskCycle({ approvalReference: result.runId, candidates: result.candidates, db, environment, quantity: environment.PAPER_AUTOPILOT_QUANTITY?.trim() || "1", ...(executeApproved ? { executeApproved } : {}), notify: notifier.notify });
+          const riskResults = await runPaperAutopilotRiskCycle({ approvalReference: result.runId, candidates: result.candidates, db, environment, quantity: environment.PAPER_AUTOPILOT_QUANTITY?.trim() || "1", ...(executeApproved ? { executeApproved } : {}), notify: notifier.notify });
+          console.log(JSON.stringify({ event: "paper_risk_cycle_result", researchRunId: result.runId, decisions: riskResults.map((decision) => ({ approvalStatus: decision.approvalStatus, executionStatus: decision.executionStatus, intentId: decision.intentId, symbol: decision.symbol })) }));
         } catch {
           await notifier.notify(buildPaperRiskCycleFailureAlert(result));
           throw new Error("paper_risk_cycle_failed");

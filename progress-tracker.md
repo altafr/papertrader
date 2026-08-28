@@ -2,8 +2,8 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.360 — Independent single-order execution guard.
-- **Status:** The paper cycle's one-order-per-reconciled-snapshot invariant is now enforced independently of Telegram delivery. Full regression remains green. Authenticated dashboard rendering, a successful broker-reconciled order, and Alpaca crypto entitlement resolution remain pending.
+- **Phase:** Phase 6.361 — Hosted cycle observability.
+- **Status:** The worker now emits bounded, credential-free structured logs for each persisted research result and paper risk hand-off, making candidate selection and deterministic outcomes visible in Railway logs. Full regression passes with 305 tests. Authenticated dashboard rendering, a successful broker-reconciled order, and Alpaca crypto entitlement resolution remain pending.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Verify the first natural paper research/order cycle and authenticated dashboard portfolio/position rendering, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
@@ -30,6 +30,14 @@
 - [x] Confirm deployment `02315f79-8d1f-45b8-8549-69e28cc2de15` reached `SUCCESS`.
 - [x] Confirm live Worker health remains `healthy`, research scheduling is `scheduled`, and position management is `ready`.
 - [ ] Capture a successful broker-reconciled paper order from an eligible candidate.
+
+### Phase 6.361 — Hosted cycle observability (2026-08-28)
+
+- [x] Add a bounded structured log for successful research results with agent, run, candidate count, and symbols.
+- [x] Add a structured paper-risk-cycle log with approval/execution status and intent IDs.
+- [x] Keep logs credential-free and omit provider response bodies, account secrets, and sensitive payloads.
+- [x] Verify the complete regression suite: 78 files and 305 tests passed.
+- [ ] Deploy to the worker and observe the next natural cycle's log records.
 
 ### Phase 6.360 — Independent single-order execution guard (2026-08-28)
 
