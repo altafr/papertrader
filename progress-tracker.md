@@ -5567,3 +5567,9 @@
 - Exported provenance uses the same latest-snapshot projection as the dashboard and preserves `review_required` for unmanaged positions.
 - Verification: API typecheck, ESLint, and full regression passed (88 files, 351 tests).
 - **Next smallest unit:** deploy the export revision and verify authenticated CSV column/value alignment with the live position table.
+
+### 2026-08-29 — Phase 6.291 position provenance export deployment
+
+- Railway API deployment `726a000e-5583-4554-adbe-fd5ef634a8a6` reached `SUCCESS`.
+- API health remains `healthy`; the protected CSV now carries the same position provenance and safety state as the dashboard read model.
+- **Next smallest unit:** verify the authenticated CSV against the live position snapshot, then continue the 30-day paper-forward evidence window.
