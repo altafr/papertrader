@@ -2,8 +2,8 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.376 — Expected-release runtime verification.
-- **Status:** The hosted runtime verifier can now optionally require an exact non-secret Worker release identifier. Against Railway, the verifier passes with release `c898b662242f86bb1c2ef9cee689054a20516cac` and all paper-runtime prerequisites. A natural cross-asset cycle and successful broker-reconciled order remain pending.
+- **Phase:** Phase 6.377 — Current hosted revision acceptance.
+- **Status:** Railway is running release `7605c5176033ac81820a5d9780e68217af594218`; the expected-release verifier passes alongside every paper-runtime prerequisite. The next natural cross-asset cycle and successful broker-reconciled order remain pending.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Verify the first natural paper research/order cycle and authenticated dashboard portfolio/position rendering, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
@@ -143,6 +143,13 @@
 - [x] Verify the live Worker against its reported release and all paper-runtime prerequisites.
 - [x] Run the complete regression suite: 78 files and 307 tests passed.
 - [ ] Verify the next natural cross-asset batch and reconcile a successful paper order.
+
+### Phase 6.377 — Current hosted revision acceptance (2026-08-28)
+
+- [x] Confirm the live Worker reports release `7605c5176033ac81820a5d9780e68217af594218`.
+- [x] Run the hosted verifier with that expected release and confirm `verified: true`.
+- [x] Confirm Alpaca/PostgreSQL configuration, Paper Autopilot, connected stream, ready positions, and both schedulers.
+- [ ] Observe the next natural cross-asset batch and reconcile a successful paper order.
 
 ### Phase 6.368 — Configuration-aware hosted acceptance (2026-08-28)
 
