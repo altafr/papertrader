@@ -2,8 +2,8 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.344 — Natural cycle persistence verification.
-- **Status:** The hosted Worker completed the naturally scheduled `13:00 UTC` crypto preparation cycle at `13:00:26 UTC`, and the deployed PostgreSQL database confirms persisted run `research-preparation-crypto_research-20260828130025` with `status: succeeded`. The Worker remains healthy with a connected market stream and ready position management; existing order rows show no newly filled crypto order. The remaining execution blocker is Alpaca's external crypto-order entitlement response, while authenticated dashboard verification and Vercel production promotion remain pending.
+- **Phase:** Phase 6.345 — Natural cycle execution-boundary verification.
+- **Status:** The deployed PostgreSQL ledger confirms the successful `13:00 UTC` research run, while the latest order-submission rows contain no 13:00 entry. This proves the cycle stopped before broker execution (consistent with deterministic risk rejection), rather than creating an untracked or unfilled broker order. The Worker remains healthy with a connected market stream and ready position management; authenticated dashboard verification and Alpaca crypto entitlement resolution remain pending.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Verify the first natural paper research/order cycle and authenticated dashboard portfolio/position rendering, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
@@ -135,6 +135,14 @@
 - [x] Confirm persisted run `research-preparation-crypto_research-20260828130025` completed with `status: succeeded`.
 - [x] Confirm recent order rows contain no newly filled crypto order; no broker state was changed by verification.
 - [ ] Verify the persisted 13:00 candidate and risk decision in the authenticated dashboard.
+- [ ] Resolve Alpaca's external crypto-order entitlement response before an approved crypto candidate can submit.
+
+### Phase 6.345 — Natural cycle execution-boundary verification (2026-08-28)
+
+- [x] Query the deployed order-submission ledger after the 13:00 research run using a read-only Worker-container connection.
+- [x] Confirm the latest submission rows contain no 13:00 entry or fill, proving no broker execution was attempted for that cycle.
+- [x] Preserve the fail-closed boundary: an unapproved candidate cannot create a broker order.
+- [ ] Verify the corresponding candidate and deterministic rejection reasons in the authenticated dashboard.
 - [ ] Resolve Alpaca's external crypto-order entitlement response before an approved crypto candidate can submit.
 
 ### Phase 6.327 — Asset-aware crypto order execution (2026-08-28)
