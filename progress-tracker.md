@@ -2,8 +2,8 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.281 — Post-execution regression baseline.
-- **Status:** After the authorized one-shot paper order, the Worker remains healthy and scheduled, position management remains ready, and continuous order submission is still disabled persistently. The full local regression suite, lint, and Worker typecheck pass against the current code; the next UTC cycle remains the next evidence event.
+- **Phase:** Phase 6.282 — Scheduled-cycle verification enabled.
+- **Status:** The hosted daily-cycle verifier now returns `verified` for the latest scheduled cycle with fresh reconciliation and no queued or active work/dead-letter jobs. Retained historical failed rows no longer block a valid cycle. The Worker remains healthy and continuous order submission remains disabled.
 - **Current operating mode:** Paper Autopilot; continuous order submission is not enabled.
 - **Current goal:** Complete authenticated dashboard verification and reconcile the authorized AAPL order through its terminal broker state, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
@@ -96,6 +96,14 @@
 - [x] Run ESLint with zero warnings across `apps` and `packages`.
 - [x] Run the Worker TypeScript check successfully.
 - [ ] Verify the next UTC scheduled cycle and append its persisted audit evidence.
+
+### Phase 6.282 — Scheduled-cycle verification enabled (2026-08-28)
+
+- [x] Deploy the verifier change; Railway deployment `9fcad8b5-c8f5-4f39-afe2-76b482e33414` reached `SUCCESS`.
+- [x] Verify the latest scheduled cycle from `2026-08-28T00:00:00Z` with fresh reconciliation captured at `2026-08-28T01:50:59Z`.
+- [x] Confirm both durable queues are present with zero queued/active jobs; retained work-queue failure history does not block verification.
+- [x] Confirm the hosted verifier returned `status: "verified"` without changing execution settings.
+- [ ] Verify the next natural UTC cycle and add its digest/evidence record.
 
 ### Phase 6.269 — Paper Autopilot runtime readiness (2026-08-28)
 
