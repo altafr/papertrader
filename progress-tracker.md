@@ -2,11 +2,20 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.351 — Credential-free hosted runtime acceptance check.
-- **Status:** The public API and Worker passed `pnpm verify:paper-runtime` against their Railway health endpoints. The check confirms healthy services, Paper Autopilot mode, order submission enabled behind gates, connected market data, and ready position management. Authenticated dashboard rendering, a successful broker-reconciled order, and Alpaca crypto entitlement resolution remain pending.
+- **Phase:** Phase 6.352 — Hosted operator API auth-boundary verification.
+- **Status:** Railway's public operator overview and CSV endpoints both correctly return `401` without credentials. Portfolio, positions, trades, agent history, and audit data therefore remain protected while the dashboard uses the authenticated server-side path. Authenticated dashboard rendering, a successful broker-reconciled order, and Alpaca crypto entitlement resolution remain pending.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Verify the first natural paper research/order cycle and authenticated dashboard portfolio/position rendering, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
+
+### Phase 6.352 — Hosted operator API auth-boundary verification (2026-08-28)
+
+- [x] Run the read-only operator auth-boundary verifier against the public Railway API.
+- [x] Confirm `/v1/operator-overview` returns HTTP `401` without an operator token.
+- [x] Confirm `/v1/operator-overview.csv` returns HTTP `401` without an operator token.
+- [x] Preserve the rule that unauthenticated requests cannot read portfolio, positions, trades, or audit history.
+- [ ] Verify the authenticated dashboard with the configured Clerk operator session.
+- [ ] Reconcile a successful paper order and resolve Alpaca's external crypto-order entitlement response.
 
 ### Phase 6.351 — Credential-free hosted runtime acceptance check (2026-08-28)
 
