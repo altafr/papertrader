@@ -40,6 +40,8 @@ It also carries a bounded `activeExitPositions` projection derived from all non-
 
 Worker health applies the same liveness principle to position management: if no successful pass is recorded for more than two configured intervals, the redacted health state becomes `degraded`, prompting safe operational review without changing broker or risk behavior.
 
+The position supervisor also invokes its existing failure-alert callback once per stale episode. A later successful pass clears the episode latch, so operators receive an actionable alert without a notification flood.
+
 Telegram portfolio summaries use the same decimal-safe financial helpers as risk/performance calculations; invalid persisted values fail closed to `not reported` rather than being coerced through binary floating-point arithmetic.
 
 The once-daily market-close summary also includes a bounded (maximum ten) `symbol P/L` digest from the reconciled position model, so the operator can identify position-level contribution without receiving per-tick notification noise.

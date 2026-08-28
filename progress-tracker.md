@@ -826,6 +826,13 @@
 - [x] Confirm no test or quality-gate failure was introduced by active-exit, read-model, summary, or liveness changes.
 - [ ] Continue hosted observation and publish the pending Vercel frontend revision after quota reset.
 
+### Phase 6.514 — Position liveness alert callback (2026-08-29)
+
+- [x] Add a scheduler watchdog that invokes the existing failure-alert callback once after two missed position-management intervals.
+- [x] Reset the alert latch after a successful pass, preserving bounded notification volume.
+- [x] Add fake-timer regression coverage; no broker, risk, or order authority changed.
+- [ ] Deploy the Worker revision and verify hosted health remains healthy with a fresh pass.
+
 ### Phase 6.458 — Natural hosted cycle continuity (2026-08-29)
 
 - [x] Verify the hosted Worker remains healthy on release `febcda5f7a5…` with Paper Autopilot and order submission still enabled.
