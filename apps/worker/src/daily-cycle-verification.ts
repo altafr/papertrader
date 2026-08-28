@@ -25,8 +25,10 @@ export function assessDailyCycleVerification(input: {
     ...(validStarted && validCaptured && captured!.getTime() >= started!.getTime() ? [] : ["reconciliation_before_cycle"]),
     ...(validCaptured && now.getTime() - captured!.getTime() <= 172_800_000 ? [] : ["reconciliation_stale"]),
     ...(input.queues.workQueue.present && input.queues.deadLetterQueue.present ? [] : ["queues_missing"]),
-    ...(input.queues.workQueue.queuedCount === 0 && input.queues.workQueue.activeCount === 0 && input.queues.workQueue.failedCount === 0 ? [] : ["work_queue_not_drained"]),
-    ...(input.queues.deadLetterQueue.queuedCount === 0 && input.queues.deadLetterQueue.activeCount === 0 && input.queues.deadLetterQueue.failedCount === 0 ? [] : ["dead_letter_queue_not_empty"]),
+    // Failed counts include retained historical rows. Only queued/active jobs
+    // represent work that can interfere with a cycle.
+    ...(input.queues.workQueue.queuedCount === 0 && input.queues.workQueue.activeCount === 0 ? [] : ["work_queue_not_drained"]),
+    ...(input.queues.deadLetterQueue.queuedCount === 0 && input.queues.deadLetterQueue.activeCount === 0 ? [] : ["dead_letter_queue_not_empty"]),
   ];
   return {
     blockedReasons,

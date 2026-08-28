@@ -14,4 +14,8 @@ describe("durable schedule audit verification", () => {
     expect(result.status).toBe("incomplete");
     expect(result.blockedReasons).toContain("scheduler_audit_run_unavailable");
   });
+
+  it("allows retained failure history when queues have no actionable jobs", () => {
+    expect(assessDurableScheduleAuditVerification({ capturedAt: "2026-08-26T00:00:40Z", cycleStartedAt: "2026-08-26T00:00:00Z", now: new Date("2026-08-26T00:01:00Z"), queues: { workQueue: { ...queues.workQueue, failedCount: 2 }, deadLetterQueue: { ...queues.deadLetterQueue, failedCount: 3 } }, run: { completedAt: "2026-08-26T00:00:45Z", runId: "scheduled-daily-preparation-2026-08-26", scheduledAt: "2026-08-26T00:00:00Z", status: "completed" } })).toMatchObject({ status: "verified", blockedReasons: [] });
+  });
 });

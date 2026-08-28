@@ -10,7 +10,7 @@ describe("durable one-run verification", () => {
   });
 
   it("fails closed when queues or reconciliation are incomplete", () => {
-    const result = assessDurableOneRunVerification({ queues: { ...queues, workQueue: { ...queues.workQueue, queuedCount: 1 }, deadLetterQueue: { ...queues.deadLetterQueue, failedCount: 1 } }, now: new Date("2026-08-23T01:00:00.000Z") });
+    const result = assessDurableOneRunVerification({ queues: { ...queues, workQueue: { ...queues.workQueue, queuedCount: 1 }, deadLetterQueue: { ...queues.deadLetterQueue, queuedCount: 1 } }, now: new Date("2026-08-23T01:00:00.000Z") });
     expect(result.status).toBe("incomplete");
     expect(result.blockedReasons).toEqual(expect.arrayContaining(["work_queue_not_drained", "dead_letter_queue_not_empty", "reconciliation_unavailable", "provenance_audit_missing"]));
   });

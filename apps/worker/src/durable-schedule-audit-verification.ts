@@ -32,8 +32,10 @@ export function assessDurableScheduleAuditVerification(input: {
     ...(validCaptured && validStarted && captured!.getTime() >= started!.getTime() ? [] : ["reconciliation_before_cycle"]),
     ...(validCaptured && now.getTime() - captured!.getTime() <= 172_800_000 ? [] : ["reconciliation_stale"]),
     ...(input.queues.workQueue.present && input.queues.deadLetterQueue.present ? [] : ["queues_missing"]),
-    ...(input.queues.workQueue.queuedCount === 0 && input.queues.workQueue.activeCount === 0 && input.queues.workQueue.failedCount === 0 ? [] : ["work_queue_not_drained"]),
-    ...(input.queues.deadLetterQueue.queuedCount === 0 && input.queues.deadLetterQueue.activeCount === 0 && input.queues.deadLetterQueue.failedCount === 0 ? [] : ["dead_letter_queue_not_empty"]),
+    // Failed counts are retained history; queued/active counts are the
+    // actionable backlog that can interfere with a scheduled cycle.
+    ...(input.queues.workQueue.queuedCount === 0 && input.queues.workQueue.activeCount === 0 ? [] : ["work_queue_not_drained"]),
+    ...(input.queues.deadLetterQueue.queuedCount === 0 && input.queues.deadLetterQueue.activeCount === 0 ? [] : ["dead_letter_queue_not_empty"]),
   ];
   return {
     audit: { ...(input.run?.completedAt ? { completedAt: new Date(input.run.completedAt).toISOString() } : {}), ...(input.run?.runId ? { runId: input.run.runId } : {}), ...(validScheduled ? { scheduledAt: scheduled!.toISOString() } : {}), status: input.run?.status ?? "unavailable" },

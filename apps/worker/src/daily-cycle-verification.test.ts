@@ -16,4 +16,8 @@ describe("daily cycle verification", () => {
   it("fails closed when queues are not drained", () => {
     expect(assessDailyCycleVerification({ cycleStartedAt: "2026-08-25T00:00:00.000Z", capturedAt: "2026-08-25T00:01:00.000Z", now: new Date("2026-08-25T01:00:00.000Z"), queues: { ...queues, workQueue: { ...queues.workQueue, activeCount: 1 } } })).toMatchObject({ blockedReasons: expect.arrayContaining(["work_queue_not_drained"]), status: "incomplete" });
   });
+
+  it("allows retained failure history when no jobs are queued or active", () => {
+    expect(assessDailyCycleVerification({ cycleStartedAt: "2026-08-25T00:00:00.000Z", capturedAt: "2026-08-25T00:01:00.000Z", now: new Date("2026-08-25T01:00:00.000Z"), queues: { workQueue: { ...queues.workQueue, failedCount: 1 }, deadLetterQueue: { ...queues.deadLetterQueue, failedCount: 2 } } })).toMatchObject({ status: "verified", blockedReasons: [] });
+  });
 });

@@ -28,7 +28,7 @@ export function assessDurableOneRunVerification(input: { readonly queues: Durabl
     ...(input.persistedProvenance && input.persistedProvenance.approvalReference === input.approvalReference ? [] : ["provenance_approval_reference_mismatch"]),
     ...(input.queues.workQueue.present && input.queues.deadLetterQueue.present ? [] : ["queues_missing"]),
     ...(input.queues.workQueue.queuedCount === 0 && input.queues.workQueue.activeCount === 0 ? [] : ["work_queue_not_drained"]),
-    ...(input.queues.deadLetterQueue.queuedCount === 0 && input.queues.deadLetterQueue.activeCount === 0 && input.queues.deadLetterQueue.failedCount === 0 ? [] : ["dead_letter_queue_not_empty"]),
+    ...(input.queues.deadLetterQueue.queuedCount === 0 && input.queues.deadLetterQueue.activeCount === 0 ? [] : ["dead_letter_queue_not_empty"]),
     ...(reconciliationStatus === "fresh" ? [] : [`reconciliation_${reconciliationStatus}`]),
   ];
   return {
