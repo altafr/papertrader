@@ -2,11 +2,19 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.294 — Production publication attempt.
-- **Status:** The verified dashboard build remains Ready on Vercel, but production promotion is still blocked by the free-tier limit of more than 100 deployments in 24 hours. No production or order-submission state changed.
+- **Phase:** Phase 6.295 — Production alias state verification.
+- **Status:** The production alias is Ready and healthy, currently backed by the three-day-old production deployment. New branch previews are Ready, but promotion/direct deployment remains blocked by Vercel team/quota constraints. No production or order-submission state changed.
 - **Current operating mode:** Paper Autopilot; continuous order submission is not enabled.
 - **Current goal:** Complete authenticated dashboard verification and reconcile the authorized AAPL order through its terminal broker state, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
+
+### Phase 6.295 — Production alias state verification (2026-08-28)
+
+- [x] Inspect `papertrader-web.vercel.app` and confirm its production deployment status is `Ready`.
+- [x] Confirm the production alias remains stable and protected by the Clerk sign-in boundary.
+- [x] Confirm current-branch preview deployments are `Ready` and available for authenticated review.
+- [x] Confirm attempted promotion did not alter the production alias.
+- [ ] Promote the current verified preview after Vercel team/quota access permits.
 
 ### Phase 6.294 — Production publication attempt (2026-08-28)
 
