@@ -333,6 +333,14 @@
 - [x] Verify the full test suite passes with 320 tests, Worker typecheck passes, and lint passes.
 - [ ] Deploy and verify a hosted close-hour summary event with the corrected routing.
 
+### Phase 6.439 — Close-summary cooldown isolation (2026-08-29)
+
+- [x] Identify that an earlier fallback event could still suppress the first close-hour event through the shared 24-hour cooldown prefix.
+- [x] Give close-hour summaries their own durable dedupe/cooldown scope while keeping the fallback suppressed in continuous mode.
+- [x] Preserve one close summary per day and prevent duplicate close alerts across retries/restarts.
+- [x] Verify the full test suite passes with 320 tests, Worker typecheck passes, and lint passes.
+- [ ] Deploy and verify a hosted close-hour summary event with the isolated cooldown scope.
+
 ### Phase 6.387 — Hosted cycle baseline after reason-logging rollout (2026-08-28)
 
 - [x] Verify Worker deployment `8cabc43d-b343-47c1-9a0f-257198dabdcf` is `SUCCESS` and health is `healthy`.
