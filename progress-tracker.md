@@ -688,6 +688,12 @@
 - [x] Confirm the immediately prior `1ffb601` run failure was followed by successful runs; no broker or trading action was involved.
 - [x] Confirm Railway is processing the corresponding release while the previously deployed runtime remains healthy.
 
+### Phase 6.494 — Health monitor latest recurrence (2026-08-29)
+
+- [x] Confirm the branch-triggered monitor run for `83c97bc` completed successfully.
+- [x] Confirm successive unified hosted checks remain green after the URL-safety rollout.
+- [ ] Observe the first cron-triggered run after default-branch activation.
+
 ### Phase 6.458 — Natural hosted cycle continuity (2026-08-29)
 
 - [x] Verify the hosted Worker remains healthy on release `febcda5f7a5…` with Paper Autopilot and order submission still enabled.
