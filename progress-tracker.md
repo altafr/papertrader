@@ -512,6 +512,13 @@
 - [x] Preserve the 15-minute schedule and manual trigger for the hosted monitor.
 - [ ] Observe the first branch-triggered monitor run after GitHub registers the workflow.
 
+### Phase 6.466 — Post-deploy stream recovery (2026-08-29)
+
+- [x] Confirm Railway deployment for commit `94bf4a5` reached `SUCCESS`.
+- [x] Detect the initial post-deploy market-stream reconnect; the runtime verifier correctly failed closed while the stream was disconnected.
+- [x] Confirm the Worker self-healed (`reconnectCount: 1`, stream `connected`) without changing paper mode, risk policy, kill switch, or order authority.
+- [x] Re-run the hosted runtime verifier; it returned `verified: true` with API/Worker healthy and schedulers ready.
+
 ### Phase 6.458 — Natural hosted cycle continuity (2026-08-29)
 
 - [x] Verify the hosted Worker remains healthy on release `febcda5f7a5…` with Paper Autopilot and order submission still enabled.
