@@ -2,8 +2,8 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.374 — Single risk cycle per scheduler batch.
-- **Status:** Research preparation now aggregates crypto and stock results into one deterministic risk cycle per scheduler job, preventing cross-asset double entries while preserving fallback evaluation. Full regression passes with 307 tests. Deployment and a successful broker-reconciled order remain pending for this change.
+- **Phase:** Phase 6.375 — Cross-asset build compatibility audit.
+- **Status:** Domain, database, Alpaca, Worker, API, and Web TypeScript projects all compile after the batch-risk change; the full regression suite remains green with 307 tests. The hosted worker is healthy on the prior successful deployment; a natural cross-asset cycle and successful broker-reconciled order remain pending.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Verify the first natural paper research/order cycle and authenticated dashboard portfolio/position rendering, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
@@ -128,6 +128,13 @@
 - [x] Preserve per-agent persistence/notifications and fail closed when every plan fails.
 - [x] Verify the complete regression suite: 78 files and 307 tests passed.
 - [ ] Deploy and observe the cross-asset batch in the hosted worker.
+
+### Phase 6.375 — Cross-asset build compatibility audit (2026-08-28)
+
+- [x] Compile domain, database, Alpaca, Worker, API, and Web TypeScript projects.
+- [x] Confirm the batch callback is compatible with existing research-preparation callers.
+- [x] Confirm the full regression suite remains green: 78 files and 307 tests passed.
+- [ ] Observe the next natural cross-asset batch and reconcile a successful paper order.
 
 ### Phase 6.368 — Configuration-aware hosted acceptance (2026-08-28)
 
