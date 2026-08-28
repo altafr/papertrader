@@ -15,6 +15,7 @@
 - [x] Add regression coverage for crypto market-order time-in-force normalization.
 - [x] Verify focused Alpaca/Worker tests, type checks, and lint pass.
 - [x] Deploy current Worker build successfully (`61b80fd4-ffca-4bd7-80fe-a999e661dc44`).
+- [x] Verify Alpaca paper assets API returns active/tradable crypto assets including ETH/USD; order submission still returns HTTP 403, confirming the remaining gate is account/provider permission rather than asset lookup.
 - [ ] Run an approved crypto paper candidate through the deployed path and reconcile its broker state; the deployed request now reaches Alpaca but returns redacted HTTP 403, requiring crypto trading permission/asset eligibility to be checked in the Alpaca paper account.
 
 ### Phase 6.326 — Continuous paper-trading activation checkpoint (2026-08-28)
