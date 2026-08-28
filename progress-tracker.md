@@ -57,7 +57,8 @@
 - [x] Extend the bounded position-management pass log with up to ten managed symbols.
 - [x] Preserve the credential-free, backward-compatible log shape when no symbols are supplied.
 - [x] Add regression coverage for symbol reporting and run the worker typecheck/focused test gate (317 tests passed).
-- [ ] Deploy the worker change and verify the next hosted pass includes the managed symbols.
+- [x] Deploy Worker revision `5b39dd9e9166ec57190f42ed70185880e9d54a40`; Railway deployment `674e7458-bbb8-44e3-ae15-4b7ff187b544` reached `SUCCESS`.
+- [x] Verify the next hosted pass remained healthy and emitted bounded managed-symbol evidence (`AAPL`) with three persisted positions.
 
 ### Phase 6.387 — Hosted cycle baseline after reason-logging rollout (2026-08-28)
 
