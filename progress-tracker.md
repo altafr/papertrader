@@ -18,6 +18,7 @@
 - [x] Deploy current Worker build successfully (`61b80fd4-ffca-4bd7-80fe-a999e661dc44`).
 - [x] Verify Alpaca paper assets API returns active/tradable crypto assets including ETH/USD; order submission still returns HTTP 403, confirming the remaining gate is account/provider permission rather than asset lookup.
 - [x] Verify Alpaca `/v2/account` reports `status=ACTIVE`, `crypto_status=ACTIVE`, and `trade_suspended_by_user=false`; the remaining HTTP 403 is therefore an order-entitlement/provider response requiring Alpaca support or account-level review.
+- [x] Observe the natural `12:15 UTC` crypto preparation cycle (`research-preparation-crypto_research-20260828121531`); research succeeded and the provider-rejected ETH/USD entry produced a delivered Telegram failure alert.
 - [ ] Run an approved crypto paper candidate through the deployed path and reconcile its broker state; the deployed request now reaches Alpaca but returns redacted HTTP 403, requiring crypto trading permission/asset eligibility to be checked in the Alpaca paper account.
 
 ### Phase 6.326 — Continuous paper-trading activation checkpoint (2026-08-28)
