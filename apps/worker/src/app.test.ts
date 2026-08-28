@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { getWorkerHealth } from "./app.js";
-import { classifyMarketStreamFreshness } from "./market-stream-runner.js";
+import { classifyMarketStreamFreshness, getExpectedBarIntervalMs } from "./market-stream-runner.js";
 
 describe("market stream freshness", () => {
   it("classifies missing, fresh, and stale message timestamps", () => {
@@ -9,6 +9,12 @@ describe("market stream freshness", () => {
     expect(classifyMarketStreamFreshness(undefined, now)).toBe("unknown");
     expect(classifyMarketStreamFreshness("2026-08-29T00:04:30.000Z", now)).toBe("fresh");
     expect(classifyMarketStreamFreshness("2026-08-28T23:59:00.000Z", now)).toBe("stale");
+  });
+
+  it("uses the configured interval for intraday stream gap recovery", () => {
+    expect(getExpectedBarIntervalMs("5Min")).toBe(5 * 60_000);
+    expect(getExpectedBarIntervalMs("15Min")).toBe(15 * 60_000);
+    expect(getExpectedBarIntervalMs("1Hour")).toBe(60 * 60_000);
   });
 });
 

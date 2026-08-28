@@ -27,6 +27,20 @@ export function classifyMarketStreamFreshness(lastMessageAt: string | undefined,
   return Number.isFinite(capturedAt) && age >= 0 && age <= MARKET_STREAM_MAX_MESSAGE_AGE_MS ? "fresh" : "stale";
 }
 
+/** Translate the configured Alpaca bar timeframe into the supervisor gap interval. */
+export function getExpectedBarIntervalMs(timeframe: MarketBarTimeframe): number {
+  const intervals: Record<MarketBarTimeframe, number> = {
+    "1Min": 60_000,
+    "5Min": 5 * 60_000,
+    "15Min": 15 * 60_000,
+    "1Hour": 60 * 60_000,
+    "1Day": 24 * 60 * 60_000,
+    "1Week": 7 * 24 * 60 * 60_000,
+    "1Month": 30 * 24 * 60 * 60_000,
+  };
+  return intervals[timeframe];
+}
+
 export function getMarketStreamHealth(now = new Date()) {
   if (!marketStreamHealth.lastMessageAt) return { ...marketStreamHealth, ...(marketStreamHealth.status === "connected" ? { freshness: "unknown" as const } : {}) };
   return { ...marketStreamHealth, freshness: classifyMarketStreamFreshness(marketStreamHealth.lastMessageAt, now) };
@@ -109,7 +123,7 @@ export function startPaperMarketStream(environment = process.env) {
       backfill: async (request) => {
         await reader.readHistoricalBars({ ...request, limit: 1_000 });
       },
-      expectedBarIntervalMs: configuration.timeframe === "1Min" ? 60_000 : 60 * 60 * 1_000,
+      expectedBarIntervalMs: getExpectedBarIntervalMs(configuration.timeframe),
       secretKey: environment.ALPACA_SECRET_KEY ?? "",
       socket: transport,
       symbols: configuration.symbols,

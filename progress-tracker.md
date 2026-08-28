@@ -2,11 +2,18 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.339 — Market-stream watchdog deployment verification.
+- **Phase:** Phase 6.340 — Timeframe-aware stream gap recovery.
 - **Status:** The hosted Worker and API are healthy in Paper Autopilot mode with deterministic entry/exit safeguards, durable reconciliation, Telegram alerting, lifecycle-stable PostgreSQL-backed risk evidence, and a read-only portfolio status command. The latest provenance and evidence guards are deployed and verified. Vercel production publication remains limited by the free-plan daily deployment quota, while the 30-day paper-forward evidence window and authenticated dashboard verification remain ongoing.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading, verify authenticated portfolio/P&L rendering and exports, and accumulate the 30-day evidence gate without loosening risk controls.
 - **Last updated:** 2026-08-29.
+
+### Phase 6.340 — Timeframe-aware stream gap recovery (2026-08-29)
+
+- [x] Map every supported Alpaca stream timeframe to its actual expected bar interval.
+- [x] Correct 5-minute and 15-minute streams that were previously treated as hourly for gap backfill.
+- [x] Add focused interval regression coverage and document the stale watchdog behavior.
+- [ ] Deploy the Worker revision and verify the active crypto stream remains fresh.
 
 ### Phase 6.339 — Market-stream watchdog deployment verification (2026-08-29)
 
