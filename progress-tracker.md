@@ -2,8 +2,8 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.371 — Hosted paper runtime acceptance recheck.
-- **Status:** The strengthened hosted verifier passes against the live API and Worker: both healthy, Alpaca and PostgreSQL configured, Paper Autopilot/order submission enabled, market stream connected, position management ready, research and durable schedulers scheduled. Authenticated dashboard rendering and a successful broker-reconciled order remain pending.
+- **Phase:** Phase 6.372 — Cross-asset single-cycle execution.
+- **Status:** Research preparation now aggregates crypto and stock results into one deterministic risk cycle per scheduler job. This preserves fallback evaluation while enforcing one order maximum across asset classes. Full regression passes with 307 tests. Authenticated dashboard rendering and a successful broker-reconciled order remain pending.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Verify the first natural paper research/order cycle and authenticated dashboard portfolio/position rendering, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
@@ -104,6 +104,15 @@
 - [x] Confirm all configuration, scheduler, stream, position, and paper-execution prerequisites pass.
 - [x] Confirm the Worker remains in `paper_autopilot` mode with no kill switch activation.
 - [ ] Observe a natural research cycle and reconcile a successful paper order.
+
+### Phase 6.372 — Cross-asset single-cycle execution (2026-08-28)
+
+- [x] Add a batch callback to research preparation after all eligible asset-class plans complete.
+- [x] Aggregate crypto and stock candidates into one bounded risk cycle and one approval reference.
+- [x] Preserve per-agent result logging and recommendation notifications.
+- [x] Enforce at most one broker submission across the entire scheduler job.
+- [x] Verify the complete regression suite: 78 files and 307 tests passed.
+- [ ] Deploy and observe the next natural cross-asset cycle; reconcile a successful paper order.
 
 ### Phase 6.368 — Configuration-aware hosted acceptance (2026-08-28)
 

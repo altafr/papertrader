@@ -58,9 +58,12 @@ export function createResearchSchedulerFromEnvironment(environment: NodeJS.Proce
     source: createAlpacaResearchInputSource(createPaperMarketDataReader({ apiKey, secretKey })),
     notify: createRuntimeAlertNotifier(environment, alertRepository).notify,
     ...(environment.PAPER_AUTOPILOT_ENABLED === "true" && environment.OPERATING_MODE === "paper_autopilot" ? {
-      onResult: async (result) => {
+      onResult: (result) => {
         console.log(JSON.stringify(buildResearchCycleLog(result)));
-        if (result.status !== "succeeded" || !result.candidates?.length) return;
+      },
+      onBatchResult: async (results) => {
+        const candidates = results.flatMap((result) => result.candidates ?? []);
+        if (candidates.length === 0) return;
         const notifier = createRuntimeAlertNotifier(environment, alertRepository);
         try {
           await reconcilePaperAccount(createPaperAccountReader({ apiKey, secretKey }), createAccountStateRepository(db));
@@ -68,10 +71,11 @@ export function createResearchSchedulerFromEnvironment(environment: NodeJS.Proce
           const executeApproved = orderSubmissionFlag === "true" ? async (order: Parameters<typeof executePaperAutopilotOrder>[0]["order"]) => {
             await executePaperAutopilotOrder({ autopilot: { enabled: true, mode: "paper_autopilot" }, order, notify: notifier.notify, persistence: orderRepository, submitter: createPaperOrderSubmitter({ apiKey, brokerConnectionEnabled: true, secretKey }) });
           } : undefined;
-          const riskResults = await runPaperAutopilotRiskCycle({ approvalReference: result.runId, candidates: result.candidates, db, environment, quantity: environment.PAPER_AUTOPILOT_QUANTITY?.trim() || "1", ...(executeApproved ? { executeApproved } : {}), notify: notifier.notify });
-          console.log(JSON.stringify({ event: "paper_risk_cycle_result", researchRunId: result.runId, decisions: riskResults.map((decision) => ({ approvalStatus: decision.approvalStatus, executionStatus: decision.executionStatus, intentId: decision.intentId, symbol: decision.symbol })) }));
+          const approvalReference = results.find((result) => result.status === "succeeded")?.runId;
+          const riskResults = await runPaperAutopilotRiskCycle({ ...(approvalReference ? { approvalReference } : {}), candidates, db, environment, quantity: environment.PAPER_AUTOPILOT_QUANTITY?.trim() || "1", ...(executeApproved ? { executeApproved } : {}), notify: notifier.notify });
+          console.log(JSON.stringify({ event: "paper_risk_cycle_result", researchRunIds: results.map((result) => result.runId).slice(0, 10), decisions: riskResults.map((decision) => ({ approvalStatus: decision.approvalStatus, executionStatus: decision.executionStatus, intentId: decision.intentId, symbol: decision.symbol })) }));
         } catch {
-          await notifier.notify(buildPaperRiskCycleFailureAlert(result));
+          await notifier.notify(buildPaperRiskCycleFailureAlert({ agentType: "research_batch", runId: results.map((result) => result.runId).join(",").slice(0, 120) }));
           throw new Error("paper_risk_cycle_failed");
         }
       },

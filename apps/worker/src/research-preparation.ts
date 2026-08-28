@@ -147,6 +147,7 @@ export function createResearchPreparationQueueHandler(input: {
   readonly persistence: ResearchRunPersistence;
   readonly source: ResearchPreparationSource;
   readonly onResult?: (result: ResearchPreparationResult) => Promise<void> | void;
+  readonly onBatchResult?: (results: readonly ResearchPreparationResult[]) => Promise<void> | void;
   readonly notify?: (alert: { readonly code: string; readonly cooldownKey?: string; readonly cooldownMs?: number; readonly dedupeKey?: string; readonly message: string; readonly severity: "critical" | "info" | "warning" }) => Promise<void> | void;
 }) {
   const environment = input.environment ?? process.env;
@@ -174,6 +175,7 @@ export function createResearchPreparationQueueHandler(input: {
       }
     }
     if (results.every((result) => result.status === "failed")) throw new Error("All research preparation plans failed.");
+    await input.onBatchResult?.(results);
     return results;
   };
 }

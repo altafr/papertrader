@@ -70,6 +70,7 @@ describe("research preparation", () => {
     const source = { read: vi.fn(async (plan) => input(plan.assetClass)) };
     const calls: string[] = [];
     const candidateCounts: number[] = [];
+    const batches: number[] = [];
     const notifications: { readonly code: string; readonly dedupeKey?: string }[] = [];
     const handler = createResearchPreparationQueueHandler({
       clock: () => new Date("2026-08-23T02:01:00.000Z"),
@@ -77,6 +78,7 @@ describe("research preparation", () => {
       persistence: { enqueue: async () => { calls.push("enqueue"); }, start: async () => { calls.push("start"); }, succeed: async () => { calls.push("succeed"); }, fail: async () => { calls.push("fail"); } },
       source,
       onResult: (result) => { candidateCounts.push(result.candidates?.length ?? 0); },
+      onBatchResult: (batch) => { batches.push(batch.length); },
       notify: (alert) => { notifications.push(alert); },
     });
     const results = await handler({ kind: "research_preparation", version: 1 });
@@ -84,6 +86,7 @@ describe("research preparation", () => {
     expect(source.read).toHaveBeenCalledTimes(2);
     expect(calls.filter((call) => call === "succeed")).toHaveLength(2);
     expect(candidateCounts).toEqual([1, 1]);
+    expect(batches).toEqual([2]);
     expect(calls).not.toContain("fail");
     expect(notifications.map((alert) => alert.dedupeKey)).toEqual([
       "research_recommendations:stock_research:2026-08-23",
