@@ -13,13 +13,16 @@ const databaseUrl = process.env.DATABASE_URL;
 if (!databaseUrl?.trim()) throw new Error("DATABASE_URL is required for the durable run-once command.");
 
 const boss = new PgBoss(databaseUrl);
+let failureStage: "queue_start" | "enqueue" | "shutdown" = "queue_start";
 try {
   await boss.start();
+  failureStage = "enqueue";
   const result = await enqueueDailyPreparation(boss);
   console.log(JSON.stringify(result));
 } catch {
-  console.error("Durable run-once enqueue failed.");
+  console.error(`Durable run-once enqueue failed (failure_stage=${failureStage}).`);
   process.exitCode = 1;
 } finally {
+  failureStage = "shutdown";
   await boss.stop().catch(() => undefined);
 }

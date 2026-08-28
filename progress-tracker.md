@@ -14,6 +14,11 @@
 - [ ] Complete a guarded durable run-once enqueue from the local operator environment; the command failed closed with a generic queue error after Railway variable injection, and no order-submission flag was changed.
 - [ ] Verify the resulting persisted daily digest and risk-cycle records after a successful scheduled run.
 
+### Phase 6.261 — Safe guarded-run diagnostics (2026-08-28)
+
+- [x] Add failure-stage-only diagnostics to the guarded enqueue command; no error text or secret-bearing connection data is emitted.
+- [ ] Redeploy and rerun the command inside the Worker network to identify the failing stage.
+
 ### Phase 6.259 — Dashboard notification policy surface (2026-08-28)
 
 - [x] Add the 24-hour routine digest and approved-only risk-alert policy to the authenticated dashboard health card.
