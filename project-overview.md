@@ -98,7 +98,7 @@ In Paper Autopilot, “no approval required” means no operator confirmation is
 
 ### Telegram operational reporting
 
-When Telegram alerts are enabled, the server sends redacted, real-time notifications for research recommendations (including concise evidence), paper entries and their risk/strategy context, detected managed positions, deterministic exits and their trigger reason, reconciliation or scheduler failures, and a portfolio summary after each market-session close. Delivery is best-effort and independently monitored; a Telegram outage never changes an order decision or safety-gate result.
+When Telegram alerts are enabled, the server sends redacted, immediate notifications for important events: approved trade selections, paper entries and their risk/strategy context, detected managed positions, deterministic exits and their trigger reason, reconciliation or scheduler failures, and other order-lifecycle errors. Routine research selections are digest-deduplicated to at most once per UTC day per agent, and the portfolio summary includes positions and P/L at most once per UTC day. Rejected candidates and zero-result research remain available in the dashboard and immutable audit log without generating alert noise. Delivery is best-effort and independently monitored; a Telegram outage never changes an order decision or safety-gate result.
 
 ## Strategy Plug-In Contract
 

@@ -3,7 +3,7 @@
 ## Snapshot
 
 - **Phase:** Phase 6.255 — Low-noise Telegram digest policy.
-- **Status:** Notification delivery remains enabled, but routine research selections and portfolio/P&L summaries now use durable once-per-UTC-day dedupe keys. Individual rejected risk candidates are retained in the audit/dashboard and no longer generate Telegram warnings; approved selections, order/position lifecycle events, and failures remain immediate. Local tests, Worker typecheck, and lint pass; deployment is pending.
+- **Status:** Notification delivery remains enabled, but routine research selections and portfolio/P&L summaries now use durable once-per-UTC-day dedupe keys. Individual rejected risk candidates are retained in the audit/dashboard and no longer generate Telegram warnings; approved selections, order/position lifecycle events, and failures remain immediate. Local tests, Worker typecheck, and lint pass; Railway deployment is healthy.
 - **Current operating mode:** Paper Autopilot; continuous order submission is not enabled.
 - **Current goal:** Complete authenticated dashboard verification and reconcile the authorized AAPL order through its terminal broker state, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
@@ -14,7 +14,8 @@
 - [x] Suppress routine zero-candidate research notices and individual rejected risk-candidate Telegram warnings while retaining their durable audit records.
 - [x] Deduplicate research selection and portfolio/P&L summary alerts to one UTC calendar day across restarts.
 - [x] Verify 291 tests, Worker TypeScript, ESLint, and diff hygiene locally.
-- [ ] Deploy the Worker and verify Railway reports `SUCCESS` with healthy Telegram alert state.
+- [x] Deploy the Worker and verify Railway reports `SUCCESS` with healthy Telegram alert state.
+- [x] Clarify the alert contract in `project-overview.md` and `architecture.md`.
 
 ### Phase 6.202 — Credential-free hosted auth-boundary verification (2026-08-26)
 

@@ -14,7 +14,7 @@ The research preparation worker now passes validated watchlist candidates to a p
 
 ### Telegram event contract
 
-The Worker emits redacted operational events for recommendation outputs, entry submission/reconciliation, managed-position detection, deterministic exit decisions, failed-closed runs, and end-of-session portfolio summaries. Formatting and delivery are centralized in the notification package; provider failures are swallowed after recording degraded delivery state so alerting cannot affect broker calls, risk outcomes, or scheduler control flow.
+The Worker emits redacted operational events for approved recommendation outputs, entry submission/reconciliation, managed-position detection, deterministic exit decisions, failed-closed runs, and end-of-session portfolio summaries. Important lifecycle and failure events are immediate. Routine research selections and portfolio summaries use durable once-per-UTC-day dedupe keys, so retries and restarts cannot create notification floods; rejected candidates and zero-result research remain persisted for audit/dashboard use without individual Telegram alerts. Formatting and delivery are centralized in the notification package; provider failures are swallowed after recording degraded delivery state so alerting cannot affect broker calls, risk outcomes, or scheduler control flow.
 
 ### Separately gated order handoff (Phase 6.213)
 
