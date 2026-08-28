@@ -2,8 +2,8 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.275 — One-shot paper-order preflight.
-- **Status:** The live paper-order preflight confirms baseline confirmation, a succeeded research artifact, and a fresh market snapshot. The sole blocked reason is the intentional `paper_order_submission_gate_disabled`; no Railway variables or broker state changed. The next gates are explicit one-shot authorization, scheduled-cycle evidence, authenticated dashboard verification, and multi-day paper evidence.
+- **Phase:** Phase 6.276 — One-shot paper order executed and reconciled.
+- **Status:** With explicit reference `PAPER-ORDER-ACTIVATE-001`, one command-scoped single-share AAPL paper order was approved by the deterministic risk engine, submitted to Alpaca paper, and reconciled. The broker reported filled quantity `0` at capture, so fill completion remains pending broker/position reconciliation. Continuous order submission remains disabled.
 - **Current operating mode:** Paper Autopilot; continuous order submission is not enabled.
 - **Current goal:** Complete authenticated dashboard verification and reconcile the authorized AAPL order through its terminal broker state, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
@@ -52,6 +52,14 @@
 - [x] Confirm the preflight has a baseline confirmation, two succeeded research candidates, and a fresh market snapshot.
 - [x] Confirm the only blocked reason is `paper_order_submission_gate_disabled`.
 - [ ] Obtain explicit operator authorization before enabling the command-scoped one-shot paper execution check.
+
+### Phase 6.276 — One-shot paper order executed and reconciled (2026-08-28)
+
+- [x] Receive explicit operator authorization reference `PAPER-ORDER-ACTIVATE-001`.
+- [x] Submit exactly one command-scoped paper order for quantity `1` through the deterministic approval path.
+- [x] Confirm Alpaca paper order `9dcae89d-fbd2-4edb-b662-701bf380601d` was returned and post-order reconciliation completed.
+- [x] Confirm continuous `PAPER_AUTOPILOT_ORDER_SUBMISSION_ENABLED` was not changed persistently.
+- [ ] Observe the broker order until terminal fill/cancel/expiry state and confirm the resulting position/exit-plan lifecycle.
 
 ### Phase 6.269 — Paper Autopilot runtime readiness (2026-08-28)
 
