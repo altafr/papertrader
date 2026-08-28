@@ -428,6 +428,13 @@
 - [x] Add regression tests; the focused test and web TypeScript check pass.
 - [ ] Publish the queued web revision when Vercel's free deployment quota resets.
 
+### Phase 6.452 — Worker health source preference (2026-08-29)
+
+- [x] Make the public heartbeat prefer the Railway Worker health URL so scheduler, position-management, and stream state are visible when configured.
+- [x] Retain a safe API-health fallback for deployments that have not yet added the optional Worker URL.
+- [x] Keep the browser payload read-only and credential-free; web TypeScript check and focused heartbeat tests pass.
+- [ ] Add `NEXT_PUBLIC_WORKER_HEALTH_URL` to the Vercel production environment and publish once the provider quota resets.
+
 ### Phase 6.387 — Hosted cycle baseline after reason-logging rollout (2026-08-28)
 
 - [x] Verify Worker deployment `8cabc43d-b343-47c1-9a0f-257198dabdcf` is `SUCCESS` and health is `healthy`.

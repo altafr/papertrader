@@ -44,7 +44,7 @@ Positive/negative values must also include a sign, label, shape, or icon.
 
 ### Public runtime heartbeat
 
-The informational landing page includes a read-only server heartbeat so the operator can see whether the Railway runtime is online before signing in. It may show paper mode, research scheduler state, position-management readiness, crypto-stream state, and a shortened release identifier. It must never show account values, credentials, private payloads, or controls.
+The informational landing page includes a read-only server heartbeat so the operator can see whether the Railway runtime is online before signing in. It prefers the public Worker health URL (`NEXT_PUBLIC_WORKER_HEALTH_URL`) and falls back to the API health URL when that variable is not configured. It may show paper mode, research scheduler state, position-management readiness, crypto-stream state, and a shortened release identifier. It must never show account values, credentials, private payloads, or controls.
 
 ### Top Status Bar
 

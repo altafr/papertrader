@@ -3,10 +3,10 @@ import Link from "next/link";
 import { parsePublicHealth, type PublicHealth } from "./public-health";
 
 async function loadPublicHealth(): Promise<PublicHealth | undefined> {
-  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
-  if (!apiBaseUrl) return undefined;
+  const healthUrl = process.env.NEXT_PUBLIC_WORKER_HEALTH_URL ?? (process.env.NEXT_PUBLIC_API_BASE_URL ? `${process.env.NEXT_PUBLIC_API_BASE_URL}/health` : undefined);
+  if (!healthUrl) return undefined;
   try {
-    const response = await fetch(`${apiBaseUrl}/health`, { cache: "no-store", signal: AbortSignal.timeout(2500) });
+    const response = await fetch(healthUrl, { cache: "no-store", signal: AbortSignal.timeout(2500) });
     if (!response.ok) return undefined;
     return parsePublicHealth(await response.json());
   } catch {
