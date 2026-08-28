@@ -114,7 +114,8 @@
 - [x] Mark positions as `active` or `review_required` using the same authoritative unmanaged-position read model as the dashboard.
 - [x] Leave orders, activities, and account snapshots unchanged apart from an empty status column for non-position rows.
 - [x] Verify API typecheck and the full 318-test suite.
-- [ ] Deploy and verify the authenticated CSV export in production.
+- [x] Deploy API revision `2b60810b215a4cb6d5a3281b412cd3c9c2d59e26`; Railway deployment `976724c3-d320-476a-a8f7-48116ea03b15` reached `SUCCESS` and API health remains `healthy`.
+- [ ] Verify the authenticated CSV export in production.
 
 ### Phase 6.387 — Hosted cycle baseline after reason-logging rollout (2026-08-28)
 
