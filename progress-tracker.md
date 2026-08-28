@@ -200,6 +200,13 @@
 - [x] Run the secret-surface audit successfully; no credential-like values were found in source or browser output.
 - [ ] Publish the resulting dashboard revision after Vercel's deployment quota resets.
 
+### Phase 6.421 — Market-stream reconnect checkpoint (2026-08-29)
+
+- [x] Observe a transient crypto stream reconnect during hosted monitoring.
+- [x] Confirm the supervised Worker self-healed to `connected` with a fresh message timestamp and no scheduler or position-management blockage.
+- [x] Confirm Paper Autopilot and the next research tick remain scheduled after reconnect.
+- [ ] Continue monitoring reconnect/gap behavior through the next cycle.
+
 ### Phase 6.387 — Hosted cycle baseline after reason-logging rollout (2026-08-28)
 
 - [x] Verify Worker deployment `8cabc43d-b343-47c1-9a0f-257198dabdcf` is `SUCCESS` and health is `healthy`.
