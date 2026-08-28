@@ -401,7 +401,7 @@ export default async function DashboardPage({ searchParams }: { readonly searchP
       </header>
 
       <section className="hero dashboard-hero" aria-labelledby="dashboard-title">
-        <p className="eyebrow">Phase 2 · Market data and dashboard</p>
+        <p className="eyebrow">Live paper operations · authenticated view</p>
         <div className="hero-heading">
           <div>
             <h1 id="dashboard-title">Operator dashboard.</h1>
