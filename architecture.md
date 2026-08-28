@@ -30,6 +30,10 @@ The authenticated API and dashboard expose only the presence of that reference, 
 
 Before each scheduled risk cycle, the Worker refreshes the persisted account read model from Alpaca paper state. This keeps the candidate decision and any optionally enabled submission behind a current account/positions/orders reconciliation rather than relying on an older daily snapshot.
 
+### Duplicate-safe paper retries (Phase 6.383)
+
+The paper execution boundary performs a durable lookup by `clientOrderId` before calling Alpaca. A record that already has a broker order ID is treated as the existing submission and returned without another broker call. A record that exists without broker confirmation is treated as ambiguous in-flight state and fails closed, requiring reconciliation before any retry. This closes the restart/retry path against duplicate paper orders while preserving the immutable submission ledger.
+
 ### Guarded paper end-to-end evidence run (2026-08-26)
 
 - Added `paper-e2e-run-once`, which composes one paper-account reconciliation and one bounded market-research agent run so the operator can verify the complete read → persist → dashboard path quickly.
