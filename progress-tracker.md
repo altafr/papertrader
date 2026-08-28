@@ -2,8 +2,8 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.274 — Hosted paper e2e evidence completed.
-- **Status:** A guarded hosted paper e2e run now completes end to end: paper reconciliation, Alpaca market research, persisted research artifact, deterministic risk assessment, and persisted risk decision. The candidate was rejected by policy and no broker order was submitted. Local lint, type checks, and the full regression suite pass; Railway remains healthy. The next gates are scheduled-cycle evidence, authenticated dashboard verification, and multi-day paper evidence.
+- **Phase:** Phase 6.275 — One-shot paper-order preflight.
+- **Status:** The live paper-order preflight confirms baseline confirmation, a succeeded research artifact, and a fresh market snapshot. The sole blocked reason is the intentional `paper_order_submission_gate_disabled`; no Railway variables or broker state changed. The next gates are explicit one-shot authorization, scheduled-cycle evidence, authenticated dashboard verification, and multi-day paper evidence.
 - **Current operating mode:** Paper Autopilot; continuous order submission is not enabled.
 - **Current goal:** Complete authenticated dashboard verification and reconcile the authorized AAPL order through its terminal broker state, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
@@ -45,6 +45,13 @@
 - [x] Confirm the research run persisted as `paper-e2e-fast-20260828-06-research` and the deterministic risk decision was persisted as `rejected`.
 - [x] Confirm the run reported no broker order ID and therefore submitted no order.
 - [ ] Run the same flow with a separately approved one-shot paper order only after the operator explicitly authorizes that execution check.
+
+### Phase 6.275 — One-shot paper-order preflight (2026-08-28)
+
+- [x] Run the guarded live preflight for `AAPL` without submitting, cancelling, or modifying any order.
+- [x] Confirm the preflight has a baseline confirmation, two succeeded research candidates, and a fresh market snapshot.
+- [x] Confirm the only blocked reason is `paper_order_submission_gate_disabled`.
+- [ ] Obtain explicit operator authorization before enabling the command-scoped one-shot paper execution check.
 
 ### Phase 6.269 — Paper Autopilot runtime readiness (2026-08-28)
 
