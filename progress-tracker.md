@@ -75,7 +75,9 @@
 - [x] Mark each live position as `Active` or `Review required` based on the stored deterministic plan.
 - [x] Add an explicit dashboard warning listing positions that are fail-closed due to missing exit plans.
 - [x] Verify API and web typechecks plus the full 318-test suite.
-- [ ] Deploy API/web changes and verify the authenticated dashboard warning against `BTCUSD` and `PFD`.
+- [x] Deploy the API change to Railway; deployment `64dc342e-8fad-4ee3-885e-cce09ce30e5f` reached `SUCCESS` and API health remains `healthy`.
+- [ ] Publish the web change to Vercel after the provider's free daily deployment quota resets (current response: `api-deployments-free-per-day`).
+- [ ] Verify the authenticated dashboard warning against `BTCUSD` and `PFD`.
 
 ### Phase 6.387 — Hosted cycle baseline after reason-logging rollout (2026-08-28)
 
