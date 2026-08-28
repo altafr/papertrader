@@ -108,6 +108,14 @@
 - [x] Document the dashboard `Review required` presentation and fail-closed invariant in `ui-context.md`.
 - [ ] Publish and verify the corresponding dashboard revision after Vercel quota reset.
 
+### Phase 6.408 — Safety state in account export (2026-08-29)
+
+- [x] Add an `exitPlanStatus` field to the authenticated account CSV export.
+- [x] Mark positions as `active` or `review_required` using the same authoritative unmanaged-position read model as the dashboard.
+- [x] Leave orders, activities, and account snapshots unchanged apart from an empty status column for non-position rows.
+- [x] Verify API typecheck and the full 318-test suite.
+- [ ] Deploy and verify the authenticated CSV export in production.
+
 ### Phase 6.387 — Hosted cycle baseline after reason-logging rollout (2026-08-28)
 
 - [x] Verify Worker deployment `8cabc43d-b343-47c1-9a0f-257198dabdcf` is `SUCCESS` and health is `healthy`.
