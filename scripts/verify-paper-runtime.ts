@@ -6,11 +6,20 @@ function isObject(value: unknown): value is JsonObject {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
-async function readHealth(url: string): Promise<JsonObject> {
-  const response = await fetch(url, { headers: { accept: "application/json" } });
-  const body: unknown = await response.json();
-  if (!response.ok || !isObject(body)) throw new Error(`health_check_failed:${response.status}`);
-  return body;
+async function readHealth(url: string, attempts = 4): Promise<JsonObject> {
+  let lastError = "health_check_failed";
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    try {
+      const response = await fetch(url, { headers: { accept: "application/json" } });
+      const body: unknown = await response.json();
+      if (response.ok && isObject(body)) return body;
+      lastError = `health_check_failed:${response.status}`;
+    } catch {
+      lastError = "health_check_unreachable";
+    }
+    if (attempt < attempts) await new Promise((resolve) => setTimeout(resolve, 1_000));
+  }
+  throw new Error(lastError);
 }
 
 const workerUrl = process.env.PAPERTRADER_WORKER_HEALTH_URL?.trim();

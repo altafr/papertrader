@@ -2,8 +2,8 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.379 — Release verification configuration.
-- **Status:** The expected-release verifier is now documented in the credential-free runtime configuration. The live Worker remains healthy and source revisions can be checked explicitly; the next natural cross-asset cycle and successful broker-reconciled order remain pending.
+- **Phase:** Phase 6.380 — Startup-convergent runtime verification.
+- **Status:** The credential-free hosted verifier now retries transient startup health convergence up to four times, while still failing closed on persistent stream, scheduler, configuration, or release mismatches. The next natural cross-asset cycle and successful broker-reconciled order remain pending.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Verify the first natural paper research/order cycle and authenticated dashboard portfolio/position rendering, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
@@ -135,6 +135,13 @@
 - [x] Confirm the batch callback is compatible with existing research-preparation callers.
 - [x] Confirm the full regression suite remains green: 78 files and 307 tests passed.
 - [ ] Observe the next natural cross-asset batch and reconcile a successful paper order.
+
+### Phase 6.380 — Startup-convergent runtime verification (2026-08-28)
+
+- [x] Add bounded retry handling for transient health fetches and startup stream convergence.
+- [x] Preserve fail-closed behavior after all retry attempts are exhausted.
+- [x] Keep the verifier read-only and credential-free.
+- [ ] Run the retried verifier against the next natural cross-asset cycle and reconcile a successful paper order.
 
 ### Phase 6.379 — Release verification configuration (2026-08-28)
 
