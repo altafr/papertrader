@@ -36,6 +36,8 @@ The authenticated API and dashboard expose only the presence of that reference, 
 
 The protected read-model response carries the bounded `unmanagedPositions` projection both inside the dashboard `model` object and at the response top level used by CSV/export logic; both locations are derived from the same latest-snapshot query.
 
+It also carries a bounded `activeExitPositions` projection derived from all non-terminal deterministic exit submissions, rather than paginated audit history. This keeps the operator's exit-state label truthful after long-running operation and audit filtering.
+
 Position management also maintains an active-exit set from the persisted submission ledger. If a deterministic stop, target, or time-stop exit is already in a non-terminal broker state, subsequent 60-second passes continue to evaluate and observe the position but do not invoke a second broker submission path. Terminal states remain eligible for a later, newly evaluated lifecycle only when the reconciled position still exists.
 
 Before each scheduled risk cycle, the Worker refreshes the persisted account read model from Alpaca paper state. This keeps the candidate decision and any optionally enabled submission behind a current account/positions/orders reconciliation rather than relying on an older daily snapshot.

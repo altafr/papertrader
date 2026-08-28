@@ -116,7 +116,7 @@ describe("dashboard state", () => {
 
   it("labels positions by deterministic exit state", () => {
     expect(getPositionExitDisplayState({ assetClass: "us_equity", symbol: "AAPL" }, [{ assetClass: "crypto", symbol: "BTCUSD" }], [])).toBe("monitoring");
-    expect(getPositionExitDisplayState({ assetClass: "us_equity", symbol: "AAPL" }, [], [{ assetClass: "us_equity", symbol: "AAPL", clientOrderId: "intent-1-exit-stop_loss", status: "accepted" }])).toBe("exit_in_flight");
+    expect(getPositionExitDisplayState({ assetClass: "us_equity", symbol: "AAPL" }, [], [{ assetClass: "us_equity", symbol: "AAPL" }])).toBe("exit_in_flight");
     expect(getPositionExitDisplayState({ assetClass: "crypto", symbol: "BTCUSD" }, [{ assetClass: "crypto", symbol: "BTCUSD" }], [])).toBe("review_required");
   });
 });

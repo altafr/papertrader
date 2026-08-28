@@ -10,6 +10,7 @@ type ReadModel = {
   orders: Array<Record<string, unknown>>;
   positions: Array<Record<string, unknown>>;
   snapshot: Record<string, unknown>;
+  activeExitPositions: Array<{ assetClass: string; symbol: string }>;
   unmanagedPositions: Array<{ assetClass: string; symbol: string }>;
 };
 
@@ -25,6 +26,7 @@ function parseReadModel(value: unknown): ReadModel | undefined {
     !Array.isArray(model.orders) ||
     !Array.isArray(model.positions) ||
     !isRecord(model.snapshot) ||
+    !Array.isArray(model.activeExitPositions) ||
     !Array.isArray(model.unmanagedPositions) ||
     !isRecord(model.freshness) ||
     typeof model.freshness.ageSeconds !== "number" ||
@@ -36,6 +38,7 @@ function parseReadModel(value: unknown): ReadModel | undefined {
     orders: model.orders.filter(isRecord),
     positions: model.positions.filter(isRecord),
     snapshot: model.snapshot,
+    activeExitPositions: model.activeExitPositions.filter((row): row is { assetClass: string; symbol: string } => isRecord(row) && typeof row.assetClass === "string" && typeof row.symbol === "string"),
     unmanagedPositions: model.unmanagedPositions.filter((row): row is { assetClass: string; symbol: string } => isRecord(row) && typeof row.assetClass === "string" && typeof row.symbol === "string"),
   };
 }
@@ -494,7 +497,7 @@ export default async function DashboardPage({ searchParams }: { readonly searchP
             {unmanagedKeys.size > 0 && <div className="audit-unavailable" role="alert"><strong>{unmanagedKeys.size} position(s) require review.</strong><span>{result.model.unmanagedPositions.map((position) => position.symbol).join(", ")} have no stored deterministic exit plan. They are fail-closed and will not receive automatic exits.</span></div>}
             {result.model.positions.length === 0 ? <p className="empty-state">No open positions in the latest reconciled snapshot.</p> : (
               <div className="responsive-table"><table><thead><tr><th>Symbol</th><th>Class</th><th>Quantity</th><th>Avg entry</th><th>Invested notional</th><th>Market value</th><th>Unrealized P/L</th><th>Return</th><th>Exit state</th></tr></thead><tbody>
-                {result.model.positions.map((position) => { const notional = positionNotional(position); const returnPercent = positionReturnPercent(position); const assetClass = value(position, "assetClass"); const symbol = value(position, "symbol"); const exitState = getPositionExitDisplayState({ assetClass, symbol }, result.model.unmanagedPositions, operatorOverview?.tradeDecisions ?? []); const exitLabel = exitState === "review_required" ? "Review required" : exitState === "exit_in_flight" ? "Exit in flight" : "Monitoring"; return <tr key={`${symbol}-${value(position, "accountSnapshotId")}`}><th scope="row">{symbol}</th><td>{assetClass}</td><td>{value(position, "quantity")}</td><td>{value(position, "averageEntryPrice")}</td><td>{notional === undefined ? "Not reported" : notional.toFixed(2)}</td><td>{value(position, "marketValue")}</td><td className={numericValue(position, "unrealizedPl") !== undefined && (numericValue(position, "unrealizedPl") ?? 0) < 0 ? "negative-value" : ""}>{value(position, "unrealizedPl")}</td><td className={returnPercent !== undefined && returnPercent < 0 ? "negative-value" : ""}>{returnPercent === undefined ? "Not reported" : `${returnPercent.toFixed(2)}%`}</td><td>{exitLabel}</td></tr>; })}
+                {result.model.positions.map((position) => { const notional = positionNotional(position); const returnPercent = positionReturnPercent(position); const assetClass = value(position, "assetClass"); const symbol = value(position, "symbol"); const exitState = getPositionExitDisplayState({ assetClass, symbol }, result.model.unmanagedPositions, result.model.activeExitPositions); const exitLabel = exitState === "review_required" ? "Review required" : exitState === "exit_in_flight" ? "Exit in flight" : "Monitoring"; return <tr key={`${symbol}-${value(position, "accountSnapshotId")}`}><th scope="row">{symbol}</th><td>{assetClass}</td><td>{value(position, "quantity")}</td><td>{value(position, "averageEntryPrice")}</td><td>{notional === undefined ? "Not reported" : notional.toFixed(2)}</td><td>{value(position, "marketValue")}</td><td className={numericValue(position, "unrealizedPl") !== undefined && (numericValue(position, "unrealizedPl") ?? 0) < 0 ? "negative-value" : ""}>{value(position, "unrealizedPl")}</td><td className={returnPercent !== undefined && returnPercent < 0 ? "negative-value" : ""}>{returnPercent === undefined ? "Not reported" : `${returnPercent.toFixed(2)}%`}</td><td>{exitLabel}</td></tr>; })}
               </tbody></table></div>
             )}
           </article>

@@ -748,6 +748,13 @@
 - [x] Add regression coverage and preserve read-only UI behavior with no new order authority.
 - [ ] Publish the web revision and verify the labels in an authenticated operator session.
 
+### Phase 6.503 — Authoritative active-exit projection (2026-08-29)
+
+- [x] Derive non-terminal deterministic exit positions from the full submission ledger in the protected read-model query.
+- [x] Expose the bounded projection inside the dashboard model and use it for `Exit in flight` labels independent of paginated audit history.
+- [x] Add contract and dashboard regression coverage; no broker or trading authority changed.
+- [ ] Deploy API/web revisions and verify authenticated position-state labels in production.
+
 ### Phase 6.458 — Natural hosted cycle continuity (2026-08-29)
 
 - [x] Verify the hosted Worker remains healthy on release `febcda5f7a5…` with Paper Autopilot and order submission still enabled.

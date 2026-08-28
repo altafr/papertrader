@@ -71,11 +71,9 @@ export function auditPageCount(totals: { readonly agents: number; readonly filte
 export type PositionExitDisplayState = "exit_in_flight" | "monitoring" | "review_required";
 
 /** Derive a truthful position-management label from the bounded read models. */
-export function getPositionExitDisplayState(input: { readonly assetClass: string; readonly symbol: string }, unmanagedPositions: readonly { readonly assetClass: string; readonly symbol: string }[], submissions: readonly Record<string, unknown>[]): PositionExitDisplayState {
+export function getPositionExitDisplayState(input: { readonly assetClass: string; readonly symbol: string }, unmanagedPositions: readonly { readonly assetClass: string; readonly symbol: string }[], activeExitPositions: readonly { readonly assetClass: string; readonly symbol: string }[]): PositionExitDisplayState {
   if (unmanagedPositions.some((position) => position.assetClass === input.assetClass && position.symbol === input.symbol)) return "review_required";
-  const terminal = new Set(["filled", "canceled", "cancelled", "expired", "rejected", "failed"]);
-  const activeExit = submissions.some((submission) => submission.assetClass === input.assetClass && submission.symbol === input.symbol && typeof submission.clientOrderId === "string" && /-exit-(?:profit_target|stop_loss|time_stop)$/.test(submission.clientOrderId) && typeof submission.status === "string" && !terminal.has(submission.status.toLowerCase()));
-  return activeExit ? "exit_in_flight" : "monitoring";
+  return activeExitPositions.some((position) => position.assetClass === input.assetClass && position.symbol === input.symbol) ? "exit_in_flight" : "monitoring";
 }
 
 export function parsePaperPerformance(value: unknown): PaperPerformance | undefined {
