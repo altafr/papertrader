@@ -2,11 +2,20 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.321 — Hosted crypto stream observability.
-- **Status:** Worker deployment `a79793a7-dfdf-4325-bd96-d7d849d88277` reached `SUCCESS`; `/health` now reports the crypto stream as connected with a recent message timestamp and supervised reconnect count. Paper-only order safeguards remain unchanged.
+- **Phase:** Phase 6.322 — First natural asset-aware research cycle.
+- **Status:** The first naturally scheduled 15-minute cycle completed after the cadence deployment. Worker health records research completion at `2026-08-28T11:30:03.786Z`, and the read-only performance report includes a fresh reconciliation capture at `2026-08-28T11:30:34.664Z`. Paper-only order safeguards remain unchanged.
 - **Current operating mode:** Paper Autopilot; continuous order submission is not enabled.
 - **Current goal:** Complete authenticated dashboard verification and reconcile the authorized AAPL order through its terminal broker state, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
+
+### Phase 6.322 — First natural asset-aware research cycle (2026-08-28)
+
+- [x] Observe the configured 11:30 UTC research tick without forcing a manual queue run.
+- [x] Confirm Worker health records `lastRunAt: 2026-08-28T11:30:03.786Z` and schedules the next tick at 11:45 UTC.
+- [x] Confirm a fresh persisted account/reconciliation capture at `2026-08-28T11:30:34.664Z`.
+- [x] Confirm performance report remains `ready` with 100 snapshots and only the 30-day stability block.
+- [x] Confirm crypto stream remains connected and continuous paper-order submission remains disabled.
+- [ ] Observe a later crypto cycle and a stock-window cycle during regular New York hours.
 
 ### Phase 6.321 — Hosted crypto stream observability (2026-08-28)
 
