@@ -818,6 +818,14 @@
 - [x] Confirm stale-pass detection is health-only and cannot submit, cancel, or alter orders.
 - [ ] Continue observing the hosted liveness signal during the paper-forward evidence window.
 
+### Phase 6.513 — Full regression after runtime hardening (2026-08-29)
+
+- [x] Run the complete Vitest suite: 85 files and 338 tests passed.
+- [x] Run all eight workspace TypeScript checks successfully.
+- [x] Run repository ESLint with `--max-warnings=0` successfully.
+- [x] Confirm no test or quality-gate failure was introduced by active-exit, read-model, summary, or liveness changes.
+- [ ] Continue hosted observation and publish the pending Vercel frontend revision after quota reset.
+
 ### Phase 6.458 — Natural hosted cycle continuity (2026-08-29)
 
 - [x] Verify the hosted Worker remains healthy on release `febcda5f7a5…` with Paper Autopilot and order submission still enabled.
