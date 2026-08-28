@@ -219,6 +219,13 @@
 - [x] Keep the guarded test approval reference as a separate explicit gate.
 - [x] Preserve credential-handling and redaction instructions.
 
+### Phase 6.424 — Guarded Telegram delivery verification (2026-08-29)
+
+- [x] Use the user's earlier explicit request for a Telegram test as the bounded approval provenance; no secret or credential was exposed.
+- [x] Run the guarded test remotely on the hosted Worker with `TELEGRAM_ALERT_TEST=true` and a one-shot approval reference supplied only for that command.
+- [x] Confirm the command completed with `Telegram alert channel test sent.` and that the Worker remained online; the approval/test flag was not persisted as a standing trading setting.
+- [ ] Publish the latest dashboard revision after Vercel's provider deployment quota resets and verify the authenticated read model, CSV export, and review-required position state.
+
 ### Phase 6.387 — Hosted cycle baseline after reason-logging rollout (2026-08-28)
 
 - [x] Verify Worker deployment `8cabc43d-b343-47c1-9a0f-257198dabdcf` is `SUCCESS` and health is `healthy`.
