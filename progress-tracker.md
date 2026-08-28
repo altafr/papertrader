@@ -2,11 +2,18 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.310 — Operator monitoring-link alignment.
-- **Status:** Updated the README monitoring link from a stale preview deployment to the stable Vercel production dashboard alias. Runtime and trading state remain unchanged.
+- **Phase:** Phase 6.311 — Phase-branch CI coverage.
+- **Status:** Updated GitHub Actions so pushes to the active operator-health phase branch run the full paper-only verification workflow, including tests, builds, secret-surface, and hosted-auth boundary checks.
 - **Current operating mode:** Paper Autopilot; continuous order submission is not enabled.
 - **Current goal:** Complete authenticated dashboard verification and reconcile the authorized AAPL order through its terminal broker state, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
+
+### Phase 6.311 — Phase-branch CI coverage (2026-08-28)
+
+- [x] Add `phase-6-10-operator-health` to the CI push trigger.
+- [x] Preserve read-only repository permissions and paper-only verification steps.
+- [x] Push the workflow change in commit `27f63d3`.
+- [ ] Inspect the resulting GitHub Actions run when repository access exposes it.
 
 ### Phase 6.310 — Operator monitoring-link alignment (2026-08-28)
 
