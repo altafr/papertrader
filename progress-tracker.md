@@ -16,6 +16,14 @@
 - [x] Confirm these values through Railway's variable metadata without exposing any secret values.
 - [ ] Observe the next eligible cross-asset cycle and reconcile a successful paper order.
 
+### Phase 6.385 — Natural scheduler tick progression (2026-08-28)
+
+- [x] Observe the scheduled 15:15 UTC research tick completing on the hosted Worker.
+- [x] Confirm `lastRunAt` advanced to `2026-08-28T15:15:31.556Z` and `nextRunAt` advanced to `2026-08-28T15:30:00.000Z`.
+- [x] Confirm position management completed its concurrent pass at `2026-08-28T15:15:30.029Z`.
+- [x] Confirm the Worker remained healthy with the crypto stream connected and no kill switch activation.
+- [ ] Inspect the persisted cross-asset risk decisions and reconcile a successful paper order.
+
 ### Phase 6.383 — Idempotent paper submission retry guard (2026-08-28)
 
 - [x] Check the durable paper-submission ledger before every broker call.
