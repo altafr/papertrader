@@ -13,7 +13,7 @@
 - [x] Inspect the latest phase-branch GitHub Actions failure and identify missing workspace package build artifacts as the cause.
 - [x] Build all workspace packages before Vitest in the paper-only CI workflow.
 - [x] Verify the corrected order locally: 5 workspace package builds and 77 test files / 295 tests passed.
-- [ ] Push the workflow fix and confirm the next GitHub Actions run completes successfully.
+- [x] Push the workflow fix in commit `857f4d0` and confirm GitHub Actions run `33141439614` completed successfully.
 
 ### Phase 6.312 — Secret-surface security checkpoint (2026-08-28)
 
