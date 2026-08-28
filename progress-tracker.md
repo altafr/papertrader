@@ -700,6 +700,12 @@
 - [x] Add regression coverage for release mismatch while preserving the optional default for normal branch monitoring.
 - [x] Focused hosted-verifier tests and lint pass.
 
+### Phase 6.496 — Release-skew rollout verified (2026-08-29)
+
+- [x] Confirm Railway deployment for commit `4e5d36c` reached `SUCCESS`.
+- [x] Confirm the latest hosted monitor run completed successfully.
+- [x] Run the unified verifier against the new Worker release; runtime returned `verified: true` and the public dashboard returned HTTP `200`.
+
 ### Phase 6.458 — Natural hosted cycle continuity (2026-08-29)
 
 - [x] Verify the hosted Worker remains healthy on release `febcda5f7a5…` with Paper Autopilot and order submission still enabled.
