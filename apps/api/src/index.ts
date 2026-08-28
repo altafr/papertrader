@@ -378,8 +378,10 @@ async function readOperationsHealth(request: IncomingMessage) {
           timezone: DAILY_PREPARATION_TIMEZONE,
         },
         researchSchedule: {
+          cron: process.env.RESEARCH_PREPARATION_CRON ?? "30 0 * * *",
           enabled: researchSchedulerEnabled,
           handlerEnabled: researchHandlerEnabled,
+          stockWindowOnly: process.env.RESEARCH_STOCK_WINDOW_ONLY === "true",
           status: assessResearchScheduleActivation({ brokerConnectionEnabled, databaseConfigured: true, handlerEnabled: researchHandlerEnabled, paperCredentialsConfigured, paperMode, schedulerEnabled: researchSchedulerEnabled }),
         },
         telegramAlerts: { deliveryVerification: telegram.deliveryVerification, enabled: telegram.checks.enabled, riskDecisionAlerts: "approved_only", routineCooldownHours: 24, status: telegram.status },

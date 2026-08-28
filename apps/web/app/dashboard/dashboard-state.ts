@@ -33,7 +33,7 @@ export type OperationsHealth = {
       readonly maxSingleTradeRiskPercentOfNotional: string;
       readonly maxSingleTradeStopLossPercent: string;
     };
-    readonly researchSchedule: { readonly enabled: boolean; readonly handlerEnabled: boolean; readonly status: ResearchScheduleStatus };
+    readonly researchSchedule: { readonly cron?: string; readonly enabled: boolean; readonly handlerEnabled: boolean; readonly status: ResearchScheduleStatus; readonly stockWindowOnly?: boolean };
     readonly scheduler: { readonly activationApprovalReferencePresent: boolean; readonly cron: string; readonly enabled: boolean; readonly status: "blocked" | "disabled" | "ready"; readonly timezone: "UTC" };
     readonly telegramAlerts: { readonly deliveryVerification: "unverified"; readonly enabled: boolean; readonly riskDecisionAlerts: "approved_only"; readonly routineCooldownHours: number; readonly status: TelegramAlertReadinessStatus };
     readonly telegramAlertTest: { readonly approvalReferencePresent: boolean; readonly status: TelegramAlertTestStatus };
@@ -206,7 +206,7 @@ export function parseOperationsHealth(value: unknown): OperationsHealth | undefi
         maxSingleTradeRiskPercentOfNotional: riskPolicy.maxSingleTradeRiskPercentOfNotional,
         maxSingleTradeStopLossPercent: riskPolicy.maxSingleTradeStopLossPercent,
       },
-      researchSchedule: { enabled: researchSchedule.enabled, handlerEnabled: researchSchedule.handlerEnabled, status: researchSchedule.status as ResearchScheduleStatus },
+      researchSchedule: { ...(typeof researchSchedule.cron === "string" ? { cron: researchSchedule.cron } : {}), enabled: researchSchedule.enabled, handlerEnabled: researchSchedule.handlerEnabled, status: researchSchedule.status as ResearchScheduleStatus, ...(typeof researchSchedule.stockWindowOnly === "boolean" ? { stockWindowOnly: researchSchedule.stockWindowOnly } : {}) },
       scheduler: { activationApprovalReferencePresent: scheduler.activationApprovalReferencePresent, cron: scheduler.cron, enabled: scheduler.enabled, status: scheduler.status as OperationsHealth["runtime"]["scheduler"]["status"], timezone: "UTC" },
       telegramAlerts: { deliveryVerification: "unverified", enabled: telegramAlerts.enabled, riskDecisionAlerts: "approved_only", routineCooldownHours: typeof telegramAlerts.routineCooldownHours === "number" ? telegramAlerts.routineCooldownHours : 24, status: telegramAlerts.status as TelegramAlertReadinessStatus },
       telegramAlertTest: { approvalReferencePresent: telegramAlertTest.approvalReferencePresent, status: telegramAlertTest.status as TelegramAlertTestStatus },
