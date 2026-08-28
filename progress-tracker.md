@@ -318,6 +318,13 @@
 - [x] Confirm the live Worker remains healthy, scheduled, position-management ready, and crypto-stream connected after the release.
 - [ ] Verify the persisted close-hour summary event when the hosted scheduler clock reaches the New York 16:00 window.
 
+### Phase 6.437 — Close-hour event observation (2026-08-29)
+
+- [x] Confirm the hosted Worker remained healthy through the reported 16:45 UTC scheduler boundary.
+- [x] Inspect the deployed Worker logs for the close-hour research and summary events without exposing provider credentials or message contents.
+- [x] Record that no corresponding event was observable in the available log window; no success claim or forced one-shot side effect was made.
+- [ ] Diagnose the scheduler clock/queue timing and verify the persisted summary event on the next eligible close-hour cycle.
+
 ### Phase 6.387 — Hosted cycle baseline after reason-logging rollout (2026-08-28)
 
 - [x] Verify Worker deployment `8cabc43d-b343-47c1-9a0f-257198dabdcf` is `SUCCESS` and health is `healthy`.
