@@ -2,7 +2,7 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.325 — Sell-side exit mark correction deployed.
+- **Phase:** Phase 6.326 — Hosted end-to-end safety verification.
 - **Status:** The hosted Worker and API are healthy in Paper Autopilot mode with deterministic entry/exit safeguards, durable reconciliation, Telegram alerting, lifecycle-stable PostgreSQL-backed risk evidence, and a read-only portfolio status command. The latest provenance and evidence guards are deployed and verified. Vercel production publication remains limited by the free-plan daily deployment quota, while the 30-day paper-forward evidence window and authenticated dashboard verification remain ongoing.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading, verify authenticated portfolio/P&L rendering and exports, and accumulate the 30-day evidence gate without loosening risk controls.
@@ -5788,6 +5788,13 @@
 - Railway Worker deployment `3d3a9334-b0ff-4112-b888-e5097a36a0fe` reached `SUCCESS` from commit `9c75562`.
 - Hosted Worker health returns HTTP 200 with a fresh market stream, Paper Autopilot active, research scheduled for 23:15 UTC, and position management ready with no blocked reasons.
 - **Next smallest unit:** continue paper-forward monitoring and validate authenticated portfolio/read-model values.
+
+### Phase 6.326 hosted end-to-end safety verification
+
+- Ran the hosted verifier against the live Railway API, Worker, and Vercel URLs.
+- Result: `verified:true`; API/Worker healthy, paper mode active, order submission approval present, market stream connected, position management ready, research and durable schedulers scheduled, kill switch inactive, risk telemetry valid, next runs future, and Vercel HTTP 200.
+- The verifier reported no release mismatch and exposed no credentials or account values.
+- **Next smallest unit:** continue the 30-day paper-forward evidence window and validate authenticated portfolio/read-model data.
 
 ### 2026-08-29 — Phase 6.306 compatibility deployment verified
 
