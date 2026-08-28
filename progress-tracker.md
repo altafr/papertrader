@@ -5390,3 +5390,10 @@
 - Attempted production Vercel publication of the dashboard change; Vercel still rejects deployments because the project has exceeded the free-plan daily API deployment limit. No production-live claim is made.
 - The verified API source and dashboard source remain pushed on `phase-6-10-operator-health`; Railway API and Worker deployments are healthy.
 - **Next smallest unit:** publish the dashboard when Vercel permits, then verify the authenticated operations-health response contains durable risk-cycle counts.
+
+### 2026-08-29 — Phase 6.265 hosted risk-cycle evidence
+
+- Ran the guarded Railway risk-cycle command with the existing continuous paper-trading authorization reference.
+- Result: one persisted BTC/USD decision was approved by deterministic risk checks; this command intentionally did not submit a broker order.
+- Research run `research-preparation-crypto_research-20260828213016` is now represented in the durable submission ledger, enabling the API risk-cycle evidence query and dashboard card to report it.
+- **Next smallest unit:** verify the API’s authenticated risk-cycle summary and allow the autonomous scheduler to continue its normal cadence.
