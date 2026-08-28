@@ -582,6 +582,12 @@
 - [x] Keep failures closed after both attempts; no trading or authentication action is performed.
 - [x] Confirm the unified verifier passes against the live surfaces after a transient failure.
 
+### Phase 6.477 — Unified verifier release deployment (2026-08-29)
+
+- [x] Confirm Railway deployment for commit `8c7fcec` reached `SUCCESS`.
+- [x] Run the unified hosted verifier against the deployed Worker/API and Vercel surface; it returned runtime `verified: true` and dashboard HTTP `200`.
+- [x] Confirm the paper safety contract remains intact after rollout.
+
 ### Phase 6.458 — Natural hosted cycle continuity (2026-08-29)
 
 - [x] Verify the hosted Worker remains healthy on release `febcda5f7a5…` with Paper Autopilot and order submission still enabled.
