@@ -1,0 +1,38 @@
+name: Hosted paper runtime health
+
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: hosted-paper-health
+  cancel-in-progress: true
+
+jobs:
+  health:
+    name: Verify Railway paper runtime
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out verifier
+        uses: actions/checkout@v4
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.22.0
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - name: Install locked dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Verify hosted paper runtime
+        env:
+          PAPERTRADER_WORKER_HEALTH_URL: ${{ vars.PAPERTRADER_WORKER_HEALTH_URL || 'https://worker-production-b362.up.railway.app/health' }}
+          PAPERTRADER_API_HEALTH_URL: ${{ vars.PAPERTRADER_API_HEALTH_URL || 'https://api-production-e0a6.up.railway.app/health' }}
+        run: pnpm verify:paper-runtime

@@ -435,6 +435,13 @@
 - [x] Keep the browser payload read-only and credential-free; web TypeScript check and focused heartbeat tests pass.
 - [x] Add the non-secret `NEXT_PUBLIC_WORKER_HEALTH_URL` to the Vercel production environment; publish once the provider quota resets.
 
+### Phase 6.453 — Scheduled hosted health monitor (2026-08-29)
+
+- [x] Add a GitHub Actions workflow that verifies the public Railway API and Worker health every 15 minutes.
+- [x] Reuse the existing paper-runtime contract, retry behavior, and safe public defaults; no broker, database, Clerk, or deployment secrets are required.
+- [x] Keep the monitor read-only with cancellation of overlapping runs and a five-minute timeout.
+- [ ] Observe the first scheduled run and investigate any failed health check.
+
 ### Phase 6.387 — Hosted cycle baseline after reason-logging rollout (2026-08-28)
 
 - [x] Verify Worker deployment `8cabc43d-b343-47c1-9a0f-257198dabdcf` is `SUCCESS` and health is `healthy`.
