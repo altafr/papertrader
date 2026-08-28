@@ -5553,3 +5553,10 @@
 - Missing provenance remains explicit and does not cause inferred management; unmanaged positions stay fail-closed as `Review required`.
 - Verification: API/web typechecks, ESLint, focused contract tests, and full regression passed (88 files, 351 tests).
 - **Next smallest unit:** deploy the API/web revision and verify the enriched position rows through an authenticated operator session once Vercel publication is available.
+
+### 2026-08-29 — Phase 6.289 position provenance API deployment
+
+- Railway API deployment `61e84017-572a-497c-8d6c-0d7b40a3e1cc` reached `SUCCESS`.
+- API health remains `healthy`; the protected read-model path now serves the enriched position provenance projection.
+- The web source is pushed on `phase-6-10-operator-health`; Vercel publication remains provider-limited, so authenticated UI verification is still pending.
+- **Next smallest unit:** publish the web revision after quota reset and verify the enriched positions table, then continue paper-forward evidence collection.
