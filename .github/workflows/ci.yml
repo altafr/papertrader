@@ -2,7 +2,7 @@ name: Paper-only verification
 
 on:
   push:
-    branches: [main]
+    branches: [main, phase-6-10-operator-health]
   pull_request:
   workflow_dispatch:
 
