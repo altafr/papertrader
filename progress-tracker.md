@@ -5369,3 +5369,10 @@
 - Worker health remains `healthy`; research scheduling is enabled and position management is ready.
 - The risk-cycle counters remain intentionally absent until the next research batch executes after this deployment; this is a normal pre-first-run state.
 - **Next smallest unit:** capture the first post-deploy risk-cycle result and confirm its bounded counters in the live health response.
+
+### 2026-08-29 — Phase 6.262 durable risk-cycle dashboard evidence
+
+- Added a PostgreSQL-backed risk-cycle summary to the authenticated operations-health response: latest persisted decision timestamp, decision count, and approved count over the last seven days.
+- Added strict dashboard parsing and an Operations Health card showing this evidence, so the operator view does not depend on process-local Worker memory.
+- Verification: API/web TypeScript checks, dashboard tests (11 tests), and targeted ESLint passed.
+- **Next smallest unit:** deploy the API/dashboard change and verify the authenticated operations-health contract against the live database.

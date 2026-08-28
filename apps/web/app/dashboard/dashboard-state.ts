@@ -34,6 +34,7 @@ export type OperationsHealth = {
       readonly maxSingleTradeStopLossPercent: string;
     };
     readonly researchSchedule: { readonly cron?: string; readonly enabled: boolean; readonly handlerEnabled: boolean; readonly status: ResearchScheduleStatus; readonly stockWindowOnly?: boolean };
+    readonly riskCycle: { readonly approved: number; readonly decisions: number; readonly latestAt?: string };
     readonly scheduler: { readonly activationApprovalReferencePresent: boolean; readonly cron: string; readonly enabled: boolean; readonly status: "blocked" | "disabled" | "ready"; readonly timezone: "UTC" };
     readonly telegramAlerts: { readonly deliveryVerification: "unverified"; readonly enabled: boolean; readonly riskDecisionAlerts: "approved_only"; readonly routineCooldownHours: number; readonly status: TelegramAlertReadinessStatus };
     readonly telegramAlertTest: { readonly approvalReferencePresent: boolean; readonly status: TelegramAlertTestStatus };
@@ -153,6 +154,7 @@ export function parseOperationsHealth(value: unknown): OperationsHealth | undefi
   if (!isRecord(runtime.schedulerAuditGate)) return undefined;
   if (!isRecord(runtime.recovery)) return undefined;
   if (!isRecord(runtime.researchSchedule)) return undefined;
+  if (!isRecord(runtime.riskCycle)) return undefined;
   if (!isRecord(runtime.telegramAlerts)) return undefined;
   if (!isRecord(runtime.telegramAlertTest)) return undefined;
   if (!isRecord(runtime.paperBaseline)) return undefined;
@@ -163,6 +165,7 @@ export function parseOperationsHealth(value: unknown): OperationsHealth | undefi
   const schedulerAuditGate = runtime.schedulerAuditGate;
   const recovery = runtime.recovery;
   const researchSchedule = runtime.researchSchedule;
+  const riskCycle = runtime.riskCycle;
   const telegramAlerts = runtime.telegramAlerts;
   const telegramAlertTest = runtime.telegramAlertTest;
   const paperBaseline = runtime.paperBaseline;
@@ -182,7 +185,7 @@ export function parseOperationsHealth(value: unknown): OperationsHealth | undefi
   if (!( ["blocked", "disabled", "enabled"] as const).includes(schedulerAuditGate.status as SchedulerAuditGateStatus)) return undefined;
   if (!( ["unverified", "verified"] as const).includes(recovery.status as RecoveryVerificationStatus)) return undefined;
   if (!( ["above_baseline", "below_baseline", "unavailable", "within_tolerance"] as const).includes(paperBaseline.current as PaperBaselineStatus) || !( ["above_baseline", "below_baseline", "unavailable", "within_tolerance"] as const).includes(paperBaseline.initial as PaperBaselineStatus) || !( ["blocked", "ready"] as const).includes(paperBaseline.status as "blocked" | "ready")) return undefined;
-  if (typeof scheduler.activationApprovalReferencePresent !== "boolean" || typeof scheduler.cron !== "string" || scheduler.cron.trim().length === 0 || scheduler.cron.length > 120 || typeof scheduler.enabled !== "boolean" || scheduler.timezone !== "UTC" || typeof researchSchedule.enabled !== "boolean" || typeof researchSchedule.handlerEnabled !== "boolean" || typeof telegramAlerts.enabled !== "boolean" || typeof telegramAlertTest.approvalReferencePresent !== "boolean" || typeof runtime.brokerConnectionEnabled !== "boolean" || typeof runtime.dailyPreparationHandlerEnabled !== "boolean" || typeof runtime.globalKillSwitchActive !== "boolean" || typeof runtime.paperAutopilotEnabled !== "boolean" || typeof runtime.paperAutopilotOrderSubmissionEnabled !== "boolean" || typeof runtime.paperAutopilotOrderSubmissionApprovalReferencePresent !== "boolean" || (dailyReconciliation.capturedAt !== undefined && typeof dailyReconciliation.capturedAt !== "string")) return undefined;
+  if (typeof scheduler.activationApprovalReferencePresent !== "boolean" || typeof scheduler.cron !== "string" || scheduler.cron.trim().length === 0 || scheduler.cron.length > 120 || typeof scheduler.enabled !== "boolean" || scheduler.timezone !== "UTC" || typeof researchSchedule.enabled !== "boolean" || typeof researchSchedule.handlerEnabled !== "boolean" || typeof riskCycle.approved !== "number" || typeof riskCycle.decisions !== "number" || (riskCycle.latestAt !== undefined && typeof riskCycle.latestAt !== "string") || typeof telegramAlerts.enabled !== "boolean" || typeof telegramAlertTest.approvalReferencePresent !== "boolean" || typeof runtime.brokerConnectionEnabled !== "boolean" || typeof runtime.dailyPreparationHandlerEnabled !== "boolean" || typeof runtime.globalKillSwitchActive !== "boolean" || typeof runtime.paperAutopilotEnabled !== "boolean" || typeof runtime.paperAutopilotOrderSubmissionEnabled !== "boolean" || typeof runtime.paperAutopilotOrderSubmissionApprovalReferencePresent !== "boolean" || (dailyReconciliation.capturedAt !== undefined && typeof dailyReconciliation.capturedAt !== "string")) return undefined;
   for (const key of ["completedAt", "failureCode", "runId", "scheduledAt", "startedAt"] as const) if (schedulerAudit[key] !== undefined && typeof schedulerAudit[key] !== "string") return undefined;
   if (typeof schedulerAuditGate.activationApprovalReferencePresent !== "boolean" || typeof schedulerAuditGate.enabled !== "boolean" || typeof schedulerAuditGate.migrationReady !== "boolean") return undefined;
   if (!(runtime.migration.status === "blocked" || runtime.migration.status === "ready")) return undefined;
@@ -215,6 +218,7 @@ export function parseOperationsHealth(value: unknown): OperationsHealth | undefi
         maxSingleTradeStopLossPercent: riskPolicy.maxSingleTradeStopLossPercent,
       },
       researchSchedule: { ...(typeof researchSchedule.cron === "string" ? { cron: researchSchedule.cron } : {}), enabled: researchSchedule.enabled, handlerEnabled: researchSchedule.handlerEnabled, status: researchSchedule.status as ResearchScheduleStatus, ...(typeof researchSchedule.stockWindowOnly === "boolean" ? { stockWindowOnly: researchSchedule.stockWindowOnly } : {}) },
+      riskCycle: { approved: riskCycle.approved, decisions: riskCycle.decisions, ...(typeof riskCycle.latestAt === "string" ? { latestAt: riskCycle.latestAt } : {}) },
       scheduler: { activationApprovalReferencePresent: scheduler.activationApprovalReferencePresent, cron: scheduler.cron, enabled: scheduler.enabled, status: scheduler.status as OperationsHealth["runtime"]["scheduler"]["status"], timezone: "UTC" },
       telegramAlerts: { deliveryVerification: "unverified", enabled: telegramAlerts.enabled, riskDecisionAlerts: "approved_only", routineCooldownHours: typeof telegramAlerts.routineCooldownHours === "number" ? telegramAlerts.routineCooldownHours : 24, status: telegramAlerts.status as TelegramAlertReadinessStatus },
       telegramAlertTest: { approvalReferencePresent: telegramAlertTest.approvalReferencePresent, status: telegramAlertTest.status as TelegramAlertTestStatus },

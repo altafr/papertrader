@@ -351,6 +351,8 @@ async function readOperationsHealth(request: IncomingMessage) {
   try {
     const migration = await readAuditMigrationReadiness(migrationDatabase.pool);
     const schedulerAuditMigration = await readSchedulerAuditMigrationReadiness(migrationDatabase.pool);
+    const riskCycleResult = await migrationDatabase.pool.query<{ readonly latest_at: Date | null; readonly decisions: number; readonly approved: number }>("SELECT MAX(created_at) FILTER (WHERE status LIKE 'risk_dry_run_%') AS latest_at, COUNT(*) FILTER (WHERE status LIKE 'risk_dry_run_%')::int AS decisions, COUNT(*) FILTER (WHERE status = 'risk_dry_run_approved')::int AS approved FROM paper_order_submissions WHERE created_at >= NOW() - INTERVAL '7 days'");
+    const riskCycle = riskCycleResult.rows[0];
     const schedulerAuditEnabled = readBooleanEnvironmentFlag("DURABLE_SCHEDULER_AUDIT_ENABLED");
     const schedulerAuditActivationApprovalReferencePresent = Boolean(process.env.DURABLE_SCHEDULER_AUDIT_ACTIVATION_APPROVAL_REFERENCE?.trim() && /^[A-Za-z0-9][A-Za-z0-9._:/-]{0,127}$/.test(process.env.DURABLE_SCHEDULER_AUDIT_ACTIVATION_APPROVAL_REFERENCE.trim()));
 
@@ -395,6 +397,11 @@ async function readOperationsHealth(request: IncomingMessage) {
           handlerEnabled: researchHandlerEnabled,
           stockWindowOnly: process.env.RESEARCH_STOCK_WINDOW_ONLY === "true",
           status: assessResearchScheduleActivation({ brokerConnectionEnabled, databaseConfigured: true, handlerEnabled: researchHandlerEnabled, paperCredentialsConfigured, paperMode, schedulerEnabled: researchSchedulerEnabled }),
+        },
+        riskCycle: {
+          ...(riskCycle?.latest_at ? { latestAt: riskCycle.latest_at.toISOString() } : {}),
+          decisions: Number(riskCycle?.decisions ?? 0),
+          approved: Number(riskCycle?.approved ?? 0),
         },
         telegramAlerts: { deliveryVerification: telegram.deliveryVerification, enabled: telegram.checks.enabled, riskDecisionAlerts: "approved_only", routineCooldownHours: 24, status: telegram.status },
         telegramAlertTest: { approvalReferencePresent: telegramTest.approvalReferencePresent, status: telegramTest.status },
