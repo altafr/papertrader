@@ -2,11 +2,20 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.291 — Full application quality checkpoint.
-- **Status:** Worker regression tests, Web/API typechecks, and repository lint all pass. Hosted performance remains reconciled with 100 snapshots; no order-submission setting changed.
+- **Phase:** Phase 6.292 — Always-on runtime integrity checkpoint.
+- **Status:** Railway health confirms research preparation, daily reconciliation, and 60-second position management are all active in paper mode. The production dashboard is live behind Clerk authentication. No order-submission setting changed.
 - **Current operating mode:** Paper Autopilot; continuous order submission is not enabled.
 - **Current goal:** Complete authenticated dashboard verification and reconcile the authorized AAPL order through its terminal broker state, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
+
+### Phase 6.292 — Always-on runtime integrity checkpoint (2026-08-28)
+
+- [x] Confirm the hosted research scheduler is `scheduled` with the next UTC run recorded.
+- [x] Confirm the durable daily scheduler is `ready` with the same next UTC run and a completed latest audit.
+- [x] Confirm position management is `ready` and running on its 60-second interval.
+- [x] Confirm production dashboard routing is live and unauthenticated access redirects to the Clerk sign-in boundary.
+- [x] Confirm paper mode, kill switch, deterministic risk policy, and continuous order submission settings remain unchanged.
+- [ ] Complete authenticated dashboard visual verification and continue the 30-day paper evidence gate.
 
 ### Phase 6.291 — Full application quality checkpoint (2026-08-28)
 
