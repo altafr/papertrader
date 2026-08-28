@@ -20,7 +20,9 @@
 - [x] Deduplicate identical asset-class/symbol candidates before the cross-asset risk cycle.
 - [x] Preserve separate decisions when the same symbol belongs to different asset classes.
 - [x] Add regression coverage while preserving first-agent evidence and ordering.
-- [ ] Run full verification and deploy the Worker.
+- [x] Run full verification: 79 files and 312 tests passed; Worker typecheck and lint passed.
+- [x] Deploy Worker `f4bf4f24-fa7b-450e-a486-8b4a6a68ccb3` with `SUCCESS` and verify hosted health remains healthy, scheduled, and position-management ready.
+- [ ] Verify the next hosted cycle contains no duplicate symbol decisions and reconcile a successful paper order.
 
 ### Phase 6.384 — Hosted cadence and submission configuration audit (2026-08-28)
 
