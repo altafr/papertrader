@@ -2,11 +2,20 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.290 — Hosted performance reconciliation checkpoint.
-- **Status:** The hosted read-only performance report now contains 100 reconciled snapshots. Current captured equity is `99,390.86`, total captured P&L is `+0.31`, and the only stability block is the intentional 30-consecutive-calendar-day evidence requirement. No order-submission setting changed.
+- **Phase:** Phase 6.291 — Full application quality checkpoint.
+- **Status:** Worker regression tests, Web/API typechecks, and repository lint all pass. Hosted performance remains reconciled with 100 snapshots; no order-submission setting changed.
 - **Current operating mode:** Paper Autopilot; continuous order submission is not enabled.
 - **Current goal:** Complete authenticated dashboard verification and reconcile the authorized AAPL order through its terminal broker state, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
+
+### Phase 6.291 — Full application quality checkpoint (2026-08-28)
+
+- [x] Run the complete regression suite: 77 files and 295 tests passed.
+- [x] Run Web TypeScript validation successfully.
+- [x] Run API TypeScript validation successfully.
+- [x] Run repository ESLint with zero warnings.
+- [x] Preserve paper mode, deterministic risk controls, scheduler, and notification policy.
+- [ ] Continue daily scheduled evidence until the 30-day stability gate is satisfied.
 
 ### Phase 6.290 — Hosted performance reconciliation checkpoint (2026-08-28)
 
