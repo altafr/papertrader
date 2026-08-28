@@ -33,6 +33,7 @@ export function createRuntimeAlertNotifier(environment: NodeJS.ProcessEnv = proc
     notify(alert: RuntimeAlert): Promise<void> {
       const occurredAt = alert.occurredAt ?? new Date().toISOString();
       return (async () => {
+        if (!config.enabled) return;
         if (persistence?.hasRecent && alert.cooldownKey && alert.cooldownMs && alert.cooldownMs > 0) {
           const occurredAtDate = new Date(occurredAt);
           if (await persistence.hasRecent(alert.code, alert.cooldownKey, new Date(occurredAtDate.getTime() - alert.cooldownMs))) return;

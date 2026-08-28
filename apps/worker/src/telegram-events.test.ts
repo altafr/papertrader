@@ -2,6 +2,13 @@ import { describe, expect, it, vi } from "vitest";
 import { createRuntimeAlertNotifier } from "./telegram-events.js";
 
 describe("runtime Telegram event notifier", () => {
+  it("does not record delivery when Telegram is explicitly disabled", async () => {
+    const enqueue = vi.fn(async () => ({ eventId: "disabled-event" }));
+    const notifier = createRuntimeAlertNotifier({}, { enqueue, markSent: vi.fn(), markFailed: vi.fn() });
+    await notifier.notify({ code: "paper_entry_submitted", message: "AAPL entered", severity: "info" });
+    expect(enqueue).not.toHaveBeenCalled();
+  });
+
   it("persists a deduplicated event before delivery", async () => {
     const enqueue = vi.fn(async () => ({ eventId: "event-1" }));
     const markSent = vi.fn(async () => undefined);

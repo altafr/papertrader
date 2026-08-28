@@ -2,11 +2,18 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.347 — Multi-bar freshness grace documentation.
+- **Phase:** Phase 6.348 — Disabled Telegram delivery correctness.
 - **Status:** The hosted Worker and API are healthy in Paper Autopilot mode with deterministic entry/exit safeguards, durable reconciliation, Telegram alerting, lifecycle-stable PostgreSQL-backed risk evidence, and a read-only portfolio status command. The latest provenance and evidence guards are deployed and verified. Vercel production publication remains limited by the free-plan daily deployment quota, while the 30-day paper-forward evidence window and authenticated dashboard verification remain ongoing.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading, verify authenticated portfolio/P&L rendering and exports, and accumulate the 30-day evidence gate without loosening risk controls.
 - **Last updated:** 2026-08-29.
+
+### Phase 6.348 — Disabled Telegram delivery correctness (2026-08-29)
+
+- [x] Make the runtime notifier return before persistence or delivery when Telegram is disabled.
+- [x] Add regression coverage preventing disabled events from being recorded as sent.
+- [x] Document the distinction between disabled alerting and failed delivery.
+- [ ] Deploy the Worker revision and verify normal hosted health remains healthy.
 
 ### Phase 6.347 — Multi-bar freshness grace documentation (2026-08-29)
 
