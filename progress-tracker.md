@@ -17,6 +17,15 @@
 - [ ] Resolve Alpaca's external HTTP 403 crypto order-entitlement response before allowing an approved crypto candidate to submit.
 - [ ] Verify the authenticated dashboard Cycle card and live portfolio/position rendering.
 
+### Phase 6.329 — Scheduled candidate risk hand-off (2026-08-28)
+
+- [x] Confirm the `12:30 UTC` BTC/USD candidate entered the scheduled research-to-risk hand-off.
+- [x] Confirm deterministic risk rejected the candidate for existing position-cap and gross-exposure limits; no broker submission occurred.
+- [x] Confirm the persisted order ledger records the sanitized intent `intent:BTC_USD:2026-08-28T12:00:00Z` as `risk_dry_run_rejected` with no submission timestamp.
+- [x] Confirm the rejection preserves the paper safety boundary while the Worker remains healthy and the next crypto tick is scheduled for `12:45 UTC`.
+- [ ] Verify the authenticated dashboard presents this risk decision and its bounded reasons in the Cycle card.
+- [ ] Resolve the separate Alpaca HTTP 403 crypto order-entitlement response before an approved crypto candidate can submit.
+
 ### Phase 6.327 — Asset-aware crypto order execution (2026-08-28)
 
 - [x] Confirm Alpaca documentation supports `gtc`/`ioc` for crypto and not `day`.
