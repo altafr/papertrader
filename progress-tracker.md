@@ -2,11 +2,18 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.345 — Timeframe-aware stream freshness.
+- **Phase:** Phase 6.346 — Timeframe-aware freshness deployment verification.
 - **Status:** The hosted Worker and API are healthy in Paper Autopilot mode with deterministic entry/exit safeguards, durable reconciliation, Telegram alerting, lifecycle-stable PostgreSQL-backed risk evidence, and a read-only portfolio status command. The latest provenance and evidence guards are deployed and verified. Vercel production publication remains limited by the free-plan daily deployment quota, while the 30-day paper-forward evidence window and authenticated dashboard verification remain ongoing.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading, verify authenticated portfolio/P&L rendering and exports, and accumulate the 30-day evidence gate without loosening risk controls.
 - **Last updated:** 2026-08-29.
+
+### Phase 6.346 — Timeframe-aware freshness deployment verification (2026-08-29)
+
+- [x] Worker deployment `09d88f6e-7a67-4290-9e22-88e054bc9fff` reached `SUCCESS` for commit `aa60982`.
+- [x] Hosted verifier returned `verified:true`; live stream is connected/fresh and all paper safety, risk, scheduler, and position-management gates pass.
+- [x] Slower configured bar streams now receive an accurate freshness grace period without weakening stale-data controls.
+- [ ] Continue paper-forward evidence collection and authenticated dashboard/read-model verification.
 
 ### Phase 6.345 — Timeframe-aware stream freshness (2026-08-29)
 
