@@ -2,8 +2,8 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.272 — Release baseline verification.
-- **Status:** Live Railway verification is healthy: the Worker and API are responding, the UTC durable scheduler is ready for its next run, position management is ready, and order submission remains disabled by policy. Local lint, type checks, and the full regression suite pass. Telegram is configured for approved-only risk decisions and a durable 24-hour routine digest cooldown. The fastest path is now to validate one scheduled cycle, complete authenticated dashboard verification, and then collect the required multi-day paper evidence; Vercel production publishing remains quota-limited.
+- **Phase:** Phase 6.274 — Hosted paper e2e evidence completed.
+- **Status:** A guarded hosted paper e2e run now completes end to end: paper reconciliation, Alpaca market research, persisted research artifact, deterministic risk assessment, and persisted risk decision. The candidate was rejected by policy and no broker order was submitted. Local lint, type checks, and the full regression suite pass; Railway remains healthy. The next gates are scheduled-cycle evidence, authenticated dashboard verification, and multi-day paper evidence.
 - **Current operating mode:** Paper Autopilot; continuous order submission is not enabled.
 - **Current goal:** Complete authenticated dashboard verification and reconcile the authorized AAPL order through its terminal broker state, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
@@ -36,7 +36,15 @@
 - [x] Resolve the Railway SSH runtime-path issue: the deployed Node runtime is present at `/mise/installs/node/22.23.2/bin/node`; the default interactive PATH omitted it.
 - [x] Execute the guarded paper e2e command with all order-submission gates disabled; no broker order was submitted.
 - [x] Preserve fail-closed behavior when the research input/handler did not complete; the command emitted only its bounded stage failure.
-- [ ] Diagnose the intermittent Alpaca research-stage failure using a separately bounded research verification, then rerun the e2e evidence cycle once.
+- [x] Diagnose the intermittent Alpaca research-stage failure using a separately bounded research verification, then rerun the e2e evidence cycle once.
+
+### Phase 6.274 — Hosted paper e2e evidence completed (2026-08-28)
+
+- [x] Deploy the bounded daily-bar candidate fallback; Railway deployment `bf4e9a84-795a-4f58-9a24-d14c093e15b5` reached `SUCCESS`.
+- [x] Run the guarded hosted e2e flow with order submission disabled and verify it completed with `status: "completed"`.
+- [x] Confirm the research run persisted as `paper-e2e-fast-20260828-06-research` and the deterministic risk decision was persisted as `rejected`.
+- [x] Confirm the run reported no broker order ID and therefore submitted no order.
+- [ ] Run the same flow with a separately approved one-shot paper order only after the operator explicitly authorizes that execution check.
 
 ### Phase 6.269 — Paper Autopilot runtime readiness (2026-08-28)
 
