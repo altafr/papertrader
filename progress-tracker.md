@@ -469,6 +469,13 @@
 - [x] Confirm the deployed Worker release matches the observed health contract (`c180d8c93237…`); no credentials or account payloads were printed.
 - [ ] Publish the newer queued heartbeat revision after Vercel quota reset and rerun the same surface checks.
 
+### Phase 6.458 — Natural hosted cycle continuity (2026-08-29)
+
+- [x] Verify the hosted Worker remains healthy on release `febcda5f7a5…` with Paper Autopilot and order submission still enabled.
+- [x] Confirm the crypto stream is connected and the next research run is scheduled for `20:30 UTC`.
+- [x] Confirm the latest 60-second position-management pass completed with three persisted positions, one actively managed (`AAPL`), and zero exits submitted.
+- [ ] Capture and reconcile the next natural research/risk cycle; authenticated position/P&L verification remains pending.
+
 ### Phase 6.387 — Hosted cycle baseline after reason-logging rollout (2026-08-28)
 
 - [x] Verify Worker deployment `8cabc43d-b343-47c1-9a0f-257198dabdcf` is `SUCCESS` and health is `healthy`.
