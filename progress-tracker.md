@@ -406,6 +406,13 @@
 - [x] Confirm the verifier remains read-only and does not trigger a new Telegram message or broker action.
 - [ ] Complete authenticated operator-session verification of dashboard positions, P/L, review-required state, and CSV contents.
 
+### Phase 6.449 — Production surface continuity check (2026-08-29)
+
+- [x] Confirm the Vercel production dashboard alias returns HTTP `200`.
+- [x] Confirm the Railway API health endpoint returns `healthy`.
+- [x] Confirm the latest documentation push is accepted by Railway and progressing through deployment without altering runtime configuration.
+- [ ] Complete authenticated operator-session verification of dashboard positions, P/L, review-required state, and CSV contents.
+
 ### Phase 6.387 — Hosted cycle baseline after reason-logging rollout (2026-08-28)
 
 - [x] Verify Worker deployment `8cabc43d-b343-47c1-9a0f-257198dabdcf` is `SUCCESS` and health is `healthy`.
