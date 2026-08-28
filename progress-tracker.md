@@ -2,7 +2,7 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.314 — Position-exit market freshness gate.
+- **Phase:** Phase 6.315 — Position-exit market freshness gate deployed.
 - **Status:** The hosted Worker and API are healthy in Paper Autopilot mode with deterministic entry/exit safeguards, durable reconciliation, Telegram alerting, lifecycle-stable PostgreSQL-backed risk evidence, and a read-only portfolio status command. The latest provenance and evidence guards are deployed and verified. Vercel production publication remains limited by the free-plan daily deployment quota, while the 30-day paper-forward evidence window and authenticated dashboard verification remain ongoing.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading, verify authenticated portfolio/P&L rendering and exports, and accumulate the 30-day evidence gate without loosening risk controls.
@@ -5714,6 +5714,13 @@
 - Stale or missing marks now fail closed and produce a deduplicated critical operational alert; no stop, target, or time exit is submitted from stale data.
 - Added focused coverage for fresh versus stale marks; worker typecheck, ESLint, and position-management tests pass (14 tests).
 - **Next smallest unit:** deploy the Worker change and verify the hosted position-management health remains ready.
+
+### Phase 6.315 position-exit freshness deployment
+
+- Railway Worker deployment `a0032465-97da-420d-b1ca-73dd7633ecbd` reached `SUCCESS` from commit `ccdb356`.
+- Worker health remains HTTP 200 and reports Paper Autopilot, connected market stream, scheduled research/durable runs, and position management `ready` with no blocked reasons.
+- The stale-mark guard is now active in the always-on Worker; it can only reduce unsafe action by skipping exits when current marks are unavailable or older than five minutes.
+- **Next smallest unit:** continue paper-forward monitoring and verify an authenticated read-model snapshot when the operator session is available.
 
 ### 2026-08-29 — Phase 6.306 compatibility deployment verified
 
