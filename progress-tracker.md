@@ -3,7 +3,7 @@
 ## Snapshot
 
 - **Phase:** Phase 6.258 — Notification policy health visibility.
-- **Status:** Notification delivery remains enabled, but routine research selections and portfolio/P&L summaries now use durable 24-hour cooldown checks. Individual rejected risk candidates are retained in the audit/dashboard and no longer generate Telegram warnings; approved selections, order/position lifecycle events, and failures remain immediate. Local tests, Worker typecheck, and lint pass; Railway deployment is healthy.
+- **Status:** Notification delivery remains enabled, but routine research selections and portfolio/P&L summaries now use durable 24-hour cooldown checks. Individual rejected risk candidates are retained in the audit/dashboard and no longer generate Telegram warnings; approved selections, order/position lifecycle events, and failures remain immediate. Local tests, Worker typecheck, and lint pass; Railway deployment is healthy and reports the active policy.
 - **Current operating mode:** Paper Autopilot; continuous order submission is not enabled.
 - **Current goal:** Complete authenticated dashboard verification and reconcile the authorized AAPL order through its terminal broker state, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
@@ -13,7 +13,8 @@
 - [x] Expose the active 24-hour routine cooldown in Worker health without exposing secrets.
 - [x] Expose that risk-decision Telegram alerts are restricted to approved selections.
 - [x] Verify Worker/domain TypeScript, ESLint, diff hygiene, and the full 293-test suite.
-- [ ] Deploy the health-contract update and verify the hosted `/health` response.
+- [x] Deploy the health-contract update and verify the hosted `/health` response.
+- [x] Railway deployment `d7d13121-1c6f-47ee-af5d-75120177922b` reached `SUCCESS`; `/health` reports `routineCooldownHours:24` and `riskDecisionAlerts:approved_only`.
 
 ### Phase 6.257 — Durable 24-hour notification cooldown (2026-08-28)
 
