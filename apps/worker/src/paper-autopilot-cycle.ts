@@ -38,6 +38,7 @@ export async function runPaperAutopilotRiskCycle(input: {
   readonly candidates: readonly ResearchWatchlistCandidate[];
   readonly db: Database;
   readonly quantity?: string;
+  readonly quantityForCandidate?: (candidate: ResearchWatchlistCandidate) => string;
   readonly now?: Date;
   readonly environment?: NodeJS.ProcessEnv;
   readonly approvalReference?: string;
@@ -46,7 +47,7 @@ export async function runPaperAutopilotRiskCycle(input: {
 }): Promise<readonly PaperAutopilotRiskCycleResult[]> {
   if (input.candidates.length === 0) return [];
   const now = input.now ?? new Date();
-  const quantity = input.quantity ?? "1";
+  const defaultQuantity = input.quantity ?? "1";
   const accountRepository = createAccountStateRepository(input.db);
   const model = await accountRepository.getLatestReadModel();
   if (!model) throw new Error("paper_autopilot_account_read_model_missing");
@@ -69,6 +70,7 @@ export async function runPaperAutopilotRiskCycle(input: {
   // most one entry. The next cycle re-reconciles before considering another.
   const candidates = selectPaperAutopilotCandidates(input.candidates, Boolean(input.executeApproved));
   for (const candidate of candidates) {
+    const quantity = input.quantityForCandidate?.(candidate) ?? defaultQuantity;
     const candidateAge = now.getTime() - Date.parse(candidate.dataAsOf);
     const state = { ...baseState, dataFresh: Number.isFinite(candidateAge) && candidateAge >= 0 && candidateAge <= 172_800_000 };
     const { approval, intentId } = assessResearchCandidateRisk({ candidate, currentAt: now.toISOString(), equity: snapshot.equity, quantity, state });

@@ -50,6 +50,16 @@
 - [x] Confirm BTC/USD produced a deterministic rejection with position-cap and gross-exposure-cap reasons.
 - [x] Confirm no broker order was submitted for the rejected candidate.
 - [ ] Reconcile a successful paper order when a candidate passes the configured exposure gates.
+
+### Phase 6.392 — Explicit per-asset paper sizing controls (2026-08-28)
+
+- [x] Add optional stock and crypto quantity overrides while preserving the existing global fallback.
+- [x] Validate quantities as positive decimal values before risk evaluation.
+- [x] Wire scheduled and one-shot risk-cycle paths through the same quantity resolver.
+- [x] Document the variables without changing current Railway values.
+- [x] Resolve quantity per candidate so mixed crypto/equity batches cannot accidentally share the wrong size.
+- [x] Run full verification: 80 files and 317 tests passed; Worker typecheck and lint passed.
+- [ ] Deploy the Worker before enabling any new quantity.
 - [x] Run full verification: 79 files and 314 tests passed; Worker typecheck and lint passed.
 - [x] Deploy Worker `23e99f53-0266-489c-b6df-c7f0c8b0f922` with `SUCCESS` and verify hosted health remains healthy, scheduled, and position-management ready.
 - [ ] Verify the next position pass emits per-decision records and reconcile any eligible paper order.

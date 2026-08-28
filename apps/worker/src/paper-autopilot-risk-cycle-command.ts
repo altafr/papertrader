@@ -2,6 +2,7 @@ import { getPaperOnlyRuntimeConfig } from "@momentum/config";
 import { createAgentRunRepository, createDatabase, createTelegramAlertRepository } from "@momentum/db";
 
 import { createRuntimeAlertNotifier } from "./telegram-events.js";
+import { getPaperAutopilotQuantity } from "./paper-quantity.js";
 import { runPaperAutopilotRiskCycle } from "./paper-autopilot-cycle.js";
 import type { ResearchWatchlistCandidate } from "@momentum/domain";
 
@@ -26,7 +27,7 @@ try {
   }).slice(0, 10);
   if (candidates.length === 0) throw new Error("Persisted research artifact contains no valid candidates.");
   const notifier = createRuntimeAlertNotifier(process.env, createTelegramAlertRepository(db));
-  const results = await runPaperAutopilotRiskCycle({ approvalReference, candidates, db, environment: process.env, quantity: process.env.PAPER_AUTOPILOT_QUANTITY?.trim() || "1", notify: notifier.notify });
+  const results = await runPaperAutopilotRiskCycle({ approvalReference, candidates, db, environment: process.env, quantityForCandidate: (candidate) => getPaperAutopilotQuantity(candidate.assetClass, process.env), notify: notifier.notify });
   console.log(JSON.stringify({ approvalReference, candidateCount: candidates.length, decisions: results.map((result) => ({ approvalStatus: result.approvalStatus, intentId: result.intentId, symbol: result.symbol })), researchRunId: run.runId, status: "paper_risk_cycle_completed" }));
 } catch {
   console.error("Paper Autopilot risk cycle failed closed.");
