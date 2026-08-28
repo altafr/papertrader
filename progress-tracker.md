@@ -88,6 +88,13 @@
 - [x] Deploy the API change to Railway; deployment `f4621f9a-75af-47ba-bb02-01ac60e795f0` reached `SUCCESS` and API health remains `healthy`.
 - [ ] Publish the web change and verify the authenticated dashboard displays `BTCUSD` and `PFD` as review-required.
 
+### Phase 6.405 — Hosted fail-closed enforcement continuity (2026-08-29)
+
+- [x] Confirm the deployed Worker remains healthy on revision `e01d814287dfe518cea4b0357ae1da51a26c8fa4`.
+- [x] Confirm position management continues every 60 seconds with three persisted positions and only `AAPL` managed by a stored plan.
+- [x] Confirm `BTCUSD` and `PFD` continue to emit bounded unmanaged-position warnings with zero automatic exits submitted.
+- [ ] Publish the matching web revision after Vercel's deployment quota resets and verify the authenticated warning UI.
+
 ### Phase 6.387 — Hosted cycle baseline after reason-logging rollout (2026-08-28)
 
 - [x] Verify Worker deployment `8cabc43d-b343-47c1-9a0f-257198dabdcf` is `SUCCESS` and health is `healthy`.
