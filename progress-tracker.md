@@ -69,6 +69,14 @@
 - [x] Deploy Worker revision `506b6d57498b272ed9f2bd8b5c362452e4a520f8`; deployment `33685302-dbd3-4e30-90ae-3daa52ea27db` reached `SUCCESS`.
 - [x] Verify the hosted Worker emitted `unmanaged_position_detected` for `BTCUSD` and `PFD`, while continuing to manage only the position with a stored plan (`AAPL`); no exit order was submitted.
 
+### Phase 6.403 — Dashboard unmanaged-position visibility (2026-08-28)
+
+- [x] Include exit-plan metadata in authenticated operator trade decisions without exposing credentials or provider payloads.
+- [x] Mark each live position as `Active` or `Review required` based on the stored deterministic plan.
+- [x] Add an explicit dashboard warning listing positions that are fail-closed due to missing exit plans.
+- [x] Verify API and web typechecks plus the full 318-test suite.
+- [ ] Deploy API/web changes and verify the authenticated dashboard warning against `BTCUSD` and `PFD`.
+
 ### Phase 6.387 — Hosted cycle baseline after reason-logging rollout (2026-08-28)
 
 - [x] Verify Worker deployment `8cabc43d-b343-47c1-9a0f-257198dabdcf` is `SUCCESS` and health is `healthy`.
