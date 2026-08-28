@@ -6,7 +6,7 @@ import type { AgentRunRequest, ResearchWatchlistCandidate } from "@momentum/doma
 
 import { createResearchPreparationQueueHandler } from "./research-preparation.js";
 import { createAlpacaResearchInputSource } from "./research-market-source.js";
-import { createResearchScheduler, getResearchScheduleReadiness, getResearchScheduleConfig } from "./research-scheduler.js";
+import { createResearchScheduler, getResearchScheduleReadiness, getResearchScheduleConfig, setResearchRiskCycleHealth } from "./research-scheduler.js";
 import { createRuntimeAlertNotifier } from "./telegram-events.js";
 import { runPaperAutopilotRiskCycle } from "./paper-autopilot-cycle.js";
 import { executePaperAutopilotOrder } from "./paper-execution.js";
@@ -119,8 +119,10 @@ export function createResearchSchedulerFromEnvironment(environment: NodeJS.Proce
           } : undefined;
           const approvalReference = results.find((result) => result.status === "succeeded")?.runId;
           const riskResults = await runPaperAutopilotRiskCycle({ ...(approvalReference ? { approvalReference } : {}), candidates, db, environment, quantityForCandidate: (candidate) => getPaperAutopilotQuantity(candidate.assetClass, environment), ...(executeApproved ? { executeApproved } : {}), notify: notifier.notify });
+          setResearchRiskCycleHealth({ approved: riskResults.filter((result) => result.approvalStatus === "approved").length, decisions: riskResults.length, status: "completed" });
           console.log(JSON.stringify(buildPaperRiskCycleLog({ decisions: riskResults, researchRunIds: results.map((result) => result.runId) })));
         } catch {
+          setResearchRiskCycleHealth({ approved: 0, decisions: 0, status: "failed" });
           await notifier.notify(buildPaperRiskCycleFailureAlert({ agentType: "research_batch", runId: results.map((result) => result.runId).join(",").slice(0, 120) }));
           throw new Error("paper_risk_cycle_failed");
         }

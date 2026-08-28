@@ -5342,3 +5342,10 @@
 - Result: `Paper reconciliation completed.` The Worker remains healthy in `paper_autopilot` mode with position management ready.
 - No credentials or raw notification payloads were printed; the command only reconciled broker state into the existing durable ledger.
 - **Next smallest unit:** verify the authenticated dashboard’s live portfolio/read-model view against this refreshed snapshot, then continue the 30-day evidence run.
+
+### 2026-08-29 — Phase 6.258 risk-cycle runtime telemetry
+
+- Added bounded Worker health telemetry for the scheduled research-to-risk hand-off: last risk-cycle time, completion/failure status, decision count, and approved count.
+- This makes autonomous paper-trading activity observable from the server health contract without exposing model reasoning, credentials, or order controls.
+- Verification: domain and Worker TypeScript checks passed; research and position runtime tests passed (17 tests); targeted ESLint passed.
+- **Next smallest unit:** deploy the telemetry and confirm the live Worker health contract reports the risk-cycle fields after the next scheduled research run.

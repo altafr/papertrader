@@ -48,6 +48,10 @@ export type ResearchSchedulerRuntimeStatus = "degraded" | "disabled" | "running"
 export interface ResearchSchedulerHealth {
   readonly enabled: boolean;
   readonly handlerEnabled: boolean;
+  readonly lastRiskCycleAt?: string;
+  readonly lastRiskCycleStatus?: "completed" | "failed";
+  readonly lastRiskDecisionCount?: number;
+  readonly lastRiskApprovedCount?: number;
   readonly lastRunAt?: string;
   readonly nextRunAt?: string;
   readonly status: ResearchSchedulerRuntimeStatus;
@@ -167,6 +171,11 @@ let schedulerHealth: ResearchSchedulerHealth = { enabled: false, handlerEnabled:
 
 export function getResearchSchedulerHealth(): ResearchSchedulerHealth {
   return schedulerHealth;
+}
+
+/** Record bounded risk-cycle telemetry without persisting credentials or model output. */
+export function setResearchRiskCycleHealth(input: { readonly at?: string; readonly approved: number; readonly decisions: number; readonly status: "completed" | "failed" }): void {
+  schedulerHealth = { ...schedulerHealth, lastRiskApprovedCount: Math.max(0, Math.min(100, input.approved)), lastRiskCycleAt: input.at ?? new Date().toISOString(), lastRiskCycleStatus: input.status, lastRiskDecisionCount: Math.max(0, Math.min(100, input.decisions)) };
 }
 
 export function createResearchScheduler(input: {
