@@ -24,7 +24,7 @@ export async function runPaperPositionManagementOnce(input: {
     const decision = evaluatePaperPositionExit(position, input.now);
     decisions.push(decision);
     if (!decision.shouldExit) continue;
-    submissions.push(await input.submitter.submitExit({ assetClass: position.assetClass, clientOrderId: `${position.intentId}-exit-${decision.reason}`, decision, quantity: position.quantity, timeInForce: "day", type: "market" }));
+    submissions.push(await input.submitter.submitExit({ assetClass: position.assetClass, clientOrderId: `${position.intentId}-exit-${decision.reason}`, decision, quantity: position.quantity, timeInForce: position.assetClass === "crypto" ? "gtc" : "day", type: "market" }));
     submitted += 1;
   }
   return { decisions, submitted, submissions };

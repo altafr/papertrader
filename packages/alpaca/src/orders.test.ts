@@ -22,6 +22,16 @@ describe("paper order submitter", () => {
     expect(calls).toBe(1);
   });
 
+  it("normalizes crypto market orders to Alpaca-supported gtc time in force", async () => {
+    let body = "";
+    const submitter = createPaperOrderSubmitter({ apiKey: "key", brokerConnectionEnabled: true, secretKey: "secret", fetchImpl: async (_url, init) => {
+      if (init?.method === "POST") body = String(init.body ?? "");
+      return body ? response(201, { ...order, asset_class: "crypto", symbol: "BTC/USD" }) : response(404, {});
+    } });
+    await submitter.submit({ ...request, assetClass: "crypto", symbol: "BTC/USD" });
+    expect(JSON.parse(body).time_in_force).toBe("gtc");
+  });
+
   it("fails closed when disabled or approval is rejected", async () => {
     const disabled = createPaperOrderSubmitter({ apiKey: "key", brokerConnectionEnabled: false, secretKey: "secret", fetchImpl: async () => response(500, {}) });
     await expect(disabled.submit(request)).rejects.toThrow("disabled");
