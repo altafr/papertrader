@@ -1,10 +1,14 @@
 import { describe, expect, it } from "vitest";
 
-import { assessAuditMigrationReadiness, assessReconciliationHealth, assessResearchScheduleActivation, assessSchedulerActivation, assessSchedulerAuditGate, readAuditMigrationReadiness, readSchedulerAuditMigrationReadiness, serializeDurableScheduleRunHealth } from "./operations-health.js";
+import { assessAuditMigrationReadiness, assessReconciliationHealth, assessResearchScheduleActivation, assessSchedulerActivation, assessSchedulerAuditGate, readAuditMigrationReadiness, readSchedulerAuditMigrationReadiness, serializeDurableScheduleRunHealth, serializeRiskCycleSummary } from "./operations-health.js";
 
 const now = new Date("2026-08-23T00:00:00.000Z");
 
 describe("reconciliation health", () => {
+  it("serializes bounded durable risk-cycle counters", () => {
+    expect(serializeRiskCycleSummary({ approved: 2, decisions: 4, latest_at: new Date("2026-08-29T00:00:00.000Z") })).toEqual({ approved: 2, decisions: 4, latestAt: "2026-08-29T00:00:00.000Z" });
+    expect(serializeRiskCycleSummary({ approved: -1, decisions: "bad", latest_at: "not-a-date" })).toEqual({ approved: 0, decisions: 0 });
+  });
   it("distinguishes disabled, blocked, and enabled scheduler-audit gates", () => {
     expect(assessSchedulerAuditGate({ activationApprovalReferencePresent: false, enabled: false, migrationReady: true })).toEqual({ activationApprovalReferencePresent: false, enabled: false, migrationReady: true, status: "disabled" });
     expect(assessSchedulerAuditGate({ activationApprovalReferencePresent: false, enabled: true, migrationReady: true }).status).toBe("blocked");

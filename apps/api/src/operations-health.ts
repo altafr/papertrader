@@ -64,6 +64,21 @@ export interface ReconciliationHealth {
   readonly status: ReconciliationHealthStatus;
 }
 
+export interface RiskCycleSummary {
+  readonly approved: number;
+  readonly decisions: number;
+  readonly latestAt?: string;
+}
+
+/** Serialize only bounded, durable risk-cycle counters for operator surfaces. */
+export function serializeRiskCycleSummary(row: { readonly approved?: unknown; readonly decisions?: unknown; readonly latestAt?: unknown; readonly latest_at?: unknown } | undefined): RiskCycleSummary {
+  const approved = Number.isSafeInteger(Number(row?.approved)) && Number(row?.approved) >= 0 ? Number(row?.approved) : 0;
+  const decisions = Number.isSafeInteger(Number(row?.decisions)) && Number(row?.decisions) >= 0 ? Number(row?.decisions) : 0;
+  const latest = row?.latestAt ?? row?.latest_at;
+  const latestAt = latest instanceof Date ? latest.toISOString() : typeof latest === "string" && Number.isFinite(Date.parse(latest)) ? new Date(latest).toISOString() : undefined;
+  return { approved: Math.min(100_000, approved), decisions: Math.min(100_000, decisions), ...(latestAt ? { latestAt } : {}) };
+}
+
 export const RECONCILIATION_HEALTH_THRESHOLDS = {
   delayedSeconds: 93_600,
   staleSeconds: 172_800,

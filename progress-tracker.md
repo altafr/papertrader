@@ -5397,3 +5397,10 @@
 - Result: one persisted BTC/USD decision was approved by deterministic risk checks; this command intentionally did not submit a broker order.
 - Research run `research-preparation-crypto_research-20260828213016` is now represented in the durable submission ledger, enabling the API risk-cycle evidence query and dashboard card to report it.
 - **Next smallest unit:** verify the API’s authenticated risk-cycle summary and allow the autonomous scheduler to continue its normal cadence.
+
+### 2026-08-29 — Phase 6.266 risk-cycle summary hardening
+
+- Added a dedicated API serializer that bounds and validates durable risk-cycle counters and timestamps before they reach the operator dashboard.
+- Added regression coverage for malformed, negative, and valid database values; no secret or raw model content is included.
+- Verification: API tests (12 tests), TypeScript, and ESLint passed.
+- **Next smallest unit:** deploy the hardened API serializer and verify the live API health endpoint remains healthy.
