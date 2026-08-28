@@ -2,8 +2,8 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.378 — Automatic source propagation acceptance.
-- **Status:** Railway automatically propagated the latest source push and is running release `7869a8cb4be659202adb8239aab46beff705c678`. The expected-release verifier passes with all paper-runtime prerequisites; the next natural cross-asset cycle and successful broker-reconciled order remain pending.
+- **Phase:** Phase 6.379 — Release verification configuration.
+- **Status:** The expected-release verifier is now documented in the credential-free runtime configuration. The live Worker remains healthy and source revisions can be checked explicitly; the next natural cross-asset cycle and successful broker-reconciled order remain pending.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Verify the first natural paper research/order cycle and authenticated dashboard portfolio/position rendering, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
@@ -134,6 +134,13 @@
 - [x] Compile domain, database, Alpaca, Worker, API, and Web TypeScript projects.
 - [x] Confirm the batch callback is compatible with existing research-preparation callers.
 - [x] Confirm the full regression suite remains green: 78 files and 307 tests passed.
+- [ ] Observe the next natural cross-asset batch and reconcile a successful paper order.
+
+### Phase 6.379 — Release verification configuration (2026-08-28)
+
+- [x] Document optional `PAPERTRADER_EXPECTED_RELEASE` usage in `.env.example`.
+- [x] Keep the variable non-secret and fail closed on a mismatched Worker revision.
+- [x] Preserve the live paper-runtime health and scheduler configuration.
 - [ ] Observe the next natural cross-asset batch and reconcile a successful paper order.
 
 ### Phase 6.378 — Automatic source propagation acceptance (2026-08-28)
