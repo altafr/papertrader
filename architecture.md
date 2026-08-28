@@ -46,6 +46,8 @@ Telegram portfolio summaries use the same decimal-safe financial helpers as risk
 
 The once-daily market-close summary also includes a bounded (maximum ten) `symbol P/L` digest from the reconciled position model, so the operator can identify position-level contribution without receiving per-tick notification noise.
 
+The authenticated operations-health response also exposes a durable risk-cycle summary derived from the PostgreSQL submission ledger: the latest risk-decision timestamp and bounded approved/total decision counts over the preceding seven days. The API validates and bounds these values before the dashboard renders them, so a Worker restart cannot erase the operator's evidence and malformed database values cannot become UI state.
+
 A guarded read-only `telegram-alert-status` command reports delivery counts and the latest event's code/status/timestamp from PostgreSQL, never message content or secrets; it is intended for hosted verification of market-close delivery.
 
 Position management also maintains an active-exit set from a full-ledger persisted submission query (not the bounded recent-history view). If a deterministic stop, target, or time-stop exit is already in a non-terminal broker state, subsequent 60-second passes continue to evaluate and observe the position but do not invoke a second broker submission path. Terminal states remain eligible for a later, newly evaluated lifecycle only when the reconciled position still exists.

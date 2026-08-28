@@ -5452,6 +5452,12 @@
 - No failed or degraded cycle was present; the only warning was the expected fail-closed `unmanaged_position_detected` alert for positions without stored exit plans.
 - **Next smallest unit:** verify the scheduled risk-cycle counters after the 22:00 UTC tick.
 
+### 2026-08-29 — Phase 6.275 architecture evidence contract
+
+- Documented the durable risk-cycle evidence contract in `architecture.md`, including its PostgreSQL source, seven-day window, bounded serialization, and restart-safe behavior.
+- This keeps the implementation and engineer-facing architecture aligned while the next scheduled tick is pending.
+- **Next smallest unit:** verify the retained counters after the 22:00 UTC research cycle.
+
 ### 2026-08-29 — Phase 6.269 dashboard build verification
 
 - Verified the updated Next.js dashboard production build locally after adding durable risk-cycle evidence; compilation, TypeScript, static generation, and dynamic route analysis all succeeded.
