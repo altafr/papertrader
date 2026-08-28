@@ -3,7 +3,7 @@
 ## Snapshot
 
 - **Phase:** Phase 6.259 — Dashboard notification policy surface.
-- **Status:** Notification delivery remains enabled, but routine research selections and portfolio/P&L summaries now use durable 24-hour cooldown checks. Individual rejected risk candidates are retained in the audit/dashboard and no longer generate Telegram warnings; approved selections, order/position lifecycle events, and failures remain immediate. Local tests, Worker typecheck, and lint pass; Railway deployment is healthy and reports the active policy.
+- **Status:** Notification delivery remains enabled, but routine research selections and portfolio/P&L summaries now use durable 24-hour cooldown checks. Individual rejected risk candidates are retained in the audit/dashboard and no longer generate Telegram warnings; approved selections, order/position lifecycle events, and failures remain immediate. Local tests, Worker typecheck, and lint pass; Railway deployment is healthy and reports the active policy. GitHub-triggered Vercel previews are Ready; production publish remains quota-limited.
 - **Current operating mode:** Paper Autopilot; continuous order submission is not enabled.
 - **Current goal:** Complete authenticated dashboard verification and reconcile the authorized AAPL order through its terminal broker state, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
@@ -15,6 +15,7 @@
 - [x] Verify 293 tests, web/API/Worker TypeScript, ESLint, and the production Next.js build.
 - [x] Deploy the API; Railway deployment `1838ba5b-6b51-4a46-a8b4-430e8c33c475` reached `SUCCESS` and API health is `healthy`.
 - [ ] Publish the web UI after Vercel's daily deployment quota resets; source is pushed in commit `9b8652f`.
+- [x] Confirm latest Vercel preview `https://papertrader-acc3jzcpc-altafrs-projects.vercel.app` is Ready; protected dashboard correctly redirects unauthenticated requests to Vercel SSO.
 
 ### Phase 6.258 — Notification policy health visibility (2026-08-28)
 
