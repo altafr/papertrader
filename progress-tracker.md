@@ -5666,3 +5666,9 @@
 - This preserves historical accuracy without changing any order or risk gate.
 - Verification: API/Worker typechecks, ESLint, and full regression passed (88 files, 354 tests).
 - **Next smallest unit:** deploy the compatibility query and verify the next cycle’s approved/decision totals.
+
+### 2026-08-29 — Phase 6.306 compatibility deployment verified
+
+- Railway API deployment `514049ed-de16-4430-80ab-aeba1d927394` and Worker deployment `05471841-299e-4fd2-ada3-6654abb801e8` both reached `SUCCESS`.
+- Worker health remains `healthy`; research scheduling is active and position management is ready.
+- **Next smallest unit:** verify the next natural risk cycle’s durable totals after the compatibility deployment.
