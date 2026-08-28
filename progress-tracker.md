@@ -557,6 +557,13 @@
 - [x] Verify the current live Worker/API contract returns `verified: true` on the new release.
 - [x] Confirm the next research run, latest position-management pass, and connected stream are all reported by live health.
 
+### Phase 6.473 — Unified hosted verification command (2026-08-29)
+
+- [x] Add `pnpm verify:hosted` to verify Railway Worker/API runtime health and the public Vercel shell in one read-only command.
+- [x] Run the Worker/API checks concurrently and fail closed if the runtime contract is not verified.
+- [x] Add a success-path regression test; focused tests pass.
+- [ ] Run the unified command against the newly deployed Worker release after Railway rollout.
+
 ### Phase 6.458 — Natural hosted cycle continuity (2026-08-29)
 
 - [x] Verify the hosted Worker remains healthy on release `febcda5f7a5…` with Paper Autopilot and order submission still enabled.

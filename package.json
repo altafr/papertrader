@@ -20,7 +20,8 @@
     "verify:operator-auth-boundary": "tsx scripts/verify-operator-auth-boundary.ts",
     "verify:operator-overview": "tsx scripts/verify-operator-overview.ts",
     "verify:paper-runtime": "tsx scripts/verify-paper-runtime.ts",
-    "verify:public-surface": "tsx scripts/verify-public-surface.ts"
+    "verify:public-surface": "tsx scripts/verify-public-surface.ts",
+    "verify:hosted": "tsx scripts/verify-hosted.ts"
   },
   "devDependencies": {
     "@eslint/js": "9.39.5",
