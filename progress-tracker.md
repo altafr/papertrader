@@ -469,6 +469,11 @@
 - [x] Confirm the deployed Worker release matches the observed health contract (`c180d8c93237…`); no credentials or account payloads were printed.
 - [ ] Publish the newer queued heartbeat revision after Vercel quota reset and rerun the same surface checks.
 
+### Phase 6.459 — External monitor architecture sync (2026-08-29)
+
+- [x] Document the scheduled GitHub Actions health monitor in the platform architecture table.
+- [x] Keep its role explicitly read-only and separate from Railway execution, database, authentication, and broker authority.
+
 ### Phase 6.458 — Natural hosted cycle continuity (2026-08-29)
 
 - [x] Verify the hosted Worker remains healthy on release `febcda5f7a5…` with Paper Autopilot and order submission still enabled.
