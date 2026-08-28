@@ -36,6 +36,14 @@
 - [x] Verify the public landing route returns HTTP 200 and `/dashboard` redirects to the configured Clerk sign-in boundary.
 - [ ] Verify authenticated dashboard rendering against the reconciled BTC/USD position and P/L.
 
+### Phase 6.399 — Hosted surface configuration verification (2026-08-28)
+
+- [x] Confirm Vercel production deployment is `Ready` and serving the `papertrader-web.vercel.app` alias.
+- [x] Confirm Vercel has the Clerk publishable/secret/operator variables and `NEXT_PUBLIC_API_BASE_URL` configured in Preview and Production (values remain encrypted and undisclosed).
+- [x] Confirm the public dashboard route returns HTTP 307 to the Clerk sign-in boundary when unauthenticated.
+- [x] Confirm Railway API health returns `healthy` and the Worker health remains Paper Autopilot, scheduled, connected, and position-management ready.
+- [ ] Verify authenticated read-model rendering and position/P&L values with an operator browser session.
+
 ### Phase 6.387 — Hosted cycle baseline after reason-logging rollout (2026-08-28)
 
 - [x] Verify Worker deployment `8cabc43d-b343-47c1-9a0f-257198dabdcf` is `SUCCESS` and health is `healthy`.
