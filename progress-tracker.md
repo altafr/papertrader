@@ -5453,6 +5453,13 @@
 - The timestamp-correction API/Worker deployments reached `SUCCESS` and API health remained healthy.
 - **Next smallest unit:** continue scheduled cycles and reconcile approved intents against their broker order/position state in the authenticated operator view.
 
+### 2026-08-29 — Phase 6.282 read-only portfolio status command
+
+- Added guarded `PAPER_PORTFOLIO_STATUS=true` Worker command for direct inspection of the latest reconciled PostgreSQL account snapshot and up to 25 positions.
+- Output is limited to captured time, cash, equity, quantity, market value, and unrealized P/L; malformed values are filtered and no credentials or broker payloads are exposed.
+- Verification: focused tests (2 tests), Worker TypeScript, and ESLint passed.
+- **Next smallest unit:** deploy the command and run it against the live Railway account ledger.
+
 ### 2026-08-29 — Phase 6.273 post-fix regression and hosted verification
 
 - Full regression passed: 86 files and 345 tests.

@@ -34,6 +34,7 @@
     "telegram-alert-readiness": "tsx src/telegram-alert-readiness-command.ts",
     "telegram-alert-status": "tsx src/telegram-alert-status-command.ts",
     "risk-cycle-status": "tsx src/risk-cycle-status-command.ts",
+    "paper-portfolio-status": "tsx src/paper-portfolio-status-command.ts",
     "telegram-alert-test-readiness": "tsx src/telegram-alert-test-readiness-command.ts",
     "market-close-summary-verify": "tsx src/market-close-summary-verification-command.ts",
     "reconcile": "tsx src/reconcile-command.ts",
