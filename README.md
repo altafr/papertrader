@@ -62,7 +62,7 @@ Hosted health monitors:
 
 - [Railway API health](https://api-production-e0a6.up.railway.app/health)
 - [Railway Worker health](https://worker-production-b362.up.railway.app/health)
-- [Vercel dashboard](https://papertrader-a3kq7z6bc-altafrs-projects.vercel.app)
+- [Vercel dashboard](https://papertrader-web.vercel.app)
 
 The health endpoints expose redacted operational state only. They do not expose credentials or provide order authority.
 
