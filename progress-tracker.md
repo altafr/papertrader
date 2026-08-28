@@ -5634,3 +5634,9 @@
 - Railway API deployment `2fdbefd5-5475-45a1-8426-151981eee345` reached `SUCCESS`.
 - API health remains `healthy`; position provenance now rejects unapproved candidate evidence at the hosted boundary.
 - **Next smallest unit:** verify the next natural risk cycle and authenticated read model, then continue the paper-forward evidence window.
+
+### 2026-08-29 — Phase 6.301 hosted safety-contract verification
+
+- Hosted paper-runtime verifier passed with `verified:true` on the latest release: API/Worker healthy, paper mode active, order gate approved, market stream connected, both schedulers scheduled, position management ready, kill switch inactive, and valid health timestamps.
+- Credential-free authentication boundary verification passed for the protected overview and CSV endpoints (`401` without an operator token).
+- **Next smallest unit:** verify the next natural risk cycle and run the authenticated CSV/read-model contract when the protected token is available.
