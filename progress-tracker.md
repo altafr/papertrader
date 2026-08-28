@@ -2,8 +2,8 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.372 — Cross-asset single-cycle execution.
-- **Status:** Research preparation now aggregates crypto and stock results into one deterministic risk cycle per scheduler job. This preserves fallback evaluation while enforcing one order maximum across asset classes. Full regression passes with 307 tests. Authenticated dashboard rendering and a successful broker-reconciled order remain pending.
+- **Phase:** Phase 6.373 — Hosted cross-asset execution guard.
+- **Status:** Railway deployment `6fda1aff-ab2b-4ef9-973f-8283a4e17798` reached `SUCCESS`; live health confirms Alpaca/PostgreSQL configured, Paper Autopilot active, research scheduled, and position management ready. The cross-asset one-order guard is now hosted. Authenticated dashboard rendering and a successful broker-reconciled order remain pending.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Verify the first natural paper research/order cycle and authenticated dashboard portfolio/position rendering, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
@@ -113,6 +113,13 @@
 - [x] Enforce at most one broker submission across the entire scheduler job.
 - [x] Verify the complete regression suite: 78 files and 307 tests passed.
 - [ ] Deploy and observe the next natural cross-asset cycle; reconcile a successful paper order.
+
+### Phase 6.373 — Hosted cross-asset execution guard (2026-08-28)
+
+- [x] Deploy the cross-asset batch risk-cycle change to the explicit Railway worker.
+- [x] Confirm deployment `6fda1aff-ab2b-4ef9-973f-8283a4e17798` reached `SUCCESS`.
+- [x] Verify live configured health and ready position management after rollout.
+- [ ] Observe the next natural cross-asset cycle and reconcile a successful paper order.
 
 ### Phase 6.368 — Configuration-aware hosted acceptance (2026-08-28)
 
