@@ -2,11 +2,18 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.336 — Exit submission alert rationale.
+- **Phase:** Phase 6.337 — Exit submission alert deployment verification.
 - **Status:** The hosted Worker and API are healthy in Paper Autopilot mode with deterministic entry/exit safeguards, durable reconciliation, Telegram alerting, lifecycle-stable PostgreSQL-backed risk evidence, and a read-only portfolio status command. The latest provenance and evidence guards are deployed and verified. Vercel production publication remains limited by the free-plan daily deployment quota, while the 30-day paper-forward evidence window and authenticated dashboard verification remain ongoing.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading, verify authenticated portfolio/P&L rendering and exports, and accumulate the 30-day evidence gate without loosening risk controls.
 - **Last updated:** 2026-08-29.
+
+### Phase 6.337 — Exit submission alert deployment verification (2026-08-29)
+
+- [x] Worker deployment `db5aeef4-367d-4b85-ae5b-1e276cca2278` reached `SUCCESS` for commit `693cfdb`.
+- [x] Hosted verifier returned `verified:true`: API/Worker healthy, paper mode active, approved order gate present, fresh market stream, ready position management, scheduled research/durable schedulers, valid risk telemetry, inactive kill switch, and Vercel HTTP 200.
+- [x] Exit-submission Telegram alerts now carry bounded symbols and deterministic trigger reasons; no credentials or hidden model reasoning are included.
+- [ ] Continue the 30-day paper-forward evidence window and complete authenticated dashboard/read-model verification.
 
 ### Phase 6.336 — Exit submission alert rationale (2026-08-29)
 
