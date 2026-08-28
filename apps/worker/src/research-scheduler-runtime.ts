@@ -59,8 +59,8 @@ export function createResearchSchedulerFromEnvironment(environment: NodeJS.Proce
     notify: createRuntimeAlertNotifier(environment, alertRepository).notify,
     ...(environment.PAPER_AUTOPILOT_ENABLED === "true" && environment.OPERATING_MODE === "paper_autopilot" ? {
       onResult: async (result) => {
-        if (result.status !== "succeeded" || !result.candidates?.length) return;
         console.log(JSON.stringify(buildResearchCycleLog(result)));
+        if (result.status !== "succeeded" || !result.candidates?.length) return;
         const notifier = createRuntimeAlertNotifier(environment, alertRepository);
         try {
           await reconcilePaperAccount(createPaperAccountReader({ apiKey, secretKey }), createAccountStateRepository(db));

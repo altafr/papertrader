@@ -2,8 +2,8 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.361 — Hosted cycle observability.
-- **Status:** The worker now emits bounded, credential-free structured logs for each persisted research result and paper risk hand-off, making candidate selection and deterministic outcomes visible in Railway logs. Full regression passes with 305 tests. Authenticated dashboard rendering, a successful broker-reconciled order, and Alpaca crypto entitlement resolution remain pending.
+- **Phase:** Phase 6.362 — Complete hosted cycle observability.
+- **Status:** The worker now emits bounded, credential-free structured logs for every research result, including empty/failed runs, plus paper risk hand-offs. Full regression remains green. Authenticated dashboard rendering, a successful broker-reconciled order, and Alpaca crypto entitlement resolution remain pending.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Verify the first natural paper research/order cycle and authenticated dashboard portfolio/position rendering, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
@@ -38,6 +38,13 @@
 - [x] Keep logs credential-free and omit provider response bodies, account secrets, and sensitive payloads.
 - [x] Verify the complete regression suite: 78 files and 305 tests passed.
 - [ ] Deploy to the worker and observe the next natural cycle's log records.
+
+### Phase 6.362 — Complete hosted cycle observability (2026-08-28)
+
+- [x] Ensure empty and failed scheduled research results are logged instead of silently skipped.
+- [x] Preserve bounded symbols and omit market payloads, credentials, and provider response bodies.
+- [x] Keep paper risk/execution records separately logged after deterministic processing.
+- [ ] Deploy and observe the next natural cycle's records in Railway logs.
 
 ### Phase 6.360 — Independent single-order execution guard (2026-08-28)
 
