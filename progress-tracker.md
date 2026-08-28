@@ -154,6 +154,13 @@
 - [x] Confirm health advanced `nextRunAt` to `16:30 UTC`, with position management ready and no kill switch activation.
 - [ ] Verify the resulting latest position/P&L through the authenticated dashboard and CSV export.
 
+### Phase 6.414 — Continued reconciled cycle and safety evidence (2026-08-29)
+
+- [x] Confirm the 16:16 UTC hosted pass retained three persisted positions and submitted zero exits.
+- [x] Confirm `BTCUSD` and `PFD` remained warning-level unmanaged positions while `AAPL` remained the only actively managed position.
+- [x] Confirm the 16:15 UTC risk cycle approved BTC/USD and recorded `executionStatus: reconciled` with no policy reasons.
+- [ ] Verify the resulting position/P&L and export status through an authenticated operator session.
+
 ### Phase 6.387 — Hosted cycle baseline after reason-logging rollout (2026-08-28)
 
 - [x] Verify Worker deployment `8cabc43d-b343-47c1-9a0f-257198dabdcf` is `SUCCESS` and health is `healthy`.
