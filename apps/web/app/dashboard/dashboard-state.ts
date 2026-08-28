@@ -68,6 +68,16 @@ export function auditPageCount(totals: { readonly agents: number; readonly filte
   return Math.max(1, Math.ceil(maximum / Math.max(1, limit)));
 }
 
+export type PositionExitDisplayState = "exit_in_flight" | "monitoring" | "review_required";
+
+/** Derive a truthful position-management label from the bounded read models. */
+export function getPositionExitDisplayState(input: { readonly assetClass: string; readonly symbol: string }, unmanagedPositions: readonly { readonly assetClass: string; readonly symbol: string }[], submissions: readonly Record<string, unknown>[]): PositionExitDisplayState {
+  if (unmanagedPositions.some((position) => position.assetClass === input.assetClass && position.symbol === input.symbol)) return "review_required";
+  const terminal = new Set(["filled", "canceled", "cancelled", "expired", "rejected", "failed"]);
+  const activeExit = submissions.some((submission) => submission.assetClass === input.assetClass && submission.symbol === input.symbol && typeof submission.clientOrderId === "string" && /-exit-(?:profit_target|stop_loss|time_stop)$/.test(submission.clientOrderId) && typeof submission.status === "string" && !terminal.has(submission.status.toLowerCase()));
+  return activeExit ? "exit_in_flight" : "monitoring";
+}
+
 export function parsePaperPerformance(value: unknown): PaperPerformance | undefined {
   if (!isRecord(value) || typeof value.calendarDays !== "number" || typeof value.consecutiveCalendarDays !== "number" || typeof value.snapshotCount !== "number" || !(value.performanceRange === "7d" || value.performanceRange === "30d" || value.performanceRange === "all") || !isRecord(value.stability) || !Array.isArray(value.stability.blockedReasons) || value.stability.blockedReasons.some((reason) => typeof reason !== "string") || !(value.stability.status === "blocked" || value.stability.status === "ready") || !(value.status === "insufficient_history" || value.status === "ready")) return undefined;
   const metrics = value.metrics;

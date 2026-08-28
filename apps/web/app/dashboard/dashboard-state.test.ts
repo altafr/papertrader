@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { auditPageCount, buildDashboardHistoryParams, formatAuditDateRange, formatUtc, getFreshnessLabel, getFreshnessState, parseAgentRuns, parseOperatorOverview, parseOperationsHealth } from "./dashboard-state";
+import { auditPageCount, buildDashboardHistoryParams, formatAuditDateRange, formatUtc, getFreshnessLabel, getFreshnessState, getPositionExitDisplayState, parseAgentRuns, parseOperatorOverview, parseOperationsHealth } from "./dashboard-state";
 
 describe("dashboard state", () => {
   it("classifies persisted data by freshness", () => {
@@ -112,5 +112,11 @@ describe("dashboard state", () => {
   it("calculates total audit pages from the largest category", () => {
     expect(auditPageCount({ agents: 1, filteredTrades: 201, lifecycle: 0, schedules: 2, submissions: 100, telegramAlerts: 3 }, 100)).toBe(3);
     expect(auditPageCount({ agents: 0, filteredTrades: 0, lifecycle: 0, schedules: 0, submissions: 0, telegramAlerts: 0 }, 100)).toBe(1);
+  });
+
+  it("labels positions by deterministic exit state", () => {
+    expect(getPositionExitDisplayState({ assetClass: "us_equity", symbol: "AAPL" }, [{ assetClass: "crypto", symbol: "BTCUSD" }], [])).toBe("monitoring");
+    expect(getPositionExitDisplayState({ assetClass: "us_equity", symbol: "AAPL" }, [], [{ assetClass: "us_equity", symbol: "AAPL", clientOrderId: "intent-1-exit-stop_loss", status: "accepted" }])).toBe("exit_in_flight");
+    expect(getPositionExitDisplayState({ assetClass: "crypto", symbol: "BTCUSD" }, [{ assetClass: "crypto", symbol: "BTCUSD" }], [])).toBe("review_required");
   });
 });

@@ -119,6 +119,7 @@ The UI must not convert recommendation mode into order submission through a hidd
 - An order detail drawer shows the complete lifecycle, source signal, risk approval, broker IDs/request IDs, events, fills, and slippage.
 - Partial fills and ambiguous/reconciling states must be visually distinct from filled/rejected states.
 - Positions without a stored deterministic exit plan display `Review required` with a prominent warning; they remain fail-closed and must never be presented as actively managed.
+- Positions with a non-terminal deterministic exit submission display `Exit in flight` until broker reconciliation reaches a terminal state; otherwise managed positions display `Monitoring`.
 
 ## Strategies
 

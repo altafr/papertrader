@@ -741,6 +741,13 @@
 - [x] Preserve the top-level export field and add the dashboard-consumed nested safety field from the same bounded query.
 - [ ] Verify the authenticated dashboard/read-model payload with an operator session; Vercel publication and repository merge remain external review gates.
 
+### Phase 6.502 — Position exit-state visibility (2026-08-29)
+
+- [x] Add a bounded dashboard state derivation for `Review required`, `Exit in flight`, and `Monitoring`.
+- [x] Drive the state from the authoritative unmanaged-position projection and persisted submission history; terminal exits do not remain falsely in flight.
+- [x] Add regression coverage and preserve read-only UI behavior with no new order authority.
+- [ ] Publish the web revision and verify the labels in an authenticated operator session.
+
 ### Phase 6.458 — Natural hosted cycle continuity (2026-08-29)
 
 - [x] Verify the hosted Worker remains healthy on release `febcda5f7a5…` with Paper Autopilot and order submission still enabled.
