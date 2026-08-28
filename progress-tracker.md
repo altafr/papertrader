@@ -2,8 +2,8 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.278 — Notification and lifecycle gate verification.
-- **Status:** The authorized AAPL paper order is represented in the managed read model and position management reports one managed position with no exit submission required. Telegram delivery configuration is ready; only the optional test-message approval reference is missing. The performance report has one evidence day, so the remaining stability gate is 30 consecutive calendar days. Continuous order submission remains disabled.
+- **Phase:** Phase 6.279 — Paper Autopilot runtime gate verification.
+- **Status:** The command-scoped Paper Autopilot runtime-readiness check is `ready` with fresh reconciliation, valid paper risk policy, active scheduler/handler prerequisites, inactive kill switch, and execution status `dry_run`. The remaining activation decision is whether to enable continuous paper order submission; no persistent setting was changed.
 - **Current operating mode:** Paper Autopilot; continuous order submission is not enabled.
 - **Current goal:** Complete authenticated dashboard verification and reconcile the authorized AAPL order through its terminal broker state, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
@@ -75,6 +75,13 @@
 - [x] Confirm no test notification was sent while the non-secret approval reference is absent.
 - [ ] Supply a separate Telegram test approval reference only if a test message is desired.
 - [ ] Continue daily evidence collection toward 30 consecutive calendar days.
+
+### Phase 6.279 — Paper Autopilot runtime gate verification (2026-08-28)
+
+- [x] Run the command-scoped Paper Autopilot runtime-readiness check without changing persistent variables.
+- [x] Confirm all prerequisite checks pass: paper mode, broker/database/credentials, scheduler/handler, risk policy, fresh reconciliation, and inactive kill switch.
+- [x] Confirm execution status remains `dry_run` with order submission disabled.
+- [ ] Obtain explicit approval to enable continuous paper order submission, or keep the system in dry-run evidence mode.
 
 ### Phase 6.269 — Paper Autopilot runtime readiness (2026-08-28)
 
