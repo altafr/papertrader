@@ -694,6 +694,12 @@
 - [x] Confirm successive unified hosted checks remain green after the URL-safety rollout.
 - [ ] Observe the first cron-triggered run after default-branch activation.
 
+### Phase 6.495 — Optional release-skew detection (2026-08-29)
+
+- [x] Allow `verify:hosted` to accept `PAPERTRADER_EXPECTED_RELEASE` and fail if the live Worker reports a different release.
+- [x] Add regression coverage for release mismatch while preserving the optional default for normal branch monitoring.
+- [x] Focused hosted-verifier tests and lint pass.
+
 ### Phase 6.458 — Natural hosted cycle continuity (2026-08-29)
 
 - [x] Verify the hosted Worker remains healthy on release `febcda5f7a5…` with Paper Autopilot and order submission still enabled.

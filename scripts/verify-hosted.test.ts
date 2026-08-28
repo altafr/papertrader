@@ -22,4 +22,12 @@ describe("hosted verifier", () => {
     await expect(verifyHosted(fetcher, "https://worker.example", "https://api.example", "https://web.example")).resolves.toMatchObject({ runtime: { verified: true }, web: { status: 200 } });
     expect(fetcher).toHaveBeenCalledTimes(4);
   });
+
+  it("fails when the optional expected release does not match", async () => {
+    const fetcher = vi.fn<typeof fetch>()
+      .mockResolvedValueOnce(new Response(JSON.stringify({ ...worker, release: "actual" }), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ status: "healthy" }), { status: 200 }))
+      .mockResolvedValueOnce(new Response("Momentum Autopilot", { status: 200 }));
+    await expect(verifyHosted(fetcher, "https://worker.example", "https://api.example", "https://web.example", "expected")).rejects.toThrow("hosted_runtime_contract_failed");
+  });
 });
