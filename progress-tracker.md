@@ -99,7 +99,8 @@
 
 - [x] Classify `unmanaged_position_detected` records as structured `warn` events while preserving bounded symbols and fail-closed behavior.
 - [x] Add regression coverage and pass the full 318-test suite plus Worker typecheck.
-- [ ] Deploy and verify the warning-level record in hosted logs.
+- [x] Deploy Worker revision `ecb6dae9c2132a0566f623cfe4467eec7c79ab0b`; deployment `bf1a272c-6b5c-45c5-9ae4-26f7277298d4` reached `SUCCESS`.
+- [ ] Verify the next hosted position pass emits the warning-level record.
 
 ### Phase 6.387 — Hosted cycle baseline after reason-logging rollout (2026-08-28)
 
