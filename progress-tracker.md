@@ -2,11 +2,19 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.319 — Asset-aware research cadence.
-- **Status:** Research preparation now runs on a 15-minute cadence with crypto eligible on every tick and stock work restricted to the first and last two regular New York session hours. Deployment `9259eb0a-4ed7-4e32-a7cc-ff46be185c79` reached `SUCCESS`; Worker health reports the next research tick at `2026-08-28T11:30:00.000Z`. Paper-only order safeguards remain unchanged.
+- **Phase:** Phase 6.320 — Hosted asset-aware cadence verification.
+- **Status:** The deployed compiled Worker confirms `RESEARCH_STOCK_WINDOW_ONLY=true`, crypto symbols, and both New York stock windows at runtime. Paper-only order safeguards remain unchanged.
 - **Current operating mode:** Paper Autopilot; continuous order submission is not enabled.
 - **Current goal:** Complete authenticated dashboard verification and reconcile the authorized AAPL order through its terminal broker state, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
+
+### Phase 6.320 — Hosted asset-aware cadence verification (2026-08-28)
+
+- [x] Verify the deployed compiled preparation module reads stock-window mode as enabled.
+- [x] Verify hosted crypto and stock symbol sets are loaded without exposing credentials.
+- [x] Verify 09:30 ET opening-window and 14:00 ET closing-window timestamps are admitted.
+- [x] Verify a midday timestamp is rejected and the Worker health remains `healthy`.
+- [ ] Observe and reconcile the first naturally completed 15-minute crypto research run.
 
 ### Phase 6.319 — Asset-aware research cadence (2026-08-28)
 
