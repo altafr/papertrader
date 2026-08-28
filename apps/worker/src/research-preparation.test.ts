@@ -18,8 +18,14 @@ const input = (assetClass: ResearchAgentInput["assetClass"]): ResearchAgentInput
 
 describe("research preparation", () => {
   it("admits stock research only in the first and last two New York session hours", () => {
+    expect(isUsStockResearchWindow(new Date("2026-08-28T13:30:00.000Z"))).toBe(true); // 09:30 ET
     expect(isUsStockResearchWindow(new Date("2026-08-28T14:00:00.000Z"))).toBe(true); // 10:00 ET
+    expect(isUsStockResearchWindow(new Date("2026-08-28T15:29:00.000Z"))).toBe(true); // 11:29 ET
+    expect(isUsStockResearchWindow(new Date("2026-08-28T15:30:00.000Z"))).toBe(false); // 11:30 ET
+    expect(isUsStockResearchWindow(new Date("2026-08-28T18:00:00.000Z"))).toBe(true); // 14:00 ET
     expect(isUsStockResearchWindow(new Date("2026-08-28T18:30:00.000Z"))).toBe(true); // 14:30 ET
+    expect(isUsStockResearchWindow(new Date("2026-08-28T19:59:00.000Z"))).toBe(true); // 15:59 ET
+    expect(isUsStockResearchWindow(new Date("2026-08-28T20:00:00.000Z"))).toBe(false); // 16:00 ET
     expect(isUsStockResearchWindow(new Date("2026-08-28T16:00:00.000Z"))).toBe(false); // 12:00 ET
     expect(isUsStockResearchWindow(new Date("2026-08-29T14:00:00.000Z"))).toBe(false); // Saturday
   });

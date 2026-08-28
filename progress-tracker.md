@@ -2,11 +2,18 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.352 — Alert-channel health propagation.
+- **Phase:** Phase 6.353 — Stock-window boundary verification.
 - **Status:** The hosted Worker and API are healthy in Paper Autopilot mode with deterministic entry/exit safeguards, durable reconciliation, Telegram alerting, lifecycle-stable PostgreSQL-backed risk evidence, and a read-only portfolio status command. The latest provenance and evidence guards are deployed and verified. Vercel production publication remains limited by the free-plan daily deployment quota, while the 30-day paper-forward evidence window and authenticated dashboard verification remain ongoing.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading, verify authenticated portfolio/P&L rendering and exports, and accumulate the 30-day evidence gate without loosening risk controls.
 - **Last updated:** 2026-08-29.
+
+### Phase 6.353 — Stock-window boundary verification (2026-08-29)
+
+- [x] Add exact boundary coverage for stock admission at 09:30, 11:30, 14:00, and 16:00 New York time.
+- [x] Confirm crypto remains independently eligible outside those stock windows through existing handler coverage.
+- [x] Research-preparation boundary tests pass.
+- [ ] Continue paper-forward evidence collection and retry hosted deployment after Railway queue recovery.
 
 ### Phase 6.352 — Alert-channel health propagation (2026-08-29)
 
