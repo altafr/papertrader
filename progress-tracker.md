@@ -2,11 +2,18 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.341 — Timeframe-aware stream recovery deployment verification.
+- **Phase:** Phase 6.342 — Stream recovery deployment verification.
 - **Status:** The hosted Worker and API are healthy in Paper Autopilot mode with deterministic entry/exit safeguards, durable reconciliation, Telegram alerting, lifecycle-stable PostgreSQL-backed risk evidence, and a read-only portfolio status command. The latest provenance and evidence guards are deployed and verified. Vercel production publication remains limited by the free-plan daily deployment quota, while the 30-day paper-forward evidence window and authenticated dashboard verification remain ongoing.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading, verify authenticated portfolio/P&L rendering and exports, and accumulate the 30-day evidence gate without loosening risk controls.
 - **Last updated:** 2026-08-29.
+
+### Phase 6.342 — Stream recovery deployment verification (2026-08-29)
+
+- [x] Worker deployment `5f73b00e-bcbe-4213-99f5-342337d580c4` reached `SUCCESS` for commit `ecb6b49`.
+- [x] Live Worker health reports `operatingMode: paper_autopilot`, `marketStream: connected/fresh`, position management `ready`, both schedulers scheduled, and kill switch inactive.
+- [x] API health remains HTTP 200 and the hosted runtime verifier returns `verified:true`.
+- [ ] Continue paper-forward evidence collection and authenticated dashboard verification.
 
 ### Phase 6.341 — Timeframe-aware stream recovery deployment verification (2026-08-29)
 
