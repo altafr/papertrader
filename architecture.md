@@ -366,6 +366,7 @@ Do not run the continuous trading loop in the browser or Vercel functions. Verce
 - The project baseline is therefore USD 100,000. This is a simulated account baseline, not a claim of real capital or expected returns.
 - Profit optimization is an objective evaluated through measured, risk-adjusted performance; it never overrides deterministic safety gates or implies guaranteed returns.
 - Each long position must have a stop at or above 95% of entry (maximum 5% adverse price distance). Planned loss, fees, and slippage must fit 5% of invested notional.
+- Persisted and displayed `estimatedLossPercent` is calculated against the trade's invested notional, keeping the audit percentage consistent with the deterministic approval limit.
 - The updated policy is deployed and hosted readiness reports baseline `100000`, maximum stop loss `5%`, invested-notional risk `5%`, and status `ready`; no order submission was performed.
 
 ### Isolated post-restore reconciliation evidence (2026-08-25)
