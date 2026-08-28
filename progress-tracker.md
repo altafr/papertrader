@@ -728,6 +728,12 @@
 - [x] Run the unified hosted verifier successfully: API/Worker healthy, paper mode, connected stream, scheduled research/durable scheduler, kill switch inactive, and public dashboard HTTP 200.
 - [ ] Merge the verified branch to `main` through repository review to activate the GitHub Actions cron monitor; continue the 30-day paper-forward evidence window.
 
+### Phase 6.500 — Authenticated read-model safety-field contract (2026-08-29)
+
+- [x] Correct the API response so `unmanagedPositions` is present inside the dashboard-consumed `model` object as well as the export-compatible top-level field.
+- [x] Centralize the bounded contract attachment and add regression coverage.
+- [ ] Publish the matching API/web revision and verify the authenticated portfolio renders positions instead of treating the payload as invalid.
+
 ### Phase 6.458 — Natural hosted cycle continuity (2026-08-29)
 
 - [x] Verify the hosted Worker remains healthy on release `febcda5f7a5…` with Paper Autopilot and order submission still enabled.

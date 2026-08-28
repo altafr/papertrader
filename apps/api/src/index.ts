@@ -31,6 +31,7 @@ import { assessReconciliationHealth, assessResearchScheduleActivation, assessSch
 import { compareReconciliationAccounts } from "./reconciliation-status.js";
 import { approveDisabledToReplay, approveReplayToShadow, approveShadowToPaper } from "./lifecycle-command.js";
 import { toAgentRunDetail } from "./agent-run-detail.js";
+import { attachUnmanagedPositions } from "./read-model-contract.js";
 
 let readModelRepository: ReturnType<typeof createAccountStateRepository> | undefined;
 let readModelPool: ReturnType<typeof createDatabase>["pool"] | undefined;
@@ -194,7 +195,9 @@ async function readPersistedModel(request: IncomingMessage) {
   const unmanagedPositions = readModelPool
     ? (await readModelPool.query<{ symbol: string; asset_class: string }>("SELECT p.symbol, p.asset_class FROM positions p JOIN account_snapshots a ON a.id = p.account_snapshot_id WHERE a.id = (SELECT id FROM account_snapshots ORDER BY captured_at DESC, id DESC LIMIT 1) AND NOT EXISTS (SELECT 1 FROM paper_order_submissions s WHERE s.symbol = p.symbol AND s.asset_class = p.asset_class AND s.entry_price IS NOT NULL AND s.planned_stop_price IS NOT NULL AND s.strategy_key IS NOT NULL AND s.strategy_version IS NOT NULL)")).rows.map((row) => ({ assetClass: row.asset_class, symbol: row.symbol }))
     : [];
-  return { body: { model, unmanagedPositions }, status: 200 } as const;
+  // Keep the safety field inside the read model consumed by the dashboard,
+  // while retaining the top-level copy for the CSV/export boundary.
+  return { body: { model: attachUnmanagedPositions(model, unmanagedPositions), unmanagedPositions }, status: 200 } as const;
 }
 
 async function readEligibleAssets(request: IncomingMessage) {
