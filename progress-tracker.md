@@ -2,8 +2,8 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.358 — Multi-candidate paper hand-off throughput.
-- **Status:** Broker-enabled research cycles now evaluate up to 10 persisted candidates and submit at most one approved order, so a blocked BTC/USD candidate cannot starve eligible stock candidates. The full regression suite passes. Authenticated dashboard rendering, a successful broker-reconciled order, and Alpaca crypto entitlement resolution remain pending.
+- **Phase:** Phase 6.359 — Hosted multi-candidate worker deployment.
+- **Status:** Railway deployment `02315f79-8d1f-45b8-8549-69e28cc2de15` reached `SUCCESS` for the explicit `worker` service. Live health remains healthy with research scheduled, position management ready, and Paper Autopilot active. Authenticated dashboard rendering, a successful broker-reconciled order, and Alpaca crypto entitlement resolution remain pending.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Verify the first natural paper research/order cycle and authenticated dashboard portfolio/position rendering, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
@@ -23,6 +23,13 @@
 - [x] Persist every candidate's deterministic risk decision; stop only after the first approved execution.
 - [x] Verify the complete regression suite: 78 files and 304 tests passed.
 - [ ] Reconcile a successful paper order once an eligible candidate passes risk and Alpaca accepts the request.
+
+### Phase 6.359 — Hosted multi-candidate worker deployment (2026-08-28)
+
+- [x] Deploy the multi-candidate paper hand-off change to Railway's explicit `worker` service.
+- [x] Confirm deployment `02315f79-8d1f-45b8-8549-69e28cc2de15` reached `SUCCESS`.
+- [x] Confirm live Worker health remains `healthy`, research scheduling is `scheduled`, and position management is `ready`.
+- [ ] Capture a successful broker-reconciled paper order from an eligible candidate.
 
 ### Phase 6.356 — Natural 14:15 UTC crypto cycle (2026-08-28)
 
