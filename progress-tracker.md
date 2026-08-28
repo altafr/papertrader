@@ -146,6 +146,14 @@
 - [x] Confirm warning-level unmanaged events continue without automatic exits or risk bypasses.
 - [ ] Observe the next research tick's risk decision and broker reconciliation result.
 
+### Phase 6.413 — Post-restart natural cycle evidence (2026-08-29)
+
+- [x] Confirm the Worker restarted cleanly around the scheduled boundary and re-established the durable scheduler and crypto stream.
+- [x] Confirm the 16:15 UTC crypto research run succeeded with one BTC/USD candidate.
+- [x] Confirm the deterministic risk cycle approved the candidate and recorded `executionStatus: reconciled` for intent `intent:BTC_USD:2026-08-28T16:00:00Z`.
+- [x] Confirm health advanced `nextRunAt` to `16:30 UTC`, with position management ready and no kill switch activation.
+- [ ] Verify the resulting latest position/P&L through the authenticated dashboard and CSV export.
+
 ### Phase 6.387 — Hosted cycle baseline after reason-logging rollout (2026-08-28)
 
 - [x] Verify Worker deployment `8cabc43d-b343-47c1-9a0f-257198dabdcf` is `SUCCESS` and health is `healthy`.
