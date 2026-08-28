@@ -2,11 +2,20 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.350 — Natural 13:15 crypto cycle after liveness deployment.
-- **Status:** The public Worker completed the naturally scheduled `13:15 UTC` crypto preparation cycle at `13:15:09 UTC`, persisted run `research-preparation-crypto_research-20260828131509` with `status: succeeded`, and advanced the next run to 13:30 UTC. The BTC/USD hand-off remains `risk_dry_run_rejected` with no submission timestamp, while Worker health stays healthy with connected market data and ready position management. Authenticated dashboard rendering and Alpaca crypto entitlement resolution remain pending.
+- **Phase:** Phase 6.351 — Credential-free hosted runtime acceptance check.
+- **Status:** The public API and Worker passed `pnpm verify:paper-runtime` against their Railway health endpoints. The check confirms healthy services, Paper Autopilot mode, order submission enabled behind gates, connected market data, and ready position management. Authenticated dashboard rendering, a successful broker-reconciled order, and Alpaca crypto entitlement resolution remain pending.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Verify the first natural paper research/order cycle and authenticated dashboard portfolio/position rendering, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
+
+### Phase 6.351 — Credential-free hosted runtime acceptance check (2026-08-28)
+
+- [x] Run the read-only runtime verifier against the public Railway API and Worker health endpoints.
+- [x] Confirm both services report `healthy`, Paper Autopilot is active, order submission is enabled, the market stream is connected, and position management is `ready`.
+- [x] Confirm the verifier fails closed on missing prerequisites and exposes no credentials or private account data.
+- [x] Verify the runtime contract and operator-overview regression tests (4 tests) pass.
+- [ ] Verify the authenticated dashboard against the persisted natural cycle and live portfolio/positions.
+- [ ] Reconcile a successful paper order and resolve Alpaca's external crypto-order entitlement response.
 
 ### Phase 6.328 — Natural 15-minute crypto cycle (2026-08-28)
 
