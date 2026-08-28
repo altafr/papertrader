@@ -613,6 +613,13 @@
 - [x] Confirm no protected credentials are required by the monitor; it remains read-only.
 - [ ] Confirm the first scheduled 15-minute run and publish the queued Vercel heartbeat revision when quota permits.
 
+### Phase 6.482 — Hosted monitor branch-run evidence (2026-08-29)
+
+- [x] Confirm the branch-triggered monitor run for commit `95d4034` completed successfully.
+- [x] Confirm the prior transient failure on `f331d82` was followed by successful runs after the bounded public-surface retry was deployed.
+- [x] Confirm the monitor is now executing the unified runtime/public-surface contract in GitHub Actions.
+- [ ] Observe the first cron-triggered run after the workflow's scheduled trigger becomes eligible.
+
 ### Phase 6.458 — Natural hosted cycle continuity (2026-08-29)
 
 - [x] Verify the hosted Worker remains healthy on release `febcda5f7a5…` with Paper Autopilot and order submission still enabled.
