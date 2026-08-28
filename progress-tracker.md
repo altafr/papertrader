@@ -287,6 +287,14 @@
 - [x] Confirm recovery status is `verified`; this evidence is separate from normal runtime health and does not enable live trading.
 - [ ] Continue the 30-day paper-forward evidence window and complete authenticated dashboard/CSV verification after Vercel publication becomes available.
 
+### Phase 6.433 — Hosted alerting continuity checkpoint (2026-08-29)
+
+- [x] Confirm Telegram alert configuration is enabled and format-valid on the hosted Worker without exposing credentials.
+- [x] Confirm approved-only risk notifications and the 24-hour routine cooldown remain active.
+- [x] Confirm the guarded test command remains blocked without a command-scoped approval reference, preserving the no-implicit-send boundary.
+- [x] Confirm Worker health remains `healthy`, research is scheduled, position management is ready, and the crypto stream is connected.
+- [ ] Continue paper-forward monitoring and complete authenticated dashboard/CSV verification after Vercel publication becomes available.
+
 ### Phase 6.387 — Hosted cycle baseline after reason-logging rollout (2026-08-28)
 
 - [x] Verify Worker deployment `8cabc43d-b343-47c1-9a0f-257198dabdcf` is `SUCCESS` and health is `healthy`.
