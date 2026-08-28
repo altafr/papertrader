@@ -5653,3 +5653,9 @@
 - The verifier remains compatible with the legitimate pre-first-cycle state, but fails closed on malformed or contradictory telemetry.
 - Verification: focused verifier tests and full regression passed (88 files, 354 tests); ESLint passes.
 - **Next smallest unit:** deploy/run the verifier with the next scheduled cycle and record the durable risk evidence.
+
+### 2026-08-29 — Phase 6.304 hosted risk telemetry verification
+
+- Ran the enhanced hosted verifier against Railway; result is `verified:true` with `riskTelemetryValid:true`.
+- Current Worker health reports valid risk-cycle telemetry alongside healthy API/Worker state, connected market stream, scheduled research/durable schedulers, ready position management, and inactive kill switch.
+- **Next smallest unit:** continue collecting the scheduled paper-forward evidence and complete authenticated operator verification when the protected token is available.
