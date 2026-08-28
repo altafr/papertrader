@@ -2,8 +2,8 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.359 — Hosted multi-candidate worker deployment.
-- **Status:** Railway deployment `02315f79-8d1f-45b8-8549-69e28cc2de15` reached `SUCCESS` for the explicit `worker` service. Live health remains healthy with research scheduled, position management ready, and Paper Autopilot active. Authenticated dashboard rendering, a successful broker-reconciled order, and Alpaca crypto entitlement resolution remain pending.
+- **Phase:** Phase 6.360 — Independent single-order execution guard.
+- **Status:** The paper cycle's one-order-per-reconciled-snapshot invariant is now enforced independently of Telegram delivery. Full regression remains green. Authenticated dashboard rendering, a successful broker-reconciled order, and Alpaca crypto entitlement resolution remain pending.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Verify the first natural paper research/order cycle and authenticated dashboard portfolio/position rendering, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
@@ -29,6 +29,14 @@
 - [x] Deploy the multi-candidate paper hand-off change to Railway's explicit `worker` service.
 - [x] Confirm deployment `02315f79-8d1f-45b8-8549-69e28cc2de15` reached `SUCCESS`.
 - [x] Confirm live Worker health remains `healthy`, research scheduling is `scheduled`, and position management is `ready`.
+- [ ] Capture a successful broker-reconciled paper order from an eligible candidate.
+
+### Phase 6.360 — Independent single-order execution guard (2026-08-28)
+
+- [x] Decouple the single-order stop condition from the optional Telegram notification branch.
+- [x] Track execution submission explicitly and stop candidate evaluation immediately after the first successful approved submission.
+- [x] Preserve bounded evaluation of up to 10 candidates when earlier candidates are rejected.
+- [x] Verify the complete regression suite: 78 files and 304 tests passed.
 - [ ] Capture a successful broker-reconciled paper order from an eligible candidate.
 
 ### Phase 6.356 — Natural 14:15 UTC crypto cycle (2026-08-28)

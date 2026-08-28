@@ -63,6 +63,7 @@ export async function runPaperAutopilotRiskCycle(input: {
   };
   const repository = createPaperOrderRepository(input.db);
   const results: PaperAutopilotRiskCycleResult[] = [];
+  let executionSubmitted = false;
   // A broker-enabled cycle evaluates a bounded candidate set but submits at
   // most one entry. The next cycle re-reconciles before considering another.
   const candidates = selectPaperAutopilotCandidates(input.candidates, Boolean(input.executeApproved));
@@ -92,13 +93,15 @@ export async function runPaperAutopilotRiskCycle(input: {
     if (approval.status === "approved" && input.executeApproved) {
       await input.executeApproved({ approval: { approvalId: approval.approvalId, intentId, riskDecision: { estimatedLoss: approval.assessment.estimatedLoss, estimatedLossPercent: approval.assessment.estimatedLossPercent, policyVersion: approval.policyVersion, reasons: approval.assessment.reasons }, status: "approved" }, assetClass: riskCandidate.assetClass, clientOrderId: `${intentId}-paper`, ...(riskCandidate.marketSnapshot ? { marketSnapshot: riskCandidate.marketSnapshot as unknown as Readonly<Record<string, string | null>> } : {}), quantity, entryPrice: riskCandidate.proposedEntryPrice, plannedStopPrice: riskCandidate.plannedStopPrice, plannedTargetPrice: riskCandidate.plannedExitPrice, strategyKey: riskCandidate.strategyKey, strategyVersion: riskCandidate.strategyVersion, side: "buy", symbol: riskCandidate.symbol, timeInForce: "day", type: "market" });
       executionStatus = "reconciled";
+      executionSubmitted = true;
     }
     results.push({ approvalStatus: approval.status, executionStatus, intentId, symbol: candidate.symbol });
     if (shouldNotifyPaperRiskDecision(approval.status)) {
       await input.notify?.({ code: "paper_risk_decision", dedupeKey: `paper_risk_decision:${intentId}`, message: `${candidate.symbol} selected for paper trading: deterministic risk checks approved.${input.approvalReference ? ` Reference ${input.approvalReference}.` : ""}`, severity: "info" });
-      // Do not place a second entry in the same reconciled cycle.
-      if (input.executeApproved) break;
     }
+    // Do not place a second entry in the same reconciled cycle. This is
+    // deliberately independent of Telegram delivery policy.
+    if (executionSubmitted) break;
   }
   return results;
 }
