@@ -5701,6 +5701,13 @@
 - Added serializer coverage; verification passes with 88 test files and 356 tests, plus API/web typechecks and ESLint.
 - **Next smallest unit:** deploy the API status query, verify the hosted health contract, and continue the paper-forward evidence window.
 
+### Phase 6.313 API deployment verified
+
+- Railway API deployment `43130d1c-020f-4f1b-8fb2-66f20f0536c9` reached `SUCCESS` from commit `71a9fb3`.
+- Public API health returns HTTP 200, and the protected operator overview remains HTTP 401 without an operator token.
+- Worker health remains healthy in Paper Autopilot mode with connected market stream, scheduled research/durable runs, and ready position management.
+- **Next smallest unit:** verify the authenticated dashboard/read-model payload and continue paper-forward evidence collection; web publication remains subject to Vercel quota.
+
 ### 2026-08-29 — Phase 6.306 compatibility deployment verified
 
 - Railway API deployment `514049ed-de16-4430-80ab-aeba1d927394` and Worker deployment `05471841-299e-4fd2-ada3-6654abb801e8` both reached `SUCCESS`.
