@@ -295,6 +295,13 @@
 - [x] Confirm Worker health remains `healthy`, research is scheduled, position management is ready, and the crypto stream is connected.
 - [ ] Continue paper-forward monitoring and complete authenticated dashboard/CSV verification after Vercel publication becomes available.
 
+### Phase 6.434 — Daily-summary schedule boundary audit (2026-08-29)
+
+- [x] Inspect the production non-secret schedule configuration without printing secret values.
+- [x] Confirm `DAILY_PREPARATION_CRON` is unset, so the runtime uses its documented default `0 0 * * *` in UTC.
+- [x] Confirm daily portfolio-summary delivery is durable and deduplicated, but record that the current trigger is a UTC daily schedule rather than an exact US-market-close trigger.
+- [ ] Add and verify a market-calendar-aware end-of-session summary trigger, while preserving the existing daily fallback and notification cooldown.
+
 ### Phase 6.387 — Hosted cycle baseline after reason-logging rollout (2026-08-28)
 
 - [x] Verify Worker deployment `8cabc43d-b343-47c1-9a0f-257198dabdcf` is `SUCCESS` and health is `healthy`.
