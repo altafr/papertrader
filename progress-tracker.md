@@ -75,6 +75,13 @@
 - [x] Deploy Worker `036639eb-a686-44b0-87dd-8dc1fa2bee47` with `SUCCESS`.
 - [x] Verify hosted health remains healthy, Paper Autopilot, scheduled, and position-management ready.
 - [ ] Enable a reviewed per-asset quantity and verify a paper order reconciliation.
+
+### Phase 6.395 — Unified quantity validation (2026-08-28)
+
+- [x] Route explicit one-shot quantity overrides through the shared positive-decimal validator.
+- [x] Preserve per-asset and global fallback precedence for continuous scheduling.
+- [x] Add regression coverage proving malformed explicit overrides fail closed.
+- [ ] Run full verification and deploy the Worker.
 - [x] Run full verification: 79 files and 314 tests passed; Worker typecheck and lint passed.
 - [x] Deploy Worker `23e99f53-0266-489c-b6df-c7f0c8b0f922` with `SUCCESS` and verify hosted health remains healthy, scheduled, and position-management ready.
 - [ ] Verify the next position pass emits per-decision records and reconcile any eligible paper order.

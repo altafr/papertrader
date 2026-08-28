@@ -13,5 +13,6 @@ describe("paper quantity resolution", () => {
   it("rejects malformed or non-positive quantities", () => {
     expect(() => getPaperAutopilotQuantity("crypto", { PAPER_AUTOPILOT_CRYPTO_QUANTITY: "0" })).toThrow("positive");
     expect(() => getPaperAutopilotQuantity("us_equity", { PAPER_AUTOPILOT_STOCK_QUANTITY: "1e2" })).toThrow("positive");
+    expect(() => getPaperAutopilotQuantity("us_equity", {}, "1e2")).toThrow("positive");
   });
 });

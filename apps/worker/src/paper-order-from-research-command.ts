@@ -58,7 +58,7 @@ try {
     openPositions: model.positions.map((position) => ({ assetClass: position.assetClass === "crypto" ? "crypto" as const : "us_equity" as const, marketValue: position.marketValue })),
     submittedEntriesLast24Hours: model.orders.filter((order) => order.side.toLowerCase() === "buy" && order.submittedAt && now.getTime() - order.submittedAt.getTime() <= 86_400_000).length,
   };
-  const quantity = process.env.PAPER_ORDER_QUANTITY?.trim() || getPaperAutopilotQuantity(candidate.assetClass, process.env);
+  const quantity = getPaperAutopilotQuantity(candidate.assetClass, process.env, process.env.PAPER_ORDER_QUANTITY);
   stage = "risk_gate";
   const riskCandidate = buildRiskCandidate(candidate, now);
   const { approval, intentId } = assessResearchCandidateRisk({ candidate, currentAt: now.toISOString(), equity: snapshot.equity, quantity, state });
