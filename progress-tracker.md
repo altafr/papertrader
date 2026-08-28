@@ -2,11 +2,18 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.350 — Telegram delivery quality verification.
+- **Phase:** Phase 6.351 — Full production build verification.
 - **Status:** The hosted Worker and API are healthy in Paper Autopilot mode with deterministic entry/exit safeguards, durable reconciliation, Telegram alerting, lifecycle-stable PostgreSQL-backed risk evidence, and a read-only portfolio status command. The latest provenance and evidence guards are deployed and verified. Vercel production publication remains limited by the free-plan daily deployment quota, while the 30-day paper-forward evidence window and authenticated dashboard verification remain ongoing.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading, verify authenticated portfolio/P&L rendering and exports, and accumulate the 30-day evidence gate without loosening risk controls.
 - **Last updated:** 2026-08-29.
+
+### Phase 6.351 — Full production build verification (2026-08-29)
+
+- [x] Full workspace production build passes for all eight buildable packages/apps.
+- [x] Next.js production build compiles, type-checks, statically generates public routes, and analyzes authenticated dashboard routes successfully.
+- [x] Railway deployment queue remains provider-side; no application build failure is present locally.
+- [ ] Retry the Worker deployment after Railway queue/snapshot recovery and run hosted verification.
 
 ### Phase 6.350 — Telegram delivery quality verification (2026-08-29)
 
