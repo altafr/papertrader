@@ -3,6 +3,8 @@ import { fileURLToPath } from "node:url";
 export async function verifyPublicSurface(fetcher: typeof fetch, url: string): Promise<{ status: number; url: string }> {
   const response = await fetcher(url, { headers: { accept: "text/html" } });
   if (!response.ok) throw new Error(`public_surface_check_failed:${response.status}`);
+  const body = await response.text();
+  if (!body.includes("Momentum Autopilot")) throw new Error("public_surface_check_failed:unexpected_content");
   return { status: response.status, url };
 }
 

@@ -455,6 +455,13 @@
 - [x] Re-run the focused verifier tests and lint successfully.
 - [ ] Observe the first scheduled run including the shared command.
 
+### Phase 6.456 — Public shell content verification (2026-08-29)
+
+- [x] Require the public dashboard response to contain the expected Momentum Autopilot application marker, not only HTTP 200.
+- [x] Add regression coverage for successful-but-wrong content and preserve the read-only boundary.
+- [x] Focused verifier tests and lint pass.
+- [ ] Observe the first scheduled run with content validation enabled.
+
 ### Phase 6.387 — Hosted cycle baseline after reason-logging rollout (2026-08-28)
 
 - [x] Verify Worker deployment `8cabc43d-b343-47c1-9a0f-257198dabdcf` is `SUCCESS` and health is `healthy`.
