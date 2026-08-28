@@ -2,7 +2,7 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.316 — Market-stream freshness observability.
+- **Phase:** Phase 6.317 — Market-stream freshness observability deployed.
 - **Status:** The hosted Worker and API are healthy in Paper Autopilot mode with deterministic entry/exit safeguards, durable reconciliation, Telegram alerting, lifecycle-stable PostgreSQL-backed risk evidence, and a read-only portfolio status command. The latest provenance and evidence guards are deployed and verified. Vercel production publication remains limited by the free-plan daily deployment quota, while the 30-day paper-forward evidence window and authenticated dashboard verification remain ongoing.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading, verify authenticated portfolio/P&L rendering and exports, and accumulate the 30-day evidence gate without loosening risk controls.
@@ -5728,6 +5728,12 @@
 - This exposes a real-time data-health signal without changing execution authority; deterministic research and position gates remain fail-closed.
 - Added focused coverage for missing, fresh, and stale timestamps; domain/Worker typechecks and ESLint pass.
 - **Next smallest unit:** deploy the Worker health contract and verify the hosted stream freshness field alongside the active paper schedule.
+
+### Phase 6.317 market-stream freshness deployment
+
+- Railway Worker deployment `cffd3b8d-d670-4940-880b-9ae4e9a612cd` reached `SUCCESS` from commit `99877c2`.
+- Hosted Worker health now reports `marketStream.freshness: fresh` with a current message timestamp, while Paper Autopilot, schedulers, and position management remain healthy and ready.
+- **Next smallest unit:** continue paper-forward monitoring and validate the authenticated read model when an operator session is available.
 
 ### 2026-08-29 — Phase 6.306 compatibility deployment verified
 
