@@ -2,11 +2,20 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.352 — Hosted operator API auth-boundary verification.
-- **Status:** Railway's public operator overview and CSV endpoints both correctly return `401` without credentials. Portfolio, positions, trades, agent history, and audit data therefore remain protected while the dashboard uses the authenticated server-side path. Authenticated dashboard rendering, a successful broker-reconciled order, and Alpaca crypto entitlement resolution remain pending.
+- **Phase:** Phase 6.353 — Natural 13:30 UTC crypto cycle.
+- **Status:** The public Worker completed the naturally scheduled `13:30 UTC` crypto preparation run at `13:30:10 UTC`, persisted it as `succeeded`, and advanced the schedule. The corresponding BTC/USD hand-off remains deterministically rejected with no submission timestamp; no broker execution was created by this cycle. Authenticated dashboard rendering, a successful broker-reconciled order, and Alpaca crypto entitlement resolution remain pending.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Verify the first natural paper research/order cycle and authenticated dashboard portfolio/position rendering, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
+
+### Phase 6.353 — Natural 13:30 UTC crypto cycle (2026-08-28)
+
+- [x] Observe the scheduled 15-minute crypto preparation tick without forcing a manual run.
+- [x] Confirm persisted run `research-preparation-crypto_research-20260828133010` completed with `status: succeeded`.
+- [x] Confirm the cycle's BTC/USD risk hand-off is `risk_dry_run_rejected` with no `submitted_at` value, preserving the deterministic exposure gate.
+- [x] Confirm the read-only deployed PostgreSQL query shows no new broker execution or fill from this cycle.
+- [ ] Verify this cycle and its bounded risk reason in the authenticated dashboard.
+- [ ] Reconcile a successful paper order and resolve Alpaca's external crypto-order entitlement response.
 
 ### Phase 6.352 — Hosted operator API auth-boundary verification (2026-08-28)
 
