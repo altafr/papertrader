@@ -213,6 +213,12 @@
 - [x] Add an explicit warning not to revert current hosted Paper Autopilot variables to those initial defaults.
 - [x] Keep live health links and the progress tracker as the authoritative current-state references.
 
+### Phase 6.423 — Telegram runbook correction (2026-08-29)
+
+- [x] Update the README Telegram section to match the enabled production alert configuration.
+- [x] Keep the guarded test approval reference as a separate explicit gate.
+- [x] Preserve credential-handling and redaction instructions.
+
 ### Phase 6.387 — Hosted cycle baseline after reason-logging rollout (2026-08-28)
 
 - [x] Verify Worker deployment `8cabc43d-b343-47c1-9a0f-257198dabdcf` is `SUCCESS` and health is `healthy`.

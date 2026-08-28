@@ -87,9 +87,9 @@ These steps describe the initial provisioning stage. The hosted system has since
 3. Add the paper `ALPACA_API_KEY` and `ALPACA_SECRET_KEY` only to the Railway API and worker service variables. Seal both values after saving them. Do not put them in Vercel, GitHub, `.env.example`, browser code, logs, or PostgreSQL.
 4. Keep the repository template in `.env.example` as names and safe defaults only. The API and worker fail closed if live mode is requested, paper mode is disabled, or broker access is enabled without both credentials.
 
-### Telegram alert channel
+### Telegram alert channel (current hosted behavior)
 
-Telegram is the selected primary notification provider. Keep `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID` only in the Railway worker service variables. Leave `TELEGRAM_ALERTS_ENABLED=false` until the guarded channel test has passed. To send one approved test message, use the deployed worker with command-scoped `TELEGRAM_ALERTS_ENABLED=true`, `TELEGRAM_ALERT_TEST=true`, and a bounded `TELEGRAM_ALERT_TEST_APPROVAL_REFERENCE`, then run `pnpm --filter @momentum/worker telegram-alert-test`. The command prints only a generic success/failure message and never prints the token, chat ID, or Telegram response.
+Telegram is the selected primary notification provider. Keep `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID` only in the Railway worker service variables. Production alerts are enabled with durable delivery tracking; the guarded test remains separately blocked until a bounded `TELEGRAM_ALERT_TEST_APPROVAL_REFERENCE` is supplied. To send one approved test message, use the deployed worker with command-scoped `TELEGRAM_ALERTS_ENABLED=true`, `TELEGRAM_ALERT_TEST=true`, and that reference, then run `pnpm --filter @momentum/worker telegram-alert-test`. The command prints only a generic success/failure message and never prints the token, chat ID, or Telegram response.
 
 ### Phase 1 Clerk setup (historical bootstrap notes)
 
