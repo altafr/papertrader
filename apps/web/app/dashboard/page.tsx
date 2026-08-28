@@ -385,7 +385,6 @@ export default async function DashboardPage({ searchParams }: { readonly searchP
   const lastEquity = result.kind === "ready" ? numericValue(result.model.snapshot, "lastEquity") : undefined;
   const dayPnl = equity !== undefined && lastEquity !== undefined ? equity - lastEquity : undefined;
   const grossExposurePercent = equity && portfolioMarketValue !== undefined ? (portfolioMarketValue / equity) * 100 : undefined;
-  const decisionRows = operatorOverview?.tradeDecisions ?? [];
   const unmanagedKeys = new Set(result.kind === "ready" ? result.model.unmanagedPositions.map((position) => `${position.assetClass}:${position.symbol}`) : []);
   const today = new Date();
   const toDate = today.toISOString().slice(0, 10);

@@ -124,6 +124,13 @@
 - [ ] Verify the authenticated CSV contains `exitPlanStatus` values after operator sign-in.
 - [ ] Publish the dashboard UI revision after Vercel's deployment quota reset.
 
+### Phase 6.410 — Dashboard lint/build repair (2026-08-29)
+
+- [x] Remove the unused audit decision variable introduced while switching to the authoritative unmanaged-position field.
+- [x] Pass repository lint with `--max-warnings=0`.
+- [x] Pass the Next.js production build with Node `v24.15.0`.
+- [ ] Publish the corrected dashboard revision after Vercel's deployment quota resets.
+
 ### Phase 6.387 — Hosted cycle baseline after reason-logging rollout (2026-08-28)
 
 - [x] Verify Worker deployment `8cabc43d-b343-47c1-9a0f-257198dabdcf` is `SUCCESS` and health is `healthy`.
