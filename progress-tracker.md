@@ -5432,6 +5432,13 @@
 - Worker remains healthy, Paper Autopilot remains active, and position management is ready.
 - **Next smallest unit:** verify retained counters after the next scheduled research tick at 22:00 UTC.
 
+### 2026-08-29 — Phase 6.272 hosted runtime verification
+
+- Hosted verifier passed with `verified:true`: API and Worker healthy, Alpaca/database configured, paper mode active, order submission enabled behind its approval reference, market stream connected, position management ready, research and durable schedulers scheduled, kill switch inactive, and release timestamps valid.
+- Public web surface returned HTTP 200 at `https://papertrader-web.vercel.app/`.
+- The next scheduled risk tick remains the specific pending check for retained post-fix counters.
+- **Next smallest unit:** verify the 22:00 UTC risk cycle retains its counters in Worker health and the PostgreSQL-backed API summary.
+
 ### 2026-08-29 — Phase 6.269 dashboard build verification
 
 - Verified the updated Next.js dashboard production build locally after adding durable risk-cycle evidence; compilation, TypeScript, static generation, and dynamic route analysis all succeeded.
