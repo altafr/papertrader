@@ -15,7 +15,9 @@
 - [x] Refuse retries when an intent exists without broker confirmation, requiring reconciliation.
 - [x] Add regression coverage for broker-bound reuse and ambiguous in-flight failure-closed behavior.
 - [x] Verify the focused execution tests and full suite: 79 files and 311 tests passed.
-- [ ] Deploy the guard to Railway and observe the next natural cycle.
+- [x] Deploy the guard to the explicit Railway Worker service; deployment `4d97a07b-d547-45f9-8128-cd87c16d33eb` reached `SUCCESS`.
+- [x] Verify hosted health remains configured, paper-only, connected, scheduled, and position-management ready.
+- [ ] Observe the next natural cycle and reconcile a successful paper order.
 
 ### Phase 6.357 — Always-on scheduler acceptance contract (2026-08-28)
 
