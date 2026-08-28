@@ -5452,6 +5452,13 @@
 - No failed or degraded cycle was present; the only warning was the expected fail-closed `unmanaged_position_detected` alert for positions without stored exit plans.
 - **Next smallest unit:** verify the scheduled risk-cycle counters after the 22:00 UTC tick.
 
+### 2026-08-29 — Phase 6.276 read-only risk-cycle status command
+
+- Added guarded `PAPER_RISK_CYCLE_STATUS=true` Worker command (`risk-cycle-status`) for direct operator verification of seven-day risk decisions.
+- Output is limited to approved/total counts and latest status/timestamp; no symbols, market payloads, credentials, or model content are returned.
+- Verification: focused test (2 tests), Worker TypeScript, and ESLint passed.
+- **Next smallest unit:** deploy the command and run it against the Railway PostgreSQL ledger after the next scheduled cycle.
+
 ### 2026-08-29 — Phase 6.275 architecture evidence contract
 
 - Documented the durable risk-cycle evidence contract in `architecture.md`, including its PostgreSQL source, seven-day window, bounded serialization, and restart-safe behavior.
