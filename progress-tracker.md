@@ -600,6 +600,12 @@
 - [x] Confirm the retry remains bounded to two attempts and does not alter runtime or trading behavior.
 - [x] Focused unified-verifier tests and lint pass.
 
+### Phase 6.480 — Retry release continuity (2026-08-29)
+
+- [x] Confirm Railway deployment for commit `ccab5eb` reached `SUCCESS`.
+- [x] Run the unified hosted verifier against the new release; runtime returned `verified: true` and public dashboard HTTP `200`.
+- [x] Confirm paper safety gates and scheduler/stream readiness remain intact after rollout.
+
 ### Phase 6.458 — Natural hosted cycle continuity (2026-08-29)
 
 - [x] Verify the hosted Worker remains healthy on release `febcda5f7a5…` with Paper Autopilot and order submission still enabled.
