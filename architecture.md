@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.202 Credential-free hosted auth-boundary verification; multi-day evidence collection continues.
+- **Stage:** Phase 6.432 Hosted recovery/PITR readiness verification; continuous Paper Autopilot and multi-day evidence collection continue.
 
 ### Always-on multi-agent runtime requirement
 
