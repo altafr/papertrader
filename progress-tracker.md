@@ -2,8 +2,8 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.343 — Natural 13:00 crypto cycle.
-- **Status:** The hosted Worker completed the naturally scheduled `13:00 UTC` crypto preparation cycle at `13:00:26 UTC` and advanced the next run to `13:15 UTC`. It remained healthy with a connected market stream and ready position management. The read-only runtime verifier is unit-tested and passes; the remaining execution blocker is Alpaca's external crypto-order entitlement response, while authenticated dashboard verification and Vercel production promotion remain pending.
+- **Phase:** Phase 6.344 — Natural cycle persistence verification.
+- **Status:** The hosted Worker completed the naturally scheduled `13:00 UTC` crypto preparation cycle at `13:00:26 UTC`, and the deployed PostgreSQL database confirms persisted run `research-preparation-crypto_research-20260828130025` with `status: succeeded`. The Worker remains healthy with a connected market stream and ready position management; existing order rows show no newly filled crypto order. The remaining execution blocker is Alpaca's external crypto-order entitlement response, while authenticated dashboard verification and Vercel production promotion remain pending.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Verify the first natural paper research/order cycle and authenticated dashboard portfolio/position rendering, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
@@ -127,6 +127,14 @@
 - [x] Confirm Worker health reports `lastRunAt: 13:00:26 UTC` and `nextRunAt: 13:15 UTC`.
 - [x] Confirm the Worker remained healthy and position management remained ready after the cycle.
 - [ ] Confirm the persisted candidate/risk decision and whether a broker submission was attempted through the authenticated audit view.
+- [ ] Resolve Alpaca's external crypto-order entitlement response before an approved crypto candidate can submit.
+
+### Phase 6.344 — Natural cycle persistence verification (2026-08-28)
+
+- [x] Read the deployed PostgreSQL ledger through the Worker container using a credential-free, read-only query path.
+- [x] Confirm persisted run `research-preparation-crypto_research-20260828130025` completed with `status: succeeded`.
+- [x] Confirm recent order rows contain no newly filled crypto order; no broker state was changed by verification.
+- [ ] Verify the persisted 13:00 candidate and risk decision in the authenticated dashboard.
 - [ ] Resolve Alpaca's external crypto-order entitlement response before an approved crypto candidate can submit.
 
 ### Phase 6.327 — Asset-aware crypto order execution (2026-08-28)
