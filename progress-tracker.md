@@ -102,6 +102,12 @@
 - [x] Deploy Worker revision `ecb6dae9c2132a0566f623cfe4467eec7c79ab0b`; deployment `bf1a272c-6b5c-45c5-9ae4-26f7277298d4` reached `SUCCESS`.
 - [x] Verify the next hosted position pass emitted `level: "warn"` for `BTCUSD` and `PFD`, while the managed `AAPL` pass remained informational and submitted zero exits.
 
+### Phase 6.407 — Safety contract documentation sync (2026-08-29)
+
+- [x] Document the authoritative latest-snapshot/exit-plan calculation in `architecture.md`.
+- [x] Document the dashboard `Review required` presentation and fail-closed invariant in `ui-context.md`.
+- [ ] Publish and verify the corresponding dashboard revision after Vercel quota reset.
+
 ### Phase 6.387 — Hosted cycle baseline after reason-logging rollout (2026-08-28)
 
 - [x] Verify Worker deployment `8cabc43d-b343-47c1-9a0f-257198dabdcf` is `SUCCESS` and health is `healthy`.
