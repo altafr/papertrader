@@ -2,8 +2,8 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.276 — One-shot paper order executed and reconciled.
-- **Status:** With explicit reference `PAPER-ORDER-ACTIVATE-001`, one command-scoped single-share AAPL paper order was approved by the deterministic risk engine, submitted to Alpaca paper, and reconciled. The broker reported filled quantity `0` at capture, so fill completion remains pending broker/position reconciliation. Continuous order submission remains disabled.
+- **Phase:** Phase 6.277 — Post-order position and performance verification.
+- **Status:** The authorized AAPL paper order is now represented in the managed read model: position management reports one managed position with no exit submission required. The performance report is ready with one evidence day and a negligible current drawdown; the only stability blocker is the required 30 consecutive calendar days. Continuous order submission remains disabled.
 - **Current operating mode:** Paper Autopilot; continuous order submission is not enabled.
 - **Current goal:** Complete authenticated dashboard verification and reconcile the authorized AAPL order through its terminal broker state, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
@@ -60,6 +60,13 @@
 - [x] Confirm Alpaca paper order `9dcae89d-fbd2-4edb-b662-701bf380601d` was returned and post-order reconciliation completed.
 - [x] Confirm continuous `PAPER_AUTOPILOT_ORDER_SUBMISSION_ENABLED` was not changed persistently.
 - [ ] Observe the broker order until terminal fill/cancel/expiry state and confirm the resulting position/exit-plan lifecycle.
+
+### Phase 6.277 — Post-order position and performance verification (2026-08-28)
+
+- [x] Run the command-scoped position-management pass after the paper order.
+- [x] Confirm one managed position and zero exit submissions; the stored deterministic exit plan remains active.
+- [x] Generate the read-only paper performance report: one calendar evidence day, total P&L `-0.02`, and max drawdown `0.00002012%` at capture.
+- [ ] Continue daily reconciliation, position management, and evidence collection toward 30 consecutive calendar days.
 
 ### Phase 6.269 — Paper Autopilot runtime readiness (2026-08-28)
 
