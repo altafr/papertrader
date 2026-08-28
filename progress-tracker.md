@@ -325,6 +325,14 @@
 - [x] Record that no corresponding event was observable in the available log window; no success claim or forced one-shot side effect was made.
 - [ ] Diagnose the scheduler clock/queue timing and verify the persisted summary event on the next eligible close-hour cycle.
 
+### Phase 6.438 — Close-summary deduplication routing fix (2026-08-29)
+
+- [x] Identify that the UTC fallback could create the daily dedupe record before the New York close-hour trigger.
+- [x] Make the close-hour summary authoritative whenever continuous research is enabled; retain the UTC fallback only when continuous research is disabled.
+- [x] Preserve durable cooldown/deduplication and add configuration regression coverage.
+- [x] Verify the full test suite passes with 320 tests, Worker typecheck passes, and lint passes.
+- [ ] Deploy and verify a hosted close-hour summary event with the corrected routing.
+
 ### Phase 6.387 — Hosted cycle baseline after reason-logging rollout (2026-08-28)
 
 - [x] Verify Worker deployment `8cabc43d-b343-47c1-9a0f-257198dabdcf` is `SUCCESS` and health is `healthy`.
