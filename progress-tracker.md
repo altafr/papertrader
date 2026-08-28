@@ -139,6 +139,13 @@
 - [x] Run the Next.js production build successfully with Node `v24.15.0`.
 - [ ] Publish the verified dashboard revision after Vercel's deployment quota resets.
 
+### Phase 6.412 — Continuous safety monitoring checkpoint (2026-08-29)
+
+- [x] Confirm the Worker remains healthy with connected crypto stream and the next 15-minute research tick scheduled.
+- [x] Confirm position management continues with three persisted positions, one managed (`AAPL`), and two fail-closed unmanaged (`BTCUSD`, `PFD`).
+- [x] Confirm warning-level unmanaged events continue without automatic exits or risk bypasses.
+- [ ] Observe the next research tick's risk decision and broker reconciliation result.
+
 ### Phase 6.387 — Hosted cycle baseline after reason-logging rollout (2026-08-28)
 
 - [x] Verify Worker deployment `8cabc43d-b343-47c1-9a0f-257198dabdcf` is `SUCCESS` and health is `healthy`.
