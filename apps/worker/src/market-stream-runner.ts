@@ -43,8 +43,9 @@ export function getExpectedBarIntervalMs(timeframe: MarketBarTimeframe): number 
 }
 
 export function getMarketStreamHealth(now = new Date()) {
-  if (!marketStreamHealth.lastMessageAt) return { ...marketStreamHealth, ...(marketStreamHealth.status === "connected" ? { freshness: "unknown" as const } : {}) };
-  return { ...marketStreamHealth, freshness: classifyMarketStreamFreshness(marketStreamHealth.lastMessageAt, now, marketStreamMaxMessageAgeMs) };
+  const freshnessMetadata = marketStreamHealth.status === "connected" ? { freshnessMaxAgeSeconds: Math.round(marketStreamMaxMessageAgeMs / 1_000) } : {};
+  if (!marketStreamHealth.lastMessageAt) return { ...marketStreamHealth, ...freshnessMetadata, ...(marketStreamHealth.status === "connected" ? { freshness: "unknown" as const } : {}) };
+  return { ...marketStreamHealth, ...freshnessMetadata, freshness: classifyMarketStreamFreshness(marketStreamHealth.lastMessageAt, now, marketStreamMaxMessageAgeMs) };
 }
 
 function getRuntimeWebSocket(): RuntimeWebSocketConstructor {

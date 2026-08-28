@@ -48,6 +48,8 @@ The stream supervisor derives its gap-recovery interval from the configured bar 
 
 The public Vercel heartbeat safely renders that bounded stream-freshness classification when available; it continues to omit account, position, order, credential, and broker-payload values.
 
+The same heartbeat may expose the bounded freshness-window duration in seconds, allowing an operator to interpret `fresh`/`stale` against the configured timeframe without revealing market payloads.
+
 The freshness-enabled web revision is published to the production Vercel alias. The public route renders the bounded heartbeat, while `/dashboard` remains behind Clerk authentication.
 
 The hosted paper-runtime verifier also fails closed when the Worker explicitly reports a stale market stream, while remaining backward-compatible with older health payloads that omit the optional freshness field.

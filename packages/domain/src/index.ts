@@ -38,6 +38,7 @@ export interface WorkerHealth {
   readonly marketStream: {
     readonly assetClass?: "crypto" | "us_equity";
     readonly freshness?: "fresh" | "stale" | "unknown";
+    readonly freshnessMaxAgeSeconds?: number;
     readonly lastMessageAt?: string;
     readonly reconnectCount: number;
     readonly status: "connected" | "connecting" | "disabled" | "reconnecting" | "stopped";
