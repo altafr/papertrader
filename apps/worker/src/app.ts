@@ -8,8 +8,8 @@ import { getPositionManagementIntervalSeconds, getPositionManagementReadiness, g
 import { assessPositionManagementLiveness, getPositionManagementHealth } from "./position-management-scheduler.js";
 import { getMarketStreamHealth } from "./market-stream-runner.js";
 
-export function deriveWorkerHealthStatus(input: { readonly marketStreamFreshness?: "fresh" | "stale" | "unknown" | undefined; readonly positionManagementStatus: WorkerHealth["positionManagement"]["status"]; readonly researchScheduleStatus: WorkerHealth["researchSchedule"]["status"] }): WorkerHealth["status"] {
-  return input.marketStreamFreshness === "stale" || input.positionManagementStatus === "degraded" || input.researchScheduleStatus === "degraded" ? "degraded" : "healthy";
+export function deriveWorkerHealthStatus(input: { readonly marketStreamFreshness?: "fresh" | "stale" | "unknown" | undefined; readonly positionManagementStatus: WorkerHealth["positionManagement"]["status"]; readonly researchScheduleStatus: WorkerHealth["researchSchedule"]["status"]; readonly telegramEnabled?: boolean; readonly telegramStatus?: WorkerHealth["telegramAlerts"]["status"] }): WorkerHealth["status"] {
+  return input.marketStreamFreshness === "stale" || input.positionManagementStatus === "degraded" || input.researchScheduleStatus === "degraded" || (input.telegramEnabled === true && input.telegramStatus === "blocked") ? "degraded" : "healthy";
 }
 
 export function getWorkerHealth(now = new Date(), environment: NodeJS.ProcessEnv = process.env): WorkerHealth {
@@ -48,7 +48,7 @@ export function getWorkerHealth(now = new Date(), environment: NodeJS.ProcessEnv
     ...(release ? { release } : {}),
     shadowEvaluation: { ...shadow, ...schedule, status: shadow.enabled ? schedule.status : "disabled" },
     service: "worker",
-    status: deriveWorkerHealthStatus({ marketStreamFreshness: marketStream.freshness, positionManagementStatus, researchScheduleStatus: researchStatus }),
+    status: deriveWorkerHealthStatus({ marketStreamFreshness: marketStream.freshness, positionManagementStatus, researchScheduleStatus: researchStatus, telegramEnabled: telegram.checks.enabled, telegramStatus: telegram.status }),
     telegramAlerts: { deliveryVerification: telegram.deliveryVerification, enabled: telegram.checks.enabled, riskDecisionAlerts: "approved_only", routineCooldownHours: 24, status: telegram.status },
     telegramAlertTest: { approvalReferencePresent: telegramTest.approvalReferencePresent, status: telegramTest.status },
   };

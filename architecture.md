@@ -42,7 +42,7 @@ For sell-side exits, a fresh quote uses the bid price first (falling back only w
 
 Worker health separately classifies the market stream as `fresh`, `stale`, or `unknown` from the last message timestamp. The freshness threshold is at least five minutes and expands to two configured bar intervals for slower streams, avoiding false stale states for 5-minute/15-minute bars while still failing closed when the feed misses multiple expected bars. This is observability-only and cannot be used to bypass the deterministic market-data gate.
 
-Top-level Worker health is `degraded` when an active market stream is stale or when the research/position supervisor liveness watchdog reports degradation. This keeps the operator-facing health contract honest while leaving risk and execution fail-closed.
+Top-level Worker health is `degraded` when an active market stream is stale, when the research/position supervisor liveness watchdog reports degradation, or when Telegram is explicitly enabled but its configuration is blocked. This keeps the operator-facing health contract honest while leaving risk and execution fail-closed.
 
 The stream supervisor derives its gap-recovery interval from the configured bar timeframe (including 5-minute and 15-minute crypto bars), rather than treating every non-1-minute stream as hourly. A one-minute watchdog emits one deduplicated critical alert when a connected stream becomes stale and clears the episode after fresh messages resume; it never submits or changes an order.
 

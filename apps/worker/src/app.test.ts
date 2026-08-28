@@ -23,6 +23,7 @@ describe("worker health", () => {
   it("degrades top-level health for active stale or supervisor failures", () => {
     expect(deriveWorkerHealthStatus({ marketStreamFreshness: "stale", positionManagementStatus: "ready", researchScheduleStatus: "scheduled" })).toBe("degraded");
     expect(deriveWorkerHealthStatus({ marketStreamFreshness: "fresh", positionManagementStatus: "degraded", researchScheduleStatus: "scheduled" })).toBe("degraded");
+    expect(deriveWorkerHealthStatus({ marketStreamFreshness: "fresh", positionManagementStatus: "ready", researchScheduleStatus: "scheduled", telegramEnabled: true, telegramStatus: "blocked" })).toBe("degraded");
     expect(deriveWorkerHealthStatus({ marketStreamFreshness: "fresh", positionManagementStatus: "ready", researchScheduleStatus: "scheduled" })).toBe("healthy");
   });
 
