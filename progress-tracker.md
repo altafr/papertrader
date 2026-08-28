@@ -29,7 +29,8 @@
 - [x] Confirm the natural 15:15 UTC cycle produced a deterministic BTC/USD rejection for exposure-cap reasons.
 - [x] Include bounded deterministic rejection/approval reasons in the structured `paper_risk_cycle_result` log.
 - [x] Keep reasons limited to policy text and exclude market payloads, credentials, and private model traces.
-- [ ] Run tests, deploy the Worker, and verify the next hosted cycle log includes the reasons.
+- [x] Run focused/full tests (79 files, 311 tests), deploy Worker `8cabc43d-b343-47c1-9a0f-257198dabdcf` with `SUCCESS`, and verify hosted health remains configured and scheduled.
+- [ ] Verify the next hosted cycle log includes the bounded reasons and reconcile a successful paper order.
 
 ### Phase 6.383 — Idempotent paper submission retry guard (2026-08-28)
 
