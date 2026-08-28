@@ -45,6 +45,11 @@ export function getPositionExitIntentId(clientOrderId: string): string {
   return clientOrderId.replace(/-exit-(?:profit_target|stop_loss|time_stop)$/, ":exit");
 }
 
+/** Bounded, credential-free record for the always-on position pass. */
+export function buildPositionManagementLog(input: { readonly managed: number; readonly positions: number; readonly submitted: number }) {
+  return { event: "position_management_pass", managed: input.managed, positions: input.positions, submitted: input.submitted } as const;
+}
+
 function parseBoolean(name: string, value: string | undefined, defaultValue: boolean): boolean {
   if (value === undefined) return defaultValue;
   if (value === "true") return true;
@@ -99,7 +104,10 @@ export async function runPositionManagementCycle(environment: NodeJS.ProcessEnv 
     const plans = new Map(rows.filter((row) => row.alpacaOrderId && row.entryPrice && row.plannedStopPrice && row.strategyKey && row.strategyVersion).map((row) => [`${row.assetClass}:${row.symbol}`, row]));
     const positions = model?.positions ?? [];
     const managedPositions = positions.filter((position) => plans.has(`${position.assetClass}:${position.symbol}`));
-    if (managedPositions.length === 0) return { managed: 0, submitted: 0 };
+    if (managedPositions.length === 0) {
+      console.log(JSON.stringify(buildPositionManagementLog({ managed: 0, positions: positions.length, submitted: 0 })));
+      return { managed: 0, submitted: 0 };
+    }
     for (const position of managedPositions) {
       const plan = plans.get(`${position.assetClass}:${position.symbol}`);
       const intentId = plan?.intentId ?? "unknown";
@@ -142,6 +150,7 @@ export async function runPositionManagementCycle(environment: NodeJS.ProcessEnv 
       const submittedSymbols = result.decisions.filter((decision) => decision.shouldExit).map((decision) => decision.symbol).sort().join(",");
       await notifier.notify({ code: "paper_exit_submitted", dedupeKey: `paper_exit_submitted:${submittedSymbols}`, message: `Deterministic paper exit submitted for ${result.submitted} managed position(s). Broker reconciliation will confirm final status.`, severity: "warning" });
     }
+    console.log(JSON.stringify(buildPositionManagementLog({ managed: result.managed, positions: positions.length, submitted: result.submitted })));
     return { managed: managed.length, submitted: result.submitted };
   } finally {
     await pool.end();

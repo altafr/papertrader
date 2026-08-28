@@ -2,8 +2,8 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.362 — Complete hosted cycle observability.
-- **Status:** The worker now emits bounded, credential-free structured logs for every research result, including empty/failed runs, plus paper risk hand-offs. Full regression remains green. Authenticated dashboard rendering, a successful broker-reconciled order, and Alpaca crypto entitlement resolution remain pending.
+- **Phase:** Phase 6.363 — Position-management pass observability.
+- **Status:** The worker now emits bounded, credential-free structured logs for every research result, paper risk hand-off, and position-management pass, including zero-position passes. Full regression passes with 306 tests. Authenticated dashboard rendering, a successful broker-reconciled order, and Alpaca crypto entitlement resolution remain pending.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Verify the first natural paper research/order cycle and authenticated dashboard portfolio/position rendering, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
@@ -45,6 +45,14 @@
 - [x] Preserve bounded symbols and omit market payloads, credentials, and provider response bodies.
 - [x] Keep paper risk/execution records separately logged after deterministic processing.
 - [ ] Deploy and observe the next natural cycle's records in Railway logs.
+
+### Phase 6.363 — Position-management pass observability (2026-08-28)
+
+- [x] Log every position-management pass with total positions, managed positions, and submitted exits.
+- [x] Cover the zero-managed-position path so silent monitoring gaps are visible.
+- [x] Keep logs credential-free and exclude prices, account values, and provider payloads.
+- [x] Verify the complete regression suite: 78 files and 306 tests passed.
+- [ ] Deploy and observe the next position-management pass in Railway logs.
 
 ### Phase 6.360 — Independent single-order execution guard (2026-08-28)
 

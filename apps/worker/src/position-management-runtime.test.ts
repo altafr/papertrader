@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { getPaperOrderStatusTransitions, getPositionDetectedDedupeKey, getPositionExitDecisionDedupeKey, getPositionExitIntentId, groupPositionSymbolsByAssetClass } from "./position-management-runtime.js";
+import { buildPositionManagementLog, getPaperOrderStatusTransitions, getPositionDetectedDedupeKey, getPositionExitDecisionDedupeKey, getPositionExitIntentId, groupPositionSymbolsByAssetClass } from "./position-management-runtime.js";
 
 describe("paper order status transitions", () => {
   it("returns only changed orders", () => {
@@ -27,5 +27,11 @@ describe("position alert deduplication", () => {
     expect(getPositionDetectedDedupeKey("unexpected", "AAPL")).toBe("position_detected:us_equity:AAPL:unknown");
     expect(getPositionExitDecisionDedupeKey("intent-1", "stop_loss")).toBe("position_exit_decision:intent-1:stop_loss");
     expect(getPositionExitIntentId("intent-1-exit-stop_loss")).toBe("intent-1:exit");
+  });
+});
+
+describe("position pass observability", () => {
+  it("builds a bounded credential-free pass record", () => {
+    expect(buildPositionManagementLog({ managed: 1, positions: 2, submitted: 0 })).toEqual({ event: "position_management_pass", managed: 1, positions: 2, submitted: 0 });
   });
 });
