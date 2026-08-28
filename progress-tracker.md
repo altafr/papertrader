@@ -3,7 +3,7 @@
 ## Snapshot
 
 - **Phase:** Phase 6.356 — Natural 14:15 UTC crypto cycle.
-- **Status:** The public Worker health endpoint observed the naturally scheduled `14:15 UTC` crypto preparation run completing at `14:15:11 UTC` and advancing the next run to `14:30 UTC`. The Worker remained healthy with a connected crypto stream, ready position management, and Paper Autopilot enabled. Persisted run/ledger verification, authenticated dashboard rendering, a successful broker-reconciled order, and Alpaca crypto entitlement resolution remain pending.
+- **Status:** The public Worker completed the naturally scheduled `14:15 UTC` preparation at `14:15:10 UTC` and advanced the next run to `14:30 UTC`. PostgreSQL confirms both crypto and stock preparation runs succeeded; the BTC/USD hand-off was recorded as `risk_dry_run_rejected` with no Alpaca order ID, so no broker submission or fill was created. Authenticated dashboard rendering, a successful broker-reconciled order, and Alpaca crypto entitlement resolution remain pending.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Verify the first natural paper research/order cycle and authenticated dashboard portfolio/position rendering, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
@@ -12,8 +12,9 @@
 
 - [x] Observe the scheduled `14:15 UTC` crypto preparation tick without forcing a manual run.
 - [x] Confirm hosted Worker health reported `lastRunAt: 14:15:11 UTC`, `status: scheduled`, and `nextRunAt: 14:30 UTC`.
+- [x] Confirm PostgreSQL persisted `research-preparation-crypto_research-20260828141510` and `research-preparation-stock_research-20260828141510` as `succeeded`.
+- [x] Confirm the read-only `paper_order_submissions` ledger recorded `intent:BTC_USD:2026-08-28T14:00:00Z` as `risk_dry_run_rejected` with no broker order ID or fill.
 - [x] Confirm the Worker remained healthy, the crypto stream remained connected, position management remained ready, and Paper Autopilot remained enabled after the tick.
-- [ ] Verify the persisted run and read-only `paper_order_submissions` ledger for this cycle.
 - [ ] Verify this cycle and its bounded risk decision in the authenticated dashboard.
 - [ ] Reconcile a successful paper order and resolve Alpaca's external crypto-order entitlement response.
 
