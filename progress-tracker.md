@@ -5680,6 +5680,13 @@
 - Verification: web typecheck, ESLint, and full regression passed (88 files, 355 tests).
 - **Next smallest unit:** publish the web revision when Vercel permits and verify the freshness display against a live authenticated session.
 
+### 2026-08-29 — Phase 6.310 natural cycle evidence
+
+- Verified the 22:45 UTC natural crypto cycle completed successfully with one BTC/USD candidate and one deterministic approval.
+- The persisted cycle reports `approvalStatus=approved`, `executionStatus=reconciled`, intent `intent:BTC_USD:2026-08-28T22:00:00Z`, and no rejection reasons.
+- Worker health retained one decision/one approval and advanced the next run to 23:00 UTC; position management remained ready with zero exits submitted.
+- **Next smallest unit:** continue the paper-forward evidence run and publish the dashboard freshness/provenance UI when Vercel permits.
+
 ### 2026-08-29 — Phase 6.305 legacy risk-evidence compatibility
 
 - Updated API and Worker risk summaries to count pre-migration approved rows via their legacy `risk_dry_run_approved` status while using explicit `approvalStatus` for new rows.
