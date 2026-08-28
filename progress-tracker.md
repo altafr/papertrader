@@ -5473,6 +5473,12 @@
 - Verification: research scheduler/runtime tests (19 tests), Worker TypeScript, and ESLint passed.
 - **Next smallest unit:** deploy the watchdog and verify the Worker remains healthy through the next scheduled tick.
 
+### 2026-08-29 — Phase 6.279 research watchdog deployed
+
+- Railway Worker deployment `b924a1ab-d513-4413-9b61-4ca42a1c7f11` reached `SUCCESS`.
+- Live Worker health is healthy with research scheduling enabled and position management ready; the watchdog is active for the next scheduled tick.
+- **Next smallest unit:** verify the 22:00 UTC tick and confirm risk-cycle counters persist while the stale watchdog remains clear.
+
 ### 2026-08-29 — Phase 6.275 architecture evidence contract
 
 - Documented the durable risk-cycle evidence contract in `architecture.md`, including its PostgreSQL source, seven-day window, bounded serialization, and restart-safe behavior.
