@@ -2,11 +2,20 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.299 — Runtime heartbeat after guarded cycle.
-- **Status:** After the verified guarded cycle, the Worker remains healthy with both research and durable schedulers scheduled for the next UTC boundary, position management running within its one-minute interval, and continuous order submission disabled.
+- **Phase:** Phase 6.300 — Pre-natural-cycle safety checkpoint.
+- **Status:** At `2026-08-28T03:58Z`, the Worker remains healthy with research and durable schedulers scheduled for `2026-08-29T00:00Z`, position management running within its one-minute interval, and continuous order submission disabled.
 - **Current operating mode:** Paper Autopilot; continuous order submission is not enabled.
 - **Current goal:** Complete authenticated dashboard verification and reconcile the authorized AAPL order through its terminal broker state, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
+
+### Phase 6.300 — Pre-natural-cycle safety checkpoint (2026-08-28)
+
+- [x] Confirm the live Worker health contract remains `healthy` in paper mode.
+- [x] Confirm research and durable schedulers remain scheduled for the next UTC boundary.
+- [x] Confirm position management has a recent run and no blocked reasons.
+- [x] Confirm Telegram remains ready with approved-only risk alerts and a 24-hour routine cooldown.
+- [x] Confirm continuous paper-order submission remains disabled.
+- [ ] Verify the natural daily cycle after `2026-08-29T00:00Z`.
 
 ### Phase 6.299 — Runtime heartbeat after guarded cycle (2026-08-28)
 
