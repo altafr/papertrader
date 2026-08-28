@@ -2,8 +2,8 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.312 — Secret-surface security checkpoint.
-- **Status:** The repository secret-surface audit passes with no credential-like values found in source or browser output. Paper-only runtime and server-side secret boundaries remain intact.
+- **Phase:** Phase 6.313 — Clean-checkout CI test bootstrap.
+- **Status:** The phase-branch CI workflow now builds workspace packages before tests, and the clean-checkout verification run passes all checks. Paper-only runtime and server-side secret boundaries remain intact.
 - **Current operating mode:** Paper Autopilot; continuous order submission is not enabled.
 - **Current goal:** Complete authenticated dashboard verification and reconcile the authorized AAPL order through its terminal broker state, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
