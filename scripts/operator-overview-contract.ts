@@ -24,3 +24,9 @@ export function validateAuditCsvHeader(value: string): { readonly reason?: strin
   const required = ["recordType", "strategyVersion", "assetClass", "owner", "description", "stage", "requiredLookbackBars", "defaultParameters"];
   return required.every((column) => header.split(",").includes(`"${column}"`)) ? { valid: true } : { reason: "missing_audit_columns", valid: false };
 }
+
+export function validateReadModelContract(value: unknown): { readonly reason?: string; readonly valid: boolean } {
+  if (!isRecord(value) || !isRecord(value.model) || !Array.isArray(value.unmanagedPositions)) return { reason: "missing_read_model_fields", valid: false };
+  if (value.unmanagedPositions.some((position) => !isRecord(position) || typeof position.assetClass !== "string" || typeof position.symbol !== "string" || position.symbol.length === 0 || position.symbol.length > 20)) return { reason: "invalid_unmanaged_position", valid: false };
+  return { valid: true };
+}

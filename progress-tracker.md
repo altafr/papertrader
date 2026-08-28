@@ -180,6 +180,13 @@
 - [x] Preserve the safety boundary that alert delivery cannot alter broker, risk, or scheduler behavior.
 - [ ] Obtain an explicit test approval reference and verify delivery, then publish the latest dashboard revision after Vercel quota reset.
 
+### Phase 6.418 — Authenticated read-model contract verification (2026-08-29)
+
+- [x] Extend the protected operator verifier to check `/v1/read-model` alongside the overview JSON and audit CSV.
+- [x] Require the bounded `unmanagedPositions` field in the verifier contract.
+- [x] Add regression coverage; the full 318-test suite, all typechecks, and lint pass.
+- [ ] Run the verifier against production with the protected operator token and publish the matching dashboard revision after Vercel quota reset.
+
 ### Phase 6.387 — Hosted cycle baseline after reason-logging rollout (2026-08-28)
 
 - [x] Verify Worker deployment `8cabc43d-b343-47c1-9a0f-257198dabdcf` is `SUCCESS` and health is `healthy`.

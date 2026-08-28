@@ -1,11 +1,11 @@
 import { fileURLToPath } from "node:url";
 
-import { validateAuditCsvHeader, validateOperatorOverviewContract } from "./operator-overview-contract.js";
+import { validateAuditCsvHeader, validateOperatorOverviewContract, validateReadModelContract } from "./operator-overview-contract.js";
 
 const baseUrl = (process.env.OPERATOR_API_BASE_URL ?? "https://api-production-e0a6.up.railway.app").replace(/\/$/, "");
 const token = process.env.OPERATOR_AUTH_TOKEN;
 
-export async function verifyOperatorOverview(fetcher: typeof fetch, targetBaseUrl: string, bearerToken: string): Promise<{ readonly csvStatus: number; readonly overviewStatus: number }> {
+export async function verifyOperatorOverview(fetcher: typeof fetch, targetBaseUrl: string, bearerToken: string): Promise<{ readonly csvStatus: number; readonly overviewStatus: number; readonly readModelStatus: number }> {
   const normalizedBaseUrl = targetBaseUrl.replace(/\/$/, "");
   const request = (path: string) => fetcher(`${normalizedBaseUrl}${path}`, { headers: { authorization: `Bearer ${bearerToken}` } });
   const overviewResponse = await request("/v1/operator-overview?limit=1&page=1");
@@ -17,7 +17,11 @@ export async function verifyOperatorOverview(fetcher: typeof fetch, targetBaseUr
   if (!csvResponse.ok) throw new Error(`csv_http_${csvResponse.status}`);
   const csvResult = validateAuditCsvHeader(await csvResponse.text());
   if (!csvResult.valid) throw new Error(`csv_contract_${csvResult.reason}`);
-  return { csvStatus: csvResponse.status, overviewStatus: overviewResponse.status };
+  const readModelResponse = await request("/v1/read-model");
+  if (!readModelResponse.ok) throw new Error(`read_model_http_${readModelResponse.status}`);
+  const readModelResult = validateReadModelContract(await readModelResponse.json());
+  if (!readModelResult.valid) throw new Error(`read_model_contract_${readModelResult.reason}`);
+  return { csvStatus: csvResponse.status, overviewStatus: overviewResponse.status, readModelStatus: readModelResponse.status };
 }
 
 async function main() {
