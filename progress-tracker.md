@@ -2,11 +2,20 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.323 — Follow-up cadence and performance checkpoint.
-- **Status:** The follow-up hosted heartbeat remains healthy after the first natural cycle. The latest read-only report has 100 snapshots through `2026-08-28T11:31:35.190Z`, equity `99,391.42`, captured P&L `+0.39`, and only the 30-day evidence gate remains blocked.
+- **Phase:** Phase 6.324 — Cadence boundary acceptance coverage.
+- **Status:** Added a time-independent acceptance test for the configured 15-minute scheduler boundaries, proving the next-run calculation without forcing production jobs. Runtime configuration and paper-only order safeguards are unchanged.
 - **Current operating mode:** Paper Autopilot; continuous order submission is not enabled.
 - **Current goal:** Complete authenticated dashboard verification and reconcile the authorized AAPL order through its terminal broker state, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
+
+### Phase 6.324 — Cadence boundary acceptance coverage (2026-08-28)
+
+- [x] Expose the scheduler’s next-run calculation as a pure, testable function.
+- [x] Verify `2026-08-28T11:32:50Z` resolves to `11:45:00Z` for `*/15 * * * *`.
+- [x] Verify an exact `11:45:00Z` boundary resolves to `12:00:00Z`.
+- [x] Verify the focused Worker suite (8 tests), ESLint, and Worker TypeScript checks pass.
+- [x] Confirm no runtime configuration, broker state, or order-submission gate changed.
+- [ ] Observe later natural crypto and stock-window cycles.
 
 ### Phase 6.323 — Follow-up cadence and performance checkpoint (2026-08-28)
 

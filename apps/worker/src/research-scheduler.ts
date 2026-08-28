@@ -138,7 +138,7 @@ export async function runResearchPreparationJob(input: {
   await input.run(input.job);
 }
 
-function nextResearchRunAt(now: Date, cron: string): string | undefined {
+export function getNextResearchRunAt(now: Date, cron: string): string | undefined {
   const intervalMatch = /^\*\/(\d+) \* \* \* \*$/.exec(cron);
   if (intervalMatch) {
     const intervalMinutes = Number(intervalMatch[1]);
@@ -191,14 +191,14 @@ export function createResearchScheduler(input: {
           schedulerHealth = { ...schedulerHealth, status: "running" };
           try {
             for (const job of jobs) await runResearchPreparationJob({ job: job.data, run: input.runPreparation });
-            const nextRunAt = nextResearchRunAt(now(), input.config.cron);
+            const nextRunAt = getNextResearchRunAt(now(), input.config.cron);
             schedulerHealth = { enabled: true, handlerEnabled: input.config.handlerEnabled, lastRunAt: now().toISOString(), ...(nextRunAt ? { nextRunAt } : {}), status: "scheduled" };
           } catch (error) {
             schedulerHealth = { ...schedulerHealth, status: "degraded" };
             throw error;
           }
         });
-        const nextRunAt = nextResearchRunAt(now(), input.config.cron);
+        const nextRunAt = getNextResearchRunAt(now(), input.config.cron);
         schedulerHealth = { enabled: true, handlerEnabled: input.config.handlerEnabled, ...(nextRunAt ? { nextRunAt } : {}), status: "scheduled" };
       } catch (error) {
         started = false;

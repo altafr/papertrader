@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { createResearchScheduler, enqueueResearchPreparation, getResearchPreparationJobId, getResearchScheduleConfig, getResearchScheduleReadiness, getResearchSchedulerHealth, isResearchPreparationJob, provisionResearchQueues, runResearchPreparationJob, RESEARCH_PREPARATION_CRON, RESEARCH_PREPARATION_DEAD_LETTER_QUEUE, RESEARCH_PREPARATION_QUEUE } from "./research-scheduler.js";
+import { createResearchScheduler, enqueueResearchPreparation, getNextResearchRunAt, getResearchPreparationJobId, getResearchScheduleConfig, getResearchScheduleReadiness, getResearchSchedulerHealth, isResearchPreparationJob, provisionResearchQueues, runResearchPreparationJob, RESEARCH_PREPARATION_CRON, RESEARCH_PREPARATION_DEAD_LETTER_QUEUE, RESEARCH_PREPARATION_QUEUE } from "./research-scheduler.js";
 
 describe("research schedule boundary", () => {
   it("is disabled by default with bounded configuration", () => {
@@ -20,6 +20,11 @@ describe("research schedule boundary", () => {
 
   it("creates a deterministic UTC manual job identity", () => {
     expect(getResearchPreparationJobId(new Date("2026-08-23T14:00:00Z"))).toBe("manual-research-preparation-2026-08-23");
+  });
+
+  it("calculates the next 15-minute boundary without relying on wall-clock execution", () => {
+    expect(getNextResearchRunAt(new Date("2026-08-28T11:32:50.000Z"), "*/15 * * * *")).toBe("2026-08-28T11:45:00.000Z");
+    expect(getNextResearchRunAt(new Date("2026-08-28T11:45:00.000Z"), "*/15 * * * *")).toBe("2026-08-28T12:00:00.000Z");
   });
 
   it("provisions a separately named research queue with bounded retries", async () => {
