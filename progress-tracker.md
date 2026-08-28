@@ -2,8 +2,8 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.280 — Post-execution safety verification.
-- **Status:** After the authorized one-shot paper order, the Worker remains healthy and scheduled, position management remains ready, and continuous order submission is still disabled persistently. The system is now collecting paper evidence under the existing safeguards; no further execution setting changed.
+- **Phase:** Phase 6.281 — Post-execution regression baseline.
+- **Status:** After the authorized one-shot paper order, the Worker remains healthy and scheduled, position management remains ready, and continuous order submission is still disabled persistently. The full local regression suite, lint, and Worker typecheck pass against the current code; the next UTC cycle remains the next evidence event.
 - **Current operating mode:** Paper Autopilot; continuous order submission is not enabled.
 - **Current goal:** Complete authenticated dashboard verification and reconcile the authorized AAPL order through its terminal broker state, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
@@ -89,6 +89,13 @@
 - [x] Confirm durable scheduler is `scheduled` and position management is `ready`.
 - [x] Confirm persistent continuous order submission remains `false`.
 - [ ] Continue daily reconciliation, position monitoring, and 30-day evidence collection.
+
+### Phase 6.281 — Post-execution regression baseline (2026-08-28)
+
+- [x] Run the complete regression suite: 77 files and 293 tests passed.
+- [x] Run ESLint with zero warnings across `apps` and `packages`.
+- [x] Run the Worker TypeScript check successfully.
+- [ ] Verify the next UTC scheduled cycle and append its persisted audit evidence.
 
 ### Phase 6.269 — Paper Autopilot runtime readiness (2026-08-28)
 
