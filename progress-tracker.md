@@ -2,11 +2,20 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.266 — Post-release notification verification.
+- **Phase:** Phase 6.268 — Fresh guarded-run end-to-end verification.
 - **Status:** Notification delivery remains enabled, but routine research selections and portfolio/P&L summaries now use durable 24-hour cooldown checks. Individual rejected risk candidates are retained in the audit/dashboard and no longer generate Telegram warnings; approved selections, order/position lifecycle events, and failures remain immediate. Local tests, Worker typecheck, and lint pass; Railway deployment is healthy and reports the active policy. GitHub-triggered Vercel previews are Ready; production publish remains quota-limited.
 - **Current operating mode:** Paper Autopilot; continuous order submission is not enabled.
 - **Current goal:** Complete authenticated dashboard verification and reconcile the authorized AAPL order through its terminal broker state, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
+
+### Phase 6.268 — Fresh guarded-run end-to-end verification (2026-08-28)
+
+- [x] Enqueue a fresh guarded manual job with run ID `manual-daily-preparation-verify-20260828-01`.
+- [x] Confirm job `4e697c75-69a2-574a-b23b-aa4052b43135` completed with zero retries.
+- [x] Confirm the matching manual audit row completed with no failure code.
+- [x] Confirm no duplicate routine digest was created inside the 24-hour cooldown window.
+- [x] Confirm no order-submission setting changed and no broker order was created.
+- [ ] Complete authenticated dashboard visual verification and publish the Vercel production alias after quota/team constraints clear.
 
 ### Phase 6.266 — Post-release notification verification (2026-08-28)
 
@@ -20,7 +29,7 @@
 
 - [x] Allow the guarded queue command to accept a bounded, non-secret run ID for a fresh verification trigger.
 - [x] Keep default same-day idempotency and UUID job IDs unchanged.
-- [ ] Deploy and run a fresh trigger, then verify its manual audit record completes.
+- [x] Deploy and run a fresh trigger, then verify its manual audit record completes; follow-on evidence is recorded in Phase 6.268.
 
 ### Phase 6.265 — Legacy queue cleanup and scheduler recovery (2026-08-28)
 
