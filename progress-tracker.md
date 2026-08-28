@@ -66,7 +66,8 @@
 - [x] Emit a bounded structured `unmanaged_position_detected` record and one critical, 24-hour-deduplicated Telegram review alert per asset.
 - [x] Keep unmanaged positions fail-closed: no automatic order is submitted until an exit plan is present.
 - [x] Add regression coverage; focused worker tests pass with 318 total tests.
-- [ ] Deploy and verify the hosted Worker alert/log behavior against the existing unmanaged positions.
+- [x] Deploy Worker revision `506b6d57498b272ed9f2bd8b5c362452e4a520f8`; deployment `33685302-dbd3-4e30-90ae-3daa52ea27db` reached `SUCCESS`.
+- [x] Verify the hosted Worker emitted `unmanaged_position_detected` for `BTCUSD` and `PFD`, while continuing to manage only the position with a stored plan (`AAPL`); no exit order was submitted.
 
 ### Phase 6.387 — Hosted cycle baseline after reason-logging rollout (2026-08-28)
 
