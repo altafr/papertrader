@@ -312,6 +312,12 @@
 - [x] Confirm the live Worker is healthy, research remains scheduled, position management is ready, and the crypto stream is connected after deployment.
 - [ ] Verify one hosted close-hour summary event without exposing Telegram credentials when the next 16:00 New York scheduler tick runs.
 
+### Phase 6.436 — Hosted close-summary release continuity (2026-08-29)
+
+- [x] Confirm the follow-up Railway deployment `7635abf8-4d46-4d56-b5d0-d22a56428e10` reached `SUCCESS` with the market-close trigger included.
+- [x] Confirm the live Worker remains healthy, scheduled, position-management ready, and crypto-stream connected after the release.
+- [ ] Verify the persisted close-hour summary event when the hosted scheduler clock reaches the New York 16:00 window.
+
 ### Phase 6.387 — Hosted cycle baseline after reason-logging rollout (2026-08-28)
 
 - [x] Verify Worker deployment `8cabc43d-b343-47c1-9a0f-257198dabdcf` is `SUCCESS` and health is `healthy`.
