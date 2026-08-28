@@ -734,6 +734,13 @@
 - [x] Centralize the bounded contract attachment and add regression coverage.
 - [ ] Publish the matching API/web revision and verify the authenticated portfolio renders positions instead of treating the payload as invalid.
 
+### Phase 6.501 — Read-model contract deployed (2026-08-29)
+
+- [x] Deploy API commit `80bc1a4` to Railway; deployment `e80caf3c-eb8c-4416-80b3-8a67b58cbf0e` reached `SUCCESS`.
+- [x] Confirm the production API health endpoint remains `healthy` after rollout.
+- [x] Preserve the top-level export field and add the dashboard-consumed nested safety field from the same bounded query.
+- [ ] Verify the authenticated dashboard/read-model payload with an operator session; Vercel publication and repository merge remain external review gates.
+
 ### Phase 6.458 — Natural hosted cycle continuity (2026-08-29)
 
 - [x] Verify the hosted Worker remains healthy on release `febcda5f7a5…` with Paper Autopilot and order submission still enabled.
