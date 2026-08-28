@@ -2,8 +2,8 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.345 — Natural cycle execution-boundary verification.
-- **Status:** The deployed PostgreSQL ledger confirms the successful `13:00 UTC` research run, while the latest order-submission rows contain no 13:00 entry. This proves the cycle stopped before broker execution (consistent with deterministic risk rejection), rather than creating an untracked or unfilled broker order. The Worker remains healthy with a connected market stream and ready position management; authenticated dashboard verification and Alpaca crypto entitlement resolution remain pending.
+- **Phase:** Phase 6.346 — Natural cycle intent reconciliation.
+- **Status:** The deployed PostgreSQL ledger confirms the successful `13:00 UTC` research run reused the latest finalized `12:00 UTC` bar timestamp. Its sanitized BTC/USD intent row is present as `risk_dry_run_rejected` with no submission timestamp, proving deterministic risk stopped the cycle before broker execution. The Worker remains healthy with a connected market stream and ready position management; authenticated dashboard verification and Alpaca crypto entitlement resolution remain pending.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Verify the first natural paper research/order cycle and authenticated dashboard portfolio/position rendering, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
@@ -143,6 +143,14 @@
 - [x] Confirm the latest submission rows contain no 13:00 entry or fill, proving no broker execution was attempted for that cycle.
 - [x] Preserve the fail-closed boundary: an unapproved candidate cannot create a broker order.
 - [ ] Verify the corresponding candidate and deterministic rejection reasons in the authenticated dashboard.
+- [ ] Resolve Alpaca's external crypto-order entitlement response before an approved crypto candidate can submit.
+
+### Phase 6.346 — Natural cycle intent reconciliation (2026-08-28)
+
+- [x] Inspect the complete recent paper-order ledger after the 13:00 cycle.
+- [x] Confirm the sanitized `intent:BTC_USD:2026-08-28T12:00:00Z` row is `risk_dry_run_rejected` with no `submitted_at` value.
+- [x] Confirm the scheduler's run timestamp and the candidate's bar timestamp are distinct and correctly represented.
+- [ ] Verify this risk decision and its reasons in the authenticated dashboard.
 - [ ] Resolve Alpaca's external crypto-order entitlement response before an approved crypto candidate can submit.
 
 ### Phase 6.327 — Asset-aware crypto order execution (2026-08-28)
