@@ -1,6 +1,30 @@
 import { OPERATING_MODES } from "@momentum/domain";
 import Link from "next/link";
 
+type PublicHealth = {
+  readonly status: string;
+  readonly operatingMode?: string;
+  readonly release?: string;
+  readonly researchSchedule?: { readonly status?: string; readonly nextRunAt?: string };
+  readonly positionManagement?: { readonly readiness?: string; readonly status?: string };
+  readonly marketStream?: { readonly status?: string };
+};
+
+async function loadPublicHealth(): Promise<PublicHealth | undefined> {
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+  if (!apiBaseUrl) return undefined;
+  try {
+    const response = await fetch(`${apiBaseUrl}/health`, { cache: "no-store", signal: AbortSignal.timeout(2500) });
+    if (!response.ok) return undefined;
+    const body: unknown = await response.json();
+    if (typeof body !== "object" || body === null || Array.isArray(body)) return undefined;
+    const value = body as Record<string, unknown>;
+    return typeof value.status === "string" ? (value as PublicHealth) : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 const boundaries = [
   ["Dashboard", "Vercel", "Deployed; authenticated"],
   ["Authenticated API", "Railway", "Healthy; protected"],
@@ -8,7 +32,10 @@ const boundaries = [
   ["Background worker", "Railway", "Online; execution gated"],
 ] as const;
 
-export default function Home() {
+export default async function Home() {
+  const health = await loadPublicHealth();
+  const runtimeOnline = health?.status === "healthy";
+  const mode = health?.operatingMode === "paper_autopilot" ? "Paper Autopilot" : health?.operatingMode ?? "Unavailable";
   return (
     <main>
       <header className="status-bar">
@@ -16,7 +43,7 @@ export default function Home() {
         <div className="status-items" aria-label="System status">
           <span className="badge paper">Paper</span>
           <span className="badge neutral">{OPERATING_MODES.paperAutopilot}</span>
-          <span className="badge neutral">Broker access gated</span>
+          <span className={`badge ${runtimeOnline ? "healthy" : "warning"}`}>{runtimeOnline ? "Worker online" : "Worker unavailable"}</span>
         </div>
       </header>
 
@@ -32,6 +59,22 @@ export default function Home() {
       </section>
 
       <section className="grid" aria-label="Foundation status">
+        <article className="card full-width live-heartbeat" aria-label="Live worker heartbeat">
+          <div className="card-heading">
+            <div>
+              <p className="label">Live server heartbeat</p>
+              <h2>{runtimeOnline ? "Paper runtime is online" : "Runtime heartbeat unavailable"}</h2>
+            </div>
+            <span className={`state-badge ${runtimeOnline ? "fresh" : "degraded"}`}>{runtimeOnline ? "Healthy" : "Unavailable"}</span>
+          </div>
+          <div className="heartbeat-grid">
+            <div><span className="label">Mode</span><strong>{mode}</strong></div>
+            <div><span className="label">Research scheduler</span><strong>{health?.researchSchedule?.status ?? "Unavailable"}</strong></div>
+            <div><span className="label">Position management</span><strong>{health?.positionManagement?.readiness ?? "Unavailable"}</strong></div>
+            <div><span className="label">Crypto stream</span><strong>{health?.marketStream?.status ?? "Unavailable"}</strong></div>
+          </div>
+          <p className="provenance">Read-only status from Railway. No account data, credentials, or order controls are exposed here{health?.release ? ` · release ${health.release.slice(0, 12)}` : ""}.</p>
+        </article>
         <article className="card primary-card">
           <div className="card-heading">
             <div>

@@ -105,6 +105,37 @@ main {
   white-space: nowrap;
 }
 
+.live-heartbeat {
+  border-color: rgb(54 199 140 / 35%);
+}
+
+.heartbeat-grid {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin-top: 1rem;
+}
+
+.heartbeat-grid > div {
+  background: rgb(8 16 24 / 42%);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  display: grid;
+  gap: 0.3rem;
+  padding: 0.7rem;
+}
+
+.heartbeat-grid strong {
+  font-size: 0.85rem;
+  text-transform: capitalize;
+}
+
+@media (max-width: 760px) {
+  .heartbeat-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 .hero,
 .grid {
   margin-inline: auto;

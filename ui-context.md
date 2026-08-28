@@ -42,6 +42,10 @@ Positive/negative values must also include a sign, label, shape, or icon.
 
 ## Global Shell
 
+### Public runtime heartbeat
+
+The informational landing page includes a read-only server heartbeat so the operator can see whether the Railway runtime is online before signing in. It may show paper mode, research scheduler state, position-management readiness, crypto-stream state, and a shortened release identifier. It must never show account values, credentials, private payloads, or controls.
+
 ### Top Status Bar
 
 Always visible and contains:

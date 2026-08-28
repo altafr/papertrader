@@ -413,6 +413,14 @@
 - [x] Confirm the latest documentation push is accepted by Railway and progressing through deployment without altering runtime configuration.
 - [ ] Complete authenticated operator-session verification of dashboard positions, P/L, review-required state, and CSV contents.
 
+### Phase 6.450 — Public runtime heartbeat (2026-08-29)
+
+- [x] Add a read-only landing-page heartbeat sourced from the Railway API health endpoint.
+- [x] Show only non-sensitive operating state: Worker health, Paper Autopilot mode, research scheduler, position-management readiness, crypto stream, and a shortened release identifier.
+- [x] Preserve the protected dashboard/API boundary; no account data, credentials, or order controls are exposed publicly.
+- [x] Verify the web TypeScript check and production build with the bundled Next.js toolchain.
+- [ ] Publish this web revision to the Vercel production alias and verify the heartbeat against the live Worker.
+
 ### Phase 6.387 — Hosted cycle baseline after reason-logging rollout (2026-08-28)
 
 - [x] Verify Worker deployment `8cabc43d-b343-47c1-9a0f-257198dabdcf` is `SUCCESS` and health is `healthy`.
