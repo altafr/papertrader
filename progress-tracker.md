@@ -5524,3 +5524,10 @@
 - Verified the updated Next.js dashboard production build locally after adding durable risk-cycle evidence; compilation, TypeScript, static generation, and dynamic route analysis all succeeded.
 - Vercel production deployment remains blocked by the platform’s daily free-plan quota, so the verified build remains on the pushed feature branch until publication is permitted.
 - **Next smallest unit:** publish this verified dashboard build when Vercel permits and complete authenticated API/UI verification.
+
+### 2026-08-29 — Phase 6.285 repeated risk-evidence refresh
+
+- Fixed the PostgreSQL paper-order repository so recurring `risk_dry_run_*` evaluations refresh their existing durable evidence row (including status, risk payload, market snapshot, and `updated_at`) instead of silently returning stale data.
+- The guard deliberately leaves any intent that has entered broker execution/reconciliation unchanged, preserving the audit boundary between risk evaluation and real paper-order state.
+- Verification: full regression passed (88 files, 350 tests); the database repository typecheck passed.
+- **Next smallest unit:** deploy this persistence fix and verify the next scheduled risk cycle updates the operator evidence timestamp while the live dashboard publication remains subject to Vercel quota.

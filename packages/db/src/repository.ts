@@ -523,7 +523,32 @@ export function createPaperOrderRepository(db: Database) {
     async recordSubmission(submission: PersistedPaperOrderSubmission) {
       return db.transaction(async (transaction) => {
         const [existingIntent] = await transaction.select().from(paperOrderSubmissions).where(eq(paperOrderSubmissions.intentId, submission.intentId)).limit(1);
-        if (existingIntent) return existingIntent;
+        if (existingIntent) {
+          // Scheduled risk evaluation reuses a deterministic intent for the
+          // same market setup. Refresh only the dry-run evidence row; never
+          // mutate an order that has entered broker execution/reconciliation.
+          const isRiskEvidence = submission.status === "risk_dry_run_approved" || submission.status === "risk_dry_run_rejected";
+          const existingIsRiskEvidence = existingIntent.status === "risk_dry_run_approved" || existingIntent.status === "risk_dry_run_rejected";
+          if (isRiskEvidence && existingIsRiskEvidence) {
+            const [refreshed] = await transaction.update(paperOrderSubmissions).set({
+              approvalId: submission.approvalId,
+              assetClass: submission.assetClass,
+              quantity: submission.quantity,
+              status: submission.status,
+              symbol: submission.symbol,
+              ...(submission.entryPrice ? { entryPrice: submission.entryPrice } : {}),
+              ...(submission.plannedStopPrice ? { plannedStopPrice: submission.plannedStopPrice } : {}),
+              ...(submission.plannedTargetPrice ? { plannedTargetPrice: submission.plannedTargetPrice } : {}),
+              ...(submission.strategyKey ? { strategyKey: submission.strategyKey } : {}),
+              ...(submission.strategyVersion ? { strategyVersion: submission.strategyVersion } : {}),
+              ...(submission.marketSnapshot ? { marketSnapshot: submission.marketSnapshot } : {}),
+              ...(submission.riskDecision ? { riskDecision: submission.riskDecision } : {}),
+              updatedAt: submission.updatedAt ?? new Date(),
+            }).where(eq(paperOrderSubmissions.intentId, submission.intentId)).returning();
+            return refreshed ?? existingIntent;
+          }
+          return existingIntent;
+        }
         const [existingClient] = await transaction.select().from(paperOrderSubmissions).where(eq(paperOrderSubmissions.clientOrderId, submission.clientOrderId)).limit(1);
         if (existingClient && existingClient.intentId !== submission.intentId) throw new Error("Client order ID is already bound to another intent.");
         const [row] = await transaction.insert(paperOrderSubmissions).values({

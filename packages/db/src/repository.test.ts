@@ -108,6 +108,23 @@ describe("paper order submission repository", () => {
     await expect(repository.reconcile({ alpacaOrderId: "alpaca-1", filledQuantity: "0.02", intentId: "intent-1", status: "filled" })).resolves.toMatchObject({ alpacaOrderId: "alpaca-1", status: "filled" });
     await expect(repository.getByClientOrderId("intent-1-order")).resolves.toMatchObject({ status: "filled" });
   });
+
+  it("refreshes repeated risk evidence without changing an executed order", async () => {
+    let stored: PersistedPaperOrderSubmission | undefined;
+    const transaction = {
+      insert: () => ({ values: (value: PersistedPaperOrderSubmission) => ({ returning: async () => { stored = value; return [value]; } }) }),
+      select: () => ({ from: (table: unknown) => ({ where: () => ({ limit: async () => table === paperOrderSubmissions && stored ? [stored] : [] }) }) }),
+      update: () => ({ set: (value: Partial<PersistedPaperOrderSubmission>) => ({ where: () => ({ returning: async () => { stored = { ...stored!, ...value }; return [stored]; } }) }) }),
+    };
+    const database = { select: transaction.select, transaction: async <T>(callback: (value: never) => Promise<T>) => callback(transaction as never) } as unknown as Database;
+    const repository = createPaperOrderRepository(database);
+    const first: PersistedPaperOrderSubmission = { approvalId: "approval-1", assetClass: "crypto", clientOrderId: "intent-1:scheduled-risk", intentId: "intent-1", quantity: "1", riskDecision: { estimatedLossPercent: "2" }, status: "risk_dry_run_rejected", symbol: "BTC/USD" };
+    const second: PersistedPaperOrderSubmission = { ...first, approvalId: "approval-2", riskDecision: { estimatedLossPercent: "1" }, status: "risk_dry_run_approved", symbol: "BTC/USD", updatedAt: new Date("2026-08-29T00:00:00Z") };
+    await repository.recordSubmission(first);
+    await expect(repository.recordSubmission(second)).resolves.toMatchObject({ approvalId: "approval-2", status: "risk_dry_run_approved", riskDecision: { estimatedLossPercent: "1" } });
+    await expect(repository.reconcile({ alpacaOrderId: "alpaca-1", intentId: "intent-1", status: "filled" })).resolves.toMatchObject({ status: "filled" });
+    await expect(repository.recordSubmission({ ...second, status: "risk_dry_run_rejected", approvalId: "approval-3" })).resolves.toMatchObject({ status: "filled", approvalId: "approval-2" });
+  });
 });
 
 describe("account reconciliation ledger sync", () => {
