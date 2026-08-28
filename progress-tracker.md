@@ -5417,3 +5417,9 @@
 - Vercel production publication remains constrained by the free-plan `api-deployments-free-per-day` limit. The feature branch remains the authoritative verified dashboard source.
 - The Railway Worker continues in paper-autopilot mode with research scheduling and 60-second position management enabled.
 - **Next smallest unit:** publish the dashboard after the Vercel quota resets and validate the authenticated risk-cycle card against PostgreSQL.
+
+### 2026-08-29 — Phase 6.269 dashboard build verification
+
+- Verified the updated Next.js dashboard production build locally after adding durable risk-cycle evidence; compilation, TypeScript, static generation, and dynamic route analysis all succeeded.
+- Vercel production deployment remains blocked by the platform’s daily free-plan quota, so the verified build remains on the pushed feature branch until publication is permitted.
+- **Next smallest unit:** publish this verified dashboard build when Vercel permits and complete authenticated API/UI verification.
