@@ -2,8 +2,8 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.283 — Durable position-alert cooldown.
-- **Status:** Position-detection notifications now use the same durable 24-hour persistence cooldown as routine digests, preventing Worker restarts from repeating the same alert. The change is deployed successfully; scheduler, position management, and continuous paper-order gates remain unchanged.
+- **Phase:** Phase 6.284 — Post-release queue and health verification.
+- **Status:** After the notification cooldown release, the Worker remains healthy and scheduled, position management remains ready, Telegram policy remains approved-only/24-hour cooldown, and both durable queues have zero queued or active jobs. Continuous paper-order submission remains disabled.
 - **Current operating mode:** Paper Autopilot; continuous order submission is not enabled.
 - **Current goal:** Complete authenticated dashboard verification and reconcile the authorized AAPL order through its terminal broker state, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
@@ -112,6 +112,14 @@
 - [x] Pass position-runtime and Telegram notifier tests, Worker typecheck, and lint.
 - [x] Deploy Worker release `6dccdf55-d556-4fe7-a9af-1ba107bcae8e`; deployment reached `SUCCESS`.
 - [ ] Verify the next natural cycle and confirm alert counts remain within policy.
+
+### Phase 6.284 — Post-release queue and health verification (2026-08-28)
+
+- [x] Verify hosted Worker health after the cooldown release.
+- [x] Confirm scheduler `scheduled`, position management `ready`, and Telegram `ready` with the expected policy.
+- [x] Confirm work and dead-letter queues have zero queued/active jobs; retained failure history is non-actionable.
+- [x] Confirm continuous paper-order submission remains disabled.
+- [ ] Verify the next natural UTC cycle and its persisted digest/evidence record.
 
 ### Phase 6.269 — Paper Autopilot runtime readiness (2026-08-28)
 
