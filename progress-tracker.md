@@ -362,6 +362,13 @@
 - [x] Confirm no fallback event was misclassified as a close-hour delivery.
 - [ ] Re-run after the next eligible close-hour cycle and record a verified sent event.
 
+### Phase 6.443 — Hosted close-summary delivery verified (2026-08-29)
+
+- [x] Run the deployed close-summary verifier after the 20:00 UTC hosted research cycle.
+- [x] Confirm the durable Telegram ledger contains one `sent` market-close summary in the isolated scope at `2026-08-28T20:00:03.541Z`.
+- [x] Confirm the verifier returns `status: verified` and does not count fallback summaries.
+- [x] Confirm the Worker remains healthy with the next research run scheduled and position management ready.
+
 ### Phase 6.387 — Hosted cycle baseline after reason-logging rollout (2026-08-28)
 
 - [x] Verify Worker deployment `8cabc43d-b343-47c1-9a0f-257198dabdcf` is `SUCCESS` and health is `healthy`.
