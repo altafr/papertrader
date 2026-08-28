@@ -27,12 +27,13 @@
 - [ ] Verify the resulting live position and P/L through the authenticated dashboard/read model.
 - [ ] Continue the 30-day stable paper-forward evidence window.
 
-### Phase 6.398 — Dashboard build verification and publication queue (2026-08-28)
+### Phase 6.398 — Dashboard build verification and publication (2026-08-28)
 
 - [x] Run the web typecheck and production build with Node `v24.15.0` / pnpm `11.22.0`.
 - [x] Run the complete repository suite: 80 test files and 317 tests passed; all eight workspace typechecks passed.
 - [x] Push the corrected dashboard source to the active GitHub branch.
-- [ ] Publish the Vercel production deployment after the provider's free daily deployment quota resets (current response: `api-deployments-free-per-day`).
+- [x] Publish the verified dashboard to Vercel production after the quota reset; deployment is `Ready` at `https://papertrader-web.vercel.app`.
+- [x] Verify the public landing route returns HTTP 200 and `/dashboard` redirects to the configured Clerk sign-in boundary.
 - [ ] Verify authenticated dashboard rendering against the reconciled BTC/USD position and P/L.
 
 ### Phase 6.387 — Hosted cycle baseline after reason-logging rollout (2026-08-28)
