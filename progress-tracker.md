@@ -5362,3 +5362,10 @@
 - Added the risk-cycle telemetry fields to the shared Worker health contract and regression coverage for bounded values.
 - Verification: domain build, Worker typecheck, targeted tests (10 tests), and ESLint passed.
 - **Next smallest unit:** deploy the typed contract and verify the health payload after the next risk-cycle execution.
+
+### 2026-08-29 — Phase 6.261 typed telemetry deployed
+
+- Railway deployment `87c253f0-3913-40b7-a55b-a67ad00ae1f7` reached `SUCCESS` for the typed risk-cycle health contract.
+- Worker health remains `healthy`; research scheduling is enabled and position management is ready.
+- The risk-cycle counters remain intentionally absent until the next research batch executes after this deployment; this is a normal pre-first-run state.
+- **Next smallest unit:** capture the first post-deploy risk-cycle result and confirm its bounded counters in the live health response.
