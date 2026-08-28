@@ -462,6 +462,13 @@
 - [x] Focused verifier tests and lint pass.
 - [ ] Observe the first scheduled run with content validation enabled.
 
+### Phase 6.457 — Hosted surface verification (2026-08-29)
+
+- [x] Run the shared public-surface verifier against `https://papertrader-web.vercel.app/`; it returned HTTP 200 with the expected application shell.
+- [x] Run the hosted paper-runtime verifier against the Railway API and Worker; API/Worker are healthy, paper mode and order-submission gate are enabled, the crypto stream is connected, position management is ready, and both schedulers are active.
+- [x] Confirm the deployed Worker release matches the observed health contract (`c180d8c93237…`); no credentials or account payloads were printed.
+- [ ] Publish the newer queued heartbeat revision after Vercel quota reset and rerun the same surface checks.
+
 ### Phase 6.387 — Hosted cycle baseline after reason-logging rollout (2026-08-28)
 
 - [x] Verify Worker deployment `8cabc43d-b343-47c1-9a0f-257198dabdcf` is `SUCCESS` and health is `healthy`.
