@@ -2,11 +2,20 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.292 — Always-on runtime integrity checkpoint.
-- **Status:** Railway health confirms research preparation, daily reconciliation, and 60-second position management are all active in paper mode. The production dashboard is live behind Clerk authentication. No order-submission setting changed.
+- **Phase:** Phase 6.293 — Dashboard production build checkpoint.
+- **Status:** The production dashboard route is live behind Clerk authentication and the optimized Next.js build succeeds. Railway research, reconciliation, and position-management loops remain scheduled/ready in paper mode. No order-submission setting changed.
 - **Current operating mode:** Paper Autopilot; continuous order submission is not enabled.
 - **Current goal:** Complete authenticated dashboard verification and reconcile the authorized AAPL order through its terminal broker state, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
+
+### Phase 6.293 — Dashboard production build checkpoint (2026-08-28)
+
+- [x] Build the Web application with the production Next.js pipeline successfully.
+- [x] Confirm dynamic dashboard, agent-detail, and export routes are generated without type or build errors.
+- [x] Confirm the production dashboard responds with the Clerk sign-in redirect when unauthenticated.
+- [x] Confirm hosted Worker research and daily schedulers remain scheduled and position management remains ready.
+- [x] Preserve paper mode, deterministic risk controls, and the disabled continuous order-submission gate.
+- [ ] Complete an authenticated visual dashboard pass and continue the 30-day paper evidence gate.
 
 ### Phase 6.292 — Always-on runtime integrity checkpoint (2026-08-28)
 
