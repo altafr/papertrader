@@ -348,6 +348,13 @@
 - [x] Confirm the durable alert ledger still contains only prior fallback summaries; no unverified close-hour delivery was inferred.
 - [ ] Verify a new close-hour summary event during the next eligible New York 16:00 scheduler window.
 
+### Phase 6.441 — Close-summary verification command (2026-08-29)
+
+- [x] Add a guarded, read-only `market-close-summary-verify` Worker command that checks the durable Telegram ledger for a sent, isolated-scope event during the New York 16:00 hour.
+- [x] Add regression coverage for delivered close-hour events and fallback events that must not satisfy the verifier.
+- [x] Verify 321 tests across 81 files, Worker typecheck, and lint all pass.
+- [ ] Run the verifier after the next eligible hosted close-hour cycle and record the persisted event.
+
 ### Phase 6.387 — Hosted cycle baseline after reason-logging rollout (2026-08-28)
 
 - [x] Verify Worker deployment `8cabc43d-b343-47c1-9a0f-257198dabdcf` is `SUCCESS` and health is `healthy`.

@@ -68,6 +68,8 @@ The health endpoints expose redacted operational state only. They do not expose 
 
 The current hosted runtime is Paper Autopilot with continuous crypto research, deterministic risk approval, idempotent paper execution, reconciliation, and position management enabled. Positions without stored exit-plan metadata are surfaced as `Review required` and remain fail-closed; they are never silently treated as managed. The dashboard and account CSV expose this status after Clerk authentication.
 
+After a hosted close window, operators can verify the persisted summary delivery with the guarded Worker command `MARKET_CLOSE_SUMMARY_VERIFY=true pnpm --filter @momentum/worker market-close-summary-verify` (run remotely; it prints only status and timestamps).
+
 When the protected GitHub Actions secrets `OPERATOR_AUTH_TOKEN` and optional `OPERATOR_API_BASE_URL` are configured, the workflow also runs `pnpm verify:operator-overview` against the hosted authenticated overview and CSV contracts. If the token secret is absent, that live check is explicitly skipped; all local contract tests still run.
 
 The workflow always runs the credential-free `pnpm verify:operator-auth-boundary` check, which confirms the hosted operator JSON and CSV routes reject unauthenticated requests with `401`.

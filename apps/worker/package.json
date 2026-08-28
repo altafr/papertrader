@@ -33,6 +33,7 @@
     "telegram-alert-test": "tsx src/telegram-alert-test-command.ts",
     "telegram-alert-readiness": "tsx src/telegram-alert-readiness-command.ts",
     "telegram-alert-test-readiness": "tsx src/telegram-alert-test-readiness-command.ts",
+    "market-close-summary-verify": "tsx src/market-close-summary-verification-command.ts",
     "reconcile": "tsx src/reconcile-command.ts",
     "paper-performance-report": "tsx src/paper-performance-report-command.ts",
     "research-run-once": "tsx src/research-run-once-command.ts",
