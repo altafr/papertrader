@@ -2,8 +2,8 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.346 — Natural cycle intent reconciliation.
-- **Status:** The deployed PostgreSQL ledger confirms the successful `13:00 UTC` research run reused the latest finalized `12:00 UTC` bar timestamp. Its sanitized BTC/USD intent row is present as `risk_dry_run_rejected` with no submission timestamp, proving deterministic risk stopped the cycle before broker execution. The Worker remains healthy with a connected market stream and ready position management; authenticated dashboard verification and Alpaca crypto entitlement resolution remain pending.
+- **Phase:** Phase 6.347 — Filled-order position reconciliation.
+- **Status:** The deployed PostgreSQL read model now confirms the filled AAPL paper order is reflected in the latest account snapshot at `13:05 UTC`: AAPL quantity `1` with `+1.34` unrealized P/L. The existing PFD position is also present with `-609.63` unrealized P/L. This verifies order-to-position reconciliation and live portfolio persistence; authenticated dashboard rendering and Alpaca crypto entitlement resolution remain pending.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Verify the first natural paper research/order cycle and authenticated dashboard portfolio/position rendering, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
@@ -151,6 +151,14 @@
 - [x] Confirm the sanitized `intent:BTC_USD:2026-08-28T12:00:00Z` row is `risk_dry_run_rejected` with no `submitted_at` value.
 - [x] Confirm the scheduler's run timestamp and the candidate's bar timestamp are distinct and correctly represented.
 - [ ] Verify this risk decision and its reasons in the authenticated dashboard.
+- [ ] Resolve Alpaca's external crypto-order entitlement response before an approved crypto candidate can submit.
+
+### Phase 6.347 — Filled-order position reconciliation (2026-08-28)
+
+- [x] Read the latest deployed account snapshot and associated positions through the Worker container using a read-only query.
+- [x] Confirm the filled AAPL paper order is represented as quantity `1` in the latest snapshot.
+- [x] Confirm current unrealized P/L is persisted for AAPL (`+1.34`) and the pre-existing PFD position (`-609.63`).
+- [ ] Verify these live portfolio values render in the authenticated dashboard.
 - [ ] Resolve Alpaca's external crypto-order entitlement response before an approved crypto candidate can submit.
 
 ### Phase 6.327 — Asset-aware crypto order execution (2026-08-28)
