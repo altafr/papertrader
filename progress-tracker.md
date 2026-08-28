@@ -2,11 +2,18 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.311 — Phase-branch CI coverage.
-- **Status:** Updated GitHub Actions so pushes to the active operator-health phase branch run the full paper-only verification workflow, including tests, builds, secret-surface, and hosted-auth boundary checks.
+- **Phase:** Phase 6.312 — Secret-surface security checkpoint.
+- **Status:** The repository secret-surface audit passes with no credential-like values found in source or browser output. Paper-only runtime and server-side secret boundaries remain intact.
 - **Current operating mode:** Paper Autopilot; continuous order submission is not enabled.
 - **Current goal:** Complete authenticated dashboard verification and reconcile the authorized AAPL order through its terminal broker state, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
+
+### Phase 6.312 — Secret-surface security checkpoint (2026-08-28)
+
+- [x] Run `audit:secret-surfaces` against source and browser output.
+- [x] Confirm no Alpaca, Telegram, database, Clerk, or deployment credential-like values are exposed.
+- [x] Preserve server-side secret storage and paper-only execution gates.
+- [ ] Continue daily paper evidence and verify the next natural scheduler cycle.
 
 ### Phase 6.311 — Phase-branch CI coverage (2026-08-28)
 
