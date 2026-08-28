@@ -5646,3 +5646,10 @@
 - Re-ran the hosted paper-runtime verifier after the provenance guard deployment; result remains `verified:true` with both services healthy and all scheduler, stream, position, approval, and kill-switch gates passing.
 - No broker credentials were exposed and no runtime setting was changed.
 - **Next smallest unit:** capture the next natural risk cycle’s durable approval evidence and continue the paper-forward evidence window.
+
+### 2026-08-29 — Phase 6.303 risk telemetry verifier
+
+- Extended the hosted paper-runtime verifier to validate risk-cycle status, timestamp, decision count, and approved-count bounds whenever the Worker reports those fields.
+- The verifier remains compatible with the legitimate pre-first-cycle state, but fails closed on malformed or contradictory telemetry.
+- Verification: focused verifier tests and full regression passed (88 files, 354 tests); ESLint passes.
+- **Next smallest unit:** deploy/run the verifier with the next scheduled cycle and record the durable risk evidence.

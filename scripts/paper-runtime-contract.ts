@@ -25,6 +25,21 @@ export function evaluatePaperRuntime(worker: HealthObject, api: HealthObject, ex
     && (durableScheduler as HealthObject).status === "scheduled"
     && typeof (durableScheduler as HealthObject).nextRunAt === "string";
   const releaseMatches = expectedRelease === undefined || worker.release === expectedRelease;
+  const researchObject = researchSchedule as HealthObject | undefined;
+  const riskTelemetryPresent = researchObject?.lastRiskCycleStatus !== undefined || researchObject?.lastRiskDecisionCount !== undefined || researchObject?.lastRiskApprovedCount !== undefined;
+  const riskTelemetryValid = !riskTelemetryPresent || (
+    (researchObject?.lastRiskCycleStatus === "completed" || researchObject?.lastRiskCycleStatus === "failed")
+    && typeof researchObject.lastRiskCycleAt === "string"
+    && validTimestamp(researchObject.lastRiskCycleAt)
+    && typeof researchObject.lastRiskDecisionCount === "number"
+    && Number.isSafeInteger(researchObject.lastRiskDecisionCount)
+    && researchObject.lastRiskDecisionCount >= 0
+    && researchObject.lastRiskDecisionCount <= 100
+    && typeof researchObject.lastRiskApprovedCount === "number"
+    && Number.isSafeInteger(researchObject.lastRiskApprovedCount)
+    && researchObject.lastRiskApprovedCount >= 0
+    && researchObject.lastRiskApprovedCount <= researchObject.lastRiskDecisionCount
+  );
   const result = {
     api: api.status === "healthy" ? "healthy" : "degraded",
     worker: worker.status === "healthy" ? "healthy" : "degraded",
@@ -41,6 +56,7 @@ export function evaluatePaperRuntime(worker: HealthObject, api: HealthObject, ex
     releaseMatches,
     killSwitchInactive: worker.globalKillSwitchActive === false,
     healthTimestampsValid,
+    riskTelemetryValid,
   } as const;
-  return { ...result, verified: result.api === "healthy" && result.worker === "healthy" && result.alpaca === "configured" && result.database === "configured" && result.paperMode && result.orderSubmissionEnabled && result.orderSubmissionApprovalPresent && streamConnected && positionsReady && positionsUnblocked && researchScheduled && durableScheduled && releaseMatches && result.killSwitchInactive && result.healthTimestampsValid };
+  return { ...result, verified: result.api === "healthy" && result.worker === "healthy" && result.alpaca === "configured" && result.database === "configured" && result.paperMode && result.orderSubmissionEnabled && result.orderSubmissionApprovalPresent && streamConnected && positionsReady && positionsUnblocked && researchScheduled && durableScheduled && releaseMatches && result.killSwitchInactive && result.healthTimestampsValid && result.riskTelemetryValid };
 }

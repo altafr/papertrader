@@ -22,4 +22,11 @@ describe("paper runtime contract", () => {
     expect(evaluatePaperRuntime({ ...healthyWorker, paperAutopilotOrderSubmissionApprovalReferencePresent: false }, { status: "healthy" }).verified).toBe(false);
     expect(evaluatePaperRuntime({ ...healthyWorker, asOf: "not-a-date" }, { status: "healthy" }).verified).toBe(false);
   });
+
+  it("validates risk-cycle telemetry when the scheduler has reported it", () => {
+    const withTelemetry = { ...healthyWorker, researchSchedule: { ...healthyWorker.researchSchedule, lastRiskApprovedCount: 1, lastRiskCycleAt: "2026-08-28T14:44:10.000Z", lastRiskCycleStatus: "completed", lastRiskDecisionCount: 2 } };
+    expect(evaluatePaperRuntime(withTelemetry, { status: "healthy" })).toMatchObject({ riskTelemetryValid: true, verified: true });
+    expect(evaluatePaperRuntime({ ...withTelemetry, researchSchedule: { ...withTelemetry.researchSchedule, lastRiskApprovedCount: 3 } }, { status: "healthy" }).verified).toBe(false);
+    expect(evaluatePaperRuntime({ ...withTelemetry, researchSchedule: { ...withTelemetry.researchSchedule, lastRiskCycleAt: "invalid" } }, { status: "healthy" }).verified).toBe(false);
+  });
 });
