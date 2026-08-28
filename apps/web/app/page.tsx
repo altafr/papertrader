@@ -15,18 +15,18 @@ export default function Home() {
         <div className="brand">Momentum Autopilot</div>
         <div className="status-items" aria-label="System status">
           <span className="badge paper">Paper</span>
-          <span className="badge neutral">{OPERATING_MODES.observe}</span>
+          <span className="badge neutral">{OPERATING_MODES.paperAutopilot}</span>
           <span className="badge neutral">Broker access gated</span>
         </div>
       </header>
 
       <section className="hero" aria-labelledby="page-title">
-        <p className="eyebrow">Phase 6.21 · Paper operations foundation</p>
+        <p className="eyebrow">Phase 6 · Hosted paper operations</p>
         <h1 id="page-title">Paper operations with explicit safety gates.</h1>
         <p className="lede">
           The dashboard, authenticated API, PostgreSQL read model, and background worker are
-          deployed as separate services. The system is in Observe mode; order authority remains
-          disabled until every deterministic paper gate is satisfied.
+          deployed as separate services. The system is running in Paper Autopilot with continuous
+          order submission explicitly disabled until its separate execution gate is enabled.
         </p>
       </section>
 
@@ -43,11 +43,11 @@ export default function Home() {
           <dl className="facts">
             <div>
               <dt>Current mode</dt>
-              <dd>{OPERATING_MODES.observe}</dd>
+                <dd>{OPERATING_MODES.paperAutopilot}</dd>
             </div>
             <div>
               <dt>Order authority</dt>
-              <dd>Disabled</dd>
+              <dd>Continuous submission disabled</dd>
             </div>
           </dl>
         </article>

@@ -8,6 +8,13 @@
 - **Current goal:** Complete authenticated dashboard verification and reconcile the authorized AAPL order through its terminal broker state, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
 
+### Phase 6.314 — Public runtime-status alignment (2026-08-28)
+
+- [x] Align the public landing page with the hosted Worker’s `paper_autopilot` operating mode.
+- [x] Clarify that continuous order submission is disabled as a separate execution gate.
+- [x] Remove stale Observe-mode/foundation wording from the public status surface.
+- [ ] Publish the verified branch build to the production Vercel alias when deployment quota permits.
+
 ### Phase 6.313 — Clean-checkout CI test bootstrap (2026-08-28)
 
 - [x] Inspect the latest phase-branch GitHub Actions failure and identify missing workspace package build artifacts as the cause.
