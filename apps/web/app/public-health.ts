@@ -4,7 +4,7 @@ export type PublicHealth = {
   readonly release?: string;
   readonly researchSchedule?: { readonly status?: string; readonly nextRunAt?: string };
   readonly positionManagement?: { readonly readiness?: string; readonly status?: string };
-  readonly marketStream?: { readonly status?: string };
+  readonly marketStream?: { readonly freshness?: "fresh" | "stale" | "unknown"; readonly status?: string };
 };
 
 function record(value: unknown): Record<string, unknown> | undefined {
@@ -33,6 +33,6 @@ export function parsePublicHealth(value: unknown): PublicHealth | undefined {
     ...(optionalString(root.release) ? { release: root.release as string } : {}),
     ...(research ? { researchSchedule: { ...(optionalString(research.status) ? { status: research.status as string } : {}), ...(optionalString(research.nextRunAt) ? { nextRunAt: research.nextRunAt as string } : {}) } } : {}),
     ...(positions ? { positionManagement: { ...(optionalString(positions.readiness) ? { readiness: positions.readiness as string } : {}), ...(optionalString(positions.status) ? { status: positions.status as string } : {}) } } : {}),
-    ...(stream ? { marketStream: { ...(optionalString(stream.status) ? { status: stream.status as string } : {}) } } : {}),
+    ...(stream ? { marketStream: { ...(optionalString(stream.freshness) && (["fresh", "stale", "unknown"] as const).includes(stream.freshness as "fresh" | "stale" | "unknown") ? { freshness: stream.freshness as "fresh" | "stale" | "unknown" } : {}), ...(optionalString(stream.status) ? { status: stream.status as string } : {}) } } : {}),
   };
 }

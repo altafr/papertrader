@@ -2,7 +2,7 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.318 — Live cycle after freshness deployment.
+- **Phase:** Phase 6.319 — Public heartbeat freshness display.
 - **Status:** The hosted Worker and API are healthy in Paper Autopilot mode with deterministic entry/exit safeguards, durable reconciliation, Telegram alerting, lifecycle-stable PostgreSQL-backed risk evidence, and a read-only portfolio status command. The latest provenance and evidence guards are deployed and verified. Vercel production publication remains limited by the free-plan daily deployment quota, while the 30-day paper-forward evidence window and authenticated dashboard verification remain ongoing.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading, verify authenticated portfolio/P&L rendering and exports, and accumulate the 30-day evidence gate without loosening risk controls.
@@ -5741,6 +5741,13 @@
 - Worker health reports one risk decision, one deterministic approval, `lastRiskCycleStatus: completed`, and `lastRiskCycleAt: 2026-08-28T23:00:09.149Z`.
 - Market-stream freshness remained `fresh`; the next crypto cycle is scheduled for 23:15 UTC and position management remains ready with no blocked reasons.
 - **Next smallest unit:** continue the paper-forward evidence run and validate the authenticated portfolio/read-model payload.
+
+### Phase 6.319 public heartbeat freshness display
+
+- Extended the public heartbeat parser and UI to show the bounded market-stream freshness classification from Worker health.
+- The public surface remains informational and redacted; no account data, broker payload, credential, or control was added.
+- Verification: web typecheck, ESLint, and focused public-health tests pass.
+- **Next smallest unit:** publish the web revision when Vercel’s deployment quota permits, then verify the public heartbeat and authenticated dashboard visually.
 
 ### 2026-08-29 — Phase 6.306 compatibility deployment verified
 
