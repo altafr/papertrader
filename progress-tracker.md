@@ -646,6 +646,12 @@
 - [x] Confirm consecutive hosted monitor runs remain green after the unified verifier rollout.
 - [x] Confirm Railway continues processing the corresponding release without changing runtime configuration.
 
+### Phase 6.487 — Latest monitor recurrence (2026-08-29)
+
+- [x] Confirm the monitor run for commit `047c84c` completed successfully.
+- [x] Confirm the monitor remains green across successive branch-triggered executions.
+- [ ] Observe the first cron-triggered run after the workflow is present on the default branch.
+
 ### Phase 6.458 — Natural hosted cycle continuity (2026-08-29)
 
 - [x] Verify the hosted Worker remains healthy on release `febcda5f7a5…` with Paper Autopilot and order submission still enabled.
