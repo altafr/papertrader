@@ -23,6 +23,14 @@ export function isUsMarketCloseSummaryWindow(now = new Date()): boolean {
   return ["Mon", "Tue", "Wed", "Thu", "Fri"].includes(weekday ?? "") && hour === 16;
 }
 
+/** Use the close-hour summary when continuous research is enabled; otherwise retain the daily fallback. */
+export function isMarketCloseSummaryEnabled(environment: NodeJS.ProcessEnv = process.env): boolean {
+  const raw = environment.MARKET_CLOSE_SUMMARY_ENABLED;
+  if (raw === undefined) return environment.RESEARCH_SCHEDULER_ENABLED === "true";
+  if (raw !== "true" && raw !== "false") throw new Error("MARKET_CLOSE_SUMMARY_ENABLED must be exactly true or false.");
+  return raw === "true";
+}
+
 export function buildPaperRiskCycleFailureAlert(input: { readonly agentType: string; readonly runId: string }) {
   return { code: "paper_risk_cycle_failed", dedupeKey: `paper_risk_cycle_failed:${input.runId}`, message: `Paper risk cycle failed closed after ${input.agentType} research run ${input.runId}; no additional order decision was authorized.`, severity: "critical" as const };
 }
@@ -101,7 +109,7 @@ export function createResearchSchedulerFromEnvironment(environment: NodeJS.Proce
           const accountRepository = createAccountStateRepository(db);
           const snapshot = await reconcilePaperAccount(createPaperAccountReader({ apiKey, secretKey }), accountRepository);
           const model = await accountRepository.getLatestReadModel(snapshot.accountId);
-          if (model?.snapshot && isUsMarketCloseSummaryWindow(model.snapshot.capturedAt)) {
+          if (model?.snapshot && isMarketCloseSummaryEnabled(environment) && isUsMarketCloseSummaryWindow(model.snapshot.capturedAt)) {
             await notifier.notify({ code: "daily_portfolio_summary", cooldownKey: "daily_portfolio_summary:portfolio", cooldownMs: 86_400_000, dedupeKey: getDailyNotificationDedupeKey("daily_portfolio_summary", "portfolio", model.snapshot.capturedAt), message: formatDailyPortfolioSummary({ buyingPower: model.snapshot.buyingPower, cash: model.snapshot.cash, equity: model.snapshot.equity, ...(model.snapshot.lastEquity == null ? {} : { lastEquity: model.snapshot.lastEquity }), orders: model.orders.length, positions: model.positions }), occurredAt: model.snapshot.capturedAt.toISOString(), severity: "info" });
           }
           if (candidates.length === 0) return;

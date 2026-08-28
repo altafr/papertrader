@@ -13,7 +13,7 @@ import { createDurableScheduler, getDurableSchedulerConfig, setDurableSchedulerH
 import { assertDurableScheduleRunMigrationReady, assertDurableSchedulerMigrationReady, readDurableScheduleRunMigrationState, readDurableSchedulerMigrationState } from "./durable-scheduler-migration-guard.js";
 import { reconcilePaperAccount } from "./reconcile.js";
 import { getResearchScheduleReadiness } from "./research-scheduler.js";
-import { createResearchSchedulerFromEnvironment } from "./research-scheduler-runtime.js";
+import { createResearchSchedulerFromEnvironment, isMarketCloseSummaryEnabled } from "./research-scheduler-runtime.js";
 import { reconcileBeforeSchedulerStart } from "./startup-recovery.js";
 import { createPositionManagementSchedulerFromEnvironment } from "./position-management-runtime.js";
 import { createRuntimeAlertNotifier } from "./telegram-events.js";
@@ -43,6 +43,7 @@ if (getResearchScheduleReadiness().status === "blocked" && process.env.RESEARCH_
 }
 const researchScheduler = createResearchSchedulerFromEnvironment();
 if (researchScheduler) void researchScheduler.start().catch(() => { /* health endpoint reports degraded state */ });
+const marketCloseSummaryEnabled = isMarketCloseSummaryEnabled();
 const autopilotConfiguration = getPaperAutopilotConfig();
 if (autopilotConfiguration.enabled && !process.env.DATABASE_URL?.trim()) throw new Error("PAPER_AUTOPILOT_ENABLED=true requires DATABASE_URL.");
 if (autopilotConfiguration.enabled && isGlobalKillSwitchActive()) throw new Error("PAPER_AUTOPILOT_ENABLED=true is blocked by GLOBAL_KILL_SWITCH_ACTIVE=true.");
@@ -110,7 +111,7 @@ if (durableConfiguration.enabled) {
       );
       const model = await accountRepository.getLatestReadModel(snapshot.accountId);
       const account = model?.snapshot;
-      if (account) {
+      if (account && !marketCloseSummaryEnabled) {
         await createRuntimeAlertNotifier(process.env, createTelegramAlertRepository(db)).notify({ code: "daily_portfolio_summary", cooldownKey: "daily_portfolio_summary:portfolio", cooldownMs: 86_400_000, dedupeKey: getDailyNotificationDedupeKey("daily_portfolio_summary", "portfolio", account.capturedAt), message: formatDailyPortfolioSummary({ buyingPower: account.buyingPower, cash: account.cash, equity: account.equity, ...(account.lastEquity == null ? {} : { lastEquity: account.lastEquity }), orders: model?.orders.length ?? 0, positions: model?.positions ?? [] }), occurredAt: account.capturedAt.toISOString(), severity: "info" });
       }
       return { accountSnapshotId: snapshot.id };

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { ResearchWatchlistCandidate } from "@momentum/domain";
 
-import { buildPaperRiskCycleFailureAlert, buildPaperRiskCycleLog, buildResearchCycleLog, createResearchSchedulerFromEnvironment, dedupeResearchCandidates, isUsMarketCloseSummaryWindow } from "./research-scheduler-runtime.js";
+import { buildPaperRiskCycleFailureAlert, buildPaperRiskCycleLog, buildResearchCycleLog, createResearchSchedulerFromEnvironment, dedupeResearchCandidates, isMarketCloseSummaryEnabled, isUsMarketCloseSummaryWindow } from "./research-scheduler-runtime.js";
 
 describe("research scheduler startup composition", () => {
   it("does not construct external clients when the schedule is disabled", () => {
@@ -31,6 +31,12 @@ describe("research scheduler startup composition", () => {
     expect(isUsMarketCloseSummaryWindow(new Date("2026-08-28T20:15:00.000Z"))).toBe(true);
     expect(isUsMarketCloseSummaryWindow(new Date("2026-08-29T20:15:00.000Z"))).toBe(false);
     expect(isUsMarketCloseSummaryWindow(new Date("2026-01-02T21:15:00.000Z"))).toBe(true);
+  });
+
+  it("defaults close summaries on when continuous research is enabled", () => {
+    expect(isMarketCloseSummaryEnabled({ RESEARCH_SCHEDULER_ENABLED: "true" })).toBe(true);
+    expect(isMarketCloseSummaryEnabled({ RESEARCH_SCHEDULER_ENABLED: "false" })).toBe(false);
+    expect(isMarketCloseSummaryEnabled({ MARKET_CLOSE_SUMMARY_ENABLED: "false", RESEARCH_SCHEDULER_ENABLED: "true" })).toBe(false);
   });
 
   it("bounds risk-cycle log reasons and run identifiers", () => {
