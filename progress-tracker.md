@@ -5425,6 +5425,13 @@
 - Verification: Worker tests (11 tests), TypeScript, and ESLint passed. The prior hosted log confirms the research batch and risk cycle both succeeded; this change preserves that evidence in health.
 - **Next smallest unit:** deploy the fix and verify the live Worker health retains risk-cycle counters after the next scheduled tick.
 
+### 2026-08-29 — Phase 6.271 telemetry overwrite fix deployed
+
+- Railway Worker deployment `5425a87e-31b3-48e7-8119-85a8d4b1aad4` reached `SUCCESS` for the scheduler telemetry merge fix.
+- The prior 21:45 hosted logs prove the research and risk cycle succeeded; the next scheduled tick will now retain its counters in the live Worker health response instead of clearing them.
+- Worker remains healthy, Paper Autopilot remains active, and position management is ready.
+- **Next smallest unit:** verify retained counters after the next scheduled research tick at 22:00 UTC.
+
 ### 2026-08-29 — Phase 6.269 dashboard build verification
 
 - Verified the updated Next.js dashboard production build locally after adding durable risk-cycle evidence; compilation, TypeScript, static generation, and dynamic route analysis all succeeded.
