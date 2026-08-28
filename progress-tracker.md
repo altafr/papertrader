@@ -8,6 +8,13 @@
 - **Current goal:** Complete authenticated dashboard verification and reconcile the authorized AAPL order through its terminal broker state, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
 
+### Phase 6.313 — Clean-checkout CI test bootstrap (2026-08-28)
+
+- [x] Inspect the latest phase-branch GitHub Actions failure and identify missing workspace package build artifacts as the cause.
+- [x] Build all workspace packages before Vitest in the paper-only CI workflow.
+- [x] Verify the corrected order locally: 5 workspace package builds and 77 test files / 295 tests passed.
+- [ ] Push the workflow fix and confirm the next GitHub Actions run completes successfully.
+
 ### Phase 6.312 — Secret-surface security checkpoint (2026-08-28)
 
 - [x] Run `audit:secret-surfaces` against source and browser output.

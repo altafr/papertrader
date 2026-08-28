@@ -39,6 +39,9 @@ jobs:
       - name: Lint
         run: pnpm lint
 
+      - name: Build workspace packages for tests
+        run: pnpm --filter './packages/*' build
+
       - name: Test
         run: pnpm test
 
