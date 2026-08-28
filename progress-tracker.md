@@ -5383,3 +5383,10 @@
 - Live API health is healthy. The authenticated operations-health contract is now backed by the persisted PostgreSQL submission ledger; dashboard source is pushed to the feature branch.
 - Vercel production publication remains separately constrained by the existing daily deployment quota; no false “live” claim is made for the newest web source.
 - **Next smallest unit:** verify the authenticated endpoint once the Vercel quota clears, then capture the first post-deploy risk-cycle counts.
+
+### 2026-08-29 — Phase 6.264 full regression and publication check
+
+- Full Vitest regression passed: 86 files and 343 tests.
+- Attempted production Vercel publication of the dashboard change; Vercel still rejects deployments because the project has exceeded the free-plan daily API deployment limit. No production-live claim is made.
+- The verified API source and dashboard source remain pushed on `phase-6-10-operator-health`; Railway API and Worker deployments are healthy.
+- **Next smallest unit:** publish the dashboard when Vercel permits, then verify the authenticated operations-health response contains durable risk-cycle counts.
