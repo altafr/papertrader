@@ -385,6 +385,13 @@
 - [x] Confirm Railway Worker health remains `healthy`, Paper Autopilot, research `scheduled`, and position management `ready`.
 - [ ] Complete an authenticated operator-session verification of live positions, P/L, review-required state, and CSV contents.
 
+### Phase 6.446 — Authenticated operator verification handoff (2026-08-29)
+
+- [x] Add a credential-safe manual command for `verify:operator-overview` using the hosted Railway API URL and an injected operator token.
+- [x] Document that the verifier checks overview JSON, read model, and CSV contracts without submitting orders.
+- [x] Preserve the rule that tokens must come from approved secret storage and must never be echoed or committed.
+- [ ] Run the verifier with the operator token and confirm live positions, P/L, review-required state, and CSV contents.
+
 ### Phase 6.387 — Hosted cycle baseline after reason-logging rollout (2026-08-28)
 
 - [x] Verify Worker deployment `8cabc43d-b343-47c1-9a0f-257198dabdcf` is `SUCCESS` and health is `healthy`.

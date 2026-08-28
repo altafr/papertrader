@@ -72,6 +72,8 @@ After a hosted close window, operators can verify the persisted summary delivery
 
 When the protected GitHub Actions secrets `OPERATOR_AUTH_TOKEN` and optional `OPERATOR_API_BASE_URL` are configured, the workflow also runs `pnpm verify:operator-overview` against the hosted authenticated overview and CSV contracts. If the token secret is absent, that live check is explicitly skipped; all local contract tests still run.
 
+For a manual operator check, inject the token from the approved secret store without echoing it and run `OPERATOR_API_BASE_URL=https://api-production-e0a6.up.railway.app OPERATOR_AUTH_TOKEN="$OPERATOR_AUTH_TOKEN" pnpm verify:operator-overview`. The verifier checks the authenticated overview, read model, and CSV contract; it does not submit orders.
+
 The workflow always runs the credential-free `pnpm verify:operator-auth-boundary` check, which confirms the hosted operator JSON and CSV routes reject unauthenticated requests with `401`.
 
 The server must run daily preparation, health, reconciliation, and evaluation independently of an open browser. Paper Autopilot does not require per-order human confirmation, but every order still requires deterministic risk approval. The initial paper baseline is `USD 100,000` (Alpaca's current default); estimated loss at the planned stop is limited to `5%` of invested notional, with a maximum 5% adverse stop distance.
