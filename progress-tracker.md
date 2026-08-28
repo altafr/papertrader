@@ -5531,3 +5531,10 @@
 - The guard deliberately leaves any intent that has entered broker execution/reconciliation unchanged, preserving the audit boundary between risk evaluation and real paper-order state.
 - Verification: full regression passed (88 files, 350 tests); the database repository typecheck passed.
 - **Next smallest unit:** deploy this persistence fix and verify the next scheduled risk cycle updates the operator evidence timestamp while the live dashboard publication remains subject to Vercel quota.
+
+### 2026-08-29 — Phase 6.286 live scheduled-cycle verification
+
+- Railway Worker deployment `a5e8fa05-7185-4dca-b46f-ee098d83c7cc` reached `SUCCESS`.
+- The 22:15 UTC scheduled cycle completed: one decision, one approved; Worker health retained `lastRiskCycleAt=2026-08-28T22:15:36.392Z` and scheduled the next run for 22:30 UTC.
+- Position management remains ready and the Worker remains healthy. This confirms the persistence fix is running in the always-on paper process.
+- **Next smallest unit:** continue the evidence run and publish the already-verified dashboard when Vercel’s daily deployment quota permits.
