@@ -1,14 +1,6 @@
 import { OPERATING_MODES } from "@momentum/domain";
 import Link from "next/link";
-
-type PublicHealth = {
-  readonly status: string;
-  readonly operatingMode?: string;
-  readonly release?: string;
-  readonly researchSchedule?: { readonly status?: string; readonly nextRunAt?: string };
-  readonly positionManagement?: { readonly readiness?: string; readonly status?: string };
-  readonly marketStream?: { readonly status?: string };
-};
+import { parsePublicHealth, type PublicHealth } from "./public-health";
 
 async function loadPublicHealth(): Promise<PublicHealth | undefined> {
   const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
@@ -16,10 +8,7 @@ async function loadPublicHealth(): Promise<PublicHealth | undefined> {
   try {
     const response = await fetch(`${apiBaseUrl}/health`, { cache: "no-store", signal: AbortSignal.timeout(2500) });
     if (!response.ok) return undefined;
-    const body: unknown = await response.json();
-    if (typeof body !== "object" || body === null || Array.isArray(body)) return undefined;
-    const value = body as Record<string, unknown>;
-    return typeof value.status === "string" ? (value as PublicHealth) : undefined;
+    return parsePublicHealth(await response.json());
   } catch {
     return undefined;
   }

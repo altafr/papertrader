@@ -421,6 +421,13 @@
 - [x] Verify the web TypeScript check and production build with the bundled Next.js toolchain.
 - [ ] Publish this web revision to the Vercel production alias and verify the heartbeat against the live Worker.
 
+### Phase 6.451 — Public heartbeat payload validation (2026-08-29)
+
+- [x] Extract the landing-page health payload contract into a typed, fail-closed parser.
+- [x] Ignore unapproved fields such as account values and reject malformed or oversized status payloads.
+- [x] Add regression tests; the focused test and web TypeScript check pass.
+- [ ] Publish the queued web revision when Vercel's free deployment quota resets.
+
 ### Phase 6.387 — Hosted cycle baseline after reason-logging rollout (2026-08-28)
 
 - [x] Verify Worker deployment `8cabc43d-b343-47c1-9a0f-257198dabdcf` is `SUCCESS` and health is `healthy`.
