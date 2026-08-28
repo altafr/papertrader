@@ -157,6 +157,12 @@ function positionAge(row: Record<string, unknown>): string {
   return ageHours < 24 ? `${ageHours.toFixed(1)}h` : `${(ageHours / 24).toFixed(1)}d`;
 }
 
+function riskCycleAge(latestAt: string | undefined): string {
+  if (!latestAt || !Number.isFinite(Date.parse(latestAt))) return "Age unavailable";
+  const ageMinutes = Math.max(0, (Date.now() - Date.parse(latestAt)) / 60_000);
+  return ageMinutes < 60 ? `${ageMinutes.toFixed(0)}m old` : `${(ageMinutes / 60).toFixed(1)}h old`;
+}
+
 function indicatorSummary(row: Record<string, unknown>) {
   if (!isRecord(row.marketSnapshot)) return "Not captured";
   const snapshot = row.marketSnapshot;
@@ -203,7 +209,7 @@ function OperationsHealthCard({ health }: { readonly health: OperationsHealth | 
         <div><span className="label">Scheduler activation review</span><strong>{health.runtime.scheduler.activationApprovalReferencePresent ? "Recorded" : "Missing"}</strong></div>
         <div><span className="label">Research schedule</span><strong>{researchScheduleLabel}</strong></div>
         <div><span className="label">Research cadence</span><strong>{health.runtime.researchSchedule.cron ?? "Not reported"}</strong><small className="provenance">Crypto every 15 minutes; stocks {health.runtime.researchSchedule.stockWindowOnly ? "09:30–11:30 and 14:00–16:00 ET" : "on the configured schedule"}</small></div>
-        <div><span className="label">Risk-cycle evidence</span><strong>{health.runtime.riskCycle.decisions} decisions · {health.runtime.riskCycle.approved} approved</strong><small className="provenance">{health.runtime.riskCycle.latestAt ? `Latest ${formatUtc(health.runtime.riskCycle.latestAt)}` : "No persisted risk-cycle decisions in the last 7 days"}</small></div>
+        <div><span className="label">Risk-cycle evidence</span><strong>{health.runtime.riskCycle.decisions} decisions · {health.runtime.riskCycle.approved} approved</strong><small className="provenance">{health.runtime.riskCycle.latestAt ? `Latest ${formatUtc(health.runtime.riskCycle.latestAt)} · ${riskCycleAge(health.runtime.riskCycle.latestAt)}` : "No persisted risk-cycle decisions in the last 7 days"}</small></div>
         <div><span className="label">Telegram alerts</span><strong>{telegramLabel}</strong><small className="provenance">Delivery unverified · routine digest every {health.runtime.telegramAlerts.routineCooldownHours}h</small></div>
         <div><span className="label">Risk decision alerts</span><strong>Approved only</strong><small className="provenance">Rejected candidates stay in audit history</small></div>
         <div><span className="label">Telegram test preflight</span><strong>{telegramTestLabel}</strong><small className="provenance">{health.runtime.telegramAlertTest.status === "ready" ? "Ready for one guarded message" : "Approval reference required · no message sent"}</small></div>

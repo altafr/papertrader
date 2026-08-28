@@ -5673,6 +5673,13 @@
 - The authenticated dashboard, account export proxy, and agent detail routes are ready for publication; no browser credentials or broker secrets are embedded.
 - **Next smallest unit:** publish the verified web build when Vercel’s deployment quota permits and complete authenticated visual verification.
 
+### 2026-08-29 — Phase 6.309 risk-cycle freshness display
+
+- Added the age of the latest persisted risk decision to the dashboard Operations Health card, alongside decision and approval counts.
+- This gives the operator an immediate stale-cycle signal while keeping the dashboard read-only and independent of broker authority.
+- Verification: web typecheck, ESLint, and full regression passed (88 files, 355 tests).
+- **Next smallest unit:** publish the web revision when Vercel permits and verify the freshness display against a live authenticated session.
+
 ### 2026-08-29 — Phase 6.305 legacy risk-evidence compatibility
 
 - Updated API and Worker risk summaries to count pre-migration approved rows via their legacy `risk_dry_run_approved` status while using explicit `approvalStatus` for new rows.
