@@ -2,8 +2,8 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.334 — Dashboard preview publication.
-- **Status:** The current dashboard build is published as a Ready Vercel preview at `papertrader-b80ufib8a-altafrs-projects.vercel.app`. It uses current live-paper-operations wording, accurate server-side feed status, and the existing authenticated boundary. Continuous Worker health, live positions, and Telegram delivery remain verified.
+- **Phase:** Phase 6.335 — Production promotion quota check.
+- **Status:** The current dashboard build is published as a Ready Vercel preview at `papertrader-b80ufib8a-altafrs-projects.vercel.app`. A production promotion attempt was rejected by Vercel's `api-deployments-free-per-day` limit (402; retry after 24 hours). Continuous Worker health, live positions, and Telegram delivery remain verified.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Verify the first natural paper research/order cycle and authenticated dashboard portfolio/position rendering, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
@@ -62,6 +62,13 @@
 - [x] Confirm the preview `/dashboard` route preserves the authentication boundary (`302` to Vercel SSO/Clerk).
 - [x] Confirm the production dashboard build is available for operator review at the preview URL.
 - [ ] Publish the preview to the production alias when Vercel deployment quota permits.
+
+### Phase 6.335 — Production promotion quota check (2026-08-28)
+
+- [x] Attempt promotion of the Ready dashboard preview to the production alias.
+- [x] Confirm Vercel rejected the promotion with the explicit free-tier deployment quota error `api-deployments-free-per-day` (HTTP 402).
+- [x] Preserve the Ready preview and production alias without changing application or trading state.
+- [ ] Retry promotion after Vercel's quota window resets.
 
 ### Phase 6.327 — Asset-aware crypto order execution (2026-08-28)
 
