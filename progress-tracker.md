@@ -2,8 +2,8 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.364 — Hosted position-pass observability deployment.
-- **Status:** Railway deployment `7542ad19-3417-43fc-b077-76844d734af2` reached `SUCCESS` for the explicit worker service. Live health remains healthy with research scheduled and position management ready. Authenticated dashboard rendering, a successful broker-reconciled order, and Alpaca crypto entitlement resolution remain pending.
+- **Phase:** Phase 6.365 — Deployment type-safety repair.
+- **Status:** A deployment build failure exposed an invalid `result.managed` reference in the new position-pass log. The reference is corrected to the locally computed managed-position count; worker tests and TypeScript validation pass. A corrected deployment is pending.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Verify the first natural paper research/order cycle and authenticated dashboard portfolio/position rendering, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
@@ -61,6 +61,13 @@
 - [x] Confirm deployment `7542ad19-3417-43fc-b077-76844d734af2` reached `SUCCESS`.
 - [x] Confirm the live Worker health endpoint remains healthy, with research `scheduled` and position management `ready`.
 - [ ] Observe the next natural position-management log record and reconcile a successful paper order.
+
+### Phase 6.365 — Deployment type-safety repair (2026-08-28)
+
+- [x] Diagnose failed deployment `e830343c-b799-4221-8eb0-eb64d8672e8d` to the invalid `PositionManagementResult.managed` property.
+- [x] Correct the log record to use `managed.length` without changing trading behavior.
+- [x] Verify position-management tests and worker TypeScript compilation pass.
+- [ ] Redeploy and confirm configured Alpaca/database health; no order action is taken during this repair.
 
 ### Phase 6.360 — Independent single-order execution guard (2026-08-28)
 
