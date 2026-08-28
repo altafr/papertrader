@@ -634,6 +634,12 @@
 - [x] Confirm no credentials or trading authority are used by the monitor.
 - [ ] Observe the first cron-triggered run and publish the queued Vercel heartbeat revision when quota permits.
 
+### Phase 6.485 — Hosted monitor latest pass (2026-08-29)
+
+- [x] Confirm the monitor run for commit `81a8714` completed successfully.
+- [x] Confirm the unified runtime/public-surface contract continues to pass on successive branch-triggered runs.
+- [x] Confirm Railway is processing the matching release; the prior deployed runtime remains healthy during rollout.
+
 ### Phase 6.458 — Natural hosted cycle continuity (2026-08-29)
 
 - [x] Verify the hosted Worker remains healthy on release `febcda5f7a5…` with Paper Autopilot and order submission still enabled.
