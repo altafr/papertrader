@@ -2,8 +2,8 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.381 — Tested runtime verifier retries.
-- **Status:** Health retry behavior is now an importable, testable contract: transient fetch failures recover, repeated non-healthy responses fail closed, and the live hosted verifier passes. Full regression passes with 309 tests. The next natural cross-asset cycle and successful broker-reconciled order remain pending.
+- **Phase:** Phase 6.382 — Hosted runtime CI gate.
+- **Status:** GitHub CI now runs the credential-free hosted runtime verifier alongside build, test, and auth-boundary checks, using configurable public health URLs with the current Railway endpoints as defaults. The next natural cross-asset cycle and successful broker-reconciled order remain pending.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Verify the first natural paper research/order cycle and authenticated dashboard portfolio/position rendering, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
@@ -120,6 +120,13 @@
 - [x] Confirm deployment `6fda1aff-ab2b-4ef9-973f-8283a4e17798` reached `SUCCESS`.
 - [x] Verify live configured health and ready position management after rollout.
 - [ ] Observe the next natural cross-asset cycle and reconcile a successful paper order.
+
+### Phase 6.382 — Hosted runtime CI gate (2026-08-28)
+
+- [x] Add `verify:paper-runtime` to the paper-only GitHub Actions workflow.
+- [x] Configure public health URL overrides through GitHub repository variables, with current Railway URLs as defaults.
+- [x] Keep the CI gate read-only, credential-free, and fail-closed on runtime prerequisites.
+- [ ] Confirm the next GitHub Actions run passes against the hosted Worker and API.
 
 ### Phase 6.374 — Single risk cycle per scheduler batch (2026-08-28)
 

@@ -60,6 +60,12 @@ jobs:
       - name: Verify hosted operator authentication boundary
         run: pnpm verify:operator-auth-boundary
 
+      - name: Verify hosted paper runtime
+        env:
+          PAPERTRADER_WORKER_HEALTH_URL: ${{ vars.PAPERTRADER_WORKER_HEALTH_URL || 'https://worker-production-b362.up.railway.app/health' }}
+          PAPERTRADER_API_HEALTH_URL: ${{ vars.PAPERTRADER_API_HEALTH_URL || 'https://api-production-e0a6.up.railway.app/health' }}
+        run: pnpm verify:paper-runtime
+
       - name: Verify hosted operator overview when credentials are configured
         env:
           OPERATOR_API_BASE_URL: ${{ secrets.OPERATOR_API_BASE_URL }}
