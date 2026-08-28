@@ -117,6 +117,13 @@
 - [x] Deploy API revision `2b60810b215a4cb6d5a3281b412cd3c9c2d59e26`; Railway deployment `976724c3-d320-476a-a8f7-48116ea03b15` reached `SUCCESS` and API health remains `healthy`.
 - [ ] Verify the authenticated CSV export in production.
 
+### Phase 6.409 — Protected export boundary verification (2026-08-29)
+
+- [x] Confirm the production `/v1/read-model.csv` endpoint remains protected and returns HTTP `401` without an operator credential.
+- [x] Confirm the API and Worker remain healthy while the export enhancement is deployed.
+- [ ] Verify the authenticated CSV contains `exitPlanStatus` values after operator sign-in.
+- [ ] Publish the dashboard UI revision after Vercel's deployment quota reset.
+
 ### Phase 6.387 — Hosted cycle baseline after reason-logging rollout (2026-08-28)
 
 - [x] Verify Worker deployment `8cabc43d-b343-47c1-9a0f-257198dabdcf` is `SUCCESS` and health is `healthy`.
