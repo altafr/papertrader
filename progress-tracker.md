@@ -272,6 +272,14 @@
 - [x] Run hosted paper-account reconciliation successfully after the report; no live-mode or risk-policy settings changed.
 - [ ] Continue accumulating paper-forward evidence and verify authenticated dashboard/CSV state after dashboard publication.
 
+### Phase 6.431 — Live paper-forward monitoring checkpoint (2026-08-29)
+
+- [x] Confirm the hosted Worker remains healthy with scheduled research, ready position management, and a connected crypto stream.
+- [x] Pull the latest bounded performance report after additional snapshots; 500 snapshots remain retained across the current captured session.
+- [x] Record observed metrics without implying a guarantee: initial equity `99391.40`, final equity `99423.95`, observed P/L `+32.55`, and maximum drawdown `0.14660924%`.
+- [x] Confirm the 30-day stability gate remains enforced and blocked until sufficient calendar-day evidence exists.
+- [ ] Continue paper-forward monitoring and complete authenticated dashboard/CSV verification after Vercel publication becomes available.
+
 ### Phase 6.387 — Hosted cycle baseline after reason-logging rollout (2026-08-28)
 
 - [x] Verify Worker deployment `8cabc43d-b343-47c1-9a0f-257198dabdcf` is `SUCCESS` and health is `healthy`.
