@@ -2,8 +2,8 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.368 — Configuration-aware hosted acceptance.
-- **Status:** The credential-free hosted verifier now fails closed unless Alpaca and PostgreSQL explicitly report `configured`, in addition to scheduler, stream, position, and Paper Autopilot checks. The live hosted verifier passes all prerequisites; authenticated dashboard rendering and a successful broker-reconciled order remain pending.
+- **Phase:** Phase 6.369 — Hosted release identity.
+- **Status:** Worker health now exposes an optional non-secret hosting commit identifier, making it possible to verify the exact source revision running in Railway. Domain/Worker typechecks and the full regression suite pass. Authenticated dashboard rendering and a successful broker-reconciled order remain pending.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Verify the first natural paper research/order cycle and authenticated dashboard portfolio/position rendering, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
@@ -82,6 +82,14 @@
 - [x] Observe a deployed `position_management_pass` record with one managed position and no exit submission.
 - [x] Confirm the position-management scheduler remains ready and continues at its configured 60-second interval.
 - [ ] Observe the next research cycle's candidate/risk records and reconcile a successful paper order.
+
+### Phase 6.369 — Hosted release identity (2026-08-28)
+
+- [x] Add optional `release` to Worker health from `RAILWAY_GIT_COMMIT_SHA` or `GIT_COMMIT_SHA`.
+- [x] Keep the release value non-secret and omit it when the host does not provide one.
+- [x] Add regression coverage and verify domain/Worker TypeScript compilation.
+- [x] Run the complete regression suite: 78 files and 307 tests passed.
+- [ ] Deploy and confirm the live health response reports the expected source revision.
 
 ### Phase 6.368 — Configuration-aware hosted acceptance (2026-08-28)
 

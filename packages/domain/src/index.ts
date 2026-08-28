@@ -60,6 +60,8 @@ export interface WorkerHealth {
     readonly nextRunAt?: string;
     readonly status: "blocked" | "degraded" | "disabled" | "ready" | "running" | "scheduled";
   };
+  /** Non-secret source identifier when supplied by the hosting platform. */
+  readonly release?: string;
   readonly shadowEvaluation: {
     readonly enabled: boolean;
     readonly intervalSeconds: number;
