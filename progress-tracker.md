@@ -378,6 +378,13 @@
 - [x] Verify the protected API CSV export returns HTTP `401` without an operator credential.
 - [ ] Complete an authenticated operator-session verification of live positions, P/L, review-required state, and CSV contents.
 
+### Phase 6.445 — Post-publication continuity check (2026-08-29)
+
+- [x] Confirm the production dashboard alias continues to return HTTP `200`.
+- [x] Confirm the dashboard authentication boundary continues to return HTTP `307` when unauthenticated.
+- [x] Confirm Railway Worker health remains `healthy`, Paper Autopilot, research `scheduled`, and position management `ready`.
+- [ ] Complete an authenticated operator-session verification of live positions, P/L, review-required state, and CSV contents.
+
 ### Phase 6.387 — Hosted cycle baseline after reason-logging rollout (2026-08-28)
 
 - [x] Verify Worker deployment `8cabc43d-b343-47c1-9a0f-257198dabdcf` is `SUCCESS` and health is `healthy`.
