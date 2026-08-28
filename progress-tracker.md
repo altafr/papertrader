@@ -5439,6 +5439,13 @@
 - The next scheduled risk tick remains the specific pending check for retained post-fix counters.
 - **Next smallest unit:** verify the 22:00 UTC risk cycle retains its counters in Worker health and the PostgreSQL-backed API summary.
 
+### 2026-08-29 — Phase 6.273 post-fix regression and hosted verification
+
+- Full regression passed: 86 files and 345 tests.
+- Hosted verifier returned `verified:true`: API/Worker healthy, paper mode active, order submission gated and approved, market stream connected, position management ready, both schedulers scheduled, kill switch inactive, and release timestamps valid.
+- Public web surface returned HTTP 200.
+- **Next smallest unit:** capture the next scheduled risk-cycle counters from the live Worker health and PostgreSQL-backed API contract.
+
 ### 2026-08-29 — Phase 6.269 dashboard build verification
 
 - Verified the updated Next.js dashboard production build locally after adding durable risk-cycle evidence; compilation, TypeScript, static generation, and dynamic route analysis all succeeded.
