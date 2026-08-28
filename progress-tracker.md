@@ -2,11 +2,19 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.316 — Hosted paper-performance evidence checkpoint.
-- **Status:** The corrected compiled Worker command now produces a read-only hosted performance report. It confirms 100 snapshots and one calendar day of paper evidence; the required 30-calendar-day stability gate remains the only performance block.
+- **Phase:** Phase 6.317 — Railway diagnostic command-path hardening.
+- **Status:** The reconciliation runbook now documents the deployed Worker’s `/app/apps/worker/dist` compiled command path and a bounded read-only performance-report example, preventing false failures from root-level path assumptions. Paper-only runtime and order safeguards remain unchanged.
 - **Current operating mode:** Paper Autopilot; continuous order submission is not enabled.
 - **Current goal:** Complete authenticated dashboard verification and reconcile the authorized AAPL order through its terminal broker state, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
+
+### Phase 6.317 — Railway diagnostic command-path hardening (2026-08-28)
+
+- [x] Reproduce the root-level compiled command path failure without exposing secrets or changing state.
+- [x] Confirm deployed compiled Worker commands are located below `/app/apps/worker/dist`.
+- [x] Document the corrected Railway SSH path for the read-only performance report.
+- [x] State the read-only and paper-only safety boundary in the runbook.
+- [ ] Verify the natural daily scheduler cycle after `2026-08-29T00:00:00Z`.
 
 ### Phase 6.316 — Hosted paper-performance evidence checkpoint (2026-08-28)
 

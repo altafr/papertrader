@@ -76,6 +76,26 @@ The operator-facing `runId` is retained in the payload and audit provenance; the
 
 The process verifies that the already-reviewed queues are present, consumes one immediate job, waits for completion, and shuts down. Queue creation belongs to the separate guarded migration command; this process does not create a recurring schedule.
 
+### Compiled command path in Railway SSH
+
+The deployed Worker image keeps compiled command entrypoints beneath
+`/app/apps/worker/dist`, not `/app/dist`. For read-only diagnostics that are
+intended to run inside the deployed image, use the full path, for example:
+
+```sh
+RAILWAY_CALLER='skill:use-railway@1.3.7' \
+RAILWAY_AGENT_SESSION='railway-paper-read-only' \
+railway ssh \
+  --project dd693511-c5e0-4b47-af09-8c68cd2121f6 \
+  --environment production \
+  --service dd52c3be-ab1d-48b3-b16b-cd8d0efce9d1 \
+  -- 'PAPER_PERFORMANCE_REPORT=true node apps/worker/dist/paper-performance-report-command.js'
+```
+
+This command is read-only: it reads persisted paper snapshots and emits the
+bounded performance report. It does not submit, cancel, or modify broker
+orders. Never print or persist the environment values containing credentials.
+
 ## Verify and close out
 
 After the command exits:
