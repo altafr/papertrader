@@ -369,6 +369,15 @@
 - [x] Confirm the verifier returns `status: verified` and does not count fallback summaries.
 - [x] Confirm the Worker remains healthy with the next research run scheduled and position management ready.
 
+### Phase 6.444 — Dashboard production publication (2026-08-29)
+
+- [x] Publish the verified dashboard source to Vercel production deployment `dpl_GtA4oCqiFJ2yusRxMqakCvFiTAqL`.
+- [x] Confirm deployment status is `Ready` and the `https://papertrader-web.vercel.app` alias is active.
+- [x] Verify the public landing page returns HTTP `200`.
+- [x] Verify `/dashboard` returns the Clerk authentication boundary (`307`) when unauthenticated.
+- [x] Verify the protected API CSV export returns HTTP `401` without an operator credential.
+- [ ] Complete an authenticated operator-session verification of live positions, P/L, review-required state, and CSV contents.
+
 ### Phase 6.387 — Hosted cycle baseline after reason-logging rollout (2026-08-28)
 
 - [x] Verify Worker deployment `8cabc43d-b343-47c1-9a0f-257198dabdcf` is `SUCCESS` and health is `healthy`.
