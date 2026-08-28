@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import type { ResearchAgentInput } from "@momentum/domain";
 
-import { createResearchPreparationPlan, createResearchPreparationQueueHandler, executeResearchPreparation, getResearchPreparationConfig } from "./research-preparation.js";
+import { createResearchPreparationPlan, createResearchPreparationQueueHandler, executeResearchPreparation, getResearchPreparationConfig, getResearchRecommendationDedupeKey } from "./research-preparation.js";
 
 const input = (assetClass: ResearchAgentInput["assetClass"]): ResearchAgentInput => ({
   assetClass,
@@ -17,6 +17,9 @@ const input = (assetClass: ResearchAgentInput["assetClass"]): ResearchAgentInput
 });
 
 describe("research preparation", () => {
+  it("uses one recommendation notification bucket per agent and UTC day", () => {
+    expect(getResearchRecommendationDedupeKey("stock_research", new Date("2026-08-23T02:01:00.000Z"))).toBe("research_recommendations:stock_research:2026-08-23");
+  });
   it("builds bounded stock and crypto plans from explicit symbols", () => {
     const config = getResearchPreparationConfig({ RESEARCH_STOCK_SYMBOLS: " aapl, msft ", RESEARCH_CRYPTO_SYMBOLS: "btc/usd, eth/usd", RESEARCH_LIMIT: "20", RESEARCH_MAX_CANDIDATES: "5" });
     expect(config).toMatchObject({ limit: 20, maxCandidates: 5, stockSymbols: ["AAPL", "MSFT"], cryptoSymbols: ["BTC/USD", "ETH/USD"] });
@@ -77,8 +80,8 @@ describe("research preparation", () => {
     expect(candidateCounts).toEqual([1, 1]);
     expect(calls).not.toContain("fail");
     expect(notifications.map((alert) => alert.dedupeKey)).toEqual([
-      "research_recommendations:research-preparation-stock_research-20260823020000",
-      "research_recommendations:research-preparation-crypto_research-20260823020000",
+      "research_recommendations:stock_research:2026-08-23",
+      "research_recommendations:crypto_research:2026-08-23",
     ]);
   });
 

@@ -2,11 +2,19 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.243 — Hosted position-management exercise.
-- **Status:** Railway Worker is healthy with durable daily scheduling, research scheduling, recurring reconciliation/position management, persisted deterministic risk decisions, Telegram delivery, and the authenticated dashboard cycle-status surface. The latest hosted research-to-risk cycle rejected BTC/USD for position and gross-exposure caps; the authorized AAPL order remains accepted and unfilled while Alpaca reports the market closed. Continuous entry submission remains disabled by policy.
+- **Phase:** Phase 6.255 — Low-noise Telegram digest policy.
+- **Status:** Notification delivery remains enabled, but routine research selections and portfolio/P&L summaries now use durable once-per-UTC-day dedupe keys. Individual rejected risk candidates are retained in the audit/dashboard and no longer generate Telegram warnings; approved selections, order/position lifecycle events, and failures remain immediate. Local tests, Worker typecheck, and lint pass; deployment is pending.
 - **Current operating mode:** Paper Autopilot; continuous order submission is not enabled.
 - **Current goal:** Complete authenticated dashboard verification and reconcile the authorized AAPL order through its terminal broker state, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
+
+### Phase 6.255 — Low-noise Telegram digest policy (2026-08-28)
+
+- [x] Keep critical failures, approved selections, order lifecycle, and position lifecycle alerts immediate.
+- [x] Suppress routine zero-candidate research notices and individual rejected risk-candidate Telegram warnings while retaining their durable audit records.
+- [x] Deduplicate research selection and portfolio/P&L summary alerts to one UTC calendar day across restarts.
+- [x] Verify 291 tests, Worker TypeScript, ESLint, and diff hygiene locally.
+- [ ] Deploy the Worker and verify Railway reports `SUCCESS` with healthy Telegram alert state.
 
 ### Phase 6.202 — Credential-free hosted auth-boundary verification (2026-08-26)
 

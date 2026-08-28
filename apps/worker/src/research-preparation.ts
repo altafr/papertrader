@@ -3,6 +3,7 @@ import { createCryptoResearchAgent, createStockResearchAgent } from "@momentum/d
 
 import { executeResearchRun, type ResearchRunPersistence } from "./research-runner.js";
 import { getResearchScheduleReadiness, type ResearchPreparationJob } from "./research-scheduler.js";
+import { getDailyNotificationDedupeKey } from "./notification-dedupe.js";
 
 export interface ResearchPreparationInputPlan {
   readonly agentType: "crypto_research" | "stock_research";
@@ -33,6 +34,10 @@ export interface ResearchPreparationResult {
   readonly status: "failed" | "succeeded";
   readonly recommendationSymbols?: readonly string[];
   readonly recommendationEvidence?: readonly string[];
+}
+
+export function getResearchRecommendationDedupeKey(agentType: ResearchPreparationResult["agentType"], occurredAt: Date = new Date()): string {
+  return getDailyNotificationDedupeKey("research_recommendations", agentType, occurredAt);
 }
 
 const allowedTimeframes = new Set<ResearchPreparationInputPlan["timeframe"]>(["1Day", "1Hour", "1Min", "1Month", "1Week", "5Min", "15Min"]);
@@ -135,7 +140,10 @@ export function createResearchPreparationQueueHandler(input: {
         const result = await executeResearchPreparation({ ...(input.clock ? { clock: input.clock } : {}), persistence: input.persistence, preparation, source: input.source });
         results.push(result);
         await input.onResult?.(result);
-        await input.notify?.({ code: "research_recommendations", dedupeKey: `research_recommendations:${result.runId}`, message: `${result.agentType} produced ${result.recommendationSymbols?.length ?? 0} recommendation(s): ${(result.recommendationSymbols ?? []).join(", ") || "none"}. Evidence: ${(result.recommendationEvidence ?? []).join(" | ") || "not reported"}.`, severity: "info" });
+        if (result.recommendationSymbols?.length) {
+          const occurredAt = input.clock?.() ?? new Date();
+          await input.notify?.({ code: "research_recommendations", dedupeKey: getResearchRecommendationDedupeKey(result.agentType, occurredAt), message: `${result.agentType} selected ${result.recommendationSymbols.length} candidate(s): ${result.recommendationSymbols.join(", ")}. Evidence: ${(result.recommendationEvidence ?? []).join(" | ") || "not reported"}.`, severity: "info" });
+        }
       } catch {
         const failedRunId = `research-preparation-${preparation.agentType}-failed-${Date.now()}`;
         results.push({ agentType: preparation.agentType, runId: failedRunId, status: "failed" });
