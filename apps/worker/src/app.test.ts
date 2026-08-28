@@ -9,6 +9,7 @@ describe("market stream freshness", () => {
     expect(classifyMarketStreamFreshness(undefined, now)).toBe("unknown");
     expect(classifyMarketStreamFreshness("2026-08-29T00:04:30.000Z", now)).toBe("fresh");
     expect(classifyMarketStreamFreshness("2026-08-28T23:59:00.000Z", now)).toBe("stale");
+    expect(classifyMarketStreamFreshness("2026-08-29T00:00:00.000Z", now, 15 * 60_000)).toBe("fresh");
   });
 
   it("uses the configured interval for intraday stream gap recovery", () => {

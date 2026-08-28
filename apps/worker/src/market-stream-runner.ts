@@ -19,12 +19,13 @@ interface RuntimeWebSocketConstructor {
 
 const MARKET_STREAM_MAX_MESSAGE_AGE_MS = 5 * 60_000;
 let marketStreamHealth: { readonly assetClass?: "crypto" | "us_equity"; readonly lastMessageAt?: string; readonly reconnectCount: number; readonly status: "connected" | "connecting" | "disabled" | "reconnecting" | "stopped" } = { reconnectCount: 0, status: "disabled" };
+let marketStreamMaxMessageAgeMs = MARKET_STREAM_MAX_MESSAGE_AGE_MS;
 
-export function classifyMarketStreamFreshness(lastMessageAt: string | undefined, now = new Date()): "fresh" | "stale" | "unknown" {
+export function classifyMarketStreamFreshness(lastMessageAt: string | undefined, now = new Date(), maxAgeMs = MARKET_STREAM_MAX_MESSAGE_AGE_MS): "fresh" | "stale" | "unknown" {
   if (!lastMessageAt) return "unknown";
   const capturedAt = Date.parse(lastMessageAt);
   const age = now.getTime() - capturedAt;
-  return Number.isFinite(capturedAt) && age >= 0 && age <= MARKET_STREAM_MAX_MESSAGE_AGE_MS ? "fresh" : "stale";
+  return Number.isFinite(capturedAt) && age >= 0 && age <= maxAgeMs ? "fresh" : "stale";
 }
 
 /** Translate the configured Alpaca bar timeframe into the supervisor gap interval. */
@@ -43,7 +44,7 @@ export function getExpectedBarIntervalMs(timeframe: MarketBarTimeframe): number 
 
 export function getMarketStreamHealth(now = new Date()) {
   if (!marketStreamHealth.lastMessageAt) return { ...marketStreamHealth, ...(marketStreamHealth.status === "connected" ? { freshness: "unknown" as const } : {}) };
-  return { ...marketStreamHealth, freshness: classifyMarketStreamFreshness(marketStreamHealth.lastMessageAt, now) };
+  return { ...marketStreamHealth, freshness: classifyMarketStreamFreshness(marketStreamHealth.lastMessageAt, now, marketStreamMaxMessageAgeMs) };
 }
 
 function getRuntimeWebSocket(): RuntimeWebSocketConstructor {
@@ -82,6 +83,7 @@ function streamUrl(assetClass: MarketAssetClass, stockFeed = "iex") {
 
 export function startPaperMarketStream(environment = process.env) {
   const configuration = getStreamConfiguration(environment);
+  marketStreamMaxMessageAgeMs = Math.max(MARKET_STREAM_MAX_MESSAGE_AGE_MS, getExpectedBarIntervalMs(configuration.timeframe) * 2);
   marketStreamHealth = { assetClass: configuration.assetClass, reconnectCount: 0, status: "connecting" };
   const reader = createPaperMarketDataReader({
     apiKey: environment.ALPACA_API_KEY ?? "",

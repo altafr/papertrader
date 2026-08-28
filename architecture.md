@@ -40,7 +40,7 @@ Position management applies a separate five-minute market-mark freshness gate be
 
 For sell-side exits, a fresh quote uses the bid price first (falling back only when unavailable), because it is the executable side of the market for a long-position liquidation.
 
-Worker health separately classifies the market stream as `fresh`, `stale`, or `unknown` from the last message timestamp (five-minute threshold). This is observability-only and cannot be used to bypass the deterministic market-data gate.
+Worker health separately classifies the market stream as `fresh`, `stale`, or `unknown` from the last message timestamp. The freshness threshold is at least five minutes and expands to two configured bar intervals for slower streams, avoiding false stale states for 5-minute/15-minute bars. This is observability-only and cannot be used to bypass the deterministic market-data gate.
 
 Top-level Worker health is `degraded` when an active market stream is stale or when the research/position supervisor liveness watchdog reports degradation. This keeps the operator-facing health contract honest while leaving risk and execution fail-closed.
 
