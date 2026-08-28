@@ -53,6 +53,14 @@ export interface ResearchSchedulerHealth {
   readonly status: ResearchSchedulerRuntimeStatus;
 }
 
+/** Mark a scheduled tick degraded only after a bounded two-minute grace period. */
+export function assessResearchSchedulerLiveness(health: ResearchSchedulerHealth, now = new Date(), graceSeconds = 120): ResearchSchedulerHealth {
+  if (health.status !== "scheduled" || !health.nextRunAt) return health;
+  const nextRun = Date.parse(health.nextRunAt);
+  if (!Number.isFinite(nextRun) || !Number.isFinite(now.getTime())) return health;
+  return now.getTime() > nextRun + Math.max(0, graceSeconds) * 1_000 ? { ...health, status: "degraded" } : health;
+}
+
 export interface ResearchPreparationQueueInspection {
   readonly deadLetterQueue: boolean;
   readonly workQueue: boolean;

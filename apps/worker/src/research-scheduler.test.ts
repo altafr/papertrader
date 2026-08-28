@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { createResearchScheduler, enqueueResearchPreparation, getNextResearchRunAt, getResearchPreparationJobId, getResearchScheduleConfig, getResearchScheduleReadiness, getResearchSchedulerHealth, isResearchPreparationJob, provisionResearchQueues, runResearchPreparationJob, RESEARCH_PREPARATION_CRON, RESEARCH_PREPARATION_DEAD_LETTER_QUEUE, RESEARCH_PREPARATION_QUEUE } from "./research-scheduler.js";
+import { assessResearchSchedulerLiveness, createResearchScheduler, enqueueResearchPreparation, getNextResearchRunAt, getResearchPreparationJobId, getResearchScheduleConfig, getResearchScheduleReadiness, getResearchSchedulerHealth, isResearchPreparationJob, provisionResearchQueues, runResearchPreparationJob, RESEARCH_PREPARATION_CRON, RESEARCH_PREPARATION_DEAD_LETTER_QUEUE, RESEARCH_PREPARATION_QUEUE } from "./research-scheduler.js";
 
 describe("research schedule boundary", () => {
   it("is disabled by default with bounded configuration", () => {
@@ -25,6 +25,12 @@ describe("research schedule boundary", () => {
   it("calculates the next 15-minute boundary without relying on wall-clock execution", () => {
     expect(getNextResearchRunAt(new Date("2026-08-28T11:32:50.000Z"), "*/15 * * * *")).toBe("2026-08-28T11:45:00.000Z");
     expect(getNextResearchRunAt(new Date("2026-08-28T11:45:00.000Z"), "*/15 * * * *")).toBe("2026-08-28T12:00:00.000Z");
+  });
+
+  it("marks an overdue tick degraded after the bounded grace period", () => {
+    const health = { enabled: true, handlerEnabled: true, lastRunAt: "2026-08-28T12:00:00.000Z", nextRunAt: "2026-08-28T12:15:00.000Z", status: "scheduled" as const };
+    expect(assessResearchSchedulerLiveness(health, new Date("2026-08-28T12:16:59.000Z"))).toMatchObject({ status: "scheduled" });
+    expect(assessResearchSchedulerLiveness(health, new Date("2026-08-28T12:17:01.000Z"))).toMatchObject({ status: "degraded" });
   });
 
   it("provisions a separately named research queue with bounded retries", async () => {

@@ -2,8 +2,8 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.347 — Filled-order position reconciliation.
-- **Status:** The deployed PostgreSQL read model now confirms the filled AAPL paper order is reflected in the latest account snapshot at `13:05 UTC`: AAPL quantity `1` with `+1.34` unrealized P/L. The existing PFD position is also present with `-609.63` unrealized P/L. This verifies order-to-position reconciliation and live portfolio persistence; authenticated dashboard rendering and Alpaca crypto entitlement resolution remain pending.
+- **Phase:** Phase 6.348 — Research scheduler liveness guard.
+- **Status:** The Worker now marks a scheduled research process `degraded` when its next tick is more than two minutes overdue, while preserving the existing cadence and fail-closed execution path. Focused scheduler/app tests, Worker TypeScript, and ESLint pass. The live Worker remains healthy with a connected market stream and ready position management; authenticated dashboard rendering and Alpaca crypto entitlement resolution remain pending.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Verify the first natural paper research/order cycle and authenticated dashboard portfolio/position rendering, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
@@ -160,6 +160,13 @@
 - [x] Confirm current unrealized P/L is persisted for AAPL (`+1.34`) and the pre-existing PFD position (`-609.63`).
 - [ ] Verify these live portfolio values render in the authenticated dashboard.
 - [ ] Resolve Alpaca's external crypto-order entitlement response before an approved crypto candidate can submit.
+
+### Phase 6.348 — Research scheduler liveness guard (2026-08-28)
+
+- [x] Add a bounded two-minute overdue-tick check to Worker research-scheduler health.
+- [x] Preserve `scheduled` status during the grace period and report `degraded` only after the next tick is overdue.
+- [x] Add regression coverage; focused scheduler/app tests (16), Worker TypeScript, ESLint, and diff checks pass.
+- [ ] Observe the guard across a hosted missed-tick scenario without changing scheduler cadence or order behavior.
 
 ### Phase 6.327 — Asset-aware crypto order execution (2026-08-28)
 

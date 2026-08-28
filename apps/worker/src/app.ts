@@ -3,7 +3,7 @@ import { DAILY_PREPARATION_TIMEZONE, getPaperOperatingMode, isGlobalKillSwitchAc
 import { getTelegramAlertTestReadiness, getTelegramNotificationReadiness } from "@momentum/notifications";
 import { getShadowEvaluationConfig, getShadowScheduleHealth } from "./shadow-evaluation.js";
 import { getDurableSchedulerConfig, getDurableSchedulerHealth } from "./durable-scheduler.js";
-import { getResearchScheduleConfig, getResearchScheduleReadiness, getResearchSchedulerHealth } from "./research-scheduler.js";
+import { assessResearchSchedulerLiveness, getResearchScheduleConfig, getResearchScheduleReadiness, getResearchSchedulerHealth } from "./research-scheduler.js";
 import { getPositionManagementIntervalSeconds, getPositionManagementReadiness, getPositionManagementSchedulerEnabled } from "./position-management-runtime.js";
 import { getPositionManagementHealth } from "./position-management-scheduler.js";
 import { getMarketStreamHealth } from "./market-stream-runner.js";
@@ -19,7 +19,7 @@ export function getWorkerHealth(now = new Date(), environment: NodeJS.ProcessEnv
   const research = getResearchScheduleConfig(environment);
   const researchReadiness = getResearchScheduleReadiness(environment);
   const researchRuntime = getResearchSchedulerHealth();
-  const researchStatus: WorkerHealth["researchSchedule"]["status"] = researchReadiness.status === "blocked" ? "blocked" : researchRuntime.enabled ? researchRuntime.status : research.enabled ? "ready" : "disabled";
+  const researchStatus: WorkerHealth["researchSchedule"]["status"] = researchReadiness.status === "blocked" ? "blocked" : researchRuntime.enabled ? assessResearchSchedulerLiveness(researchRuntime, now).status : research.enabled ? "ready" : "disabled";
   const positionManagementReadiness = getPositionManagementReadiness(environment);
   const positionManagementHealth = getPositionManagementHealth();
   const paperCredentialsConfigured = Boolean(environment.ALPACA_API_KEY?.trim() && environment.ALPACA_SECRET_KEY?.trim() && environment.ALPACA_PAPER_TRADE !== "false");
