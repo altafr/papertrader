@@ -6,7 +6,7 @@
   "description": "Paper-only momentum trading operations platform.",
   "packageManager": "pnpm@11.22.0",
   "engines": {
-    "node": ">=22.0.0"
+    "node": ">=22.13.0"
   },
   "scripts": {
     "build": "pnpm -r --if-present build",

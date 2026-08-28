@@ -2,7 +2,7 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.327 — Hosted stream freshness verifier.
+- **Phase:** Phase 6.328 — Runtime tooling compatibility.
 - **Status:** The hosted Worker and API are healthy in Paper Autopilot mode with deterministic entry/exit safeguards, durable reconciliation, Telegram alerting, lifecycle-stable PostgreSQL-backed risk evidence, and a read-only portfolio status command. The latest provenance and evidence guards are deployed and verified. Vercel production publication remains limited by the free-plan daily deployment quota, while the 30-day paper-forward evidence window and authenticated dashboard verification remain ongoing.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading, verify authenticated portfolio/P&L rendering and exports, and accumulate the 30-day evidence gate without loosening risk controls.
@@ -5802,6 +5802,13 @@
 - Preserved compatibility with pre-freshness health payloads while adding regression coverage for fresh and stale states.
 - Focused verifier tests and ESLint pass.
 - **Next smallest unit:** run the strengthened verifier against the live Worker and continue paper-forward monitoring.
+
+### Phase 6.328 runtime tooling compatibility
+
+- Raised the repository Node engine floor to `22.13.0` to match pnpm `11.22.0` requirements.
+- Updated CI and hosted-health workflows to use Node `22.13.0`, preventing false verification failures from Node `22.9.0` images.
+- Full ESLint and regression suite pass (88 files, 358 tests); diff check is clean.
+- **Next smallest unit:** rerun the Railway status command under the aligned runtime and continue paper-forward monitoring.
 
 ### 2026-08-29 — Phase 6.306 compatibility deployment verified
 
