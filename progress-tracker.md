@@ -2,11 +2,21 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.288 — Same-day cycle cooldown verification.
-- **Status:** A second fresh guarded daily cycle was consumed by the persistent Worker and verified with fresh reconciliation and drained actionable queues. No Telegram event rows were created in the post-cycle observation window, confirming duplicate routine notifications were suppressed by the durable cooldown. No order-submission setting changed.
+- **Phase:** Phase 6.289 — Release readiness regression checkpoint.
+- **Status:** Hosted Worker/API health, scheduler readiness, position management, queue drain, and the low-noise Telegram policy were rechecked. The full local regression suite passes (295 tests). No order-submission setting changed.
 - **Current operating mode:** Paper Autopilot; continuous order submission is not enabled.
 - **Current goal:** Complete authenticated dashboard verification and reconcile the authorized AAPL order through its terminal broker state, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
+
+### Phase 6.289 — Release readiness regression checkpoint (2026-08-28)
+
+- [x] Verify hosted Worker health: `healthy`, paper mode, scheduler `ready`, position management `ready`.
+- [x] Verify the scheduler has a persisted next run at `2026-08-29T00:00:00Z` and the last guarded cycle completed successfully.
+- [x] Verify work and dead-letter queues have zero queued/active jobs; retained failure history is non-actionable.
+- [x] Verify Telegram remains enabled with approved-only risk alerts and a 24-hour routine cooldown.
+- [x] Run the complete regression suite: 77 files and 295 tests passed.
+- [x] Confirm continuous paper-order submission remains disabled.
+- [ ] Observe the next natural UTC cycle and continue the 30-day paper evidence gate.
 
 ### Phase 6.270 — Critical-path status verification (2026-08-28)
 
