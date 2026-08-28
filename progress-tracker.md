@@ -2,11 +2,20 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.326 — Continuous paper-trading activation checkpoint.
-- **Status:** The user supplied bounded reference `CONTINUOUS-PAPER-TRADING-001`; Railway Worker deployment was updated with continuous paper-order submission enabled. Health is green with Alpaca configured, crypto market stream connected, position management ready, and scheduler active. Guarded crypto research and paper-evidence runs completed against Alpaca historical bars; after recording the confirmed USD 100,000 baseline and tightening generated stops to 4.99%, an AAPL candidate passed deterministic risk checks and an Alpaca paper order was submitted and reconciled. The persisted read model now exposes live equity, AAPL and PFD positions, and order states for the dashboard. Telegram delivery is also evidenced for the AAPL submission, BTC/USD failure, position detection, and daily portfolio summaries. The production dashboard route is live and protected by Clerk; the new AAPL order remains `new` with zero fill while the check is before the US regular-session open. The next step is verifying its terminal state during market hours and the natural scheduled cycle.
+- **Phase:** Phase 6.327 — Asset-aware crypto order execution.
+- **Status:** Alpaca-compatible crypto order handling is now deployed: crypto entries and exits are normalized to `gtc`, while equities remain `day`. This removes the broker rejection observed on the earlier BTC/USD paper path without weakening risk controls. Continuous Worker health, live positions, dashboard route, and Telegram delivery remain verified. The next step is verifying a crypto candidate through approved submission and observing the natural scheduled cycle.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Verify the first natural paper research/order cycle and authenticated dashboard portfolio/position rendering, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
+
+### Phase 6.327 — Asset-aware crypto order execution (2026-08-28)
+
+- [x] Confirm Alpaca documentation supports `gtc`/`ioc` for crypto and not `day`.
+- [x] Normalize crypto entry and exit submissions to `gtc` at the Alpaca adapter boundary.
+- [x] Add regression coverage for crypto market-order time-in-force normalization.
+- [x] Verify focused Alpaca/Worker tests, type checks, and lint pass.
+- [x] Deploy current Worker build successfully (`61b80fd4-ffca-4bd7-80fe-a999e661dc44`).
+- [ ] Run an approved crypto paper candidate through the deployed path and reconcile its broker state.
 
 ### Phase 6.326 — Continuous paper-trading activation checkpoint (2026-08-28)
 
