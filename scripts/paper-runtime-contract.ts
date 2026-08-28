@@ -25,6 +25,7 @@ export function evaluatePaperRuntime(worker: HealthObject, api: HealthObject, ex
     database: worker.database === "configured" ? "configured" : "not_configured",
     paperMode: worker.operatingMode === "paper_autopilot",
     orderSubmissionEnabled: worker.paperAutopilotOrderSubmissionEnabled === true,
+    orderSubmissionApprovalPresent: worker.paperAutopilotOrderSubmissionApprovalReferencePresent === true,
     marketStream: streamConnected ? "connected" : "not_connected",
     positionManagement: positionsReady ? "ready" : "not_ready",
     researchSchedule: researchScheduled ? "scheduled" : "not_scheduled",
@@ -33,5 +34,5 @@ export function evaluatePaperRuntime(worker: HealthObject, api: HealthObject, ex
     releaseMatches,
     killSwitchInactive: worker.globalKillSwitchActive === false,
   } as const;
-  return { ...result, verified: result.api === "healthy" && result.worker === "healthy" && result.alpaca === "configured" && result.database === "configured" && result.paperMode && result.orderSubmissionEnabled && streamConnected && positionsReady && positionsUnblocked && researchScheduled && durableScheduled && releaseMatches && result.killSwitchInactive };
+  return { ...result, verified: result.api === "healthy" && result.worker === "healthy" && result.alpaca === "configured" && result.database === "configured" && result.paperMode && result.orderSubmissionEnabled && result.orderSubmissionApprovalPresent && streamConnected && positionsReady && positionsUnblocked && researchScheduled && durableScheduled && releaseMatches && result.killSwitchInactive };
 }

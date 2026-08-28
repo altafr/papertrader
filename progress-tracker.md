@@ -526,6 +526,12 @@
 - [x] Confirm paper mode, order-submission gate, connected stream, unblocked position management, inactive kill switch, and both schedulers remain healthy.
 - [ ] Observe the first GitHub Actions branch-triggered monitor run.
 
+### Phase 6.468 — Submission-approval contract hardening (2026-08-29)
+
+- [x] Require the hosted verifier to confirm the explicit paper order-submission approval reference is present whenever submission is enabled.
+- [x] Add regression coverage for a missing approval reference; runtime-contract tests and lint pass.
+- [ ] Verify the hardened contract after the current Railway rollout reaches `SUCCESS`.
+
 ### Phase 6.458 — Natural hosted cycle continuity (2026-08-29)
 
 - [x] Verify the hosted Worker remains healthy on release `febcda5f7a5…` with Paper Autopilot and order submission still enabled.
