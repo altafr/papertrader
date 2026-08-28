@@ -44,6 +44,8 @@ The public Vercel heartbeat safely renders that bounded stream-freshness classif
 
 The freshness-enabled web revision is published to the production Vercel alias. The public route renders the bounded heartbeat, while `/dashboard` remains behind Clerk authentication.
 
+The public heartbeat also renders the server-reported next research run in UTC, with invalid or missing timestamps shown as unavailable rather than guessed.
+
 ### Separately gated order handoff (Phase 6.213)
 
 The scheduled risk cycle accepts an optional executor only when `PAPER_AUTOPILOT_ORDER_SUBMISSION_ENABLED=true` is explicitly configured server-side. That executor reuses `executePaperAutopilotOrder`, including deterministic approval, idempotent client order IDs, persistence, broker reconciliation, and lifecycle alerts. When the flag is absent or `false`, approved candidates remain persisted dry-run decisions and no broker write is reachable from the scheduled path. Worker health reports this gate as a redacted boolean so risk-cycle readiness cannot be confused with order-submission authority.

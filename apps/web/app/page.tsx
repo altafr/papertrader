@@ -21,6 +21,12 @@ const boundaries = [
   ["Background worker", "Railway", "Online; execution gated"],
 ] as const;
 
+function formatNextRun(value: string | undefined): string {
+  if (!value) return "Not scheduled";
+  const timestamp = Date.parse(value);
+  return Number.isFinite(timestamp) ? new Date(timestamp).toISOString() : "Not reported";
+}
+
 export default async function Home() {
   const health = await loadPublicHealth();
   const runtimeOnline = health?.status === "healthy";
@@ -61,6 +67,7 @@ export default async function Home() {
             <div><span className="label">Research scheduler</span><strong>{health?.researchSchedule?.status ?? "Unavailable"}</strong></div>
             <div><span className="label">Position management</span><strong>{health?.positionManagement?.readiness ?? "Unavailable"}</strong></div>
             <div><span className="label">Crypto stream</span><strong>{health?.marketStream?.freshness ?? health?.marketStream?.status ?? "Unavailable"}</strong></div>
+            <div><span className="label">Next research run</span><strong>{formatNextRun(health?.researchSchedule?.nextRunAt)}</strong></div>
           </div>
           <p className="provenance">Read-only status from Railway. No account data, credentials, or order controls are exposed here{health?.release ? ` · release ${health.release.slice(0, 12)}` : ""}.</p>
         </article>

@@ -2,7 +2,7 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.320 — Dashboard freshness publication.
+- **Phase:** Phase 6.321 — Public scheduler next-run visibility.
 - **Status:** The hosted Worker and API are healthy in Paper Autopilot mode with deterministic entry/exit safeguards, durable reconciliation, Telegram alerting, lifecycle-stable PostgreSQL-backed risk evidence, and a read-only portfolio status command. The latest provenance and evidence guards are deployed and verified. Vercel production publication remains limited by the free-plan daily deployment quota, while the 30-day paper-forward evidence window and authenticated dashboard verification remain ongoing.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading, verify authenticated portfolio/P&L rendering and exports, and accumulate the 30-day evidence gate without loosening risk controls.
@@ -5754,6 +5754,13 @@
 - Published the freshness-enabled dashboard revision to the Vercel production alias `https://papertrader-web.vercel.app` after the deployment quota cleared.
 - Verified the public route serves the new freshness marker and `/dashboard` returns the Clerk authentication redirect; no unauthenticated account data is exposed.
 - **Next smallest unit:** continue paper-forward monitoring and complete authenticated read-model verification with the operator session.
+
+### Phase 6.321 public scheduler next-run visibility
+
+- Added the next research-run timestamp to the public, redacted heartbeat page.
+- Timestamps are parsed and rendered in UTC; missing or invalid values fail closed to `Not reported`.
+- Verification: web typecheck, ESLint, and public-health parser tests pass.
+- **Next smallest unit:** publish this web revision and verify the scheduler timestamp against the live Worker heartbeat.
 
 ### 2026-08-29 — Phase 6.306 compatibility deployment verified
 
