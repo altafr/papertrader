@@ -18,6 +18,7 @@ const apiUrl = process.env.PAPERTRADER_API_HEALTH_URL?.trim();
 if (!workerUrl || !apiUrl) throw new Error("PAPERTRADER_WORKER_HEALTH_URL and PAPERTRADER_API_HEALTH_URL are required.");
 
 const [worker, api] = await Promise.all([readHealth(workerUrl), readHealth(apiUrl)]);
-const result = evaluatePaperRuntime(worker, api);
+const expectedRelease = process.env.PAPERTRADER_EXPECTED_RELEASE?.trim() || undefined;
+const result = evaluatePaperRuntime(worker, api, expectedRelease);
 console.log(JSON.stringify(result));
 if (!result.verified) process.exitCode = 1;

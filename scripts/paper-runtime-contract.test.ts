@@ -13,6 +13,8 @@ describe("paper runtime contract", () => {
     expect(evaluatePaperRuntime(healthyWorker, { status: "degraded" }).verified).toBe(false);
     expect(evaluatePaperRuntime({ ...healthyWorker, alpaca: "not_configured" }, { status: "healthy" }).verified).toBe(false);
     expect(evaluatePaperRuntime({ ...healthyWorker, database: "not_configured" }, { status: "healthy" }).verified).toBe(false);
+    expect(evaluatePaperRuntime(healthyWorker, { status: "healthy" }, "different-release").verified).toBe(false);
+    expect(evaluatePaperRuntime(healthyWorker, { status: "healthy" }, "2026-08-28T14:45:00.000Z").verified).toBe(false);
     expect(evaluatePaperRuntime({ ...healthyWorker, researchSchedule: { ...healthyWorker.researchSchedule, status: "degraded" } }, { status: "healthy" }).verified).toBe(false);
     expect(evaluatePaperRuntime({ ...healthyWorker, durableScheduler: { ...healthyWorker.durableScheduler, nextRunAt: undefined } }, { status: "healthy" }).verified).toBe(false);
   });

@@ -1,6 +1,6 @@
 export type HealthObject = Record<string, unknown>;
 
-export function evaluatePaperRuntime(worker: HealthObject, api: HealthObject) {
+export function evaluatePaperRuntime(worker: HealthObject, api: HealthObject, expectedRelease?: string) {
   const marketStream = worker.marketStream;
   const positionManagement = worker.positionManagement;
   const researchSchedule = worker.researchSchedule;
@@ -16,6 +16,7 @@ export function evaluatePaperRuntime(worker: HealthObject, api: HealthObject) {
     && (durableScheduler as HealthObject).enabled === true
     && (durableScheduler as HealthObject).status === "scheduled"
     && typeof (durableScheduler as HealthObject).nextRunAt === "string";
+  const releaseMatches = expectedRelease === undefined || worker.release === expectedRelease;
   const result = {
     api: api.status === "healthy" ? "healthy" : "degraded",
     worker: worker.status === "healthy" ? "healthy" : "degraded",
@@ -27,6 +28,8 @@ export function evaluatePaperRuntime(worker: HealthObject, api: HealthObject) {
     positionManagement: positionsReady ? "ready" : "not_ready",
     researchSchedule: researchScheduled ? "scheduled" : "not_scheduled",
     durableScheduler: durableScheduled ? "scheduled" : "not_scheduled",
+    release: typeof worker.release === "string" ? worker.release : "not_reported",
+    releaseMatches,
   } as const;
-  return { ...result, verified: result.api === "healthy" && result.worker === "healthy" && result.alpaca === "configured" && result.database === "configured" && result.paperMode && result.orderSubmissionEnabled && streamConnected && positionsReady && researchScheduled && durableScheduled };
+  return { ...result, verified: result.api === "healthy" && result.worker === "healthy" && result.alpaca === "configured" && result.database === "configured" && result.paperMode && result.orderSubmissionEnabled && streamConnected && positionsReady && researchScheduled && durableScheduled && releaseMatches };
 }

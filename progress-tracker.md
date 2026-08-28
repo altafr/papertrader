@@ -2,8 +2,8 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.375 — Cross-asset build compatibility audit.
-- **Status:** Domain, database, Alpaca, Worker, API, and Web TypeScript projects all compile after the batch-risk change; the full regression suite remains green with 307 tests. The hosted worker is healthy on the prior successful deployment; a natural cross-asset cycle and successful broker-reconciled order remain pending.
+- **Phase:** Phase 6.376 — Expected-release runtime verification.
+- **Status:** The hosted runtime verifier can now optionally require an exact non-secret Worker release identifier. Against Railway, the verifier passes with release `c898b662242f86bb1c2ef9cee689054a20516cac` and all paper-runtime prerequisites. A natural cross-asset cycle and successful broker-reconciled order remain pending.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Verify the first natural paper research/order cycle and authenticated dashboard portfolio/position rendering, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
@@ -135,6 +135,14 @@
 - [x] Confirm the batch callback is compatible with existing research-preparation callers.
 - [x] Confirm the full regression suite remains green: 78 files and 307 tests passed.
 - [ ] Observe the next natural cross-asset batch and reconcile a successful paper order.
+
+### Phase 6.376 — Expected-release runtime verification (2026-08-28)
+
+- [x] Add optional `PAPERTRADER_EXPECTED_RELEASE` verification to the credential-free runtime command.
+- [x] Fail closed when the expected release does not match the Worker health release.
+- [x] Verify the live Worker against its reported release and all paper-runtime prerequisites.
+- [x] Run the complete regression suite: 78 files and 307 tests passed.
+- [ ] Verify the next natural cross-asset batch and reconcile a successful paper order.
 
 ### Phase 6.368 — Configuration-aware hosted acceptance (2026-08-28)
 
