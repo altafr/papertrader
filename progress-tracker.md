@@ -721,6 +721,13 @@
 - [x] Add regression coverage; focused position-management tests (11 tests), Worker typecheck, and ESLint passed.
 - [ ] Deploy the Worker revision and verify hosted monitoring reports no duplicate exit submission when an exit remains in flight.
 
+### Phase 6.499 — In-flight exit guard deployed (2026-08-29)
+
+- [x] Deploy Worker commit `dba6b06` to Railway; deployment `f2ebbfbf-1f6d-4276-afa9-3879b9b4819c` reached `SUCCESS`.
+- [x] Confirm live Worker health remains `healthy`, Paper Autopilot, submission-enabled behind its explicit approval reference, and position-management `ready` at 60 seconds.
+- [x] Run the unified hosted verifier successfully: API/Worker healthy, paper mode, connected stream, scheduled research/durable scheduler, kill switch inactive, and public dashboard HTTP 200.
+- [ ] Merge the verified branch to `main` through repository review to activate the GitHub Actions cron monitor; continue the 30-day paper-forward evidence window.
+
 ### Phase 6.458 — Natural hosted cycle continuity (2026-08-29)
 
 - [x] Verify the hosted Worker remains healthy on release `febcda5f7a5…` with Paper Autopilot and order submission still enabled.
