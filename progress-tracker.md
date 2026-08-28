@@ -15,7 +15,7 @@
 - [x] Add regression coverage for crypto market-order time-in-force normalization.
 - [x] Verify focused Alpaca/Worker tests, type checks, and lint pass.
 - [x] Deploy current Worker build successfully (`61b80fd4-ffca-4bd7-80fe-a999e661dc44`).
-- [ ] Run an approved crypto paper candidate through the deployed path and reconcile its broker state.
+- [ ] Run an approved crypto paper candidate through the deployed path and reconcile its broker state; the fresh 1-minute verification failed closed during market-input validation, so the broker-specific crypto path still needs diagnosis.
 
 ### Phase 6.326 — Continuous paper-trading activation checkpoint (2026-08-28)
 
