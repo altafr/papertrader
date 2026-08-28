@@ -5587,3 +5587,10 @@
 - The CI check now requires the account export's provenance columns (`exitPlanStatus`, strategy/version, stop/target, and position-opened timestamp) while keeping token handling environment-only.
 - Verification: focused verifier tests and the full regression pass (88 files, 353 tests); ESLint passes.
 - **Next smallest unit:** run the expanded authenticated verifier when `OPERATOR_AUTH_TOKEN` is available, then continue the paper-forward evidence window.
+
+### 2026-08-29 — Phase 6.294 hosted boundary and runtime verification
+
+- Credential-free hosted authentication boundary check passed: operator overview and both protected CSV routes return `401` without a token.
+- Hosted paper-runtime verifier passed with `verified:true`: API/Worker healthy, Alpaca and database configured, Paper Autopilot active, order gate approved, market stream connected, both schedulers scheduled, position management ready, kill switch inactive, and health timestamps valid.
+- The authenticated CSV contract remains pending only because no operator session token is available in this environment; the verifier is ready to run when the protected CI secret is configured.
+- **Next smallest unit:** continue paper-forward monitoring and run the authenticated overview/read-model/CSV contract in CI once the secret exists.
