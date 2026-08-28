@@ -39,7 +39,7 @@ export function getWorkerHealth(now = new Date(), environment: NodeJS.ProcessEnv
     shadowEvaluation: { ...shadow, ...schedule, status: shadow.enabled ? schedule.status : "disabled" },
     service: "worker",
     status: FOUNDATION_STATUS.health,
-    telegramAlerts: { deliveryVerification: telegram.deliveryVerification, enabled: telegram.checks.enabled, status: telegram.status },
+    telegramAlerts: { deliveryVerification: telegram.deliveryVerification, enabled: telegram.checks.enabled, riskDecisionAlerts: "approved_only", routineCooldownHours: 24, status: telegram.status },
     telegramAlertTest: { approvalReferencePresent: telegramTest.approvalReferencePresent, status: telegramTest.status },
   };
 }

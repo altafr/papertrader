@@ -63,6 +63,8 @@ export interface WorkerHealth {
     readonly status: "degraded" | "disabled" | "ready" | "running" | "scheduled";
   };
   readonly telegramAlerts: {
+    readonly routineCooldownHours: 24;
+    readonly riskDecisionAlerts: "approved_only";
     readonly deliveryVerification: "unverified";
     readonly enabled: boolean;
     readonly status: "blocked" | "disabled" | "ready";
