@@ -551,6 +551,12 @@
 - [x] Observe the verifier fail closed during the normal post-restart stream connection window, then pass after the stream reconnected.
 - [x] Confirm the deployed contract returns `verified: true`, with valid timestamps, approval evidence, inactive kill switch, connected stream, unblocked position management, and active schedulers.
 
+### Phase 6.472 — Current release continuity (2026-08-29)
+
+- [x] Confirm Railway deployment for commit `ce647ed` reached `SUCCESS`.
+- [x] Verify the current live Worker/API contract returns `verified: true` on the new release.
+- [x] Confirm the next research run, latest position-management pass, and connected stream are all reported by live health.
+
 ### Phase 6.458 — Natural hosted cycle continuity (2026-08-29)
 
 - [x] Verify the hosted Worker remains healthy on release `febcda5f7a5…` with Paper Autopilot and order submission still enabled.
