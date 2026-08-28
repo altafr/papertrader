@@ -2,11 +2,19 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.324 — Cadence boundary acceptance coverage.
-- **Status:** Added a time-independent acceptance test for the configured 15-minute scheduler boundaries, proving the next-run calculation without forcing production jobs. Runtime configuration and paper-only order safeguards are unchanged.
+- **Phase:** Phase 6.325 — Dashboard cadence contract coverage.
+- **Status:** The dashboard parser now has regression coverage for the hosted `*/15` cadence and stock-window policy, ensuring operators see the actual scheduling contract. Runtime configuration and paper-only order safeguards are unchanged.
 - **Current operating mode:** Paper Autopilot; continuous order submission is not enabled.
 - **Current goal:** Complete authenticated dashboard verification and reconcile the authorized AAPL order through its terminal broker state, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
+
+### Phase 6.325 — Dashboard cadence contract coverage (2026-08-28)
+
+- [x] Add a dashboard-state fixture for `*/15 * * * *` research cadence and stock-window mode.
+- [x] Verify parsed state preserves both fields for operator display.
+- [x] Verify dashboard-state tests (10), ESLint, and Web TypeScript checks pass.
+- [x] Confirm this change does not alter runtime scheduling or broker permissions.
+- [ ] Observe another natural crypto cycle and a US stock-window cycle.
 
 ### Phase 6.324 — Cadence boundary acceptance coverage (2026-08-28)
 

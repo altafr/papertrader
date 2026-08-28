@@ -34,13 +34,15 @@ describe("dashboard state", () => {
         paperBaseline: { current: "within_tolerance", initial: "within_tolerance", status: "ready" },
         migration: { blockedReasons: [], status: "ready" },
         riskPolicy: { initialEquityBaseline: "100000", maxSingleTradeRiskPercentOfNotional: "5", maxSingleTradeStopLossPercent: "5" },
-        researchSchedule: { enabled: false, handlerEnabled: false, status: "disabled" },
+        researchSchedule: { cron: "*/15 * * * *", enabled: true, handlerEnabled: true, status: "ready", stockWindowOnly: true },
         scheduler: { activationApprovalReferencePresent: true, cron: "0 0 * * *", enabled: false, status: "disabled", timezone: "UTC" },
         telegramAlerts: { deliveryVerification: "unverified", enabled: false, status: "disabled" },
         telegramAlertTest: { approvalReferencePresent: false, status: "blocked" },
       },
     });
     expect(health?.runtime.scheduler.status).toBe("disabled");
+    expect(health?.runtime.researchSchedule.cron).toBe("*/15 * * * *");
+    expect(health?.runtime.researchSchedule.stockWindowOnly).toBe(true);
     expect(health?.runtime.scheduler.activationApprovalReferencePresent).toBe(true);
     expect(health?.runtime.dailyPreparationHandlerEnabled).toBe(false);
     expect(health?.runtime.schedulerAudit.status).toBe("completed");
