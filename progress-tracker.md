@@ -243,6 +243,13 @@
 - [x] Confirm the latest reconciliation is `fresh` and no live-mode gate was enabled.
 - [ ] Continue the 30-day paper-forward evidence window and verify the authenticated dashboard/CSV view when operator credentials are available.
 
+### Phase 6.427 — Hosted post-release continuity checkpoint (2026-08-29)
+
+- [x] Confirm Railway deployment `a70a3277-39b0-4908-b2b0-5ec7ff1bfcd9` for commit `bd35a09` reached `SUCCESS`.
+- [x] Confirm the live Worker reports `healthy`, Paper Autopilot, scheduled research, ready 60-second position management, and a connected crypto stream after the restart.
+- [x] Confirm no kill-switch or readiness blockage was introduced by the documentation/release updates.
+- [ ] Continue the 30-day paper-forward evidence window and verify the authenticated dashboard/CSV view when operator credentials are available.
+
 ### Phase 6.387 — Hosted cycle baseline after reason-logging rollout (2026-08-28)
 
 - [x] Verify Worker deployment `8cabc43d-b343-47c1-9a0f-257198dabdcf` is `SUCCESS` and health is `healthy`.
