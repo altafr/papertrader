@@ -33,6 +33,7 @@ describe("position alert deduplication", () => {
 describe("position pass observability", () => {
   it("builds a bounded credential-free pass record", () => {
     expect(buildPositionManagementLog({ managed: 1, positions: 2, submitted: 0 })).toEqual({ event: "position_management_pass", managed: 1, positions: 2, submitted: 0 });
+    expect(buildPositionManagementLog({ managed: 2, positions: 3, submitted: 0, symbols: ["AAPL", "BTC/USD"] })).toEqual({ event: "position_management_pass", managed: 2, positions: 3, submitted: 0, symbols: ["AAPL", "BTC/USD"] });
   });
 
   it("builds a bounded decision record with an explicit no-exit reason", () => {

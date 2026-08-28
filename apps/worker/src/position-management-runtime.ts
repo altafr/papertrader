@@ -46,8 +46,9 @@ export function getPositionExitIntentId(clientOrderId: string): string {
 }
 
 /** Bounded, credential-free record for the always-on position pass. */
-export function buildPositionManagementLog(input: { readonly managed: number; readonly positions: number; readonly submitted: number }) {
-  return { event: "position_management_pass", managed: input.managed, positions: input.positions, submitted: input.submitted } as const;
+export function buildPositionManagementLog(input: { readonly managed: number; readonly positions: number; readonly submitted: number; readonly symbols?: readonly string[] }) {
+  const symbols = input.symbols?.filter((symbol) => symbol.trim().length > 0).slice(0, 10);
+  return { event: "position_management_pass", managed: input.managed, positions: input.positions, submitted: input.submitted, ...(symbols?.length ? { symbols } : {}) } as const;
 }
 
 /** Bounded, credential-free decision record for each managed position. */
@@ -156,7 +157,7 @@ export async function runPositionManagementCycle(environment: NodeJS.ProcessEnv 
       const submittedSymbols = result.decisions.filter((decision) => decision.shouldExit).map((decision) => decision.symbol).sort().join(",");
       await notifier.notify({ code: "paper_exit_submitted", dedupeKey: `paper_exit_submitted:${submittedSymbols}`, message: `Deterministic paper exit submitted for ${result.submitted} managed position(s). Broker reconciliation will confirm final status.`, severity: "warning" });
     }
-    console.log(JSON.stringify(buildPositionManagementLog({ managed: managed.length, positions: positions.length, submitted: result.submitted })));
+    console.log(JSON.stringify(buildPositionManagementLog({ managed: managed.length, positions: positions.length, submitted: result.submitted, symbols: managed.map((position) => position.symbol) })));
     return { managed: managed.length, submitted: result.submitted };
   } finally {
     await pool.end();

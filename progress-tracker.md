@@ -52,6 +52,13 @@
 - [ ] Verify the new BTC/USD position's quantity, mark, unrealized P/L, and originating intent in the authenticated dashboard.
 - [ ] Continue observing deterministic exit handling and reconciliation across subsequent cycles.
 
+### Phase 6.401 — Position symbol observability (2026-08-28)
+
+- [x] Extend the bounded position-management pass log with up to ten managed symbols.
+- [x] Preserve the credential-free, backward-compatible log shape when no symbols are supplied.
+- [x] Add regression coverage for symbol reporting and run the worker typecheck/focused test gate (317 tests passed).
+- [ ] Deploy the worker change and verify the next hosted pass includes the managed symbols.
+
 ### Phase 6.387 — Hosted cycle baseline after reason-logging rollout (2026-08-28)
 
 - [x] Verify Worker deployment `8cabc43d-b343-47c1-9a0f-257198dabdcf` is `SUCCESS` and health is `healthy`.
