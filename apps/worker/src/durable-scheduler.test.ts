@@ -188,6 +188,7 @@ describe("durable scheduler", () => {
     const second = await enqueueDailyPreparation({ async send() { return null; } }, now);
     expect(first).toEqual({ jobId: getDailyPreparationJobId(now), queued: true });
     expect(second).toEqual({ jobId: getDailyPreparationJobId(now), queued: false });
-    expect(sent[0]).toEqual({ data: { kind: "daily_preparation", version: 1 }, id: "manual-daily-preparation-2026-08-23", name: DAILY_PREPARATION_QUEUE });
+    expect(sent[0]).toEqual({ data: { kind: "daily_preparation", version: 1 }, id: getDailyPreparationJobId(now), name: DAILY_PREPARATION_QUEUE });
+    expect(getDailyPreparationJobId(now)).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-5[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/);
   });
 });

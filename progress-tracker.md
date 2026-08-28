@@ -19,6 +19,12 @@
 - [x] Add failure-stage-only diagnostics to the guarded enqueue command; no error text or secret-bearing connection data is emitted.
 - [ ] Redeploy and rerun the command inside the Worker network to identify the failing stage.
 
+### Phase 6.262 — Durable queue job-id compatibility (2026-08-28)
+
+- [x] Replace the manual daily job key with a deterministic UUID accepted by pg-boss.
+- [x] Preserve same-day idempotency and add UUID-format regression coverage.
+- [ ] Deploy and rerun the guarded cycle; verify the queue result and persisted records.
+
 ### Phase 6.259 — Dashboard notification policy surface (2026-08-28)
 
 - [x] Add the 24-hour routine digest and approved-only risk-alert policy to the authenticated dashboard health card.
