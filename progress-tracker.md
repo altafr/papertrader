@@ -392,6 +392,13 @@
 - [x] Preserve the rule that tokens must come from approved secret storage and must never be echoed or committed.
 - [ ] Run the verifier with the operator token and confirm live positions, P/L, review-required state, and CSV contents.
 
+### Phase 6.447 — Protected operator boundary recheck (2026-08-29)
+
+- [x] Confirm the local environment does not contain an operator token; no credential was printed or inferred.
+- [x] Run the credential-free production boundary verifier against the Railway API.
+- [x] Confirm overview and CSV endpoints both reject unauthenticated requests with HTTP `401`.
+- [ ] Run the authenticated verifier through the approved secret channel when the operator token is available.
+
 ### Phase 6.387 — Hosted cycle baseline after reason-logging rollout (2026-08-28)
 
 - [x] Verify Worker deployment `8cabc43d-b343-47c1-9a0f-257198dabdcf` is `SUCCESS` and health is `healthy`.
