@@ -30,7 +30,8 @@
 - [x] Bound run identifiers, decision count, and policy-reason strings in the log contract.
 - [x] Add regression coverage for the operator-facing reason payload.
 - [x] Verify full tests: 79 files and 313 tests; Worker typecheck and lint pass.
-- [ ] Deploy the Worker and verify the next hosted cycle log.
+- [x] Deploy Worker `ef03d353-1713-4256-899c-0aa102380c67` with `SUCCESS` and verify hosted health remains healthy, connected, scheduled, and position-management ready.
+- [ ] Verify the next hosted cycle log.
 
 ### Phase 6.384 — Hosted cadence and submission configuration audit (2026-08-28)
 
