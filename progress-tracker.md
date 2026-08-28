@@ -3313,3 +3313,11 @@
 - Added a repository-level regression test proving a normal account reconciliation updates a matching persisted submission with broker ID, status, and fill quantity.
 - Verification: full suite passed with 289 tests across 77 files; Worker/database TypeScript checks and lint passed; Railway deployment `df36e1ff-24a6-47a4-bf5b-7eaa985687cb` reached `SUCCESS`; live Worker health remains `healthy`.
 - **Next smallest unit:** verify a terminal broker transition updates the persisted ledger and emits the deduplicated Telegram status alert during an active paper session.
+
+### 2026-08-28 — Phase 6.254 risk-cycle failure observability
+
+- Scheduled research-to-risk hand-offs now emit a dedicated, run-scoped `paper_risk_cycle_failed` critical Telegram event when reconciliation or deterministic risk processing fails after research succeeds.
+- The scheduler still fails closed and retries through its existing bounded job path; the new alert clarifies that no additional order decision was authorized.
+- Added regression coverage for the alert contract; full suite passed with 290 tests across 77 files.
+- Railway Worker deployment `28673fe4-f882-4199-8434-3863e2817bef` reached `SUCCESS`; live health remains `healthy`, research scheduling is `scheduled`, and continuous entry submission remains disabled.
+- **Next smallest unit:** verify a terminal broker transition updates the persisted ledger and emits the deduplicated Telegram status alert during an active paper session.
