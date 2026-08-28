@@ -586,6 +586,10 @@ export function createPaperOrderRepository(db: Database) {
       return db.select().from(paperOrderSubmissions).orderBy(desc(paperOrderSubmissions.createdAt)).limit(limit);
     },
 
+    async listActiveExitSubmissions() {
+      return db.select({ clientOrderId: paperOrderSubmissions.clientOrderId, intentId: paperOrderSubmissions.intentId, status: paperOrderSubmissions.status }).from(paperOrderSubmissions).where(sql`${paperOrderSubmissions.clientOrderId} LIKE '%-exit-%' AND ${paperOrderSubmissions.status} NOT IN ('filled', 'canceled', 'cancelled', 'expired', 'rejected', 'failed')`);
+    },
+
     async listExitPlans() {
       // Exit-plan metadata is shared by equities and crypto.  Filtering this
       // read to equities would silently leave crypto positions unmanaged.

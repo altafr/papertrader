@@ -61,7 +61,7 @@
 - Reject any intent whose estimated loss at the planned stop, including estimated fees and slippage, exceeds `5%` of invested notional; reject any long stop more than `5%` below entry; verify the configured `USD 100,000` initial paper-account baseline before enabling autopilot.
 - Every broker mutation uses a unique idempotency/client order ID.
 - On an ambiguous broker timeout, query existing state before retrying.
-- Position-management retries must treat an existing non-terminal deterministic exit intent as in-flight and must not call the broker a second time for the same position lifecycle.
+- Position-management retries must query the full submission ledger, treat an existing non-terminal deterministic exit intent as in-flight, and must not call the broker a second time for the same position lifecycle.
 - Persist the outbound request intent and broker response/request ID with secret fields redacted.
 - Never automatically loosen risk limits in response to losses or missed trades.
 

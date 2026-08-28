@@ -118,7 +118,7 @@ export async function runPositionManagementCycle(environment: NodeJS.ProcessEnv 
       await notifier.notify({ code: "paper_order_status_changed", dedupeKey: `paper_order_status_changed:${transition.alpacaOrderId}:${transition.status}`, message: `Paper order status changed: ${transition.symbol} ${transition.from} → ${transition.status}.`, severity: terminal && transition.status.toLowerCase() !== "filled" ? "warning" : "info" });
     }
     const rows = await orderRepository.listExitPlans();
-    const activeExitIntentIds = getActiveExitIntentIds(await orderRepository.listRecent());
+    const activeExitIntentIds = getActiveExitIntentIds(await orderRepository.listActiveExitSubmissions());
     const plans = new Map(rows.filter((row) => row.alpacaOrderId && row.entryPrice && row.plannedStopPrice && row.strategyKey && row.strategyVersion).map((row) => [`${row.assetClass}:${row.symbol}`, row]));
     const positions = model?.positions ?? [];
     const managedPositions = positions.filter((position) => plans.has(`${position.assetClass}:${position.symbol}`));

@@ -762,6 +762,13 @@
 - [x] Preserve paper-only, read-only behavior; no broker call or risk-policy change was introduced.
 - [ ] Publish the web revision after Vercel quota reset and verify authenticated `Exit in flight` rendering.
 
+### Phase 6.505 — Full-ledger active-exit lookup (2026-08-29)
+
+- [x] Add a dedicated repository query for all non-terminal deterministic exit submissions, independent of the 500-row recent-history limit.
+- [x] Route the always-on position manager through that full-ledger query before evaluating exits.
+- [x] Preserve terminal-state handling, paper-only execution, and existing focused test/typecheck/lint contracts.
+- [ ] Deploy the Worker revision and verify hosted position management remains healthy.
+
 ### Phase 6.458 — Natural hosted cycle continuity (2026-08-29)
 
 - [x] Verify the hosted Worker remains healthy on release `febcda5f7a5…` with Paper Autopilot and order submission still enabled.
