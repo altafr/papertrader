@@ -355,6 +355,13 @@
 - [x] Verify 321 tests across 81 files, Worker typecheck, and lint all pass.
 - [ ] Run the verifier after the next eligible hosted close-hour cycle and record the persisted event.
 
+### Phase 6.442 — Hosted close-summary verifier deployment (2026-08-29)
+
+- [x] Confirm Railway deployment `69266114-9e3e-49f7-b3e9-52fbd4104b93` for commit `f6d7db2` reached `SUCCESS`.
+- [x] Run the deployed verifier remotely; it returned the expected fail-closed result `market_close_summary_event_unavailable` because no qualifying event has yet been persisted.
+- [x] Confirm no fallback event was misclassified as a close-hour delivery.
+- [ ] Re-run after the next eligible close-hour cycle and record a verified sent event.
+
 ### Phase 6.387 — Hosted cycle baseline after reason-logging rollout (2026-08-28)
 
 - [x] Verify Worker deployment `8cabc43d-b343-47c1-9a0f-257198dabdcf` is `SUCCESS` and health is `healthy`.
