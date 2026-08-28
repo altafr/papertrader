@@ -42,6 +42,16 @@ try {
     if (config.timeframe !== "1Day" || !(error instanceof Error) || !error.message.includes("fewer than 2 bars")) throw error;
     marketInput = await marketReader.read({ assetClass, limit: config.limit, maxCandidates: config.maxCandidates, symbols: config.symbols, timeframe: "1Hour" });
   }
+  if (config.timeframe === "1Day") {
+    const barCounts = new Map<string, number>();
+    for (const bar of marketInput.bars) barCounts.set(bar.symbol, (barCounts.get(bar.symbol) ?? 0) + 1);
+    if (![...barCounts.values()].some((count) => count >= 2)) {
+      // A daily response can contain one bar for each symbol while still
+      // passing the aggregate source check. Use hourly history so at least
+      // one symbol can produce an auditable research candidate.
+      marketInput = await marketReader.read({ assetClass, limit: config.limit, maxCandidates: config.maxCandidates, symbols: config.symbols, timeframe: "1Hour" });
+    }
+  }
   const request: AgentRunRequest = { agentType: config.agentType, createdAt: new Date().toISOString(), inputRefs: getResearchMarketInputRefs(assetClass, marketInput.capturedAt, config.approvalReference), promptVersion: "research-market-boundary@1", runId: `${config.runId}-research`, task: `Read and rank ${assetClass} market bars once as part of the paper evidence cycle.` };
   const handler = config.agentType === "stock_research" ? createStockResearchAgent(marketInput as ResearchAgentInput & { assetClass: "us_equity" }) : createCryptoResearchAgent(marketInput as ResearchAgentInput & { assetClass: "crypto" });
   stage = "research_agent";
