@@ -2,8 +2,8 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.348 — Research scheduler liveness guard.
-- **Status:** The Worker now marks a scheduled research process `degraded` when its next tick is more than two minutes overdue, while preserving the existing cadence and fail-closed execution path. Focused scheduler/app tests, Worker TypeScript, and ESLint pass. The live Worker remains healthy with a connected market stream and ready position management; authenticated dashboard rendering and Alpaca crypto entitlement resolution remain pending.
+- **Phase:** Phase 6.349 — Public Worker deployment of scheduler liveness guard.
+- **Status:** The liveness guard is now deployed to the public `worker` service (Railway deployment `d052b88b-0898-4631-9fee-517ffc7d178f`, `SUCCESS`). Its public health endpoint reports Paper Autopilot healthy, connected crypto stream, ready position management, and the next scheduled cycle at 13:15 UTC. Authenticated dashboard rendering and Alpaca crypto entitlement resolution remain pending.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Verify the first natural paper research/order cycle and authenticated dashboard portfolio/position rendering, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
@@ -166,6 +166,13 @@
 - [x] Add a bounded two-minute overdue-tick check to Worker research-scheduler health.
 - [x] Preserve `scheduled` status during the grace period and report `degraded` only after the next tick is overdue.
 - [x] Add regression coverage; focused scheduler/app tests (16), Worker TypeScript, ESLint, and diff checks pass.
+- [ ] Observe the guard across a hosted missed-tick scenario without changing scheduler cadence or order behavior.
+
+### Phase 6.349 — Public Worker deployment of scheduler liveness guard (2026-08-28)
+
+- [x] Deploy the verified liveness-guard commit explicitly to Railway service `worker`.
+- [x] Confirm deployment `d052b88b-0898-4631-9fee-517ffc7d178f` reached `SUCCESS`.
+- [x] Confirm the public Worker health endpoint remains healthy after deployment.
 - [ ] Observe the guard across a hosted missed-tick scenario without changing scheduler cadence or order behavior.
 
 ### Phase 6.327 — Asset-aware crypto order execution (2026-08-28)
