@@ -2,11 +2,20 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.306 — Fresh hosted performance checkpoint.
-- **Status:** Hosted performance reconciliation remains ready with 100 persisted snapshots, final equity `99,391.01`, captured P&L `+0.06`, and maximum drawdown `0.00027165%`. The only stability block remains the intentional 30-day evidence requirement.
+- **Phase:** Phase 6.307 — Hosted broker-truth reconciliation.
+- **Status:** A guarded hosted paper reconciliation completed successfully with no order submission. Performance remains ready with 100 snapshots and the only stability block is the intentional 30-day evidence requirement.
 - **Current operating mode:** Paper Autopilot; continuous order submission is not enabled.
 - **Current goal:** Complete authenticated dashboard verification and reconcile the authorized AAPL order through its terminal broker state, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
+
+### Phase 6.307 — Hosted broker-truth reconciliation (2026-08-28)
+
+- [x] Run the guarded hosted paper reconciliation against Alpaca paper broker truth.
+- [x] Confirm reconciliation completed without submitting, cancelling, or modifying an order.
+- [x] Confirm performance report remains `ready` with 100 snapshots.
+- [x] Confirm only `minimum_30_consecutive_calendar_days_not_met` blocks stability.
+- [x] Confirm Worker health, research/durable schedulers, and position management remain healthy/ready.
+- [ ] Continue daily evidence and verify the next natural UTC cycle.
 
 ### Phase 6.306 — Fresh hosted performance checkpoint (2026-08-28)
 
