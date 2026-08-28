@@ -27,6 +27,14 @@
 - [ ] Verify the resulting live position and P/L through the authenticated dashboard/read model.
 - [ ] Continue the 30-day stable paper-forward evidence window.
 
+### Phase 6.398 — Dashboard build verification and publication queue (2026-08-28)
+
+- [x] Run the web typecheck and production build with Node `v24.15.0` / pnpm `11.22.0`.
+- [x] Run the complete repository suite: 80 test files and 317 tests passed; all eight workspace typechecks passed.
+- [x] Push the corrected dashboard source to the active GitHub branch.
+- [ ] Publish the Vercel production deployment after the provider's free daily deployment quota resets (current response: `api-deployments-free-per-day`).
+- [ ] Verify authenticated dashboard rendering against the reconciled BTC/USD position and P/L.
+
 ### Phase 6.387 — Hosted cycle baseline after reason-logging rollout (2026-08-28)
 
 - [x] Verify Worker deployment `8cabc43d-b343-47c1-9a0f-257198dabdcf` is `SUCCESS` and health is `healthy`.
