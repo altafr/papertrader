@@ -448,6 +448,13 @@
 - [x] Add a small fail-closed verifier with regression tests; it checks availability only and never attempts authentication or trading actions.
 - [ ] Observe the first scheduled run including the dashboard check.
 
+### Phase 6.455 — Reusable public-surface command (2026-08-29)
+
+- [x] Expose the dashboard availability verifier as `pnpm verify:public-surface` for local and CI use.
+- [x] Update the scheduled monitor and README runbook to use the shared command.
+- [x] Re-run the focused verifier tests and lint successfully.
+- [ ] Observe the first scheduled run including the shared command.
+
 ### Phase 6.387 — Hosted cycle baseline after reason-logging rollout (2026-08-28)
 
 - [x] Verify Worker deployment `8cabc43d-b343-47c1-9a0f-257198dabdcf` is `SUCCESS` and health is `healthy`.

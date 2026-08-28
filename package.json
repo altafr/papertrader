@@ -19,7 +19,8 @@
     "typecheck": "pnpm -r --if-present typecheck",
     "verify:operator-auth-boundary": "tsx scripts/verify-operator-auth-boundary.ts",
     "verify:operator-overview": "tsx scripts/verify-operator-overview.ts",
-    "verify:paper-runtime": "tsx scripts/verify-paper-runtime.ts"
+    "verify:paper-runtime": "tsx scripts/verify-paper-runtime.ts",
+    "verify:public-surface": "tsx scripts/verify-public-surface.ts"
   },
   "devDependencies": {
     "@eslint/js": "9.39.5",

@@ -39,4 +39,4 @@ jobs:
       - name: Verify public dashboard surface
         env:
           PAPERTRADER_WEB_URL: ${{ vars.PAPERTRADER_WEB_URL || 'https://papertrader-web.vercel.app/' }}
-        run: pnpm exec tsx scripts/verify-public-surface.ts
+        run: pnpm verify:public-surface

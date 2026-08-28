@@ -62,6 +62,8 @@ Hosted health monitors:
 
 - [Railway API health](https://api-production-e0a6.up.railway.app/health)
 - [Railway Worker health](https://worker-production-b362.up.railway.app/health)
+
+The same public-surface check used by the scheduled monitor can be run locally with `PAPERTRADER_WEB_URL=https://papertrader-web.vercel.app/ pnpm verify:public-surface`.
 - [Vercel dashboard](https://papertrader-web.vercel.app)
 
 The health endpoints expose redacted operational state only. They do not expose credentials or provide order authority.
