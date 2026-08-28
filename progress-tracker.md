@@ -790,6 +790,13 @@
 - [x] Verify decimal-summary tests and Worker typecheck/lint passed before deployment.
 - [ ] Verify the next persisted market-close summary delivery and continue the paper-forward evidence window.
 
+### Phase 6.509 — Position-level daily Telegram digest (2026-08-29)
+
+- [x] Add a bounded position-level symbol/P&L digest to the once-daily market-close summary.
+- [x] Preserve aggregate P/L, decimal-safe formatting, invalid-data fail-closed behavior, and notification cooldowns.
+- [x] Add regression coverage for equity and crypto position labels.
+- [ ] Deploy the Worker revision and verify the next market-close delivery.
+
 ### Phase 6.458 — Natural hosted cycle continuity (2026-08-29)
 
 - [x] Verify the hosted Worker remains healthy on release `febcda5f7a5…` with Paper Autopilot and order submission still enabled.

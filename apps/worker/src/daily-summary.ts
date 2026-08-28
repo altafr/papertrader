@@ -4,7 +4,7 @@ export type DailySummaryInput = {
   readonly equity: string;
   readonly lastEquity?: string;
   readonly orders: number;
-  readonly positions: readonly { readonly marketValue: string; readonly unrealizedPl: string }[];
+  readonly positions: readonly { readonly marketValue: string; readonly symbol?: string; readonly unrealizedPl: string }[];
 };
 
 function metric(value: string | undefined): string {
@@ -21,6 +21,7 @@ export function formatDailyPortfolioSummary(input: DailySummaryInput): string {
   const unrealizedPnl = sum(input.positions.map((position) => position.unrealizedPl));
   const dayPnl = input.lastEquity === undefined ? undefined : (() => { try { return subtractDecimalStrings(input.equity, input.lastEquity); } catch { return undefined; } })();
   const exposure = sum(input.positions.map((position) => position.marketValue));
-  return `Market session summary (paper): equity ${input.equity}, cash ${input.cash}, buying power ${input.buyingPower}, day P/L ${metric(dayPnl)}, unrealized P/L ${metric(unrealizedPnl)}, gross exposure ${metric(exposure)}, open positions ${input.positions.length}, tracked orders ${input.orders}.`;
+  const positionDigest = input.positions.slice(0, 10).map((position) => `${position.symbol ?? "unknown"} ${metric(position.unrealizedPl)}`).join(", ") || "none";
+  return `Market session summary (paper): equity ${input.equity}, cash ${input.cash}, buying power ${input.buyingPower}, day P/L ${metric(dayPnl)}, unrealized P/L ${metric(unrealizedPnl)}, gross exposure ${metric(exposure)}, open positions ${input.positions.length}, position P/L [${positionDigest}], tracked orders ${input.orders}.`;
 }
 import { addDecimalStrings, formatDecimalString, subtractDecimalStrings } from "@momentum/domain";

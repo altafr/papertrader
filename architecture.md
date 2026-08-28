@@ -40,6 +40,8 @@ It also carries a bounded `activeExitPositions` projection derived from all non-
 
 Telegram portfolio summaries use the same decimal-safe financial helpers as risk/performance calculations; invalid persisted values fail closed to `not reported` rather than being coerced through binary floating-point arithmetic.
 
+The once-daily market-close summary also includes a bounded (maximum ten) `symbol P/L` digest from the reconciled position model, so the operator can identify position-level contribution without receiving per-tick notification noise.
+
 Position management also maintains an active-exit set from a full-ledger persisted submission query (not the bounded recent-history view). If a deterministic stop, target, or time-stop exit is already in a non-terminal broker state, subsequent 60-second passes continue to evaluate and observe the position but do not invoke a second broker submission path. Terminal states remain eligible for a later, newly evaluated lifecycle only when the reconciled position still exists.
 
 Before each scheduled risk cycle, the Worker refreshes the persisted account read model from Alpaca paper state. This keeps the candidate decision and any optionally enabled submission behind a current account/positions/orders reconciliation rather than relying on an older daily snapshot.
