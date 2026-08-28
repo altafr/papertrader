@@ -187,8 +187,8 @@ export interface DurableQueueSender {
   send(name: string, data?: object | null, options?: { readonly id?: string }): Promise<string | null>;
 }
 
-export function getDailyPreparationJobId(now = new Date()): string {
-  const digest = createHash("sha256").update(`momentum:daily-preparation:${now.toISOString().slice(0, 10)}`).digest();
+export function getDailyPreparationJobId(now = new Date(), runId = getManualDailyRunId(now)): string {
+  const digest = createHash("sha256").update(`momentum:daily-preparation:${runId}`).digest();
   digest[6] = ((digest[6] ?? 0) & 0x0f) | 0x50;
   digest[8] = ((digest[8] ?? 0) & 0x3f) | 0x80;
   const hex = digest.subarray(0, 16).toString("hex");
@@ -203,9 +203,9 @@ export function getManualDailyRunId(now = new Date()): string {
   return `manual-daily-preparation-${now.toISOString().slice(0, 10)}`;
 }
 
-export async function enqueueDailyPreparation(sender: DurableQueueSender, now = new Date()): Promise<{ readonly jobId: string; readonly queued: boolean }> {
-  const jobId = getDailyPreparationJobId(now);
-  const sentId = await sender.send(DAILY_PREPARATION_QUEUE, { kind: "daily_preparation", runId: getManualDailyRunId(now), version: 1 }, { id: jobId });
+export async function enqueueDailyPreparation(sender: DurableQueueSender, now = new Date(), runId = getManualDailyRunId(now)): Promise<{ readonly jobId: string; readonly queued: boolean }> {
+  const jobId = getDailyPreparationJobId(now, runId);
+  const sentId = await sender.send(DAILY_PREPARATION_QUEUE, { kind: "daily_preparation", runId, version: 1 }, { id: jobId });
   return { jobId, queued: sentId !== null };
 }
 

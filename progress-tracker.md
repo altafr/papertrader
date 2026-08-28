@@ -16,6 +16,12 @@
 - [x] Confirm the latest scheduled daily audit remains completed and Worker health remains healthy/scheduled.
 - [ ] Verify the next UTC scheduled cycle produces at most one routine digest per scope.
 
+### Phase 6.267 — Fresh guarded-run trigger support (2026-08-28)
+
+- [x] Allow the guarded queue command to accept a bounded, non-secret run ID for a fresh verification trigger.
+- [x] Keep default same-day idempotency and UUID job IDs unchanged.
+- [ ] Deploy and run a fresh trigger, then verify its manual audit record completes.
+
 ### Phase 6.265 — Legacy queue cleanup and scheduler recovery (2026-08-28)
 
 - [x] Remove only the validated stale pre-fix retry job; terminal failure/dead-letter history remains retained.
