@@ -5335,3 +5335,10 @@
 - This ensures failed or alternate-cancellation broker transitions are surfaced as warning-level lifecycle events while preserving the existing dedupe key and paper-only execution boundary.
 - Verification: position-management runtime tests passed (9 tests), Worker TypeScript check passed, and targeted ESLint passed.
 - **Next smallest unit:** deploy this alert hardening and run the hosted reconciliation smoke check against the Railway Worker.
+
+### 2026-08-28 — Phase 6.257 hosted reconciliation smoke check
+
+- Ran the deployed one-shot reconciliation command on Railway with its explicit reconciliation guard enabled.
+- Result: `Paper reconciliation completed.` The Worker remains healthy in `paper_autopilot` mode with position management ready.
+- No credentials or raw notification payloads were printed; the command only reconciled broker state into the existing durable ledger.
+- **Next smallest unit:** verify the authenticated dashboard’s live portfolio/read-model view against this refreshed snapshot, then continue the 30-day evidence run.
