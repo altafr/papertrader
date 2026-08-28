@@ -250,6 +250,13 @@
 - [x] Confirm no kill-switch or readiness blockage was introduced by the documentation/release updates.
 - [ ] Continue the 30-day paper-forward evidence window and verify the authenticated dashboard/CSV view when operator credentials are available.
 
+### Phase 6.428 — Hosted research scheduler readiness checkpoint (2026-08-29)
+
+- [x] Run the guarded hosted research-readiness check.
+- [x] Confirm database, broker connection, paper credentials/mode, handler, and scheduler gates are all ready.
+- [x] Confirm the separate one-shot market preflight remains approval-gated and refuses to run without its explicit operator approval flag; no safety boundary was bypassed.
+- [ ] Continue observing scheduled market-data cycles and accumulate the 30-day paper-forward evidence window.
+
 ### Phase 6.387 — Hosted cycle baseline after reason-logging rollout (2026-08-28)
 
 - [x] Verify Worker deployment `8cabc43d-b343-47c1-9a0f-257198dabdcf` is `SUCCESS` and health is `healthy`.
