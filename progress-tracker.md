@@ -2,11 +2,18 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.268 — Fresh guarded-run end-to-end verification.
+- **Phase:** Phase 6.269 — Paper Autopilot runtime readiness.
 - **Status:** Notification delivery remains enabled, but routine research selections and portfolio/P&L summaries now use durable 24-hour cooldown checks. Individual rejected risk candidates are retained in the audit/dashboard and no longer generate Telegram warnings; approved selections, order/position lifecycle events, and failures remain immediate. Local tests, Worker typecheck, and lint pass; Railway deployment is healthy and reports the active policy. GitHub-triggered Vercel previews are Ready; production publish remains quota-limited.
 - **Current operating mode:** Paper Autopilot; continuous order submission is not enabled.
 - **Current goal:** Complete authenticated dashboard verification and reconcile the authorized AAPL order through its terminal broker state, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
+
+### Phase 6.269 — Paper Autopilot runtime readiness (2026-08-28)
+
+- [x] Run the guarded hosted runtime-readiness check without exposing secrets or submitting an order.
+- [x] Confirm all paper, broker, database, scheduler, baseline, risk-policy, and kill-switch gates pass.
+- [x] Confirm reconciliation freshness is `fresh` (39 seconds at capture) and execution status remains `dry_run`.
+- [ ] Verify the next scheduled daily cycle and its once-per-24-hour digest behavior.
 
 ### Phase 6.268 — Fresh guarded-run end-to-end verification (2026-08-28)
 
