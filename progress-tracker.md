@@ -2,8 +2,8 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.283 — Hosted portfolio status verification.
-- **Status:** The hosted Worker and API are healthy in Paper Autopilot mode with deterministic entry/exit safeguards, durable reconciliation, Telegram alerting, PostgreSQL-backed risk-cycle evidence, and a read-only portfolio status command. The verified feature branch still requires publication/merge; Vercel production publication is currently limited by the free-plan daily deployment quota, while the 30-day paper-forward evidence window and authenticated dashboard verification remain ongoing.
+- **Phase:** Phase 6.287 — Continuous paper runtime and dashboard publication check.
+- **Status:** The hosted Worker and API are healthy in Paper Autopilot mode with deterministic entry/exit safeguards, durable reconciliation, Telegram alerting, PostgreSQL-backed risk-cycle evidence, and a read-only portfolio status command. The latest persistence fix is deployed and verified in a scheduled cycle. Vercel production publication remains limited by the free-plan daily deployment quota, while the 30-day paper-forward evidence window and authenticated dashboard verification remain ongoing.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading, verify authenticated portfolio/P&L rendering and exports, and accumulate the 30-day evidence gate without loosening risk controls.
 - **Last updated:** 2026-08-29.
@@ -5538,3 +5538,10 @@
 - The 22:15 UTC scheduled cycle completed: one decision, one approved; Worker health retained `lastRiskCycleAt=2026-08-28T22:15:36.392Z` and scheduled the next run for 22:30 UTC.
 - Position management remains ready and the Worker remains healthy. This confirms the persistence fix is running in the always-on paper process.
 - **Next smallest unit:** continue the evidence run and publish the already-verified dashboard when Vercel’s daily deployment quota permits.
+
+### 2026-08-29 — Phase 6.287 continuous runtime and publication check
+
+- Confirmed the deployed Worker remains healthy with `operatingMode=paper_autopilot`, broker connection enabled, order submission enabled behind the server-side approval gate, crypto market stream connected, and position management ready.
+- Confirmed the 22:15 UTC research/risk cycle retained one approved decision and scheduled the next run for 22:30 UTC.
+- Attempted Vercel production publication from the authoritative branch; Vercel rejected it with the provider limit `api-deployments-free-per-day` (over 100 deployments), so no production-live claim is made for the newest dashboard source.
+- **Next smallest unit:** continue backend paper-forward evidence and publish/verify the dashboard immediately after the Vercel quota resets.
