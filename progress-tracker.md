@@ -627,6 +627,13 @@
 - [x] Confirm Railway Worker health remains healthy, stream-connected, scheduler-ready, and position-management-ready.
 - [ ] Observe a cron-triggered run and publish the queued Vercel heartbeat revision when quota permits.
 
+### Phase 6.484 — Hosted monitor recurrence (2026-08-29)
+
+- [x] Confirm the monitor run for commit `0d47db5` completed successfully.
+- [x] Confirm successive branch-triggered runs remain green using the unified runtime/public-surface verifier.
+- [x] Confirm no credentials or trading authority are used by the monitor.
+- [ ] Observe the first cron-triggered run and publish the queued Vercel heartbeat revision when quota permits.
+
 ### Phase 6.458 — Natural hosted cycle continuity (2026-08-29)
 
 - [x] Verify the hosted Worker remains healthy on release `febcda5f7a5…` with Paper Autopilot and order submission still enabled.
