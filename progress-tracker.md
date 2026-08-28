@@ -2,11 +2,19 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.293 — Dashboard production build checkpoint.
-- **Status:** The production dashboard route is live behind Clerk authentication and the optimized Next.js build succeeds. Railway research, reconciliation, and position-management loops remain scheduled/ready in paper mode. No order-submission setting changed.
+- **Phase:** Phase 6.294 — Production publication attempt.
+- **Status:** The verified dashboard build remains Ready on Vercel, but production promotion is still blocked by the free-tier limit of more than 100 deployments in 24 hours. No production or order-submission state changed.
 - **Current operating mode:** Paper Autopilot; continuous order submission is not enabled.
 - **Current goal:** Complete authenticated dashboard verification and reconcile the authorized AAPL order through its terminal broker state, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
+
+### Phase 6.294 — Production publication attempt (2026-08-28)
+
+- [x] Confirm a current-branch Vercel preview is `Ready` and contains the production dashboard build.
+- [x] Attempt production deployment from the verified workspace.
+- [x] Confirm Vercel rejected the deployment only for the daily free-tier quota; no partial promotion occurred.
+- [x] Preserve the existing production alias and paper-trading runtime unchanged.
+- [ ] Retry production publication after the quota window resets, then perform authenticated visual verification.
 
 ### Phase 6.293 — Dashboard production build checkpoint (2026-08-28)
 
