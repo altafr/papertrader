@@ -2,11 +2,17 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.259 — Dashboard notification policy surface.
+- **Phase:** Phase 6.260 — Guarded daily-cycle evidence attempt.
 - **Status:** Notification delivery remains enabled, but routine research selections and portfolio/P&L summaries now use durable 24-hour cooldown checks. Individual rejected risk candidates are retained in the audit/dashboard and no longer generate Telegram warnings; approved selections, order/position lifecycle events, and failures remain immediate. Local tests, Worker typecheck, and lint pass; Railway deployment is healthy and reports the active policy. GitHub-triggered Vercel previews are Ready; production publish remains quota-limited.
 - **Current operating mode:** Paper Autopilot; continuous order submission is not enabled.
 - **Current goal:** Complete authenticated dashboard verification and reconcile the authorized AAPL order through its terminal broker state, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
+
+### Phase 6.260 — Guarded daily-cycle evidence attempt (2026-08-28)
+
+- [x] Confirm the deployed Worker starts with the notification policy visible in its redacted health/log contract.
+- [ ] Complete a guarded durable run-once enqueue from the local operator environment; the command failed closed with a generic queue error after Railway variable injection, and no order-submission flag was changed.
+- [ ] Verify the resulting persisted daily digest and risk-cycle records after a successful scheduled run.
 
 ### Phase 6.259 — Dashboard notification policy surface (2026-08-28)
 
