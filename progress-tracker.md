@@ -2,8 +2,8 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.341 — Runtime verification configuration.
-- **Status:** The regression-verified runtime is deployed successfully to Railway. The read-only verification command now has documented non-secret URL configuration in `.env.example`; it checks API and Worker health, paper mode, order submission, connected market stream, and position-management readiness without reading credentials or placing orders. The hosted Worker remains healthy in Paper Autopilot; the remaining execution blocker is Alpaca's external crypto-order entitlement response. The current dashboard preview remains Ready, while production promotion is limited by Vercel's free-tier quota.
+- **Phase:** Phase 6.342 — Runtime verification contract tests.
+- **Status:** The regression-verified runtime is deployed successfully to Railway. The read-only verification command has documented non-secret URL configuration and now uses a separately unit-tested fail-closed contract for API/Worker health, paper mode, order submission, connected market stream, and position-management readiness. The hosted Worker remains healthy in Paper Autopilot; the remaining execution blocker is Alpaca's external crypto-order entitlement response. The current dashboard preview remains Ready, while production promotion is limited by Vercel's free-tier quota.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Verify the first natural paper research/order cycle and authenticated dashboard portfolio/position rendering, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
@@ -114,6 +114,12 @@
 - [x] Document the two non-secret health URL variables required by `pnpm verify:paper-runtime`.
 - [x] Keep the example file free of credentials and provider secrets.
 - [ ] Run the verifier again after the next natural scheduler cycle and record successful paper order reconciliation separately.
+
+### Phase 6.342 — Runtime verification contract tests (2026-08-28)
+
+- [x] Extract the runtime acceptance decision into a side-effect-free contract module.
+- [x] Add regression coverage for both healthy and fail-closed prerequisite states.
+- [ ] Run the verifier after the next natural scheduler cycle and record successful paper order reconciliation separately.
 
 ### Phase 6.327 — Asset-aware crypto order execution (2026-08-28)
 

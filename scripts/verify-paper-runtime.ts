@@ -1,5 +1,7 @@
 type JsonObject = Record<string, unknown>;
 
+import { evaluatePaperRuntime } from "./paper-runtime-contract.js";
+
 function isObject(value: unknown): value is JsonObject {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
@@ -16,21 +18,6 @@ const apiUrl = process.env.PAPERTRADER_API_HEALTH_URL?.trim();
 if (!workerUrl || !apiUrl) throw new Error("PAPERTRADER_WORKER_HEALTH_URL and PAPERTRADER_API_HEALTH_URL are required.");
 
 const [worker, api] = await Promise.all([readHealth(workerUrl), readHealth(apiUrl)]);
-const workerHealthy = worker.status === "healthy";
-const apiHealthy = api.status === "healthy";
-const paperMode = worker.operatingMode === "paper_autopilot";
-const stream = isObject(worker.marketStream) && worker.marketStream.status === "connected";
-const positionManagement = isObject(worker.positionManagement) && worker.positionManagement.status === "ready";
-const submission = worker.paperAutopilotOrderSubmissionEnabled === true;
-
-const result = {
-  api: apiHealthy ? "healthy" : "degraded",
-  worker: workerHealthy ? "healthy" : "degraded",
-  paperMode,
-  orderSubmissionEnabled: submission,
-  marketStream: stream ? "connected" : "not_connected",
-  positionManagement: positionManagement ? "ready" : "not_ready",
-  verified: workerHealthy && apiHealthy && paperMode && submission && stream && positionManagement,
-};
+const result = evaluatePaperRuntime(worker, api);
 console.log(JSON.stringify(result));
 if (!result.verified) process.exitCode = 1;
