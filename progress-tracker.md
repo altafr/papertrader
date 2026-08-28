@@ -2,11 +2,29 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.317 — Railway diagnostic command-path hardening.
-- **Status:** The reconciliation runbook now documents the deployed Worker’s `/app/apps/worker/dist` compiled command path and a bounded read-only performance-report example, preventing false failures from root-level path assumptions. The resulting branch CI verification also completed successfully. Paper-only runtime and order safeguards remain unchanged.
+- **Phase:** Phase 6.319 — Asset-aware research cadence.
+- **Status:** Research preparation now supports a 15-minute cadence with crypto eligible on every tick and stock work restricted to the first and last two regular New York session hours. Local verification passed; hosted configuration has been set, but the deployment must be rebuilt from this branch before the new code is active.
 - **Current operating mode:** Paper Autopilot; continuous order submission is not enabled.
 - **Current goal:** Complete authenticated dashboard verification and reconcile the authorized AAPL order through its terminal broker state, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
+
+### Phase 6.319 — Asset-aware research cadence (2026-08-28)
+
+- [x] Add timezone-safe weekday window detection for 09:30–11:30 and 14:00–16:00 America/New_York.
+- [x] Filter stock preparation outside those windows while keeping crypto preparation eligible on every tick.
+- [x] Support minute-interval scheduler health calculation for `*/15 * * * *`.
+- [x] Verify 77 test files / 297 tests, ESLint, and Worker TypeScript checks locally.
+- [x] Set Railway Worker cadence variables to `RESEARCH_PREPARATION_CRON=*/15 * * * *` and `RESEARCH_STOCK_WINDOW_ONLY=true`.
+- [ ] Rebuild the Worker from the phase branch and verify the full configured health contract after deployment.
+
+### Phase 6.318 — Hosted paper-performance heartbeat (2026-08-28)
+
+- [x] Run the deployed read-only performance report through the corrected `/app/apps/worker/dist` command path.
+- [x] Confirm report status `ready` with 100 reconciled snapshots and one consecutive calendar day.
+- [x] Record the current evidence: first capture `2026-08-28T09:36:00.560Z`, last capture `2026-08-28T11:15:50.593Z`, final equity `99,391.19`, captured P&L `+0.02`, and maximum drawdown `0.00027165%`.
+- [x] Confirm the only stability block remains `minimum_30_consecutive_calendar_days_not_met`.
+- [x] Confirm the command was read-only and continuous paper-order submission remains disabled.
+- [ ] Verify the natural daily scheduler cycle after `2026-08-29T00:00:00Z` and append its persisted audit evidence.
 
 ### Phase 6.317 — Railway diagnostic command-path hardening (2026-08-28)
 

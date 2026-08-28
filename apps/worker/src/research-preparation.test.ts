@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import type { ResearchAgentInput } from "@momentum/domain";
 
-import { createResearchPreparationPlan, createResearchPreparationQueueHandler, executeResearchPreparation, getResearchPreparationConfig, getResearchRecommendationDedupeKey } from "./research-preparation.js";
+import { createResearchPreparationPlan, createResearchPreparationQueueHandler, executeResearchPreparation, getResearchPreparationConfig, getResearchRecommendationDedupeKey, isUsStockResearchWindow } from "./research-preparation.js";
 
 const input = (assetClass: ResearchAgentInput["assetClass"]): ResearchAgentInput => ({
   assetClass,
@@ -17,6 +17,12 @@ const input = (assetClass: ResearchAgentInput["assetClass"]): ResearchAgentInput
 });
 
 describe("research preparation", () => {
+  it("admits stock research only in the first and last two New York session hours", () => {
+    expect(isUsStockResearchWindow(new Date("2026-08-28T14:00:00.000Z"))).toBe(true); // 10:00 ET
+    expect(isUsStockResearchWindow(new Date("2026-08-28T18:30:00.000Z"))).toBe(true); // 14:30 ET
+    expect(isUsStockResearchWindow(new Date("2026-08-28T16:00:00.000Z"))).toBe(false); // 12:00 ET
+    expect(isUsStockResearchWindow(new Date("2026-08-29T14:00:00.000Z"))).toBe(false); // Saturday
+  });
   it("uses one recommendation notification bucket per agent and UTC day", () => {
     expect(getResearchRecommendationDedupeKey("stock_research", new Date("2026-08-23T02:01:00.000Z"))).toBe("research_recommendations:stock_research:2026-08-23");
   });
@@ -83,6 +89,18 @@ describe("research preparation", () => {
       "research_recommendations:stock_research:2026-08-23",
       "research_recommendations:crypto_research:2026-08-23",
     ]);
+  });
+
+  it("keeps crypto running outside stock windows when stock-window mode is enabled", async () => {
+    const source = { read: vi.fn(async (plan) => input(plan.assetClass)) };
+    const handler = createResearchPreparationQueueHandler({
+      clock: () => new Date("2026-08-28T16:00:00.000Z"),
+      environment: { ALPACA_API_KEY: "paper-key", ALPACA_SECRET_KEY: "paper-secret", ALPACA_PAPER_TRADE: "true", BROKER_CONNECTION_ENABLED: "true", DATABASE_URL: "postgres://private", RESEARCH_CRYPTO_SYMBOLS: "BTC/USD", RESEARCH_HANDLER_ENABLED: "true", RESEARCH_SCHEDULER_ENABLED: "true", RESEARCH_STOCK_SYMBOLS: "AAPL", RESEARCH_STOCK_WINDOW_ONLY: "true", TRADING_MODE: "paper" },
+      persistence: { enqueue: async () => {}, start: async () => {}, succeed: async () => {}, fail: async () => {} },
+      source,
+    });
+    await expect(handler({ kind: "research_preparation", version: 1 })).resolves.toEqual([expect.objectContaining({ agentType: "crypto_research", status: "succeeded" })]);
+    expect(source.read).toHaveBeenCalledTimes(1);
   });
 
   it("retains a successful asset artifact when another asset source is unavailable", async () => {

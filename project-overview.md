@@ -69,6 +69,8 @@ In Paper Autopilot, “no approval required” means no operator confirmation is
 5. Produce a ranked watchlist, scenario plan, risk budget, and reasons for exclusions.
 6. Persist the plan before the session opens.
 
+When the continuous research cadence is enabled, crypto preparation runs every configured interval (15 minutes in production), while stock preparation is admitted only during the first two hours (09:30–11:30 ET) and last two hours (14:00–16:00 ET) of regular weekday trading. This scheduling filter does not bypass any risk, freshness, exposure, or paper-mode gate.
+
 ### Continuous Crypto Preparation
 
 1. Refresh the eligible crypto universe and liquidity filters on a configured interval.

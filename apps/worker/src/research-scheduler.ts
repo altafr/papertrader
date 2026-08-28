@@ -139,6 +139,16 @@ export async function runResearchPreparationJob(input: {
 }
 
 function nextResearchRunAt(now: Date, cron: string): string | undefined {
+  const intervalMatch = /^\*\/(\d+) \* \* \* \*$/.exec(cron);
+  if (intervalMatch) {
+    const intervalMinutes = Number(intervalMatch[1]);
+    if (Number.isSafeInteger(intervalMinutes) && intervalMinutes >= 1 && intervalMinutes <= 60) {
+      const next = new Date(now);
+      next.setUTCSeconds(0, 0);
+      next.setUTCMinutes(Math.floor(next.getUTCMinutes() / intervalMinutes) * intervalMinutes + intervalMinutes);
+      return next.toISOString();
+    }
+  }
   if (cron !== RESEARCH_PREPARATION_CRON) return undefined;
   const next = new Date(now);
   next.setUTCHours(24, 0, 0, 0);

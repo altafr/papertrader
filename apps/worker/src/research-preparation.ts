@@ -21,6 +21,7 @@ export interface ResearchPreparationConfig {
   readonly stockSymbols: readonly string[];
   readonly stockTimeframe: ResearchPreparationInputPlan["timeframe"];
   readonly cryptoSymbols: readonly string[];
+  readonly stockWindowOnly: boolean;
 }
 
 export interface ResearchPreparationSource {
@@ -62,6 +63,25 @@ function parseSymbols(name: string, value: string | undefined): readonly string[
   return Object.freeze(symbols);
 }
 
+function parseBoolean(name: string, value: string | undefined, defaultValue: boolean): boolean {
+  if (value === undefined) return defaultValue;
+  if (value === "true") return true;
+  if (value === "false") return false;
+  throw new Error(`${name} must be exactly true or false.`);
+}
+
+/** Stock research is admitted only during the first and last two hours of the
+ * regular New York session. Crypto remains eligible at every scheduler tick. */
+export function isUsStockResearchWindow(now: Date): boolean {
+  const parts = new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", hour: "2-digit", minute: "2-digit", hourCycle: "h23", weekday: "short" }).formatToParts(now);
+  const weekday = parts.find((part) => part.type === "weekday")?.value;
+  const hour = Number(parts.find((part) => part.type === "hour")?.value ?? "-1");
+  const minute = Number(parts.find((part) => part.type === "minute")?.value ?? "-1");
+  if (!["Mon", "Tue", "Wed", "Thu", "Fri"].includes(weekday ?? "")) return false;
+  const totalMinutes = hour * 60 + minute;
+  return (totalMinutes >= 570 && totalMinutes < 690) || (totalMinutes >= 840 && totalMinutes < 960);
+}
+
 export function getResearchPreparationConfig(environment: NodeJS.ProcessEnv = process.env): ResearchPreparationConfig {
   const stockTimeframe = environment.RESEARCH_STOCK_TIMEFRAME ?? environment.RESEARCH_TIMEFRAME ?? "1Day";
   const cryptoTimeframe = environment.RESEARCH_CRYPTO_TIMEFRAME ?? environment.RESEARCH_TIMEFRAME ?? "1Hour";
@@ -74,6 +94,7 @@ export function getResearchPreparationConfig(environment: NodeJS.ProcessEnv = pr
     maxCandidates: parseBoundedInteger("RESEARCH_MAX_CANDIDATES", environment.RESEARCH_MAX_CANDIDATES, 10, 1, 20),
     stockSymbols: parseSymbols("RESEARCH_STOCK_SYMBOLS", environment.RESEARCH_STOCK_SYMBOLS ?? environment.RESEARCH_SYMBOLS),
     stockTimeframe: stockTimeframe as ResearchPreparationInputPlan["timeframe"],
+    stockWindowOnly: parseBoolean("RESEARCH_STOCK_WINDOW_ONLY", environment.RESEARCH_STOCK_WINDOW_ONLY, false),
   };
 }
 
@@ -133,7 +154,9 @@ export function createResearchPreparationQueueHandler(input: {
     void job;
     const readiness = getResearchScheduleReadiness(environment);
     if (readiness.status !== "ready") throw new Error(`Research preparation is not ready: ${readiness.status}.`);
-    const plans = createResearchPreparationPlan(getResearchPreparationConfig(environment));
+    const preparationConfig = getResearchPreparationConfig(environment);
+    const plans = createResearchPreparationPlan(preparationConfig).filter((plan) => !preparationConfig.stockWindowOnly || plan.assetClass === "crypto" || isUsStockResearchWindow(input.clock?.() ?? new Date()));
+    if (plans.length === 0) return [];
     const results: ResearchPreparationResult[] = [];
     for (const preparation of plans) {
       try {

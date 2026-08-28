@@ -8,6 +8,8 @@
 
 The target architecture is a continuously running server-side system. Railway's persistent Worker owns the durable orchestration loop while specialist research, macro, strategy, risk-explanation, execution, reconciliation, position-management, and monitoring agents communicate through persisted, versioned artifacts. The dashboard is an observer/control surface and must not be required for operation. Portfolio-profit optimization is measured as risk-adjusted performance improvement inside the deterministic paper-risk policy; it never overrides freshness checks, exposure limits, exit plans, kill switches, or paper/live mode gates.
 
+The research cadence is asset-aware: crypto preparation may run every 15 minutes for 24/7 markets, while stock preparation is admitted only during 09:30–11:30 ET and 14:00–16:00 ET on regular weekdays. A scheduler tick outside those stock windows skips stock work but never skips crypto monitoring or deterministic safety checks.
+
 ### Scheduled candidate-to-risk boundary (Phase 6.210)
 
 The research preparation worker now passes validated watchlist candidates to a paper-risk cycle whenever Paper Autopilot is the resolved operating mode. The cycle uses the latest persisted account read model, applies freshness, baseline, exposure, loss, and kill-switch checks, and persists each decision with point-in-time market evidence. This phase intentionally stops before broker submission; the order executor remains a separately gated boundary so a recommendation cannot place an order by itself.
