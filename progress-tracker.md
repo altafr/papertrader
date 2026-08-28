@@ -2,8 +2,8 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.286 — One-run contention containment.
-- **Status:** A guarded manual scheduler attempt was stopped after it failed to obtain its audit provenance while the persistent Worker owned the shared queue. The recurring Worker remains healthy/scheduled, queues are drained of actionable jobs, and no execution setting changed. The manual one-run command must not be retried against the shared queue while recurring scheduling is active.
+- **Phase:** Phase 6.287 — Guarded daily cycle consumed and verified.
+- **Status:** A fresh guarded enqueue was consumed by the persistent Worker through the normal daily handler. Audit `manual-daily-preparation-phase-6-288` completed, reconciliation was fresh, queues had zero queued/active jobs, and the read-only verifier returned `verified`. No order-submission setting changed.
 - **Current operating mode:** Paper Autopilot; continuous order submission is not enabled.
 - **Current goal:** Complete authenticated dashboard verification and reconcile the authorized AAPL order through its terminal broker state, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
@@ -128,6 +128,14 @@
 - [x] Confirm durable queues have zero queued/active jobs; only retained historical failure count remains.
 - [x] Confirm continuous paper-order submission remains disabled and no broker order was created by the attempt.
 - [ ] Verify the next natural UTC cycle; do not run a shared-queue manual command while the recurring scheduler is active.
+
+### Phase 6.287 — Guarded daily cycle consumed and verified (2026-08-28)
+
+- [x] Enqueue a fresh guarded daily job with run ID `manual-daily-preparation-phase-6-288` through the durable queue path.
+- [x] Confirm the persistent Worker consumed the job and completed the matching scheduler audit.
+- [x] Confirm audit completion at `2026-08-28T01:56:40Z` with fresh reconciliation captured after cycle start.
+- [x] Confirm both durable queues have zero queued/active jobs and the verifier returned `status: "verified"`.
+- [ ] Verify the next natural UTC cycle and continue the 30-day evidence record.
 
 ### Phase 6.269 — Paper Autopilot runtime readiness (2026-08-28)
 
