@@ -2,8 +2,8 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.331 — Failure-reason alert propagation.
-- **Status:** Alpaca-compatible crypto order handling is deployed: crypto entries and exits are normalized to `gtc`, while equities remain `day`; crypto symbols receive safe internal intent IDs; provider HTTP 403 responses are classified as a redacted crypto entitlement blocker; and failed-entry Telegram alerts include that bounded reason. Continuous Worker health, live positions, dashboard route, and Telegram delivery remain verified.
+- **Phase:** Phase 6.332 — Dashboard feed-status wording.
+- **Status:** Alpaca-compatible crypto order handling is deployed: crypto entries and exits are normalized to `gtc`, while equities remain `day`; crypto symbols receive safe internal intent IDs; provider HTTP 403 responses are classified as a redacted crypto entitlement blocker; failed-entry Telegram alerts include that bounded reason; and the dashboard no longer falsely reports server-side feeds as disconnected. Continuous Worker health, live positions, dashboard route, and Telegram delivery remain verified.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Verify the first natural paper research/order cycle and authenticated dashboard portfolio/position rendering, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
@@ -41,6 +41,13 @@
 - [x] Add regression coverage for crypto entitlement alert messaging.
 - [x] Verify focused Worker/Alpaca tests (10), Worker TypeScript, and ESLint pass.
 - [ ] Deploy and confirm the next approved crypto attempt produces the bounded Telegram reason.
+
+### Phase 6.332 — Dashboard feed-status wording (2026-08-28)
+
+- [x] Remove misleading dashboard labels that reported server-side market/trade feeds as disconnected or disabled.
+- [x] Clearly label those feeds as server-side and direct operators to Worker health for stream status.
+- [x] Verify dashboard state tests (10), web TypeScript, ESLint, and production Next.js build pass.
+- [ ] Publish the verified dashboard build to the production Vercel alias when deployment quota permits.
 
 ### Phase 6.327 — Asset-aware crypto order execution (2026-08-28)
 

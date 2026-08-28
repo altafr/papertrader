@@ -410,7 +410,7 @@ export default async function DashboardPage({ searchParams }: { readonly searchP
           <div className="health-summary" aria-label="Service health summary">
             <span className="label">System state</span>
             <StatusBadge state={result.kind === "ready" ? freshness : "degraded"} />
-            <span className="health-detail">Market stream: not connected</span>
+            <span className="health-detail">Market stream: server-side · see Worker health</span>
           </div>
         </div>
       </section>
@@ -481,8 +481,8 @@ export default async function DashboardPage({ searchParams }: { readonly searchP
             <p className="label">Data health</p>
             <div className="card-heading"><h2>{result.model.freshness.ageSeconds}s old</h2><StatusBadge state={freshness} /></div>
             <p>Last reconciliation: {formatUtc(result.model.freshness.capturedAt)}</p>
-            <p>Market stream: <strong>Not connected</strong></p>
-            <p>Trade stream: <strong>Not enabled</strong></p>
+            <p>Market stream: <strong>Server-side</strong></p>
+            <p>Trade stream: <strong>Server-side reconciliation</strong></p>
           </article>
 
           <article className="card full-width" id="positions">
