@@ -5418,6 +5418,13 @@
 - The Railway Worker continues in paper-autopilot mode with research scheduling and 60-second position management enabled.
 - **Next smallest unit:** publish the dashboard after the Vercel quota resets and validate the authenticated risk-cycle card against PostgreSQL.
 
+### 2026-08-29 — Phase 6.270 research health telemetry preservation
+
+- Diagnosed a live observability defect: the scheduled tick completion update replaced the risk-cycle telemetry immediately after a successful risk run.
+- Fixed the scheduler state transition to merge, rather than overwrite, the risk-cycle fields; added a regression test proving approved/decision counts survive completion.
+- Verification: Worker tests (11 tests), TypeScript, and ESLint passed. The prior hosted log confirms the research batch and risk cycle both succeeded; this change preserves that evidence in health.
+- **Next smallest unit:** deploy the fix and verify the live Worker health retains risk-cycle counters after the next scheduled tick.
+
 ### 2026-08-29 — Phase 6.269 dashboard build verification
 
 - Verified the updated Next.js dashboard production build locally after adding durable risk-cycle evidence; compilation, TypeScript, static generation, and dynamic route analysis all succeeded.

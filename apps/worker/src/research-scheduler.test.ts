@@ -83,4 +83,17 @@ describe("research schedule boundary", () => {
     await scheduler.stop();
     expect(calls.at(-1)).toBe("stop");
   });
+
+  it("preserves risk-cycle telemetry when a scheduled tick completes", async () => {
+    let workerHandler: ((jobs: readonly { readonly data: unknown }[]) => Promise<unknown>) | undefined;
+    const client = {
+      start: async () => {}, stop: async () => {}, createQueue: async () => {}, schedule: async () => {},
+      work: async <T>(_name: string, handler: (jobs: readonly { readonly data: T }[]) => Promise<unknown>) => { workerHandler = handler as (jobs: readonly { readonly data: unknown }[]) => Promise<unknown>; return "worker"; },
+    };
+    const scheduler = createResearchScheduler({ clientFactory: () => client, config: { cron: RESEARCH_PREPARATION_CRON, enabled: true, handlerEnabled: true, retryDelaySeconds: 1, retryLimit: 1 }, environment: { ALPACA_API_KEY: "key", ALPACA_SECRET_KEY: "secret", ALPACA_PAPER_TRADE: "true", BROKER_CONNECTION_ENABLED: "true", DATABASE_URL: "postgres://private", RESEARCH_HANDLER_ENABLED: "true", RESEARCH_SCHEDULER_ENABLED: "true", TRADING_MODE: "paper" }, now: () => new Date("2026-08-23T01:00:00.000Z"), runPreparation: async () => { setResearchRiskCycleHealth({ approved: 1, decisions: 2, status: "completed", at: "2026-08-23T01:00:05.000Z" }); } });
+    await scheduler.start();
+    await workerHandler?.([{ data: { kind: "research_preparation", version: 1 } }]);
+    expect(getResearchSchedulerHealth()).toMatchObject({ lastRiskApprovedCount: 1, lastRiskCycleAt: "2026-08-23T01:00:05.000Z", lastRiskCycleStatus: "completed", lastRiskDecisionCount: 2 });
+    await scheduler.stop();
+  });
 });

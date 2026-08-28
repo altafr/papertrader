@@ -209,7 +209,7 @@ export function createResearchScheduler(input: {
           try {
             for (const job of jobs) await runResearchPreparationJob({ job: job.data, run: input.runPreparation });
             const nextRunAt = getNextResearchRunAt(now(), input.config.cron);
-            schedulerHealth = { enabled: true, handlerEnabled: input.config.handlerEnabled, lastRunAt: now().toISOString(), ...(nextRunAt ? { nextRunAt } : {}), status: "scheduled" };
+            schedulerHealth = { ...schedulerHealth, enabled: true, handlerEnabled: input.config.handlerEnabled, lastRunAt: now().toISOString(), ...(nextRunAt ? { nextRunAt } : {}), status: "scheduled" };
           } catch (error) {
             schedulerHealth = { ...schedulerHealth, status: "degraded" };
             throw error;
