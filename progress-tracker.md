@@ -5446,6 +5446,13 @@
 - Verification: focused API/Worker tests (14 tests), TypeScript, and ESLint passed.
 - **Next smallest unit:** deploy the timestamp correction and confirm the read-only Railway status command reports the 22:00 decision.
 
+### 2026-08-29 — Phase 6.281 scheduled-cycle telemetry confirmation
+
+- The 22:00 UTC scheduled research batch completed successfully after the watchdog deployment; Worker health retained `lastRiskCycleStatus: completed`, `lastRiskDecisionCount: 1`, and `lastRiskApprovedCount: 1`, with the next run scheduled for 22:15 UTC.
+- Position management completed its corresponding pass and remained ready; no stale watchdog event fired.
+- The timestamp-correction API/Worker deployments reached `SUCCESS` and API health remained healthy.
+- **Next smallest unit:** continue scheduled cycles and reconcile approved intents against their broker order/position state in the authenticated operator view.
+
 ### 2026-08-29 — Phase 6.273 post-fix regression and hosted verification
 
 - Full regression passed: 86 files and 345 tests.
