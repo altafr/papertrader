@@ -588,6 +588,12 @@
 - [x] Run the unified hosted verifier against the deployed Worker/API and Vercel surface; it returned runtime `verified: true` and dashboard HTTP `200`.
 - [x] Confirm the paper safety contract remains intact after rollout.
 
+### Phase 6.478 — Current unified verification continuity (2026-08-29)
+
+- [x] Confirm Railway deployment for commit `d1bd791` reached `SUCCESS`.
+- [x] Run `pnpm verify:hosted` against the current release; runtime returned `verified: true` and the public Vercel surface returned HTTP `200`.
+- [x] Confirm all safety and scheduler checks remain passing after the rollout.
+
 ### Phase 6.458 — Natural hosted cycle continuity (2026-08-29)
 
 - [x] Verify the hosted Worker remains healthy on release `febcda5f7a5…` with Paper Autopilot and order submission still enabled.
