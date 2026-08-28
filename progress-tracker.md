@@ -341,6 +341,13 @@
 - [x] Verify the full test suite passes with 320 tests, Worker typecheck passes, and lint passes.
 - [ ] Deploy and verify a hosted close-hour summary event with the isolated cooldown scope.
 
+### Phase 6.440 — Isolated close-summary deployment (2026-08-29)
+
+- [x] Confirm Railway deployment `4b9282fe-a2f9-4d6e-a5c1-dca337e5d32d` for commit `e5ad3ec` reached `SUCCESS`.
+- [x] Confirm the live Worker is healthy and running the corrected close-summary routing.
+- [x] Confirm the durable alert ledger still contains only prior fallback summaries; no unverified close-hour delivery was inferred.
+- [ ] Verify a new close-hour summary event during the next eligible New York 16:00 scheduler window.
+
 ### Phase 6.387 — Hosted cycle baseline after reason-logging rollout (2026-08-28)
 
 - [x] Verify Worker deployment `8cabc43d-b343-47c1-9a0f-257198dabdcf` is `SUCCESS` and health is `healthy`.
