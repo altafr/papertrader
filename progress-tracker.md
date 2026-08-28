@@ -2,11 +2,19 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.309 — Pre-cycle post-deployment heartbeat.
-- **Status:** At `2026-08-28T04:08Z`, the deployed Worker remains healthy in paper mode; both research and durable schedulers target `2026-08-29T00:00Z`, and position management remains ready. No additional cycle is claimed before the boundary.
+- **Phase:** Phase 6.310 — Operator monitoring-link alignment.
+- **Status:** Updated the README monitoring link from a stale preview deployment to the stable Vercel production dashboard alias. Runtime and trading state remain unchanged.
 - **Current operating mode:** Paper Autopilot; continuous order submission is not enabled.
 - **Current goal:** Complete authenticated dashboard verification and reconcile the authorized AAPL order through its terminal broker state, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
+
+### Phase 6.310 — Operator monitoring-link alignment (2026-08-28)
+
+- [x] Replace the stale Vercel preview URL in README monitoring links.
+- [x] Point operators to `https://papertrader-web.vercel.app`.
+- [x] Preserve Railway health links and paper-only execution safeguards.
+- [x] Push the documentation update in commit `df26dcd`.
+- [ ] Continue daily evidence and verify the next natural scheduler cycle.
 
 ### Phase 6.309 — Pre-cycle post-deployment heartbeat (2026-08-28)
 
