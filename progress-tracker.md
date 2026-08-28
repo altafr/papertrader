@@ -173,6 +173,13 @@
 - [x] Preserve the explicit distinction that Telegram delivery verification is still unverified and alerting cannot affect trading decisions.
 - [ ] Complete the guarded Telegram delivery verification and publish the latest dashboard revision.
 
+### Phase 6.417 — Telegram readiness evidence (2026-08-29)
+
+- [x] Confirm hosted Worker reports Telegram alerts `enabled` and `ready` with approved-only risk notifications and a 24-hour routine cooldown.
+- [x] Confirm the guarded Telegram test remains blocked because its explicit operator approval reference is absent; no test message was sent.
+- [x] Preserve the safety boundary that alert delivery cannot alter broker, risk, or scheduler behavior.
+- [ ] Obtain an explicit test approval reference and verify delivery, then publish the latest dashboard revision after Vercel quota reset.
+
 ### Phase 6.387 — Hosted cycle baseline after reason-logging rollout (2026-08-28)
 
 - [x] Verify Worker deployment `8cabc43d-b343-47c1-9a0f-257198dabdcf` is `SUCCESS` and health is `healthy`.
