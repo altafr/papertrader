@@ -2,11 +2,19 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.337 — Exit submission alert deployment verification.
+- **Phase:** Phase 6.338 — Market-stream stale watchdog.
 - **Status:** The hosted Worker and API are healthy in Paper Autopilot mode with deterministic entry/exit safeguards, durable reconciliation, Telegram alerting, lifecycle-stable PostgreSQL-backed risk evidence, and a read-only portfolio status command. The latest provenance and evidence guards are deployed and verified. Vercel production publication remains limited by the free-plan daily deployment quota, while the 30-day paper-forward evidence window and authenticated dashboard verification remain ongoing.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading, verify authenticated portfolio/P&L rendering and exports, and accumulate the 30-day evidence gate without loosening risk controls.
 - **Last updated:** 2026-08-29.
+
+### Phase 6.338 — Market-stream stale watchdog (2026-08-29)
+
+- [x] Add a one-minute Worker watchdog that detects a connected stream with no message for five minutes.
+- [x] Emit one deduplicated critical Telegram alert per stale episode and clear the latch after freshness recovers.
+- [x] Stop the watchdog cleanly with the stream supervisor; no broker or risk authority is added.
+- [x] Focused market/position tests pass and Worker typecheck passes.
+- [ ] Deploy the Worker revision and verify hosted health remains healthy with a fresh stream.
 
 ### Phase 6.337 — Exit submission alert deployment verification (2026-08-29)
 

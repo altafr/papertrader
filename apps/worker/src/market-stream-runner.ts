@@ -78,6 +78,25 @@ export function startPaperMarketStream(environment = process.env) {
   let socket: RuntimeSocket | undefined;
   const alertDatabase = environment.DATABASE_URL?.trim() ? createDatabase(environment.DATABASE_URL) : undefined;
   const notifier = createRuntimeAlertNotifier(environment, alertDatabase ? createTelegramAlertRepository(alertDatabase.db) : undefined);
+  let staleAlertSent = false;
+  const staleWatchdog = setInterval(() => {
+    const freshness = getMarketStreamHealth().freshness;
+    if (freshness === "fresh") {
+      staleAlertSent = false;
+      return;
+    }
+    if (freshness !== "stale" || staleAlertSent) return;
+    staleAlertSent = true;
+    void notifier.notify({
+      code: "market_stream_stale",
+      cooldownKey: `market_stream_stale:${configuration.assetClass}`,
+      cooldownMs: 86_400_000,
+      dedupeKey: `market_stream_stale:${configuration.assetClass}`,
+      message: `Market stream is stale for ${configuration.assetClass}; no new decisions should rely on stale data until supervised recovery restores freshness.`,
+      severity: "critical",
+    });
+  }, 60_000);
+  staleWatchdog.unref();
 
   const connect = () => {
     if (stopped) return;
@@ -112,6 +131,7 @@ export function startPaperMarketStream(environment = process.env) {
   connect();
   return () => {
     stopped = true;
+    clearInterval(staleWatchdog);
     socket?.close();
     marketStreamHealth = { ...marketStreamHealth, status: "stopped" };
   };
