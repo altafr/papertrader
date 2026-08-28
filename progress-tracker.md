@@ -2,8 +2,8 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.357 — Always-on scheduler acceptance contract.
-- **Status:** The hosted runtime verifier now confirms both the 15-minute research scheduler and durable daily scheduler are enabled and reporting future runs, alongside healthy Paper Autopilot, connected market data, and ready position management. Authenticated dashboard rendering, a successful broker-reconciled order, and Alpaca crypto entitlement resolution remain pending.
+- **Phase:** Phase 6.358 — Multi-candidate paper hand-off throughput.
+- **Status:** Broker-enabled research cycles now evaluate up to 10 persisted candidates and submit at most one approved order, so a blocked BTC/USD candidate cannot starve eligible stock candidates. The full regression suite passes. Authenticated dashboard rendering, a successful broker-reconciled order, and Alpaca crypto entitlement resolution remain pending.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Verify the first natural paper research/order cycle and authenticated dashboard portfolio/position rendering, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
@@ -15,6 +15,14 @@
 - [x] Add fail-closed regression coverage for degraded research scheduling and incomplete durable-scheduler health.
 - [x] Verify the hosted API and Worker: both services are healthy, Paper Autopilot and order submission are enabled, market data is connected, position management is ready, research is scheduled, and the durable scheduler is scheduled.
 - [ ] Verify authenticated dashboard rendering and reconcile a successful paper order; these require operator session access and Alpaca's external crypto entitlement response.
+
+### Phase 6.358 — Multi-candidate paper hand-off throughput (2026-08-28)
+
+- [x] Identify that broker-enabled cycles stopped after evaluating only the first candidate.
+- [x] Evaluate up to 10 candidates per cycle while preserving the single-order-per-reconciled-cycle invariant.
+- [x] Persist every candidate's deterministic risk decision; stop only after the first approved execution.
+- [x] Verify the complete regression suite: 78 files and 304 tests passed.
+- [ ] Reconcile a successful paper order once an eligible candidate passes risk and Alpaca accepts the request.
 
 ### Phase 6.356 — Natural 14:15 UTC crypto cycle (2026-08-28)
 

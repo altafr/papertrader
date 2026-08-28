@@ -5,9 +5,15 @@ import { createAccountStateRepository, createPaperOrderRepository, type Database
 
 import { assessResearchCandidateRisk, buildRiskCandidate, isPaperBaselineVerified } from "./paper-risk-dry-run.js";
 
-/** Keep broker-enabled cycles to one approval against a single reconciled snapshot. */
+/**
+ * Bound each cycle to a small candidate set. Broker-enabled cycles still
+ * submit at most one order, but must evaluate more than the first candidate:
+ * a blocked crypto symbol must not prevent an otherwise eligible equity
+ * candidate from reaching the deterministic risk gate.
+ */
 export function selectPaperAutopilotCandidates<T>(candidates: readonly T[], executeApproved: boolean): readonly T[] {
-  return candidates.slice(0, executeApproved ? 1 : 10);
+  void executeApproved;
+  return candidates.slice(0, 10);
 }
 
 export interface PaperAutopilotRiskCycleResult {
@@ -57,8 +63,8 @@ export async function runPaperAutopilotRiskCycle(input: {
   };
   const repository = createPaperOrderRepository(input.db);
   const results: PaperAutopilotRiskCycleResult[] = [];
-  // A broker-enabled cycle is deliberately bounded to one entry. The next
-  // cycle re-reconciles account/positions before considering another candidate.
+  // A broker-enabled cycle evaluates a bounded candidate set but submits at
+  // most one entry. The next cycle re-reconciles before considering another.
   const candidates = selectPaperAutopilotCandidates(input.candidates, Boolean(input.executeApproved));
   for (const candidate of candidates) {
     const candidateAge = now.getTime() - Date.parse(candidate.dataAsOf);
@@ -90,6 +96,8 @@ export async function runPaperAutopilotRiskCycle(input: {
     results.push({ approvalStatus: approval.status, executionStatus, intentId, symbol: candidate.symbol });
     if (shouldNotifyPaperRiskDecision(approval.status)) {
       await input.notify?.({ code: "paper_risk_decision", dedupeKey: `paper_risk_decision:${intentId}`, message: `${candidate.symbol} selected for paper trading: deterministic risk checks approved.${input.approvalReference ? ` Reference ${input.approvalReference}.` : ""}`, severity: "info" });
+      // Do not place a second entry in the same reconciled cycle.
+      if (input.executeApproved) break;
     }
   }
   return results;

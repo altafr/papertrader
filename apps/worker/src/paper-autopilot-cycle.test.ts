@@ -5,8 +5,8 @@ import { selectPaperAutopilotCandidates, shouldNotifyPaperRiskDecision } from ".
 describe("paper autopilot candidate bound", () => {
   const candidates = Array.from({ length: 12 }, (_, index) => `candidate-${index + 1}`);
 
-  it("limits broker-enabled cycles to one candidate", () => {
-    expect(selectPaperAutopilotCandidates(candidates, true)).toEqual(["candidate-1"]);
+  it("evaluates a bounded set before selecting at most one order", () => {
+    expect(selectPaperAutopilotCandidates(candidates, true)).toEqual(candidates.slice(0, 10));
   });
 
   it("keeps dry-run visibility bounded at ten candidates", () => {
