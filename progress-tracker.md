@@ -2,8 +2,8 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.277 — Post-order position and performance verification.
-- **Status:** The authorized AAPL paper order is now represented in the managed read model: position management reports one managed position with no exit submission required. The performance report is ready with one evidence day and a negligible current drawdown; the only stability blocker is the required 30 consecutive calendar days. Continuous order submission remains disabled.
+- **Phase:** Phase 6.278 — Notification and lifecycle gate verification.
+- **Status:** The authorized AAPL paper order is represented in the managed read model and position management reports one managed position with no exit submission required. Telegram delivery configuration is ready; only the optional test-message approval reference is missing. The performance report has one evidence day, so the remaining stability gate is 30 consecutive calendar days. Continuous order submission remains disabled.
 - **Current operating mode:** Paper Autopilot; continuous order submission is not enabled.
 - **Current goal:** Complete authenticated dashboard verification and reconcile the authorized AAPL order through its terminal broker state, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
@@ -67,6 +67,14 @@
 - [x] Confirm one managed position and zero exit submissions; the stored deterministic exit plan remains active.
 - [x] Generate the read-only paper performance report: one calendar evidence day, total P&L `-0.02`, and max drawdown `0.00002012%` at capture.
 - [ ] Continue daily reconciliation, position management, and evidence collection toward 30 consecutive calendar days.
+
+### Phase 6.278 — Notification and lifecycle gate verification (2026-08-28)
+
+- [x] Confirm the managed position remains under the deterministic exit-plan monitor with zero exit submissions.
+- [x] Run the Telegram no-send test preflight; delivery configuration and credential formats are valid.
+- [x] Confirm no test notification was sent while the non-secret approval reference is absent.
+- [ ] Supply a separate Telegram test approval reference only if a test message is desired.
+- [ ] Continue daily evidence collection toward 30 consecutive calendar days.
 
 ### Phase 6.269 — Paper Autopilot runtime readiness (2026-08-28)
 
