@@ -17,6 +17,7 @@
 - [x] Verify the focused execution tests and full suite: 79 files and 311 tests passed.
 - [x] Deploy the guard to the explicit Railway Worker service; deployment `4d97a07b-d547-45f9-8128-cd87c16d33eb` reached `SUCCESS`.
 - [x] Verify hosted health remains configured, paper-only, connected, scheduled, and position-management ready.
+- [x] Verify all eight package/application TypeScript projects with direct `tsc --noEmit` checks.
 - [ ] Observe the next natural cycle and reconcile a successful paper order.
 
 ### Phase 6.357 — Always-on scheduler acceptance contract (2026-08-28)
