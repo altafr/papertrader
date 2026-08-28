@@ -2,7 +2,7 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.262 — Durable queue job-id compatibility.
+- **Phase:** Phase 6.263 — Manual daily-run audit identity.
 - **Status:** Notification delivery remains enabled, but routine research selections and portfolio/P&L summaries now use durable 24-hour cooldown checks. Individual rejected risk candidates are retained in the audit/dashboard and no longer generate Telegram warnings; approved selections, order/position lifecycle events, and failures remain immediate. Local tests, Worker typecheck, and lint pass; Railway deployment is healthy and reports the active policy. GitHub-triggered Vercel previews are Ready; production publish remains quota-limited.
 - **Current operating mode:** Paper Autopilot; continuous order submission is not enabled.
 - **Current goal:** Complete authenticated dashboard verification and reconcile the authorized AAPL order through its terminal broker state, then continue the 30-day paper-forward evidence gate.
@@ -30,9 +30,11 @@
 
 ### Phase 6.263 — Manual daily-run audit identity (2026-08-28)
 
-- [x] Give manually enqueued daily jobs a distinct bounded audit run ID so they cannot collide with the same-day scheduled run.
-- [x] Preserve scheduled-run IDs and queue idempotency for normal cron execution.
-- [ ] Deploy and verify the queued manual job is consumed and completes its audit lifecycle.
+- [x] Deploy the distinct manual audit run ID fix; Railway deployment `72911f7c-6f72-4147-94cd-c5e90a8b0673` reached `SUCCESS`.
+- [x] Confirm the daily scheduled run completed successfully in `durable_schedule_runs` with no failure code.
+- [x] Re-run the manual trigger; it returned `queued:false` against the existing idempotent job, without creating a broker order.
+- [x] Verify 293 tests, Worker TypeScript, ESLint, and diff hygiene.
+- [ ] Verify a fresh manual trigger on the next UTC date completes under its distinct audit ID; two pre-fix retry jobs remain queued and require bounded cleanup/expiry.
 
 ### Phase 6.259 — Dashboard notification policy surface (2026-08-28)
 
