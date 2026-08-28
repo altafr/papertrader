@@ -14,6 +14,7 @@ export interface PaperOrderApproval {
   readonly approvalId: string;
   readonly intentId: string;
   readonly riskDecision?: {
+    readonly approvalStatus?: "approved" | "rejected";
     readonly estimatedLoss?: string;
     readonly estimatedLossPercent?: string;
     readonly policyVersion?: string;

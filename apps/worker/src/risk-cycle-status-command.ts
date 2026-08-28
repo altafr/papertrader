@@ -7,8 +7,8 @@ if (process.env.PAPER_RISK_CYCLE_STATUS !== "true") throw new Error("PAPER_RISK_
 const { pool } = createDatabase();
 try {
   const [summary, latest] = await Promise.all([
-    pool.query<{ readonly approved: number; readonly decisions: number }>("SELECT COUNT(*) FILTER (WHERE status = 'risk_dry_run_approved')::int AS approved, COUNT(*) FILTER (WHERE status LIKE 'risk_dry_run_%')::int AS decisions FROM paper_order_submissions WHERE COALESCE(updated_at, created_at) >= NOW() - INTERVAL '7 days'"),
-    pool.query<{ readonly updated_at: Date | null; readonly created_at: Date; readonly status: string }>("SELECT updated_at, created_at, status FROM paper_order_submissions WHERE status LIKE 'risk_dry_run_%' ORDER BY COALESCE(updated_at, created_at) DESC LIMIT 1"),
+    pool.query<{ readonly approved: number; readonly decisions: number }>("SELECT COUNT(*) FILTER (WHERE risk_decision->>'approvalStatus' = 'approved')::int AS approved, COUNT(*) FILTER (WHERE risk_decision IS NOT NULL)::int AS decisions FROM paper_order_submissions WHERE COALESCE(updated_at, created_at) >= NOW() - INTERVAL '7 days'"),
+    pool.query<{ readonly updated_at: Date | null; readonly created_at: Date; readonly status: string }>("SELECT updated_at, created_at, status FROM paper_order_submissions WHERE risk_decision IS NOT NULL ORDER BY COALESCE(updated_at, created_at) DESC LIMIT 1"),
   ]);
   const totals = summary.rows[0];
   const latestRow = latest.rows[0];

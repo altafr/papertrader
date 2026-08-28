@@ -39,7 +39,7 @@ export interface PersistedPaperOrderSubmission {
   readonly filledQuantity?: string;
   readonly intentId: string;
   readonly marketSnapshot?: Readonly<Record<string, string | null>>;
-  readonly riskDecision?: Readonly<{ readonly estimatedLoss?: string; readonly estimatedLossPercent?: string; readonly policyVersion?: string; readonly reasons?: readonly string[] }>;
+  readonly riskDecision?: Readonly<{ readonly approvalStatus?: "approved" | "rejected"; readonly estimatedLoss?: string; readonly estimatedLossPercent?: string; readonly policyVersion?: string; readonly reasons?: readonly string[] }>;
   readonly quantity: string;
   readonly entryPrice?: string;
   readonly exitPlanReference?: string;

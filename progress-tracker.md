@@ -5600,3 +5600,10 @@
 - Confirmed the live Worker remains healthy in `paper_autopilot` with the crypto stream connected, position management ready, and the next research tick scheduled for 22:30 UTC.
 - Confirmed the hosted paper-runtime verifier remains `verified:true`; no credentials were exposed and no risk or execution setting was changed.
 - **Next smallest unit:** capture the 22:30 UTC cycle and continue the 30-day paper-forward evidence record.
+
+### 2026-08-29 — Phase 6.296 lifecycle-stable risk evidence
+
+- Added explicit `approvalStatus` to persisted deterministic risk evidence for scheduled and guarded paper-order paths.
+- Updated API and Worker risk summaries to count durable risk evidence even after broker reconciliation changes the submission status.
+- Verification: all workspace typechecks, ESLint, and full regression passed (88 files, 353 tests).
+- **Next smallest unit:** deploy the evidence-query change and confirm the next cycle remains visible after any broker status transition.
