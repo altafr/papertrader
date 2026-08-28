@@ -133,6 +133,7 @@ export function createResearchSchedulerFromEnvironment(environment: NodeJS.Proce
     clientFactory: () => new PgBoss(databaseUrl),
     config,
     environment,
+    onStale: async (error) => { void error; await createRuntimeAlertNotifier(environment, alertRepository).notify({ code: "research_scheduler_stale", dedupeKey: "research_scheduler_stale", message: "Research scheduler missed its expected tick; no new paper decision was authorized until the next successful cycle.", severity: "critical", occurredAt: new Date().toISOString() }); },
     runPreparation: async (job) => { await handler(job); },
   });
 }

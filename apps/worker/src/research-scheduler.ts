@@ -184,11 +184,22 @@ export function createResearchScheduler(input: {
   readonly environment?: NodeJS.ProcessEnv;
   readonly now?: () => Date;
   readonly runPreparation: (job: ResearchPreparationJob) => Promise<void>;
+  readonly onStale?: (error: Error) => Promise<void> | void;
 }) {
   const environment = input.environment ?? process.env;
   const now = input.now ?? (() => new Date());
   let client: ResearchSchedulerClient | undefined;
   let started = false;
+  let watchdogTimer: ReturnType<typeof setInterval> | undefined;
+  let staleAlerted = false;
+  const watchdog = () => {
+    if (!started || staleAlerted) return;
+    const health = getResearchSchedulerHealth();
+    if (assessResearchSchedulerLiveness(health, now()).status !== "degraded") return;
+    schedulerHealth = { ...health, status: "degraded" };
+    staleAlerted = true;
+    void input.onStale?.(new Error("research_scheduler_stale"));
+  };
   return {
     async start(): Promise<void> {
       if (!input.config.enabled || started) return;
@@ -210,6 +221,7 @@ export function createResearchScheduler(input: {
             for (const job of jobs) await runResearchPreparationJob({ job: job.data, run: input.runPreparation });
             const nextRunAt = getNextResearchRunAt(now(), input.config.cron);
             schedulerHealth = { ...schedulerHealth, enabled: true, handlerEnabled: input.config.handlerEnabled, lastRunAt: now().toISOString(), ...(nextRunAt ? { nextRunAt } : {}), status: "scheduled" };
+            staleAlerted = false;
           } catch (error) {
             schedulerHealth = { ...schedulerHealth, status: "degraded" };
             throw error;
@@ -217,6 +229,8 @@ export function createResearchScheduler(input: {
         });
         const nextRunAt = getNextResearchRunAt(now(), input.config.cron);
         schedulerHealth = { enabled: true, handlerEnabled: input.config.handlerEnabled, ...(nextRunAt ? { nextRunAt } : {}), status: "scheduled" };
+        watchdogTimer = setInterval(watchdog, 60_000);
+        watchdogTimer.unref?.();
       } catch (error) {
         started = false;
         schedulerHealth = { enabled: true, handlerEnabled: input.config.handlerEnabled, status: "degraded" };
@@ -229,6 +243,9 @@ export function createResearchScheduler(input: {
       started = false;
       if (client) await client.stop();
       client = undefined;
+      if (watchdogTimer) clearInterval(watchdogTimer);
+      watchdogTimer = undefined;
+      staleAlerted = false;
       schedulerHealth = { enabled: input.config.enabled, handlerEnabled: input.config.handlerEnabled, status: "disabled" };
     },
   };

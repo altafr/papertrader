@@ -5466,6 +5466,13 @@
 - This confirms the operator verification path can inspect durable risk evidence without dashboard access or broker mutation.
 - **Next smallest unit:** verify the next scheduled cycle’s retained Worker counters and reconcile any approved decision with its corresponding paper submission/position state.
 
+### 2026-08-29 — Phase 6.278 research scheduler stale watchdog
+
+- Added a bounded liveness watchdog to the continuous research scheduler. If an expected tick is missed beyond its two-minute grace window, health becomes degraded and one deduplicated critical Telegram alert is emitted; a successful tick clears the latch.
+- This closes the always-on failure-observability gap without authorizing orders or changing risk policy.
+- Verification: research scheduler/runtime tests (19 tests), Worker TypeScript, and ESLint passed.
+- **Next smallest unit:** deploy the watchdog and verify the Worker remains healthy through the next scheduled tick.
+
 ### 2026-08-29 — Phase 6.275 architecture evidence contract
 
 - Documented the durable risk-cycle evidence contract in `architecture.md`, including its PostgreSQL source, seven-day window, bounded serialization, and restart-safe behavior.
