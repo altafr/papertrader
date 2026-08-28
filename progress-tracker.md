@@ -2,8 +2,8 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.396 — Conservative hosted crypto sizing and operator-surface correction.
-- **Status:** The hosted Worker now has a reviewed `0.001` crypto quantity override, which keeps the BTC/USD paper candidate within the configured crypto and gross-exposure caps. The public landing page now accurately describes continuous paper submission as enabled behind deterministic gates. The next natural cross-asset cycle and successful broker-reconciled order remain pending.
+- **Phase:** Phase 6.397 — First natural broker-reconciled paper order.
+- **Status:** The hosted Worker completed a natural 15:45 UTC crypto cycle and recorded an approved BTC/USD decision with `executionStatus: reconciled` after the conservative `0.001` sizing override. Continuous paper trading is now evidenced end to end for this cycle; the 30-day paper-forward evidence window and authenticated dashboard verification remain ongoing.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Verify the first natural paper research/order cycle and authenticated dashboard portfolio/position rendering, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
@@ -14,8 +14,18 @@
 - [x] Set `PAPER_AUTOPILOT_CRYPTO_QUANTITY=0.001` in Railway production; no risk limit or live-trading setting changed.
 - [x] Confirm the resulting Worker deployment `75d88b82-ffc8-425c-b928-ef0a2426e538` reached `SUCCESS`.
 - [x] Correct the public landing page so its execution-gate description matches the enabled Paper Autopilot runtime.
-- [ ] Observe the next scheduled cycle and confirm Alpaca acknowledgement/reconciliation for an eligible candidate.
+- [x] Observe the 15:45 UTC scheduled cycle and confirm an approved BTC/USD decision with `executionStatus: reconciled`.
 - [ ] Run the web build with the hosted/bundled Node runtime; the local Node 22.9.0 is below pnpm's required 22.13 minimum.
+
+### Phase 6.397 — First natural broker-reconciled paper order (2026-08-28)
+
+- [x] Confirm Worker health advanced `lastRunAt` to `2026-08-28T15:45:11Z` and scheduled the next tick for `16:00 UTC`.
+- [x] Confirm the crypto research agent produced one bounded BTC/USD candidate.
+- [x] Confirm deterministic risk approved the candidate with no rejection reasons.
+- [x] Confirm the structured risk-cycle record reports `executionStatus: reconciled` and intent `intent:BTC_USD:2026-08-28T15:00:00Z`.
+- [x] Confirm no duplicate candidate or second order was submitted in the cycle.
+- [ ] Verify the resulting live position and P/L through the authenticated dashboard/read model.
+- [ ] Continue the 30-day stable paper-forward evidence window.
 
 ### Phase 6.387 — Hosted cycle baseline after reason-logging rollout (2026-08-28)
 
