@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { buildPositionExitDecisionLog, buildPositionExitDecisionMessage, buildPositionManagementLog, buildUnmanagedPositionLog, getActiveExitIntentIds, getFreshPositionMark, getPaperOrderStatusTransitions, getPositionDetectedDedupeKey, getPositionExitDecisionDedupeKey, getPositionExitIntentId, groupPositionSymbolsByAssetClass, isTerminalPaperOrderStatus } from "./position-management-runtime.js";
+import { buildPaperExitSubmittedMessage, buildPositionExitDecisionLog, buildPositionExitDecisionMessage, buildPositionManagementLog, buildUnmanagedPositionLog, getActiveExitIntentIds, getFreshPositionMark, getPaperOrderStatusTransitions, getPositionDetectedDedupeKey, getPositionExitDecisionDedupeKey, getPositionExitIntentId, groupPositionSymbolsByAssetClass, isTerminalPaperOrderStatus } from "./position-management-runtime.js";
 import { assessPositionManagementLiveness } from "./position-management-scheduler.js";
 
 describe("paper order status transitions", () => {
@@ -78,5 +78,9 @@ describe("position pass observability", () => {
 
   it("explains an exit with the stored deterministic plan", () => {
     expect(buildPositionExitDecisionMessage({ currentPrice: "95", entryPrice: "100", plannedStopPrice: "95", plannedTargetPrice: "104", reason: "stop_loss", strategyKey: "momentum", strategyVersion: "1.0.0", symbol: "AAPL" })).toContain("Strategy momentum 1.0.0; entry 100, stop 95, target 104");
+  });
+
+  it("includes bounded symbols and deterministic reasons in the aggregate exit alert", () => {
+    expect(buildPaperExitSubmittedMessage([{ symbol: "AAPL", reason: "stop_loss" }, { symbol: "BTC/USD", reason: "profit_target" }])).toContain("AAPL (stop_loss), BTC/USD (profit_target)");
   });
 });

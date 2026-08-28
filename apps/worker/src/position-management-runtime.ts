@@ -89,6 +89,16 @@ export function buildPositionExitDecisionMessage(input: { readonly currentPrice:
   return `Paper exit decision: ${input.symbol} ${input.reason} at ${input.currentPrice}. Strategy ${input.strategyKey} ${input.strategyVersion}; entry ${input.entryPrice}, stop ${input.plannedStopPrice}${input.plannedTargetPrice ? `, target ${input.plannedTargetPrice}` : ""}. Triggered by the stored deterministic exit plan.`.slice(0, 900);
 }
 
+/** Keep the aggregate submission alert actionable without duplicating full decision alerts. */
+export function buildPaperExitSubmittedMessage(decisions: readonly { readonly symbol: string; readonly reason?: string }[]): string {
+  const digest = decisions
+    .filter((decision) => decision.symbol.trim().length > 0)
+    .slice(0, 10)
+    .map((decision) => `${decision.symbol} (${decision.reason ?? "deterministic exit"})`)
+    .join(", ");
+  return `Deterministic paper exit submitted for ${decisions.length} managed position(s): ${digest || "details unavailable"}. Broker reconciliation will confirm final status.`.slice(0, 900);
+}
+
 /** Bounded record for positions that cannot yet be managed by a stored exit plan. */
 export function buildUnmanagedPositionLog(symbols: readonly string[]) {
   return { event: "unmanaged_position_detected", level: "warn", symbols: symbols.filter((symbol) => symbol.trim().length > 0).slice(0, 10) } as const;
@@ -208,8 +218,9 @@ export async function runPositionManagementCycle(environment: NodeJS.ProcessEnv 
       await notifier.notify({ code: "position_exit_decision", dedupeKey: getPositionExitDecisionDedupeKey(intentId, decision.reason), message: source ? buildPositionExitDecisionMessage({ currentPrice: decision.exitPrice, entryPrice: source.entryPrice, plannedStopPrice: source.plannedStopPrice, ...(source.plannedTargetPrice ? { plannedTargetPrice: source.plannedTargetPrice } : {}), reason: decision.reason, strategyKey: source.strategyKey, strategyVersion: source.strategyVersion, symbol: decision.symbol }) : `${decision.symbol} exit decision: ${decision.reason} at mark ${decision.exitPrice}. This was triggered by the stored deterministic exit plan.`, severity: decision.reason === "stop_loss" ? "critical" : "info" });
     }
     if (result.submitted > 0) {
-      const submittedSymbols = result.decisions.filter((decision) => decision.shouldExit).map((decision) => decision.symbol).sort().join(",");
-      await notifier.notify({ code: "paper_exit_submitted", dedupeKey: `paper_exit_submitted:${submittedSymbols}`, message: `Deterministic paper exit submitted for ${result.submitted} managed position(s). Broker reconciliation will confirm final status.`, severity: "warning" });
+      const submittedDecisions = result.decisions.filter((decision) => decision.shouldExit);
+      const submittedSymbols = submittedDecisions.map((decision) => decision.symbol).sort().join(",");
+      await notifier.notify({ code: "paper_exit_submitted", dedupeKey: `paper_exit_submitted:${submittedSymbols}`, message: buildPaperExitSubmittedMessage(submittedDecisions), severity: "warning" });
     }
     console.log(JSON.stringify(buildPositionManagementLog({ managed: managed.length, positions: positions.length, submitted: result.submitted, symbols: managed.map((position) => position.symbol) })));
     return { managed: managed.length, submitted: result.submitted };
