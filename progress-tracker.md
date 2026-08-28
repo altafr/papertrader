@@ -308,7 +308,9 @@
 - [x] Emit the daily portfolio summary from the freshly reconciled account model during that close hour, even when no candidates are produced.
 - [x] Reuse the existing once-per-day cooldown and dedupe key so the durable UTC daily fallback cannot create duplicate Telegram notifications.
 - [x] Add timezone-boundary regression coverage; full test suite passes with 319 tests, Worker typecheck passes, and lint passes.
-- [ ] Deploy the Worker revision and verify one hosted close-hour summary event without exposing Telegram credentials.
+- [x] Deploy Worker revision `879818c632b89f780674ffd16c6494087553ada7`; Railway deployment `3ce18c04-1b59-4c4a-b89d-436cf18e5dbe` reached `SUCCESS`.
+- [x] Confirm the live Worker is healthy, research remains scheduled, position management is ready, and the crypto stream is connected after deployment.
+- [ ] Verify one hosted close-hour summary event without exposing Telegram credentials when the next 16:00 New York scheduler tick runs.
 
 ### Phase 6.387 — Hosted cycle baseline after reason-logging rollout (2026-08-28)
 
