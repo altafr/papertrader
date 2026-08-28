@@ -532,6 +532,12 @@
 - [x] Add regression coverage for a missing approval reference; runtime-contract tests and lint pass.
 - [ ] Verify the hardened contract after the current Railway rollout reaches `SUCCESS`.
 
+### Phase 6.469 — Submission-approval deployment verified (2026-08-29)
+
+- [x] Confirm Railway deployment for commit `d480e51` reached `SUCCESS`.
+- [x] Verify the live contract reports an explicit submission approval reference, inactive kill switch, connected stream, ready position management, and active schedulers.
+- [x] Confirm the full hosted verifier returns `verified: true` with paper mode preserved.
+
 ### Phase 6.458 — Natural hosted cycle continuity (2026-08-29)
 
 - [x] Verify the hosted Worker remains healthy on release `febcda5f7a5…` with Paper Autopilot and order submission still enabled.
