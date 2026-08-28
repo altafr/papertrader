@@ -207,6 +207,12 @@
 - [x] Confirm Paper Autopilot and the next research tick remain scheduled after reconnect.
 - [ ] Continue monitoring reconnect/gap behavior through the next cycle.
 
+### Phase 6.422 — Bootstrap documentation clarification (2026-08-29)
+
+- [x] Mark Phase 0.4/1/1.2 README instructions as historical bootstrap notes.
+- [x] Add an explicit warning not to revert current hosted Paper Autopilot variables to those initial defaults.
+- [x] Keep live health links and the progress tracker as the authoritative current-state references.
+
 ### Phase 6.387 — Hosted cycle baseline after reason-logging rollout (2026-08-28)
 
 - [x] Verify Worker deployment `8cabc43d-b343-47c1-9a0f-257198dabdcf` is `SUCCESS` and health is `healthy`.

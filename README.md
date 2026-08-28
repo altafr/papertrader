@@ -78,7 +78,9 @@ Railway PostgreSQL is the selected system of record. Railway also hosts the auth
 
 For the Alpaca MCP connection, configure `ALPACA_API_KEY`, `ALPACA_SECRET_KEY`, `ALPACA_PAPER_TRADE=true`, and a least-privilege `ALPACA_TOOLSETS` list in the MCP client's environment/secret configuration. Do not place their values in these files.
 
-### Phase 0.4 operator setup
+### Phase 0.4 operator setup (historical bootstrap notes)
+
+These steps describe the initial provisioning stage. The hosted system has since progressed to Paper Autopilot with broker reads, continuous scheduling, deterministic risk approval, and guarded paper submission enabled. Use the live health links and `progress-tracker.md` for the current state; do not revert production variables to the bootstrap defaults below.
 
 1. In Alpaca, select the Paper Trading account. Verify the account balance is the required `USD 100,000` baseline; create a new paper account if necessary. Generate fresh paper API keys after creating an account.
 2. In Railway, set `APP_ENVIRONMENT=production-paper`, `TRADING_MODE=paper`, `ALPACA_PAPER_TRADE=true`, and leave `BROKER_CONNECTION_ENABLED=false` until the later read-only broker adapter is implemented.
@@ -89,11 +91,11 @@ For the Alpaca MCP connection, configure `ALPACA_API_KEY`, `ALPACA_SECRET_KEY`, 
 
 Telegram is the selected primary notification provider. Keep `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID` only in the Railway worker service variables. Leave `TELEGRAM_ALERTS_ENABLED=false` until the guarded channel test has passed. To send one approved test message, use the deployed worker with command-scoped `TELEGRAM_ALERTS_ENABLED=true`, `TELEGRAM_ALERT_TEST=true`, and a bounded `TELEGRAM_ALERT_TEST_APPROVAL_REFERENCE`, then run `pnpm --filter @momentum/worker telegram-alert-test`. The command prints only a generic success/failure message and never prints the token, chat ID, or Telegram response.
 
-### Phase 1 Clerk setup
+### Phase 1 Clerk setup (historical bootstrap notes)
 
 Create one Clerk application for the dashboard. Set the publishable key, secret key, exact operator user ID, and authorized Vercel origin only in the relevant hosted service variables. Vercel requires `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY`, `CLERK_OPERATOR_USER_ID`, and `CLERK_AUTHORIZED_PARTIES`; Railway API requires server-side `CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY`, `CLERK_OPERATOR_USER_ID`, and `CLERK_AUTHORIZED_PARTIES`. The API rejects missing or non-operator sessions. Do not enable public application authority through a frontend route guard alone.
 
-### Phase 1.2 account read setup
+### Phase 1.2 account read setup (historical bootstrap notes)
 
 The reviewed migration is `packages/db/migrations/0001_account_read_models.sql`. Apply it through Railway's controlled migration process; the application does not run migrations automatically at startup. The authenticated Railway API exposes `GET /v1/account`, which remains `503 broker_not_configured` until `BROKER_CONNECTION_ENABLED=true`. Only then does it read the existing paper Alpaca credentials from Railway server variables. The adapter is read-only and accepts only `https://paper-api.alpaca.markets`; it has no order methods.
 
