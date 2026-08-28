@@ -21,6 +21,7 @@
 - [x] Verify the persisted read model after reconciliation: equity `99392.30000000`, AAPL position `1.00000000`, and PFD position `2903.00000000` are available for dashboard/API rendering.
 - [x] Reconcile again at `2026-08-28T12:05:13.633Z`; the new AAPL order remains `new`/`0.00000000` filled, consistent with the premarket check, while live positions remain persisted.
 - [x] Verify Telegram events are delivered (`sent`) for paper entry submission, paper entry failure, position detection, and daily portfolio summaries.
+- [x] Query Alpaca directly at `2026-08-28T12:07:11.722Z`: account `ACTIVE`, equity `99392.22`, AAPL quantity `1` with unrealized P/L `2.02`, PFD quantity `2903` with unrealized P/L `-609.63`; order `4af1ef57-4c1f-4c82-9e1a-725704ad28d2` remains `new`/zero-filled pending the regular session.
 - [ ] Confirm historical bars are retrieved and persisted during the next natural scheduled research cycle.
 - [ ] Confirm any approved paper order, reconciliation, portfolio snapshot, dashboard display, and Telegram alert end to end.
 
