@@ -2,8 +2,8 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.499 — In-flight exit guard deployed.
-- **Status:** The hosted Worker is healthy in Paper Autopilot mode with deterministic entry/exit safeguards, durable reconciliation, Telegram alerting, and the hosted monitor contract active. The verified feature branch still requires repository review/merge to `main`; the 30-day paper-forward evidence window and authenticated dashboard verification remain ongoing.
+- **Phase:** Phase 6.269 — Dashboard build verification and durable risk-cycle evidence.
+- **Status:** The hosted Worker and API are healthy in Paper Autopilot mode with deterministic entry/exit safeguards, durable reconciliation, Telegram alerting, and PostgreSQL-backed risk-cycle evidence. The verified feature branch still requires publication/merge; Vercel production publication is currently limited by the free-plan daily deployment quota, while the 30-day paper-forward evidence window and authenticated dashboard verification remain ongoing.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading, verify authenticated portfolio/P&L rendering and exports, and accumulate the 30-day evidence gate without loosening risk controls.
 - **Last updated:** 2026-08-29.
