@@ -17,6 +17,11 @@ export interface PaperAutopilotRiskCycleResult {
   readonly symbol: string;
 }
 
+/** Telegram is reserved for selected/approved risk outcomes; all decisions remain persisted. */
+export function shouldNotifyPaperRiskDecision(status: PaperAutopilotRiskCycleResult["approvalStatus"]): boolean {
+  return status === "approved";
+}
+
 /**
  * Evaluates scheduled research candidates through the same deterministic risk
  * engine used by the guarded order path. This phase only persists a decision;
@@ -83,7 +88,7 @@ export async function runPaperAutopilotRiskCycle(input: {
       executionStatus = "reconciled";
     }
     results.push({ approvalStatus: approval.status, executionStatus, intentId, symbol: candidate.symbol });
-    if (approval.status === "approved") {
+    if (shouldNotifyPaperRiskDecision(approval.status)) {
       await input.notify?.({ code: "paper_risk_decision", dedupeKey: `paper_risk_decision:${intentId}`, message: `${candidate.symbol} selected for paper trading: deterministic risk checks approved.${input.approvalReference ? ` Reference ${input.approvalReference}.` : ""}`, severity: "info" });
     }
   }

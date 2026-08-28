@@ -2,11 +2,18 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.255 — Low-noise Telegram digest policy.
+- **Phase:** Phase 6.256 — Notification policy regression coverage.
 - **Status:** Notification delivery remains enabled, but routine research selections and portfolio/P&L summaries now use durable once-per-UTC-day dedupe keys. Individual rejected risk candidates are retained in the audit/dashboard and no longer generate Telegram warnings; approved selections, order/position lifecycle events, and failures remain immediate. Local tests, Worker typecheck, and lint pass; Railway deployment is healthy.
 - **Current operating mode:** Paper Autopilot; continuous order submission is not enabled.
 - **Current goal:** Complete authenticated dashboard verification and reconcile the authorized AAPL order through its terminal broker state, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
+
+### Phase 6.256 — Notification policy regression coverage (2026-08-28)
+
+- [x] Add a pure policy contract proving approved risk selections notify while rejected decisions remain audit-only.
+- [x] Verify the low-noise research and risk notification tests together.
+- [x] Verify the full suite: 292 tests across 77 files, Worker TypeScript, ESLint, and diff hygiene.
+- [ ] Observe the next scheduled daily digest and verify authenticated dashboard rendering.
 
 ### Phase 6.255 — Low-noise Telegram digest policy (2026-08-28)
 
