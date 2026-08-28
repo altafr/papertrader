@@ -2,7 +2,7 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.322 — Public scheduler next-run visibility queued.
+- **Phase:** Phase 6.323 — Public stream last-message visibility.
 - **Status:** The hosted Worker and API are healthy in Paper Autopilot mode with deterministic entry/exit safeguards, durable reconciliation, Telegram alerting, lifecycle-stable PostgreSQL-backed risk evidence, and a read-only portfolio status command. The latest provenance and evidence guards are deployed and verified. Vercel production publication remains limited by the free-plan daily deployment quota, while the 30-day paper-forward evidence window and authenticated dashboard verification remain ongoing.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading, verify authenticated portfolio/P&L rendering and exports, and accumulate the 30-day evidence gate without loosening risk controls.
@@ -5768,6 +5768,13 @@
 - A Vercel production publication was attempted but rejected by the free-plan daily deployment limit (`more than 100`); no claim is made that the next-run label is live in production yet.
 - The previously published freshness-enabled revision remains the production dashboard; the new label will publish when the quota resets.
 - **Next smallest unit:** retry one Vercel production deployment after quota reset, then verify the public heartbeat and Clerk redirect.
+
+### Phase 6.323 public stream last-message visibility
+
+- Extended the redacted public heartbeat to show the market stream’s last message timestamp in UTC alongside its freshness classification.
+- Added parser coverage; web typecheck and ESLint pass.
+- This source revision is queued for Vercel publication; deployment remains subject to the free-plan quota.
+- **Next smallest unit:** publish after quota reset and verify the timestamp against the live Worker health endpoint.
 
 ### 2026-08-29 — Phase 6.306 compatibility deployment verified
 
