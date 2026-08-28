@@ -31,7 +31,7 @@ import { assessReconciliationHealth, assessResearchScheduleActivation, assessSch
 import { compareReconciliationAccounts } from "./reconciliation-status.js";
 import { approveDisabledToReplay, approveReplayToShadow, approveShadowToPaper } from "./lifecycle-command.js";
 import { toAgentRunDetail } from "./agent-run-detail.js";
-import { attachActiveExitPositions, attachUnmanagedPositions } from "./read-model-contract.js";
+import { attachActiveExitPositions, attachPositionMetadata, attachUnmanagedPositions, type PositionMetadata } from "./read-model-contract.js";
 
 let readModelRepository: ReturnType<typeof createAccountStateRepository> | undefined;
 let readModelPool: ReturnType<typeof createDatabase>["pool"] | undefined;
@@ -192,6 +192,18 @@ async function readPersistedModel(request: IncomingMessage) {
   if (!model) {
     return { body: { error: "read_model_not_available" }, status: 404 } as const;
   }
+  const positionMetadata = readModelPool
+    ? (await readModelPool.query<{ asset_class: string; symbol: string; entry_price: string | null; planned_stop_price: string | null; planned_target_price: string | null; submitted_at: Date | null; strategy_key: string | null; strategy_version: string | null }>("SELECT DISTINCT ON (s.asset_class, s.symbol) s.asset_class, s.symbol, s.entry_price, s.planned_stop_price, s.planned_target_price, s.submitted_at, s.strategy_key, s.strategy_version FROM paper_order_submissions s JOIN positions p ON p.asset_class = s.asset_class AND p.symbol = s.symbol JOIN account_snapshots a ON a.id = p.account_snapshot_id WHERE a.id = (SELECT id FROM account_snapshots ORDER BY captured_at DESC, id DESC LIMIT 1) AND s.entry_price IS NOT NULL ORDER BY s.asset_class, s.symbol, COALESCE(s.updated_at, s.created_at) DESC")).rows.map((row): PositionMetadata => ({
+      assetClass: row.asset_class,
+      symbol: row.symbol,
+      ...(row.entry_price ? { entryPrice: row.entry_price } : {}),
+      ...(row.planned_stop_price ? { plannedStopPrice: row.planned_stop_price } : {}),
+      ...(row.planned_target_price ? { plannedTargetPrice: row.planned_target_price } : {}),
+      ...(row.submitted_at ? { positionOpenedAt: row.submitted_at.toISOString() } : {}),
+      ...(row.strategy_key ? { strategyKey: row.strategy_key } : {}),
+      ...(row.strategy_version ? { strategyVersion: row.strategy_version } : {}),
+    }))
+    : [];
   const unmanagedPositions = readModelPool
     ? (await readModelPool.query<{ symbol: string; asset_class: string }>("SELECT p.symbol, p.asset_class FROM positions p JOIN account_snapshots a ON a.id = p.account_snapshot_id WHERE a.id = (SELECT id FROM account_snapshots ORDER BY captured_at DESC, id DESC LIMIT 1) AND NOT EXISTS (SELECT 1 FROM paper_order_submissions s WHERE s.symbol = p.symbol AND s.asset_class = p.asset_class AND s.entry_price IS NOT NULL AND s.planned_stop_price IS NOT NULL AND s.strategy_key IS NOT NULL AND s.strategy_version IS NOT NULL)")).rows.map((row) => ({ assetClass: row.asset_class, symbol: row.symbol }))
     : [];
@@ -200,7 +212,7 @@ async function readPersistedModel(request: IncomingMessage) {
     : [];
   // Keep the safety field inside the read model consumed by the dashboard,
   // while retaining the top-level copy for the CSV/export boundary.
-  const dashboardModel = attachActiveExitPositions(attachUnmanagedPositions(model, unmanagedPositions), activeExitPositions);
+  const dashboardModel = attachActiveExitPositions(attachPositionMetadata(attachUnmanagedPositions(model, unmanagedPositions), positionMetadata), activeExitPositions);
   return { body: { model: dashboardModel, activeExitPositions, unmanagedPositions }, status: 200 } as const;
 }
 

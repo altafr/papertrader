@@ -5545,3 +5545,11 @@
 - Confirmed the 22:15 UTC research/risk cycle retained one approved decision and scheduled the next run for 22:30 UTC.
 - Attempted Vercel production publication from the authoritative branch; Vercel rejected it with the provider limit `api-deployments-free-per-day` (over 100 deployments), so no production-live claim is made for the newest dashboard source.
 - **Next smallest unit:** continue backend paper-forward evidence and publish/verify the dashboard immediately after the Vercel quota resets.
+
+### 2026-08-29 — Phase 6.288 position provenance projection
+
+- Added a bounded API projection that joins each latest reconciled position to its newest matching paper-order provenance.
+- The dashboard now shows originating strategy/version, planned stop, planned target, position age, and exit state alongside broker-reconciled quantity and P/L.
+- Missing provenance remains explicit and does not cause inferred management; unmanaged positions stay fail-closed as `Review required`.
+- Verification: API/web typechecks, ESLint, focused contract tests, and full regression passed (88 files, 351 tests).
+- **Next smallest unit:** deploy the API/web revision and verify the enriched position rows through an authenticated operator session once Vercel publication is available.

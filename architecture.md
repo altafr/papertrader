@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.283 Hosted portfolio status verification; continuous Paper Autopilot and multi-day evidence collection continue.
+- **Stage:** Phase 6.288 Position provenance projection; continuous Paper Autopilot and multi-day evidence collection continue.
 
 ### Always-on multi-agent runtime requirement
 
@@ -23,6 +23,10 @@ The continuous crypto scheduler also checks the New York 16:00 weekday close hou
 ### Authoritative unmanaged-position read model (Phase 6.404)
 
 The authenticated API derives `unmanagedPositions` from the latest persisted account snapshot and paper-order exit-plan metadata (`entry_price`, `planned_stop_price`, `strategy_key`, and `strategy_version`). This calculation is independent of paginated audit history, so a position cannot appear managed merely because its plan fell outside the current history window. The dashboard uses this bounded asset-class/symbol list to label positions `Review required`; the Worker independently enforces the same fail-closed boundary and does not submit automatic exits for positions without a stored plan.
+
+### Position provenance projection (Phase 6.288)
+
+For each position in the latest reconciled account snapshot, the authenticated API joins the newest matching paper-order submission and projects only bounded provenance fields: originating strategy/version, entry price, planned stop/target, and position-opened timestamp. The dashboard renders these alongside quantity and live P/L, while the broker-reconciled position values remain authoritative. Missing provenance stays explicitly `Not reported`; it is never inferred from an unrelated order or audit page.
 
 ### Separately gated order handoff (Phase 6.213)
 

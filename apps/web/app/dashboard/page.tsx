@@ -149,6 +149,14 @@ function positionReturnPercent(row: Record<string, unknown>): number | undefined
   return notional && unrealized !== undefined ? (unrealized / notional) * 100 : undefined;
 }
 
+function positionAge(row: Record<string, unknown>): string {
+  const openedAt = value(row, "positionOpenedAt");
+  const timestamp = Date.parse(openedAt);
+  if (!Number.isFinite(timestamp)) return "Not reported";
+  const ageHours = Math.max(0, (Date.now() - timestamp) / 3_600_000);
+  return ageHours < 24 ? `${ageHours.toFixed(1)}h` : `${(ageHours / 24).toFixed(1)}d`;
+}
+
 function indicatorSummary(row: Record<string, unknown>) {
   if (!isRecord(row.marketSnapshot)) return "Not captured";
   const snapshot = row.marketSnapshot;
@@ -497,8 +505,8 @@ export default async function DashboardPage({ searchParams }: { readonly searchP
             <div className="card-heading"><div><p className="label">Positions</p><h2>{result.model.positions.length} open positions</h2></div><span className="provenance">Persisted account snapshot</span></div>
             {unmanagedKeys.size > 0 && <div className="audit-unavailable" role="alert"><strong>{unmanagedKeys.size} position(s) require review.</strong><span>{result.model.unmanagedPositions.map((position) => position.symbol).join(", ")} have no stored deterministic exit plan. They are fail-closed and will not receive automatic exits.</span></div>}
             {result.model.positions.length === 0 ? <p className="empty-state">No open positions in the latest reconciled snapshot.</p> : (
-              <div className="responsive-table"><table><thead><tr><th>Symbol</th><th>Class</th><th>Quantity</th><th>Avg entry</th><th>Invested notional</th><th>Market value</th><th>Unrealized P/L</th><th>Return</th><th>Exit state</th></tr></thead><tbody>
-                {result.model.positions.map((position) => { const notional = positionNotional(position); const returnPercent = positionReturnPercent(position); const assetClass = value(position, "assetClass"); const symbol = value(position, "symbol"); const exitState = getPositionExitDisplayState({ assetClass, symbol }, result.model.unmanagedPositions, result.model.activeExitPositions); const exitLabel = exitState === "review_required" ? "Review required" : exitState === "exit_in_flight" ? "Exit in flight" : "Monitoring"; return <tr key={`${symbol}-${value(position, "accountSnapshotId")}`}><th scope="row">{symbol}</th><td>{assetClass}</td><td>{value(position, "quantity")}</td><td>{value(position, "averageEntryPrice")}</td><td>{notional === undefined ? "Not reported" : notional.toFixed(2)}</td><td>{value(position, "marketValue")}</td><td className={numericValue(position, "unrealizedPl") !== undefined && (numericValue(position, "unrealizedPl") ?? 0) < 0 ? "negative-value" : ""}>{value(position, "unrealizedPl")}</td><td className={returnPercent !== undefined && returnPercent < 0 ? "negative-value" : ""}>{returnPercent === undefined ? "Not reported" : `${returnPercent.toFixed(2)}%`}</td><td>{exitLabel}</td></tr>; })}
+              <div className="responsive-table"><table><thead><tr><th>Symbol</th><th>Class</th><th>Quantity</th><th>Avg entry</th><th>Invested notional</th><th>Market value</th><th>Unrealized P/L</th><th>Return</th><th>Strategy</th><th>Stop</th><th>Target</th><th>Age</th><th>Exit state</th></tr></thead><tbody>
+                {result.model.positions.map((position) => { const notional = positionNotional(position); const returnPercent = positionReturnPercent(position); const assetClass = value(position, "assetClass"); const symbol = value(position, "symbol"); const exitState = getPositionExitDisplayState({ assetClass, symbol }, result.model.unmanagedPositions, result.model.activeExitPositions); const exitLabel = exitState === "review_required" ? "Review required" : exitState === "exit_in_flight" ? "Exit in flight" : "Monitoring"; return <tr key={`${symbol}-${value(position, "accountSnapshotId")}`}><th scope="row">{symbol}</th><td>{assetClass}</td><td>{value(position, "quantity")}</td><td>{value(position, "averageEntryPrice")}</td><td>{notional === undefined ? "Not reported" : notional.toFixed(2)}</td><td>{value(position, "marketValue")}</td><td className={numericValue(position, "unrealizedPl") !== undefined && (numericValue(position, "unrealizedPl") ?? 0) < 0 ? "negative-value" : ""}>{value(position, "unrealizedPl")}</td><td className={returnPercent !== undefined && returnPercent < 0 ? "negative-value" : ""}>{returnPercent === undefined ? "Not reported" : `${returnPercent.toFixed(2)}%`}</td><td>{value(position, "strategyKey")}{value(position, "strategyVersion") !== "—" ? ` ${value(position, "strategyVersion")}` : ""}</td><td>{value(position, "plannedStopPrice")}</td><td>{value(position, "plannedTargetPrice")}</td><td>{positionAge(position)}</td><td>{exitLabel}</td></tr>; })}
               </tbody></table></div>
             )}
           </article>
