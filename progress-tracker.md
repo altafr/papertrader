@@ -2,7 +2,7 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.330 — Entry decision alert rationale.
+- **Phase:** Phase 6.331 — Entry decision alert rationale deployed.
 - **Status:** The hosted Worker and API are healthy in Paper Autopilot mode with deterministic entry/exit safeguards, durable reconciliation, Telegram alerting, lifecycle-stable PostgreSQL-backed risk evidence, and a read-only portfolio status command. The latest provenance and evidence guards are deployed and verified. Vercel production publication remains limited by the free-plan daily deployment quota, while the 30-day paper-forward evidence window and authenticated dashboard verification remain ongoing.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading, verify authenticated portfolio/P&L rendering and exports, and accumulate the 30-day evidence gate without loosening risk controls.
@@ -5823,6 +5823,13 @@
 - Rejected decisions remain audit-only and the alert remains approved-only with existing deduplication/cooldown behavior.
 - Added focused coverage; Worker typecheck, ESLint, and tests pass.
 - **Next smallest unit:** deploy the Worker alert change and verify the hosted cycle remains healthy.
+
+### Phase 6.331 entry alert deployment
+
+- Railway Worker deployment `b8106284-c86c-44d5-b25e-dfa270314774` reached `SUCCESS` from commit `b1a3455`.
+- Hosted Worker health remains HTTP 200 with Paper Autopilot active, market stream `fresh`, research scheduled for 23:15 UTC, and position management ready.
+- The next approved entry alert will include bounded strategy/momentum, entry, stop, target, and indicator evidence; no hidden model reasoning or credentials are included.
+- **Next smallest unit:** verify the next approved-cycle notification and continue paper-forward monitoring.
 
 ### 2026-08-29 — Phase 6.306 compatibility deployment verified
 
