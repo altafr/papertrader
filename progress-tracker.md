@@ -2,11 +2,19 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.304 — Deployed invested-notional risk policy reporting.
-- **Status:** The corrected 5%-of-invested-notional risk percentage is deployed to Railway successfully. Hosted health and runtime readiness remain green with fresh reconciliation and dry-run execution.
+- **Phase:** Phase 6.305 — Risk-policy consumer verification.
+- **Status:** API and Web consumers remain type-safe after the invested-notional metric correction, and the optimized dashboard build succeeds with all dynamic routes intact. Hosted execution remains paper-only and dry-run.
 - **Current operating mode:** Paper Autopilot; continuous order submission is not enabled.
 - **Current goal:** Complete authenticated dashboard verification and reconcile the authorized AAPL order through its terminal broker state, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
+
+### Phase 6.305 — Risk-policy consumer verification (2026-08-28)
+
+- [x] Run API TypeScript validation successfully after the risk metric correction.
+- [x] Run Web TypeScript validation successfully after the risk metric correction.
+- [x] Build the optimized Web application successfully; dashboard, agent detail, and export routes remain intact.
+- [x] Preserve paper mode, deterministic risk controls, and dry-run execution.
+- [ ] Continue daily paper evidence and verify the next natural scheduler cycle.
 
 ### Phase 6.304 — Deployed invested-notional risk policy reporting (2026-08-28)
 
