@@ -68,6 +68,13 @@
 - [x] Preserve its explicit `PAPER_ORDER_QUANTITY` override when supplied.
 - [x] Keep all current hosted quantity values unchanged.
 - [ ] Verify one-shot preflight and a broker-reconciled order with an explicitly reviewed size.
+
+### Phase 6.394 — Hosted one-shot sizing rollout (2026-08-28)
+
+- [x] Verify full suite: 80 files and 317 tests passed; Worker typecheck and lint passed.
+- [x] Deploy Worker `036639eb-a686-44b0-87dd-8dc1fa2bee47` with `SUCCESS`.
+- [x] Verify hosted health remains healthy, Paper Autopilot, scheduled, and position-management ready.
+- [ ] Enable a reviewed per-asset quantity and verify a paper order reconciliation.
 - [x] Run full verification: 79 files and 314 tests passed; Worker typecheck and lint passed.
 - [x] Deploy Worker `23e99f53-0266-489c-b6df-c7f0c8b0f922` with `SUCCESS` and verify hosted health remains healthy, scheduled, and position-management ready.
 - [ ] Verify the next position pass emits per-decision records and reconcile any eligible paper order.
