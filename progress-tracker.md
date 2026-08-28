@@ -2,8 +2,8 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.270 — Critical-path status verification.
-- **Status:** Live Railway verification is healthy: the Worker and API are responding, the UTC durable scheduler is ready for its next run, position management is ready, and order submission remains disabled by policy. Telegram is configured for approved-only risk decisions and a durable 24-hour routine digest cooldown. The fastest path is now to validate one scheduled cycle, complete authenticated dashboard verification, and then collect the required multi-day paper evidence; Vercel production publishing remains quota-limited.
+- **Phase:** Phase 6.272 — Release baseline verification.
+- **Status:** Live Railway verification is healthy: the Worker and API are responding, the UTC durable scheduler is ready for its next run, position management is ready, and order submission remains disabled by policy. Local lint, type checks, and the full regression suite pass. Telegram is configured for approved-only risk decisions and a durable 24-hour routine digest cooldown. The fastest path is now to validate one scheduled cycle, complete authenticated dashboard verification, and then collect the required multi-day paper evidence; Vercel production publishing remains quota-limited.
 - **Current operating mode:** Paper Autopilot; continuous order submission is not enabled.
 - **Current goal:** Complete authenticated dashboard verification and reconcile the authorized AAPL order through its terminal broker state, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
