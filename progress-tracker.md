@@ -2,11 +2,20 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.325 — Dashboard cadence contract coverage.
-- **Status:** The dashboard parser now has regression coverage for the hosted `*/15` cadence and stock-window policy, ensuring operators see the actual scheduling contract. Runtime configuration and paper-only order safeguards are unchanged.
-- **Current operating mode:** Paper Autopilot; continuous order submission is not enabled.
-- **Current goal:** Complete authenticated dashboard verification and reconcile the authorized AAPL order through its terminal broker state, then continue the 30-day paper-forward evidence gate.
+- **Phase:** Phase 6.326 — Continuous paper-trading activation checkpoint.
+- **Status:** The user supplied bounded reference `CONTINUOUS-PAPER-TRADING-001`; Railway Worker deployment was updated with continuous paper-order submission enabled. Health is green with Alpaca configured, crypto market stream connected, position management ready, and scheduler active. Historical-bar retrieval will be confirmed from the next natural research cycle.
+- **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
+- **Current goal:** Verify the first natural paper research/order cycle and authenticated dashboard portfolio/position rendering, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
+
+### Phase 6.326 — Continuous paper-trading activation checkpoint (2026-08-28)
+
+- [x] Record the bounded non-secret continuous paper-trading authorization reference.
+- [x] Set `PAPER_AUTOPILOT_ORDER_SUBMISSION_ENABLED=true` and the approval reference on Railway Worker.
+- [x] Deploy current Worker build successfully (`d2560580-9647-419c-80f5-2b3834eb5c97` reached `SUCCESS`).
+- [x] Verify hosted health reports paper mode, submission enabled, Alpaca/database configured, kill switch inactive, market stream connected, and position management ready.
+- [ ] Confirm historical bars are retrieved and persisted during the next natural research cycle.
+- [ ] Confirm any approved paper order, reconciliation, portfolio snapshot, dashboard display, and Telegram alert end to end.
 
 ### Phase 6.325 — Dashboard cadence contract coverage (2026-08-28)
 
