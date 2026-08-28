@@ -14,6 +14,13 @@ export interface PaperExecutionResult {
   readonly status: "reconciled";
 }
 
+function getFailureReason(error: unknown, assetClass: PaperOrderSubmissionRequest["assetClass"]): string {
+  const message = error instanceof Error ? error.message : "";
+  if (assetClass === "crypto" && message.includes("crypto_order_entitlement_blocked")) return "crypto_order_entitlement_blocked";
+  if (message.includes("HTTP ")) return "paper_order_provider_error";
+  return "paper_order_failed_closed";
+}
+
 /** Submit a deterministic-risk-approved paper order without a per-order operator confirmation. */
 export async function executePaperAutopilotOrder(input: {
   readonly autopilot?: PaperAutopilotConfig;
@@ -36,7 +43,8 @@ export async function executePaperAutopilotOrder(input: {
     return { brokerOrder, intentId, status: "reconciled" };
   } catch (error) {
     await input.persistence.markFailed(intentId);
-    await input.notify?.({ code: "paper_entry_failed", message: `Paper entry failed closed for ${input.order.symbol}; broker state requires reconciliation before retry.`, severity: "critical" });
+    const reason = getFailureReason(error, input.order.assetClass);
+    await input.notify?.({ code: "paper_entry_failed", message: `Paper entry failed closed for ${input.order.symbol}; reason ${reason}; broker state requires reconciliation before retry.`, severity: "critical" });
     throw error;
   }
 }

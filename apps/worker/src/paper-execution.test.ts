@@ -27,6 +27,13 @@ describe("paper execution wiring", () => {
     expect(events).toEqual(["pending", "failed"]);
   });
 
+  it("includes a bounded crypto entitlement reason in failure alerts", async () => {
+    const messages: string[] = [];
+    const cryptoOrder = { ...order, assetClass: "crypto" as const, symbol: "BTC/USD" };
+    await expect(executePaperAutopilotOrder({ autopilot: mode, order: cryptoOrder, notify: (alert) => { messages.push(alert.message); }, persistence: { recordSubmission: async () => {}, reconcile: async () => {}, markFailed: async () => {} }, submitter: { submit: async () => { throw new Error("Paper order submission failed with HTTP 403 (crypto_order_entitlement_blocked)."); } } })).rejects.toThrow("HTTP 403");
+    expect(messages[0]).toContain("crypto_order_entitlement_blocked");
+  });
+
   it("blocks submission before persistence when the global kill switch is active", async () => {
     const events: string[] = [];
     const previous = process.env.GLOBAL_KILL_SWITCH_ACTIVE;
