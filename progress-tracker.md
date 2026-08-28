@@ -499,6 +499,13 @@
 - [x] Confirm the live Worker release matches the observed contract (`8476393eb5ca…`).
 - [ ] Observe the same result from the first scheduled GitHub Actions monitor run.
 
+### Phase 6.464 — Hardened contract deployment (2026-08-29)
+
+- [x] Confirm Railway deployment for commit `4d3c18a` reached `SUCCESS`.
+- [x] Re-run the hosted paper-runtime verifier against the deployed revision; it returned `verified: true` with the kill switch inactive and position management unblocked.
+- [x] Confirm API and Worker remain healthy, paper-only, stream-connected, and scheduler-ready after rollout.
+- [ ] Observe the same result from the first scheduled GitHub Actions monitor run.
+
 ### Phase 6.458 — Natural hosted cycle continuity (2026-08-29)
 
 - [x] Verify the hosted Worker remains healthy on release `febcda5f7a5…` with Paper Autopilot and order submission still enabled.
