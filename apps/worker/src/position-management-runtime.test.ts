@@ -36,7 +36,7 @@ describe("position pass observability", () => {
   });
 
   it("builds a bounded decision record with an explicit no-exit reason", () => {
-    expect(buildPositionExitDecisionLog({ shouldExit: false, symbol: "AAPL" })).toEqual({ event: "position_exit_decision", reason: null, shouldExit: false, symbol: "AAPL" });
-    expect(buildPositionExitDecisionLog({ reason: "stop_loss", shouldExit: true, symbol: "BTC/USD" })).toEqual({ event: "position_exit_decision", reason: "stop_loss", shouldExit: true, symbol: "BTC/USD" });
+    expect(buildPositionExitDecisionLog({ shouldExit: false, symbol: "AAPL" })).toEqual({ event: "position_exit_decision", reason: null, shouldExit: false, submitted: false, symbol: "AAPL" });
+    expect(buildPositionExitDecisionLog({ reason: "stop_loss", shouldExit: true, submitted: true, symbol: "BTC/USD" })).toEqual({ event: "position_exit_decision", reason: "stop_loss", shouldExit: true, submitted: true, symbol: "BTC/USD" });
   });
 });

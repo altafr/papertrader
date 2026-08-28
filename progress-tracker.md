@@ -37,6 +37,7 @@
 
 - [x] Emit one bounded structured decision record for every managed position pass.
 - [x] Include symbol, deterministic exit reason, and the `shouldExit` result without prices or provider payloads.
+- [x] Distinguish an exit decision from a confirmed submission in the structured record.
 - [x] Add regression coverage for exit and no-exit decision records.
 - [ ] Run full verification and deploy the Worker.
 - [x] Run full verification: 79 files and 314 tests passed; Worker typecheck and lint passed.

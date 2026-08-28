@@ -51,8 +51,8 @@ export function buildPositionManagementLog(input: { readonly managed: number; re
 }
 
 /** Bounded, credential-free decision record for each managed position. */
-export function buildPositionExitDecisionLog(input: { readonly reason?: string; readonly shouldExit: boolean; readonly symbol: string }) {
-  return { event: "position_exit_decision", reason: input.reason ?? null, shouldExit: input.shouldExit, symbol: input.symbol } as const;
+export function buildPositionExitDecisionLog(input: { readonly reason?: string; readonly shouldExit: boolean; readonly submitted?: boolean; readonly symbol: string }) {
+  return { event: "position_exit_decision", reason: input.reason ?? null, shouldExit: input.shouldExit, submitted: input.submitted ?? false, symbol: input.symbol } as const;
 }
 
 function parseBoolean(name: string, value: string | undefined, defaultValue: boolean): boolean {
@@ -147,7 +147,7 @@ export async function runPositionManagementCycle(environment: NodeJS.ProcessEnv 
     };
     const result = await runPaperPositionManagementOnce({ now: new Date().toISOString(), positions: managed, submitter: exitSubmitter });
     for (const decision of result.decisions) {
-      console.log(JSON.stringify(buildPositionExitDecisionLog(decision)));
+      console.log(JSON.stringify(buildPositionExitDecisionLog({ ...decision, submitted: result.submissions.some((submission) => submission.symbol === decision.symbol) })));
       if (!decision.shouldExit || !decision.reason) continue;
       const intentId = managed.find((position) => position.symbol === decision.symbol)?.intentId ?? decision.symbol;
       await notifier.notify({ code: "position_exit_decision", dedupeKey: getPositionExitDecisionDedupeKey(intentId, decision.reason), message: `${decision.symbol} exit decision: ${decision.reason} at mark ${decision.exitPrice}. This was triggered by the stored deterministic exit plan.`, severity: decision.reason === "stop_loss" ? "critical" : "info" });
