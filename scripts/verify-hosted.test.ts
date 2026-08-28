@@ -23,6 +23,21 @@ describe("hosted verifier", () => {
     expect(fetcher).toHaveBeenCalledTimes(4);
   });
 
+  it("retries a transient worker health response", async () => {
+    let workerAttempts = 0;
+    const fetcher = vi.fn<typeof fetch>().mockImplementation(async (input) => {
+      const url = String(input);
+      if (url.includes("worker")) {
+        workerAttempts += 1;
+        return workerAttempts === 1 ? new Response("temporarily unavailable", { status: 503 }) : new Response(JSON.stringify(worker), { status: 200 });
+      }
+      if (url.includes("api")) return new Response(JSON.stringify({ status: "healthy" }), { status: 200 });
+      return new Response("Momentum Autopilot", { status: 200 });
+    });
+    await expect(verifyHosted(fetcher, "https://worker.example", "https://api.example", "https://web.example")).resolves.toMatchObject({ runtime: { verified: true } });
+    expect(fetcher).toHaveBeenCalledTimes(4);
+  });
+
   it("fails when the optional expected release does not match", async () => {
     const fetcher = vi.fn<typeof fetch>()
       .mockResolvedValueOnce(new Response(JSON.stringify({ ...worker, release: "actual" }), { status: 200 }))

@@ -52,6 +52,8 @@ Approved-entry Telegram events include a bounded explanation with symbol/asset c
 
 Repository tooling pins the minimum Node runtime to `22.13.0`, matching pnpm `11.22.0`; CI workflows use the same version so hosted verification does not silently run against an incompatible Node image.
 
+Hosted verification retries API and Worker health up to four times with a short delay, preventing transient edge/startup responses from being misclassified as a failed runtime while still failing closed after bounded attempts.
+
 The public heartbeat also renders the server-reported next research run in UTC, with invalid or missing timestamps shown as unavailable rather than guessed.
 
 It also shows the last market-stream message timestamp as bounded UTC metadata, allowing operators to distinguish a fresh connection from a recently active data feed without exposing payloads.

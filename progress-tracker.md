@@ -2,7 +2,7 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.331 — Entry decision alert rationale deployed.
+- **Phase:** Phase 6.332 — Hosted verifier transient resilience.
 - **Status:** The hosted Worker and API are healthy in Paper Autopilot mode with deterministic entry/exit safeguards, durable reconciliation, Telegram alerting, lifecycle-stable PostgreSQL-backed risk evidence, and a read-only portfolio status command. The latest provenance and evidence guards are deployed and verified. Vercel production publication remains limited by the free-plan daily deployment quota, while the 30-day paper-forward evidence window and authenticated dashboard verification remain ongoing.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading, verify authenticated portfolio/P&L rendering and exports, and accumulate the 30-day evidence gate without loosening risk controls.
@@ -5830,6 +5830,13 @@
 - Hosted Worker health remains HTTP 200 with Paper Autopilot active, market stream `fresh`, research scheduled for 23:15 UTC, and position management ready.
 - The next approved entry alert will include bounded strategy/momentum, entry, stop, target, and indicator evidence; no hidden model reasoning or credentials are included.
 - **Next smallest unit:** verify the next approved-cycle notification and continue paper-forward monitoring.
+
+### Phase 6.332 hosted verifier transient resilience
+
+- Increased hosted API/Worker health retries from two immediate attempts to four bounded attempts with a 250ms delay.
+- Added regression coverage for a transient Worker health response; the verifier still fails closed after exhaustion.
+- Live hosted verification passes with `verified:true` across Railway API/Worker and Vercel.
+- **Next smallest unit:** continue paper-forward monitoring and validate authenticated portfolio/read-model data.
 
 ### 2026-08-29 — Phase 6.306 compatibility deployment verified
 

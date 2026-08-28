@@ -13,8 +13,8 @@ export async function verifyHosted(fetcher: typeof fetch, workerUrl: string, api
     throw lastError instanceof Error ? lastError : new Error("public_surface_check_failed");
   };
   const [worker, api, web] = await Promise.all([
-    readHealthWithRetry(fetcher, workerUrl, 2, 0),
-    readHealthWithRetry(fetcher, apiUrl, 2, 0),
+    readHealthWithRetry(fetcher, workerUrl, 4, 250),
+    readHealthWithRetry(fetcher, apiUrl, 4, 250),
     verifyWebWithRetry(),
   ]);
   const runtime = evaluatePaperRuntime(worker, api, expectedRelease);
