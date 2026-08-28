@@ -17,6 +17,10 @@ interface RuntimeWebSocketConstructor {
   new (url: string): RuntimeSocket;
 }
 
+let marketStreamHealth: { readonly assetClass?: "crypto" | "us_equity"; readonly lastMessageAt?: string; readonly reconnectCount: number; readonly status: "connected" | "connecting" | "disabled" | "reconnecting" | "stopped" } = { reconnectCount: 0, status: "disabled" };
+
+export function getMarketStreamHealth() { return marketStreamHealth; }
+
 function getRuntimeWebSocket(): RuntimeWebSocketConstructor {
   const constructor = (globalThis as unknown as { WebSocket?: RuntimeWebSocketConstructor }).WebSocket;
   if (!constructor) throw new Error("This Node runtime does not provide WebSocket support.");
@@ -53,6 +57,7 @@ function streamUrl(assetClass: MarketAssetClass, stockFeed = "iex") {
 
 export function startPaperMarketStream(environment = process.env) {
   const configuration = getStreamConfiguration(environment);
+  marketStreamHealth = { assetClass: configuration.assetClass, reconnectCount: 0, status: "connecting" };
   const reader = createPaperMarketDataReader({
     apiKey: environment.ALPACA_API_KEY ?? "",
     secretKey: environment.ALPACA_SECRET_KEY ?? "",
@@ -65,6 +70,7 @@ export function startPaperMarketStream(environment = process.env) {
 
   const connect = () => {
     if (stopped) return;
+    marketStreamHealth = { ...marketStreamHealth, assetClass: configuration.assetClass, status: "connecting" };
     socket = new WebSocketConstructor(streamUrl(configuration.assetClass, environment.ALPACA_STOCK_FEED));
     const transport = socket;
     const supervisor = createMarketStreamSupervisor({
@@ -79,12 +85,14 @@ export function startPaperMarketStream(environment = process.env) {
       symbols: configuration.symbols,
       timeframe: configuration.timeframe,
     });
-    transport.addEventListener("open", () => supervisor.handleSocketOpen());
+    transport.addEventListener("open", () => { supervisor.handleSocketOpen(); marketStreamHealth = { ...marketStreamHealth, assetClass: configuration.assetClass, status: "connected" }; });
     transport.addEventListener("message", (event) => {
+      marketStreamHealth = { ...marketStreamHealth, lastMessageAt: new Date().toISOString(), status: "connected" };
       if (typeof event.data === "string") void supervisor.handleSocketMessage(event.data).catch(() => notifier.notify({ code: "market_stream_message_failed", dedupeKey: `market_stream_message_failed:${configuration.assetClass}:${configuration.symbols.join(",")}:${Date.now()}`, message: "Market-stream message processing failed closed; the connection remains under supervised recovery.", severity: "critical" }));
     });
     transport.addEventListener("close", () => {
       supervisor.handleSocketClose();
+      marketStreamHealth = { ...marketStreamHealth, assetClass: configuration.assetClass, reconnectCount: supervisor.status().reconnectCount, status: "reconnecting" };
       void notifier.notify({ code: "market_stream_disconnected", dedupeKey: `market_stream_disconnected:${configuration.assetClass}:${supervisor.status().reconnectCount}`, message: `Market stream disconnected for ${configuration.assetClass}; supervised reconnect ${supervisor.status().reconnectCount} scheduled.`, severity: "critical" });
       if (!stopped) setTimeout(connect, Math.min(30_000, 1_000 * (supervisor.status().reconnectCount + 1)));
     });
@@ -94,5 +102,6 @@ export function startPaperMarketStream(environment = process.env) {
   return () => {
     stopped = true;
     socket?.close();
+    marketStreamHealth = { ...marketStreamHealth, status: "stopped" };
   };
 }

@@ -35,6 +35,12 @@ export interface WorkerHealth {
     readonly status: "degraded" | "disabled" | "ready" | "running" | "scheduled";
   };
   readonly globalKillSwitchActive: boolean;
+  readonly marketStream: {
+    readonly assetClass?: "crypto" | "us_equity";
+    readonly lastMessageAt?: string;
+    readonly reconnectCount: number;
+    readonly status: "connected" | "connecting" | "disabled" | "reconnecting" | "stopped";
+  };
   readonly operatingMode: RuntimeOperatingMode;
   readonly paperAutopilotOrderSubmissionEnabled: boolean;
   readonly paperAutopilotOrderSubmissionApprovalReferencePresent: boolean;

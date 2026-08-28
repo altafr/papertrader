@@ -13,6 +13,7 @@ describe("worker health", () => {
       database: "not_configured",
       durableScheduler: { activationApprovalReferencePresent: true, auditActivationApprovalReferencePresent: false, auditEnabled: false, cron: "0 0 * * *", enabled: false, status: "disabled", timezone: "UTC" },
       globalKillSwitchActive: false,
+      marketStream: { reconnectCount: 0, status: "disabled" },
       operatingMode: "observe",
       paperAutopilotOrderSubmissionEnabled: false,
       paperAutopilotOrderSubmissionApprovalReferencePresent: true,
