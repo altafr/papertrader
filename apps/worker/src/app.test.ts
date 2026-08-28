@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { getWorkerHealth } from "./app.js";
+import { deriveWorkerHealthStatus, getWorkerHealth } from "./app.js";
 import { classifyMarketStreamFreshness, getExpectedBarIntervalMs } from "./market-stream-runner.js";
 
 describe("market stream freshness", () => {
@@ -19,6 +19,12 @@ describe("market stream freshness", () => {
 });
 
 describe("worker health", () => {
+  it("degrades top-level health for active stale or supervisor failures", () => {
+    expect(deriveWorkerHealthStatus({ marketStreamFreshness: "stale", positionManagementStatus: "ready", researchScheduleStatus: "scheduled" })).toBe("degraded");
+    expect(deriveWorkerHealthStatus({ marketStreamFreshness: "fresh", positionManagementStatus: "degraded", researchScheduleStatus: "scheduled" })).toBe("degraded");
+    expect(deriveWorkerHealthStatus({ marketStreamFreshness: "fresh", positionManagementStatus: "ready", researchScheduleStatus: "scheduled" })).toBe("healthy");
+  });
+
   it("reports external integrations as disabled", () => {
     const now = new Date("2026-08-21T00:00:00.000Z");
 

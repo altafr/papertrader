@@ -2,11 +2,18 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.342 — Stream recovery deployment verification.
+- **Phase:** Phase 6.343 — Degraded top-level Worker health.
 - **Status:** The hosted Worker and API are healthy in Paper Autopilot mode with deterministic entry/exit safeguards, durable reconciliation, Telegram alerting, lifecycle-stable PostgreSQL-backed risk evidence, and a read-only portfolio status command. The latest provenance and evidence guards are deployed and verified. Vercel production publication remains limited by the free-plan daily deployment quota, while the 30-day paper-forward evidence window and authenticated dashboard verification remain ongoing.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading, verify authenticated portfolio/P&L rendering and exports, and accumulate the 30-day evidence gate without loosening risk controls.
 - **Last updated:** 2026-08-29.
+
+### Phase 6.343 — Degraded top-level Worker health (2026-08-29)
+
+- [x] Derive Worker top-level health as `degraded` when an active market stream is stale or research/position liveness is degraded.
+- [x] Preserve healthy status for disabled/unknown optional components and retain all detailed redacted component fields.
+- [x] Add regression coverage; Worker typecheck and focused app tests (11 tests) pass.
+- [ ] Deploy the Worker revision and confirm normal hosted health remains healthy while the stream is fresh.
 
 ### Phase 6.342 — Stream recovery deployment verification (2026-08-29)
 

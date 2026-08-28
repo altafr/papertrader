@@ -1,4 +1,4 @@
-import { FOUNDATION_STATUS, type WorkerHealth } from "@momentum/domain";
+import { type WorkerHealth } from "@momentum/domain";
 import { DAILY_PREPARATION_TIMEZONE, getPaperOperatingMode, isGlobalKillSwitchActive } from "@momentum/config";
 import { getTelegramAlertTestReadiness, getTelegramNotificationReadiness } from "@momentum/notifications";
 import { getShadowEvaluationConfig, getShadowScheduleHealth } from "./shadow-evaluation.js";
@@ -7,6 +7,10 @@ import { assessResearchSchedulerLiveness, getResearchScheduleConfig, getResearch
 import { getPositionManagementIntervalSeconds, getPositionManagementReadiness, getPositionManagementSchedulerEnabled } from "./position-management-runtime.js";
 import { assessPositionManagementLiveness, getPositionManagementHealth } from "./position-management-scheduler.js";
 import { getMarketStreamHealth } from "./market-stream-runner.js";
+
+export function deriveWorkerHealthStatus(input: { readonly marketStreamFreshness?: "fresh" | "stale" | "unknown" | undefined; readonly positionManagementStatus: WorkerHealth["positionManagement"]["status"]; readonly researchScheduleStatus: WorkerHealth["researchSchedule"]["status"] }): WorkerHealth["status"] {
+  return input.marketStreamFreshness === "stale" || input.positionManagementStatus === "degraded" || input.researchScheduleStatus === "degraded" ? "degraded" : "healthy";
+}
 
 export function getWorkerHealth(now = new Date(), environment: NodeJS.ProcessEnv = process.env): WorkerHealth {
   const shadow = getShadowEvaluationConfig(environment);
@@ -26,6 +30,7 @@ export function getWorkerHealth(now = new Date(), environment: NodeJS.ProcessEnv
   const paperCredentialsConfigured = Boolean(environment.ALPACA_API_KEY?.trim() && environment.ALPACA_SECRET_KEY?.trim() && environment.ALPACA_PAPER_TRADE !== "false");
   const telegram = getTelegramNotificationReadiness(environment);
   const telegramTest = getTelegramAlertTestReadiness(environment);
+  const marketStream = getMarketStreamHealth(now);
   const release = environment.RAILWAY_GIT_COMMIT_SHA?.trim() || environment.GIT_COMMIT_SHA?.trim();
   return {
     alpaca: paperCredentialsConfigured ? "configured" : "not_configured",
@@ -34,7 +39,7 @@ export function getWorkerHealth(now = new Date(), environment: NodeJS.ProcessEnv
     database: environment.DATABASE_URL?.trim() ? "configured" : "not_configured",
     durableScheduler: { ...durable, auditActivationApprovalReferencePresent, auditEnabled, activationApprovalReferencePresent, cron: durableConfig.cron, enabled: durableConfig.enabled, timezone: DAILY_PREPARATION_TIMEZONE },
     globalKillSwitchActive: isGlobalKillSwitchActive(environment),
-    marketStream: getMarketStreamHealth(now),
+    marketStream,
     operatingMode: getPaperOperatingMode(environment),
     paperAutopilotOrderSubmissionEnabled: environment.PAPER_AUTOPILOT_ORDER_SUBMISSION_ENABLED === "true",
     paperAutopilotOrderSubmissionApprovalReferencePresent: environment.PAPER_AUTOPILOT_ORDER_SUBMISSION_ENABLED !== "true" || Boolean(environment.PAPER_AUTOPILOT_ORDER_SUBMISSION_APPROVAL_REFERENCE?.trim() && /^[A-Za-z0-9][A-Za-z0-9._:/-]{0,127}$/.test(environment.PAPER_AUTOPILOT_ORDER_SUBMISSION_APPROVAL_REFERENCE.trim())),
@@ -43,7 +48,7 @@ export function getWorkerHealth(now = new Date(), environment: NodeJS.ProcessEnv
     ...(release ? { release } : {}),
     shadowEvaluation: { ...shadow, ...schedule, status: shadow.enabled ? schedule.status : "disabled" },
     service: "worker",
-    status: FOUNDATION_STATUS.health,
+    status: deriveWorkerHealthStatus({ marketStreamFreshness: marketStream.freshness, positionManagementStatus, researchScheduleStatus: researchStatus }),
     telegramAlerts: { deliveryVerification: telegram.deliveryVerification, enabled: telegram.checks.enabled, riskDecisionAlerts: "approved_only", routineCooldownHours: 24, status: telegram.status },
     telegramAlertTest: { approvalReferencePresent: telegramTest.approvalReferencePresent, status: telegramTest.status },
   };
