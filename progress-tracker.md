@@ -2,11 +2,18 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.349 — Telegram delivery deployment recovery.
+- **Phase:** Phase 6.350 — Telegram delivery quality verification.
 - **Status:** The hosted Worker and API are healthy in Paper Autopilot mode with deterministic entry/exit safeguards, durable reconciliation, Telegram alerting, lifecycle-stable PostgreSQL-backed risk evidence, and a read-only portfolio status command. The latest provenance and evidence guards are deployed and verified. Vercel production publication remains limited by the free-plan daily deployment quota, while the 30-day paper-forward evidence window and authenticated dashboard verification remain ongoing.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading, verify authenticated portfolio/P&L rendering and exports, and accumulate the 30-day evidence gate without loosening risk controls.
 - **Last updated:** 2026-08-29.
+
+### Phase 6.350 — Telegram delivery quality verification (2026-08-29)
+
+- [x] Full repository suite passes: 88 test files and 365 tests.
+- [x] All workspace typechecks and ESLint pass with zero warnings.
+- [x] The notifier change remains isolated to alert persistence behavior and cannot alter broker/risk execution.
+- [ ] Retry the Railway Worker deployment after the provider snapshot/queue issue clears, then run hosted verification.
 
 ### Phase 6.349 — Telegram delivery deployment recovery (2026-08-29)
 
