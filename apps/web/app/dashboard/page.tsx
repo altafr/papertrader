@@ -10,6 +10,7 @@ type ReadModel = {
   orders: Array<Record<string, unknown>>;
   positions: Array<Record<string, unknown>>;
   snapshot: Record<string, unknown>;
+  unmanagedPositions: Array<{ assetClass: string; symbol: string }>;
 };
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -24,6 +25,7 @@ function parseReadModel(value: unknown): ReadModel | undefined {
     !Array.isArray(model.orders) ||
     !Array.isArray(model.positions) ||
     !isRecord(model.snapshot) ||
+    !Array.isArray(model.unmanagedPositions) ||
     !isRecord(model.freshness) ||
     typeof model.freshness.ageSeconds !== "number" ||
     typeof model.freshness.capturedAt !== "string"
@@ -34,6 +36,7 @@ function parseReadModel(value: unknown): ReadModel | undefined {
     orders: model.orders.filter(isRecord),
     positions: model.positions.filter(isRecord),
     snapshot: model.snapshot,
+    unmanagedPositions: model.unmanagedPositions.filter((row): row is { assetClass: string; symbol: string } => isRecord(row) && typeof row.assetClass === "string" && typeof row.symbol === "string"),
   };
 }
 
@@ -141,10 +144,6 @@ function positionReturnPercent(row: Record<string, unknown>): number | undefined
   const notional = positionNotional(row);
   const unrealized = numericValue(row, "unrealizedPl");
   return notional && unrealized !== undefined ? (unrealized / notional) * 100 : undefined;
-}
-
-function hasDeterministicExitPlan(row: Record<string, unknown>): boolean {
-  return ["entryPrice", "plannedStopPrice", "strategyKey", "strategyVersion"].every((key) => value(row, key) !== "—");
 }
 
 function indicatorSummary(row: Record<string, unknown>) {
@@ -387,7 +386,7 @@ export default async function DashboardPage({ searchParams }: { readonly searchP
   const dayPnl = equity !== undefined && lastEquity !== undefined ? equity - lastEquity : undefined;
   const grossExposurePercent = equity && portfolioMarketValue !== undefined ? (portfolioMarketValue / equity) * 100 : undefined;
   const decisionRows = operatorOverview?.tradeDecisions ?? [];
-  const unmanagedPositions = result.kind === "ready" ? result.model.positions.filter((position) => !decisionRows.some((decision) => value(decision, "symbol") === value(position, "symbol") && value(decision, "assetClass") === value(position, "assetClass") && hasDeterministicExitPlan(decision))) : [];
+  const unmanagedKeys = new Set(result.kind === "ready" ? result.model.unmanagedPositions.map((position) => `${position.assetClass}:${position.symbol}`) : []);
   const today = new Date();
   const toDate = today.toISOString().slice(0, 10);
   const presetDate = (days: number) => { const from = new Date(today); from.setUTCDate(from.getUTCDate() - (days - 1)); return from.toISOString().slice(0, 10); };
@@ -493,10 +492,10 @@ export default async function DashboardPage({ searchParams }: { readonly searchP
 
           <article className="card full-width" id="positions">
             <div className="card-heading"><div><p className="label">Positions</p><h2>{result.model.positions.length} open positions</h2></div><span className="provenance">Persisted account snapshot</span></div>
-            {unmanagedPositions.length > 0 && <div className="audit-unavailable" role="alert"><strong>{unmanagedPositions.length} position(s) require review.</strong><span>{unmanagedPositions.map((position) => value(position, "symbol")).join(", ")} have no stored deterministic exit plan. They are fail-closed and will not receive automatic exits.</span></div>}
+            {unmanagedKeys.size > 0 && <div className="audit-unavailable" role="alert"><strong>{unmanagedKeys.size} position(s) require review.</strong><span>{result.model.unmanagedPositions.map((position) => position.symbol).join(", ")} have no stored deterministic exit plan. They are fail-closed and will not receive automatic exits.</span></div>}
             {result.model.positions.length === 0 ? <p className="empty-state">No open positions in the latest reconciled snapshot.</p> : (
               <div className="responsive-table"><table><thead><tr><th>Symbol</th><th>Class</th><th>Quantity</th><th>Avg entry</th><th>Invested notional</th><th>Market value</th><th>Unrealized P/L</th><th>Return</th><th>Exit plan</th></tr></thead><tbody>
-                {result.model.positions.map((position) => { const notional = positionNotional(position); const returnPercent = positionReturnPercent(position); const managed = decisionRows.some((decision) => value(decision, "symbol") === value(position, "symbol") && value(decision, "assetClass") === value(position, "assetClass") && hasDeterministicExitPlan(decision)); return <tr key={`${value(position, "symbol")}-${value(position, "accountSnapshotId")}`}><th scope="row">{value(position, "symbol")}</th><td>{value(position, "assetClass")}</td><td>{value(position, "quantity")}</td><td>{value(position, "averageEntryPrice")}</td><td>{notional === undefined ? "Not reported" : notional.toFixed(2)}</td><td>{value(position, "marketValue")}</td><td className={numericValue(position, "unrealizedPl") !== undefined && (numericValue(position, "unrealizedPl") ?? 0) < 0 ? "negative-value" : ""}>{value(position, "unrealizedPl")}</td><td className={returnPercent !== undefined && returnPercent < 0 ? "negative-value" : ""}>{returnPercent === undefined ? "Not reported" : `${returnPercent.toFixed(2)}%`}</td><td>{managed ? "Active" : "Review required"}</td></tr>; })}
+                {result.model.positions.map((position) => { const notional = positionNotional(position); const returnPercent = positionReturnPercent(position); const managed = !unmanagedKeys.has(`${value(position, "assetClass")}:${value(position, "symbol")}`); return <tr key={`${value(position, "symbol")}-${value(position, "accountSnapshotId")}`}><th scope="row">{value(position, "symbol")}</th><td>{value(position, "assetClass")}</td><td>{value(position, "quantity")}</td><td>{value(position, "averageEntryPrice")}</td><td>{notional === undefined ? "Not reported" : notional.toFixed(2)}</td><td>{value(position, "marketValue")}</td><td className={numericValue(position, "unrealizedPl") !== undefined && (numericValue(position, "unrealizedPl") ?? 0) < 0 ? "negative-value" : ""}>{value(position, "unrealizedPl")}</td><td className={returnPercent !== undefined && returnPercent < 0 ? "negative-value" : ""}>{returnPercent === undefined ? "Not reported" : `${returnPercent.toFixed(2)}%`}</td><td>{managed ? "Active" : "Review required"}</td></tr>; })}
               </tbody></table></div>
             )}
           </article>

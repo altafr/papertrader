@@ -79,6 +79,14 @@
 - [ ] Publish the web change to Vercel after the provider's free daily deployment quota resets (current response: `api-deployments-free-per-day`).
 - [ ] Verify the authenticated dashboard warning against `BTCUSD` and `PFD`.
 
+### Phase 6.404 — Authoritative unmanaged-position read model (2026-08-29)
+
+- [x] Compute unmanaged positions in the authenticated API from the latest persisted account snapshot and exit-plan metadata, independent of paged audit history.
+- [x] Validate and expose only bounded asset-class/symbol state to the browser.
+- [x] Update dashboard management labels and warning banner to use this authoritative field.
+- [x] Verify API/web typechecks and the complete 318-test suite.
+- [ ] Deploy API/web changes and verify the authenticated dashboard displays `BTCUSD` and `PFD` as review-required.
+
 ### Phase 6.387 — Hosted cycle baseline after reason-logging rollout (2026-08-28)
 
 - [x] Verify Worker deployment `8cabc43d-b343-47c1-9a0f-257198dabdcf` is `SUCCESS` and health is `healthy`.
