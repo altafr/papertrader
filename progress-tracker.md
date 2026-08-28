@@ -2,11 +2,20 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.353 — Natural 13:30 UTC crypto cycle.
-- **Status:** The public Worker completed the naturally scheduled `13:30 UTC` crypto preparation run at `13:30:10 UTC`, persisted it as `succeeded`, and advanced the schedule. The corresponding BTC/USD hand-off remains deterministically rejected with no submission timestamp; no broker execution was created by this cycle. Authenticated dashboard rendering, a successful broker-reconciled order, and Alpaca crypto entitlement resolution remain pending.
+- **Phase:** Phase 6.354 — Natural 13:45 UTC crypto cycle.
+- **Status:** The public Worker completed the naturally scheduled `13:45 UTC` crypto preparation run at `13:45:09 UTC`, persisted it as `succeeded`, and advanced the schedule to `14:00 UTC`. The corresponding BTC/USD hand-off was deterministically rejected by the position and gross-exposure caps with no submission timestamp or broker execution. Authenticated dashboard rendering, a successful broker-reconciled order, and Alpaca crypto entitlement resolution remain pending.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Verify the first natural paper research/order cycle and authenticated dashboard portfolio/position rendering, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
+
+### Phase 6.354 — Natural 13:45 UTC crypto cycle (2026-08-28)
+
+- [x] Observe the scheduled `13:45 UTC` crypto preparation tick without forcing a manual run.
+- [x] Confirm persisted run `research-preparation-crypto_research-20260828134509` completed with `status: succeeded`.
+- [x] Confirm the BTC/USD hand-off was recorded as `risk_dry_run_rejected` with position-cap and gross-exposure reasons, no submission timestamp, and no broker fill.
+- [x] Confirm hosted Worker health remained `healthy`, the crypto stream remained `connected`, position management remained `ready`, and the next run advanced to `14:00 UTC`.
+- [ ] Verify this cycle and its bounded risk reason in the authenticated dashboard.
+- [ ] Reconcile a successful paper order and resolve Alpaca's external crypto-order entitlement response.
 
 ### Phase 6.353 — Natural 13:30 UTC crypto cycle (2026-08-28)
 
