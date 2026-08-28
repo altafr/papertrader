@@ -227,6 +227,14 @@
 - [x] Confirm Railway deployment `c584f5d0-fc31-448c-aca7-55d7396a14b3` for commit `89b76cb` reached `SUCCESS` and the Worker health endpoint remains `healthy`.
 - [ ] Publish the latest dashboard revision after Vercel's provider deployment quota resets and verify the authenticated read model, CSV export, and review-required position state.
 
+### Phase 6.425 — Hosted paper-performance and reconciliation checkpoint (2026-08-29)
+
+- [x] Run the guarded, read-only hosted paper-performance report; it returned 100 persisted snapshots across one captured calendar day.
+- [x] Record current paper metrics without treating them as a performance guarantee: initial equity `99561.12`, final equity `99494.25`, total P/L `-66.87`, max drawdown `0.14070754%`.
+- [x] Confirm the stability gate remains correctly blocked until 30 consecutive calendar days are captured; no live-readiness promotion was inferred.
+- [x] Run one hosted paper-account reconciliation; it completed successfully and updated the durable read model without changing the paper/live mode.
+- [ ] Continue the 30-day paper-forward evidence window and verify the authenticated dashboard/CSV view when operator credentials are available.
+
 ### Phase 6.387 — Hosted cycle baseline after reason-logging rollout (2026-08-28)
 
 - [x] Verify Worker deployment `8cabc43d-b343-47c1-9a0f-257198dabdcf` is `SUCCESS` and health is `healthy`.
