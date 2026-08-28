@@ -7,6 +7,7 @@ export function evaluatePaperRuntime(worker: HealthObject, api: HealthObject, ex
   const durableScheduler = worker.durableScheduler;
   const streamConnected = typeof marketStream === "object" && marketStream !== null && !Array.isArray(marketStream) && (marketStream as HealthObject).status === "connected";
   const positionsReady = typeof positionManagement === "object" && positionManagement !== null && !Array.isArray(positionManagement) && (positionManagement as HealthObject).status === "ready";
+  const positionsUnblocked = positionsReady && (!Array.isArray((positionManagement as HealthObject).blockedReasons) || ((positionManagement as HealthObject).blockedReasons as unknown[]).length === 0);
   const researchScheduled = typeof researchSchedule === "object" && researchSchedule !== null && !Array.isArray(researchSchedule)
     && (researchSchedule as HealthObject).enabled === true
     && (researchSchedule as HealthObject).handlerEnabled === true
@@ -30,6 +31,7 @@ export function evaluatePaperRuntime(worker: HealthObject, api: HealthObject, ex
     durableScheduler: durableScheduled ? "scheduled" : "not_scheduled",
     release: typeof worker.release === "string" ? worker.release : "not_reported",
     releaseMatches,
+    killSwitchInactive: worker.globalKillSwitchActive === false,
   } as const;
-  return { ...result, verified: result.api === "healthy" && result.worker === "healthy" && result.alpaca === "configured" && result.database === "configured" && result.paperMode && result.orderSubmissionEnabled && streamConnected && positionsReady && researchScheduled && durableScheduled && releaseMatches };
+  return { ...result, verified: result.api === "healthy" && result.worker === "healthy" && result.alpaca === "configured" && result.database === "configured" && result.paperMode && result.orderSubmissionEnabled && streamConnected && positionsReady && positionsUnblocked && researchScheduled && durableScheduled && releaseMatches && result.killSwitchInactive };
 }
