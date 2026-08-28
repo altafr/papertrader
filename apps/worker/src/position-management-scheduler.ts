@@ -6,6 +6,14 @@ let lastError: string | undefined;
 
 export function getPositionManagementHealth() { return { lastError, lastRunAt, status }; }
 
+/** Mark the supervisor degraded when no successful pass arrives within a bounded interval. */
+export function assessPositionManagementLiveness(health: { readonly lastRunAt?: string | undefined; readonly status: PositionManagementSchedulerStatus }, intervalSeconds: number, now = new Date()): PositionManagementSchedulerStatus {
+  if (health.status === "disabled" || health.status === "degraded" || !health.lastRunAt) return health.status;
+  const lastRun = Date.parse(health.lastRunAt);
+  if (!Number.isFinite(lastRun) || !Number.isFinite(now.getTime())) return "degraded";
+  return now.getTime() - lastRun > Math.max(30, intervalSeconds * 2) * 1_000 ? "degraded" : health.status;
+}
+
 /** Schedule deterministic position-management passes without overlapping broker operations. */
 export function createPositionManagementScheduler(input: { readonly intervalSeconds: number; readonly run: () => Promise<void>; readonly onFailure?: (error: unknown) => Promise<void> | void }) {
   if (!Number.isSafeInteger(input.intervalSeconds) || input.intervalSeconds < 30 || input.intervalSeconds > 86_400) throw new Error("Position-management interval must be between 30 and 86400 seconds.");

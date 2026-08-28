@@ -804,6 +804,13 @@
 - [x] Preserve the once-daily cooldown and bounded maximum-ten position digest.
 - [ ] Verify the next market-close Telegram delivery and continue the paper-forward evidence window.
 
+### Phase 6.511 — Position-management liveness guard (2026-08-29)
+
+- [x] Add a bounded Worker-health liveness assessment for position-management passes.
+- [x] Mark the service degraded after more than two configured intervals without a successful pass, including invalid timestamp handling.
+- [x] Add regression coverage without changing scheduler, broker, or risk authority.
+- [ ] Deploy the Worker revision and verify the hosted health contract remains healthy with a fresh pass.
+
 ### Phase 6.458 — Natural hosted cycle continuity (2026-08-29)
 
 - [x] Verify the hosted Worker remains healthy on release `febcda5f7a5…` with Paper Autopilot and order submission still enabled.

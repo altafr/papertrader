@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { buildPositionExitDecisionLog, buildPositionManagementLog, buildUnmanagedPositionLog, getActiveExitIntentIds, getPaperOrderStatusTransitions, getPositionDetectedDedupeKey, getPositionExitDecisionDedupeKey, getPositionExitIntentId, groupPositionSymbolsByAssetClass } from "./position-management-runtime.js";
+import { assessPositionManagementLiveness } from "./position-management-scheduler.js";
 
 describe("paper order status transitions", () => {
   it("returns only changed orders", () => {
@@ -35,6 +36,14 @@ describe("position alert deduplication", () => {
       { clientOrderId: "intent-2-exit-profit_target", intentId: "intent-2:exit", status: "filled" },
       { clientOrderId: "intent-3-paper", intentId: "intent-3", status: "accepted" },
     ])]).toEqual(["intent-1:exit"]);
+  });
+});
+
+describe("position scheduler liveness", () => {
+  it("degrades after two missed intervals", () => {
+    const health = { lastRunAt: "2026-08-29T00:00:00.000Z", status: "ready" as const };
+    expect(assessPositionManagementLiveness(health, 60, new Date("2026-08-29T00:01:59.000Z"))).toBe("ready");
+    expect(assessPositionManagementLiveness(health, 60, new Date("2026-08-29T00:02:01.000Z"))).toBe("degraded");
   });
 });
 

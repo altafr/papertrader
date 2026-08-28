@@ -38,6 +38,8 @@ The protected read-model response carries the bounded `unmanagedPositions` proje
 
 It also carries a bounded `activeExitPositions` projection derived from all non-terminal deterministic exit submissions, rather than paginated audit history. This keeps the operator's exit-state label truthful after long-running operation and audit filtering.
 
+Worker health applies the same liveness principle to position management: if no successful pass is recorded for more than two configured intervals, the redacted health state becomes `degraded`, prompting safe operational review without changing broker or risk behavior.
+
 Telegram portfolio summaries use the same decimal-safe financial helpers as risk/performance calculations; invalid persisted values fail closed to `not reported` rather than being coerced through binary floating-point arithmetic.
 
 The once-daily market-close summary also includes a bounded (maximum ten) `symbol P/L` digest from the reconciled position model, so the operator can identify position-level contribution without receiving per-tick notification noise.

@@ -5,7 +5,7 @@ import { getShadowEvaluationConfig, getShadowScheduleHealth } from "./shadow-eva
 import { getDurableSchedulerConfig, getDurableSchedulerHealth } from "./durable-scheduler.js";
 import { assessResearchSchedulerLiveness, getResearchScheduleConfig, getResearchScheduleReadiness, getResearchSchedulerHealth } from "./research-scheduler.js";
 import { getPositionManagementIntervalSeconds, getPositionManagementReadiness, getPositionManagementSchedulerEnabled } from "./position-management-runtime.js";
-import { getPositionManagementHealth } from "./position-management-scheduler.js";
+import { assessPositionManagementLiveness, getPositionManagementHealth } from "./position-management-scheduler.js";
 import { getMarketStreamHealth } from "./market-stream-runner.js";
 
 export function getWorkerHealth(now = new Date(), environment: NodeJS.ProcessEnv = process.env): WorkerHealth {
@@ -22,6 +22,7 @@ export function getWorkerHealth(now = new Date(), environment: NodeJS.ProcessEnv
   const researchStatus: WorkerHealth["researchSchedule"]["status"] = researchReadiness.status === "blocked" ? "blocked" : researchRuntime.enabled ? assessResearchSchedulerLiveness(researchRuntime, now).status : research.enabled ? "ready" : "disabled";
   const positionManagementReadiness = getPositionManagementReadiness(environment);
   const positionManagementHealth = getPositionManagementHealth();
+  const positionManagementStatus = assessPositionManagementLiveness(positionManagementHealth, getPositionManagementIntervalSeconds(environment), now);
   const paperCredentialsConfigured = Boolean(environment.ALPACA_API_KEY?.trim() && environment.ALPACA_SECRET_KEY?.trim() && environment.ALPACA_PAPER_TRADE !== "false");
   const telegram = getTelegramNotificationReadiness(environment);
   const telegramTest = getTelegramAlertTestReadiness(environment);
@@ -37,7 +38,7 @@ export function getWorkerHealth(now = new Date(), environment: NodeJS.ProcessEnv
     operatingMode: getPaperOperatingMode(environment),
     paperAutopilotOrderSubmissionEnabled: environment.PAPER_AUTOPILOT_ORDER_SUBMISSION_ENABLED === "true",
     paperAutopilotOrderSubmissionApprovalReferencePresent: environment.PAPER_AUTOPILOT_ORDER_SUBMISSION_ENABLED !== "true" || Boolean(environment.PAPER_AUTOPILOT_ORDER_SUBMISSION_APPROVAL_REFERENCE?.trim() && /^[A-Za-z0-9][A-Za-z0-9._:/-]{0,127}$/.test(environment.PAPER_AUTOPILOT_ORDER_SUBMISSION_APPROVAL_REFERENCE.trim())),
-    positionManagement: { blockedReasons: positionManagementReadiness.blockedReasons, enabled: getPositionManagementSchedulerEnabled(environment), intervalSeconds: getPositionManagementIntervalSeconds(environment), readiness: positionManagementReadiness.status, status: positionManagementHealth.status, ...(positionManagementHealth.lastError === undefined ? {} : { lastError: positionManagementHealth.lastError }), ...(positionManagementHealth.lastRunAt === undefined ? {} : { lastRunAt: positionManagementHealth.lastRunAt }) },
+    positionManagement: { blockedReasons: positionManagementReadiness.blockedReasons, enabled: getPositionManagementSchedulerEnabled(environment), intervalSeconds: getPositionManagementIntervalSeconds(environment), readiness: positionManagementReadiness.status, status: positionManagementStatus, ...(positionManagementHealth.lastError === undefined ? {} : { lastError: positionManagementHealth.lastError }), ...(positionManagementHealth.lastRunAt === undefined ? {} : { lastRunAt: positionManagementHealth.lastRunAt }) },
     researchSchedule: { enabled: research.enabled, handlerEnabled: research.handlerEnabled, ...(researchRuntime.lastRunAt ? { lastRunAt: researchRuntime.lastRunAt } : {}), ...(researchRuntime.nextRunAt ? { nextRunAt: researchRuntime.nextRunAt } : {}), status: researchStatus },
     ...(release ? { release } : {}),
     shadowEvaluation: { ...shadow, ...schedule, status: shadow.enabled ? schedule.status : "disabled" },
