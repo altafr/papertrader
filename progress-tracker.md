@@ -8,6 +8,14 @@
 - **Current goal:** Verify the first natural paper research/order cycle and authenticated dashboard portfolio/position rendering, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
 
+### Phase 6.357 — Always-on scheduler acceptance contract (2026-08-28)
+
+- [x] Extend the credential-free hosted runtime verifier to require the crypto/stock research scheduler to be enabled, handler-enabled, scheduled, and reporting a next run.
+- [x] Extend the verifier to require the durable daily scheduler to be enabled, scheduled, and reporting a next run.
+- [x] Add fail-closed regression coverage for degraded research scheduling and incomplete durable-scheduler health.
+- [x] Verify the hosted API and Worker: both services are healthy, Paper Autopilot and order submission are enabled, market data is connected, position management is ready, research is scheduled, and the durable scheduler is scheduled.
+- [ ] Verify authenticated dashboard rendering and reconcile a successful paper order; these require operator session access and Alpaca's external crypto entitlement response.
+
 ### Phase 6.356 — Natural 14:15 UTC crypto cycle (2026-08-28)
 
 - [x] Observe the scheduled `14:15 UTC` crypto preparation tick without forcing a manual run.
