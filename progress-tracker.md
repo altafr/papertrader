@@ -2,7 +2,7 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.312 — Persisted risk-cycle outcome visibility.
+- **Phase:** Phase 6.314 — Position-exit market freshness gate.
 - **Status:** The hosted Worker and API are healthy in Paper Autopilot mode with deterministic entry/exit safeguards, durable reconciliation, Telegram alerting, lifecycle-stable PostgreSQL-backed risk evidence, and a read-only portfolio status command. The latest provenance and evidence guards are deployed and verified. Vercel production publication remains limited by the free-plan daily deployment quota, while the 30-day paper-forward evidence window and authenticated dashboard verification remain ongoing.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading, verify authenticated portfolio/P&L rendering and exports, and accumulate the 30-day evidence gate without loosening risk controls.
@@ -5707,6 +5707,13 @@
 - Public API health returns HTTP 200, and the protected operator overview remains HTTP 401 without an operator token.
 - Worker health remains healthy in Paper Autopilot mode with connected market stream, scheduled research/durable runs, and ready position management.
 - **Next smallest unit:** verify the authenticated dashboard/read-model payload and continue paper-forward evidence collection; web publication remains subject to Vercel quota.
+
+### Phase 6.314 position-exit market freshness gate
+
+- Added a five-minute timestamp and positive-price freshness check for every market mark used by deterministic position exits.
+- Stale or missing marks now fail closed and produce a deduplicated critical operational alert; no stop, target, or time exit is submitted from stale data.
+- Added focused coverage for fresh versus stale marks; worker typecheck, ESLint, and position-management tests pass (14 tests).
+- **Next smallest unit:** deploy the Worker change and verify the hosted position-management health remains ready.
 
 ### 2026-08-29 — Phase 6.306 compatibility deployment verified
 

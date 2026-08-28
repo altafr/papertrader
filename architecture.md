@@ -36,6 +36,8 @@ During rollout, approved rows written before the explicit field was introduced r
 
 Position provenance and managed-state queries accept only approved risk evidence or a broker-bound order identity. Rejected research candidates therefore cannot accidentally mark an unrelated live position as managed. Operations Health also exposes the latest bounded execution status (when persisted), allowing the operator surface to distinguish an approved decision from its reconciliation outcome without exposing broker payloads.
 
+Position management applies a separate five-minute market-mark freshness gate before evaluating any stop, target, or time exit. If Alpaca supplies no positive, timestamped mark within that window, the pass fails closed, emits a deduplicated operational warning, and submits no exit based on stale data.
+
 ### Separately gated order handoff (Phase 6.213)
 
 The scheduled risk cycle accepts an optional executor only when `PAPER_AUTOPILOT_ORDER_SUBMISSION_ENABLED=true` is explicitly configured server-side. That executor reuses `executePaperAutopilotOrder`, including deterministic approval, idempotent client order IDs, persistence, broker reconciliation, and lifecycle alerts. When the flag is absent or `false`, approved candidates remain persisted dry-run decisions and no broker write is reachable from the scheduled path. Worker health reports this gate as a redacted boolean so risk-cycle readiness cannot be confused with order-submission authority.

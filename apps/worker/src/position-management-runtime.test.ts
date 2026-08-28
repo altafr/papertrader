@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { buildPositionExitDecisionLog, buildPositionManagementLog, buildUnmanagedPositionLog, getActiveExitIntentIds, getPaperOrderStatusTransitions, getPositionDetectedDedupeKey, getPositionExitDecisionDedupeKey, getPositionExitIntentId, groupPositionSymbolsByAssetClass, isTerminalPaperOrderStatus } from "./position-management-runtime.js";
+import { buildPositionExitDecisionLog, buildPositionManagementLog, buildUnmanagedPositionLog, getActiveExitIntentIds, getFreshPositionMark, getPaperOrderStatusTransitions, getPositionDetectedDedupeKey, getPositionExitDecisionDedupeKey, getPositionExitIntentId, groupPositionSymbolsByAssetClass, isTerminalPaperOrderStatus } from "./position-management-runtime.js";
 import { assessPositionManagementLiveness } from "./position-management-scheduler.js";
 
 describe("paper order status transitions", () => {
@@ -26,6 +26,12 @@ describe("position market-data grouping", () => {
       { assetClass: "us_equity", symbols: ["AAPL"] },
       { assetClass: "crypto", symbols: ["BTC/USD"] },
     ]);
+  });
+
+  it("rejects stale marks and accepts a fresh timestamped trade", () => {
+    const now = new Date("2026-08-29T00:05:00.000Z");
+    expect(getFreshPositionMark({ symbol: "BTC/USD", latestTrade: { price: "100", timestamp: "2026-08-28T23:59:00.000Z" } }, now)).toBeUndefined();
+    expect(getFreshPositionMark({ symbol: "BTC/USD", latestTrade: { price: "100", timestamp: "2026-08-29T00:04:30.000Z" } }, now)).toBe("100");
   });
 });
 

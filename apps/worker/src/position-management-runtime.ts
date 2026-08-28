@@ -1,4 +1,4 @@
-import { createPaperAccountReader, createPaperMarketDataReader, createPaperExitOrderSubmitter } from "@momentum/alpaca";
+import { createPaperAccountReader, createPaperMarketDataReader, createPaperExitOrderSubmitter, type PaperMarketSnapshot } from "@momentum/alpaca";
 import { isGlobalKillSwitchActive } from "@momentum/config";
 import { createAccountStateRepository, createDatabase, createPaperOrderRepository, createTelegramAlertRepository } from "@momentum/db";
 
@@ -8,6 +8,7 @@ import { createPositionManagementScheduler, type PositionManagementSchedulerStat
 import { createRuntimeAlertNotifier } from "./telegram-events.js";
 
 const POSITION_DETECTED_COOLDOWN_MS = 86_400_000;
+const POSITION_MARK_MAX_AGE_MS = 5 * 60_000;
 
 export interface PositionManagementRuntimeHealth {
   readonly enabled: boolean;
@@ -47,6 +48,22 @@ export function getPositionExitDecisionDedupeKey(intentId: string, reason: strin
 
 export function getPositionExitIntentId(clientOrderId: string): string {
   return clientOrderId.replace(/-exit-(?:profit_target|stop_loss|time_stop)$/, ":exit");
+}
+
+/** Select a positive, timestamped mark only when it is fresh enough for exit decisions. */
+export function getFreshPositionMark(snapshot: PaperMarketSnapshot, now = new Date(), maxAgeMs = POSITION_MARK_MAX_AGE_MS): string | undefined {
+  const candidates = [
+    snapshot.latestTrade ? { price: snapshot.latestTrade.price, timestamp: snapshot.latestTrade.timestamp } : undefined,
+    snapshot.latestQuote ? { price: snapshot.latestQuote.askPrice || snapshot.latestQuote.bidPrice, timestamp: snapshot.latestQuote.timestamp } : undefined,
+    snapshot.minuteBar ? { price: snapshot.minuteBar.close, timestamp: snapshot.minuteBar.timestamp } : undefined,
+  ].filter((candidate): candidate is { price: string; timestamp: string } => Boolean(candidate));
+  for (const candidate of candidates) {
+    const price = Number(candidate.price);
+    const timestamp = Date.parse(candidate.timestamp);
+    const age = now.getTime() - timestamp;
+    if (Number.isFinite(price) && price > 0 && Number.isFinite(timestamp) && age >= 0 && age <= maxAgeMs) return candidate.price;
+  }
+  return undefined;
 }
 
 /** Return exit intents which already have an open broker lifecycle state. */
@@ -149,10 +166,16 @@ export async function runPositionManagementCycle(environment: NodeJS.ProcessEnv 
     const managed = managedPositions.flatMap((position) => {
       const plan = plans.get(`${position.assetClass}:${position.symbol}`);
       const mark = marks.find((item) => item.assetClass === (position.assetClass === "crypto" ? "crypto" : "us_equity") && item.mark.symbol === position.symbol)?.mark;
-      const currentPrice = mark?.latestTrade?.price ?? mark?.dailyBar?.close ?? mark?.latestQuote?.askPrice;
+      const currentPrice = mark ? getFreshPositionMark(mark) : undefined;
       if (!plan || !currentPrice) return [];
       return [{ assetClass: position.assetClass === "crypto" ? "crypto" as const : "us_equity" as const, currentPrice, entryPrice: plan.entryPrice!, plannedStopPrice: plan.plannedStopPrice!, ...(plan.plannedTargetPrice ? { plannedTargetPrice: plan.plannedTargetPrice } : {}), quantity: position.quantity, strategyKey: plan.strategyKey!, strategyVersion: plan.strategyVersion!, symbol: position.symbol, ...(plan.timeStopAt ? { timeStopAt: plan.timeStopAt.toISOString() } : {}), intentId: plan.intentId }];
     });
+    for (const position of managedPositions) {
+      const mark = marks.find((item) => item.assetClass === (position.assetClass === "crypto" ? "crypto" : "us_equity") && item.mark.symbol === position.symbol)?.mark;
+      if (mark && !getFreshPositionMark(mark)) {
+        await notifier.notify({ code: "stale_position_market_data", cooldownKey: `stale_position_market_data:${position.assetClass}:${position.symbol}`, cooldownMs: POSITION_DETECTED_COOLDOWN_MS, dedupeKey: `stale_position_market_data:${position.assetClass}:${position.symbol}`, message: `Position management paused for ${position.symbol}: latest market mark is stale. No automatic exit was submitted.`, severity: "critical" });
+      }
+    }
     const brokerExitSubmitter = createPaperExitOrderSubmitter({ apiKey, brokerConnectionEnabled: true, secretKey });
     const exitSubmitter = {
       submitExit: async (request: Parameters<typeof brokerExitSubmitter.submitExit>[0]) => {
