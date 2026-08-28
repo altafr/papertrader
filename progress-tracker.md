@@ -5446,6 +5446,12 @@
 - Public web surface returned HTTP 200.
 - **Next smallest unit:** capture the next scheduled risk-cycle counters from the live Worker health and PostgreSQL-backed API contract.
 
+### 2026-08-29 — Phase 6.274 hosted log safety audit
+
+- Reviewed the current Railway Worker logs for failed, degraded, and risk-cycle events while the next scheduled tick was pending.
+- No failed or degraded cycle was present; the only warning was the expected fail-closed `unmanaged_position_detected` alert for positions without stored exit plans.
+- **Next smallest unit:** verify the scheduled risk-cycle counters after the 22:00 UTC tick.
+
 ### 2026-08-29 — Phase 6.269 dashboard build verification
 
 - Verified the updated Next.js dashboard production build locally after adding durable risk-cycle evidence; compilation, TypeScript, static generation, and dynamic route analysis all succeeded.
