@@ -8,6 +8,14 @@
 - **Current goal:** Verify the first natural paper research/order cycle and authenticated dashboard portfolio/position rendering, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
 
+### Phase 6.384 — Hosted cadence and submission configuration audit (2026-08-28)
+
+- [x] Confirm the production research cadence is `*/15 * * * *` (15-minute ticks).
+- [x] Confirm stock-window filtering is enabled for the first/last two regular-session hours.
+- [x] Confirm Paper Autopilot, guarded order submission, and the supervised market stream are enabled.
+- [x] Confirm these values through Railway's variable metadata without exposing any secret values.
+- [ ] Observe the next eligible cross-asset cycle and reconcile a successful paper order.
+
 ### Phase 6.383 — Idempotent paper submission retry guard (2026-08-28)
 
 - [x] Check the durable paper-submission ledger before every broker call.
