@@ -46,4 +46,15 @@ describe("paper execution wiring", () => {
       else process.env.GLOBAL_KILL_SWITCH_ACTIVE = previous;
     }
   });
+
+  it("reuses an existing broker-bound intent without submitting twice", async () => {
+    let submitted = 0;
+    const result = await executePaperAutopilotOrder({ autopilot: mode, order, persistence: { getByClientOrderId: async () => ({ alpacaOrderId: "alpaca-existing", status: "accepted", filledQuantity: "0" }), recordSubmission: async () => { throw new Error("must not persist"); }, reconcile: async () => {}, markFailed: async () => {} }, submitter: { submit: async () => { submitted += 1; throw new Error("must not submit"); } } });
+    expect(result.brokerOrder.alpacaOrderId).toBe("alpaca-existing");
+    expect(submitted).toBe(0);
+  });
+
+  it("fails closed when an intent is already pending without broker identity", async () => {
+    await expect(executePaperAutopilotOrder({ autopilot: mode, order, persistence: { getByClientOrderId: async () => ({ status: "pending" }), recordSubmission: async () => { throw new Error("must not persist"); }, reconcile: async () => {}, markFailed: async () => {} }, submitter: { submit: async () => { throw new Error("must not submit"); } } })).rejects.toThrow("refusing duplicate submission");
+  });
 });

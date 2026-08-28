@@ -2,11 +2,20 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.382 — Hosted runtime CI gate.
-- **Status:** GitHub CI now runs the credential-free hosted runtime verifier alongside build, test, and auth-boundary checks, using configurable public health URLs with the current Railway endpoints as defaults. The next natural cross-asset cycle and successful broker-reconciled order remain pending.
+- **Phase:** Phase 6.383 — Idempotent paper submission retry guard.
+- **Status:** Paper execution now checks the durable submission ledger by client order ID before calling Alpaca, reuses broker-confirmed intents, and fails closed for ambiguous in-flight intents. The next natural cross-asset cycle and successful broker-reconciled order remain pending.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Verify the first natural paper research/order cycle and authenticated dashboard portfolio/position rendering, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
+
+### Phase 6.383 — Idempotent paper submission retry guard (2026-08-28)
+
+- [x] Check the durable paper-submission ledger before every broker call.
+- [x] Reuse an existing broker-bound intent without submitting a duplicate order.
+- [x] Refuse retries when an intent exists without broker confirmation, requiring reconciliation.
+- [x] Add regression coverage for broker-bound reuse and ambiguous in-flight failure-closed behavior.
+- [x] Verify the focused execution tests and full suite: 79 files and 311 tests passed.
+- [ ] Deploy the guard to Railway and observe the next natural cycle.
 
 ### Phase 6.357 — Always-on scheduler acceptance contract (2026-08-28)
 
