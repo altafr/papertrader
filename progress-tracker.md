@@ -3,7 +3,7 @@
 ## Snapshot
 
 - **Phase:** Phase 6.326 — Continuous paper-trading activation checkpoint.
-- **Status:** The user supplied bounded reference `CONTINUOUS-PAPER-TRADING-001`; Railway Worker deployment was updated with continuous paper-order submission enabled. Health is green with Alpaca configured, crypto market stream connected, position management ready, and scheduler active. Guarded crypto research and paper-evidence runs completed against Alpaca historical bars; the deterministic risk gate rejected the BTC/USD candidate at the 5.00000000% loss boundary, so no order was submitted. The next step is verifying a naturally scheduled cycle and approved candidate reporting.
+- **Status:** The user supplied bounded reference `CONTINUOUS-PAPER-TRADING-001`; Railway Worker deployment was updated with continuous paper-order submission enabled. Health is green with Alpaca configured, crypto market stream connected, position management ready, and scheduler active. Guarded crypto research and paper-evidence runs completed against Alpaca historical bars; after recording the confirmed USD 100,000 baseline and tightening generated stops to 4.99%, an AAPL candidate passed deterministic risk checks and an Alpaca paper order was submitted and reconciled. The next step is verifying the natural scheduled cycle and dashboard/Telegram presentation of the resulting broker state.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Verify the first natural paper research/order cycle and authenticated dashboard portfolio/position rendering, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
@@ -16,6 +16,8 @@
 - [x] Verify hosted health reports paper mode, submission enabled, Alpaca/database configured, kill switch inactive, market stream connected, and position management ready.
 - [x] Confirm Alpaca historical bars are retrieved and a guarded crypto research run completes successfully (`research-market-1787918110481`).
 - [x] Run the guarded end-to-end paper evidence path (`CONTINUOUS-PAPER-E2E-001`); reconciliation and research completed, and the risk engine rejected the candidate at the configured 5% boundary without submitting an order.
+- [x] Record the confirmed USD 100,000 baseline and fix generated-stop rounding so stops remain strictly below 5%.
+- [x] Run the guarded end-to-end paper path with AAPL (`CONTINUOUS-PAPER-E2E-007`); deterministic approval passed and Alpaca paper order `4af1ef57-4c1f-4c82-9e1a-725704ad28d2` was submitted and reconciled.
 - [ ] Confirm historical bars are retrieved and persisted during the next natural scheduled research cycle.
 - [ ] Confirm any approved paper order, reconciliation, portfolio snapshot, dashboard display, and Telegram alert end to end.
 

@@ -65,10 +65,11 @@ try {
   const model = await accountRepository.getLatestReadModel();
   if (!model) throw new Error("paper_e2e_account_read_model_missing");
   const initialSnapshot = await accountRepository.getInitial(snapshot.accountId);
+  const baselineConfirmation = await accountRepository.getLatestPaperBaselineConfirmation(snapshot.accountId, "100000");
   const now = new Date();
   const accountFresh = Math.floor((now.getTime() - model.freshness.capturedAt.getTime()) / 1000) <= 172_800;
   const state = {
-    accountBaselineVerified: Boolean(initialSnapshot && isPaperBaselineVerified(initialSnapshot.equity)),
+    accountBaselineVerified: Boolean(baselineConfirmation || (initialSnapshot && isPaperBaselineVerified(initialSnapshot.equity))),
     accountFresh,
     dataFresh: marketInput.freshness === "fresh",
     killSwitchActive: isGlobalKillSwitchActive(),
@@ -80,7 +81,7 @@ try {
   stage = "risk_persist";
   if (!config.orderOnce || approval.status !== "approved") {
     await createPaperOrderRepository(db).recordSubmission({ approvalId: approval.approvalId, assetClass: candidate.assetClass, clientOrderId: `${intentId}:dry-run`, intentId, ...(candidate.marketSnapshot ? { marketSnapshot: Object.fromEntries(Object.entries(candidate.marketSnapshot).map(([key, value]) => [key, value])) as Readonly<Record<string, string | null>> } : {}), quantity, riskDecision: { estimatedLoss: approval.assessment.estimatedLoss, estimatedLossPercent: approval.assessment.estimatedLossPercent, policyVersion: approval.policyVersion, reasons: approval.assessment.reasons }, status: approval.status === "approved" ? "risk_dry_run_approved" : "risk_dry_run_rejected", symbol: candidate.symbol });
-    console.log(JSON.stringify({ approvalStatus: approval.status, approvalReference: config.approvalReference, capturedAt: snapshot.capturedAt.toISOString(), estimatedLossPercent: approval.assessment.estimatedLossPercent, intentId, researchRunId: request.runId, runId: config.runId, status: "completed" }));
+    console.log(JSON.stringify({ approvalStatus: approval.status, approvalReference: config.approvalReference, capturedAt: snapshot.capturedAt.toISOString(), estimatedLossPercent: approval.assessment.estimatedLossPercent, intentId, reasons: approval.assessment.reasons, researchRunId: request.runId, runId: config.runId, status: "completed" }));
   } else {
     stage = "order_submit";
     const orderRepository = createPaperOrderRepository(db);

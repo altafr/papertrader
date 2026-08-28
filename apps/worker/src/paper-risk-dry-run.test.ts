@@ -11,10 +11,10 @@ describe("paper risk dry run", () => {
   });
 
   it("builds a 5% stop candidate and approves a bounded one-share intent", () => {
-    expect(buildRiskCandidate(candidate, new Date("2026-08-26T00:00:00.000Z"))).toMatchObject({ plannedStopPrice: "95.00000000", side: "long" });
+    expect(buildRiskCandidate(candidate, new Date("2026-08-26T00:00:00.000Z"))).toMatchObject({ plannedStopPrice: "95.01000000", side: "long" });
     const result = assessResearchCandidateRisk({ candidate, currentAt: "2026-08-26T00:00:00.000Z", equity: "100000", quantity: "1", state });
     expect(result.approval.status).toBe("approved");
-    expect(result.approval.assessment.estimatedLossPercent).toBe("5.00000000");
+    expect(result.approval.assessment.estimatedLossPercent).toBe("4.99000000");
   });
 
   it("keeps a stale or killed candidate rejected", () => {

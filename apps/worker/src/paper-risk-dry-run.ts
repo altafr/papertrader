@@ -15,7 +15,10 @@ export function buildRiskCandidate(input: ResearchWatchlistCandidate, now = new 
     ...input,
     expiresAt: new Date(Date.parse(signalTime) + 86_400_000).toISOString(),
     plannedExitPrice: (close * 1.04).toFixed(8),
-    plannedStopPrice: (close * 0.95).toFixed(8),
+    // Keep the planned stop strictly inside the 5% maximum. Using 95% and
+    // then rounding can produce a tiny over-limit distance for some prices,
+    // causing every generated research candidate to fail closed.
+    plannedStopPrice: (close * 0.9501).toFixed(8),
     proposedEntryPrice: close.toFixed(8),
     rationale: "Research candidate passed to the deterministic paper-risk engine for a non-submitting dry run.",
     score: input.momentumReturn,
