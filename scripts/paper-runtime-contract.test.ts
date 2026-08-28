@@ -29,4 +29,9 @@ describe("paper runtime contract", () => {
     expect(evaluatePaperRuntime({ ...withTelemetry, researchSchedule: { ...withTelemetry.researchSchedule, lastRiskApprovedCount: 3 } }, { status: "healthy" }).verified).toBe(false);
     expect(evaluatePaperRuntime({ ...withTelemetry, researchSchedule: { ...withTelemetry.researchSchedule, lastRiskCycleAt: "invalid" } }, { status: "healthy" }).verified).toBe(false);
   });
+
+  it("fails when a scheduler reports a next run materially before its health timestamp", () => {
+    const stale = { ...healthyWorker, researchSchedule: { ...healthyWorker.researchSchedule, nextRunAt: "2026-08-28T10:00:00.000Z" } };
+    expect(evaluatePaperRuntime(stale, { status: "healthy" })).toMatchObject({ nextRunsFuture: false, verified: false });
+  });
 });

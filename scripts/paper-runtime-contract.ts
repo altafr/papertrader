@@ -12,6 +12,11 @@ export function evaluatePaperRuntime(worker: HealthObject, api: HealthObject, ex
   const healthTimestampsValid = validTimestamp(worker.asOf)
     && validTimestamp((researchSchedule as HealthObject | undefined)?.nextRunAt)
     && validTimestamp((durableScheduler as HealthObject | undefined)?.nextRunAt);
+  const healthTime = Date.parse(String(worker.asOf));
+  const nextRunsFuture = healthTimestampsValid
+    && Number.isFinite(healthTime)
+    && Date.parse(String((researchSchedule as HealthObject).nextRunAt)) >= healthTime - 120_000
+    && Date.parse(String((durableScheduler as HealthObject).nextRunAt)) >= healthTime - 120_000;
   const streamConnected = typeof marketStream === "object" && marketStream !== null && !Array.isArray(marketStream) && (marketStream as HealthObject).status === "connected";
   const positionsReady = typeof positionManagement === "object" && positionManagement !== null && !Array.isArray(positionManagement) && (positionManagement as HealthObject).status === "ready";
   const positionsUnblocked = positionsReady && (!Array.isArray((positionManagement as HealthObject).blockedReasons) || ((positionManagement as HealthObject).blockedReasons as unknown[]).length === 0);
@@ -56,7 +61,8 @@ export function evaluatePaperRuntime(worker: HealthObject, api: HealthObject, ex
     releaseMatches,
     killSwitchInactive: worker.globalKillSwitchActive === false,
     healthTimestampsValid,
+    nextRunsFuture,
     riskTelemetryValid,
   } as const;
-  return { ...result, verified: result.api === "healthy" && result.worker === "healthy" && result.alpaca === "configured" && result.database === "configured" && result.paperMode && result.orderSubmissionEnabled && result.orderSubmissionApprovalPresent && streamConnected && positionsReady && positionsUnblocked && researchScheduled && durableScheduled && releaseMatches && result.killSwitchInactive && result.healthTimestampsValid && result.riskTelemetryValid };
+  return { ...result, verified: result.api === "healthy" && result.worker === "healthy" && result.alpaca === "configured" && result.database === "configured" && result.paperMode && result.orderSubmissionEnabled && result.orderSubmissionApprovalPresent && streamConnected && positionsReady && positionsUnblocked && researchScheduled && durableScheduled && releaseMatches && result.killSwitchInactive && result.healthTimestampsValid && result.nextRunsFuture && result.riskTelemetryValid };
 }

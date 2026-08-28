@@ -5660,6 +5660,13 @@
 - Current Worker health reports valid risk-cycle telemetry alongside healthy API/Worker state, connected market stream, scheduled research/durable schedulers, ready position management, and inactive kill switch.
 - **Next smallest unit:** continue collecting the scheduled paper-forward evidence and complete authenticated operator verification when the protected token is available.
 
+### 2026-08-29 — Phase 6.307 scheduler next-run verifier
+
+- Extended the hosted runtime verifier to require research and durable scheduler `nextRunAt` timestamps to be no more than two minutes behind the health timestamp.
+- Added regression coverage for materially stale next-run values; this detects scheduler stalls without changing runtime scheduling behavior.
+- Verification: focused and full regression tests pass (88 files, 355 tests); ESLint passes.
+- **Next smallest unit:** run the strengthened verifier against the next natural cycle and continue paper-forward monitoring.
+
 ### 2026-08-29 — Phase 6.305 legacy risk-evidence compatibility
 
 - Updated API and Worker risk summaries to count pre-migration approved rows via their legacy `risk_dry_run_approved` status while using explicit `approvalStatus` for new rows.
