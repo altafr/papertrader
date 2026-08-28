@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
+import type { ResearchWatchlistCandidate } from "@momentum/domain";
 
-import { buildPaperRiskCycleFailureAlert, buildResearchCycleLog, createResearchSchedulerFromEnvironment } from "./research-scheduler-runtime.js";
+import { buildPaperRiskCycleFailureAlert, buildResearchCycleLog, createResearchSchedulerFromEnvironment, dedupeResearchCandidates } from "./research-scheduler-runtime.js";
 
 describe("research scheduler startup composition", () => {
   it("does not construct external clients when the schedule is disabled", () => {
@@ -17,5 +18,12 @@ describe("research scheduler startup composition", () => {
 
   it("builds a bounded credential-free cycle log", () => {
     expect(buildResearchCycleLog({ agentType: "crypto_research", runId: "run-1", status: "succeeded", candidates: [{ symbol: "BTC/USD" }, { symbol: "ETH/USD" }] })).toEqual({ agentType: "crypto_research", candidateCount: 2, event: "research_cycle_result", runId: "run-1", status: "succeeded", symbols: ["BTC/USD", "ETH/USD"] });
+  });
+
+  it("deduplicates repeated symbols while preserving asset class", () => {
+    const candidate = { assetClass: "crypto" as const, symbol: "BTC/USD" } as unknown as ResearchWatchlistCandidate;
+    const duplicate = { ...candidate };
+    const equity = { assetClass: "us_equity" as const, symbol: "BTC/USD" } as never;
+    expect(dedupeResearchCandidates([candidate, duplicate, equity])).toHaveLength(2);
   });
 });

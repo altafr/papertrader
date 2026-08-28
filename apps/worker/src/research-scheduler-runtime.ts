@@ -2,7 +2,7 @@ import { PgBoss } from "pg-boss";
 
 import { createPaperAccountReader, createPaperMarketDataReader, createPaperOrderSubmitter } from "@momentum/alpaca";
 import { createAccountStateRepository, createAgentRunRepository, createDatabase, createPaperOrderRepository, createTelegramAlertRepository, type PersistedAgentRun } from "@momentum/db";
-import type { AgentRunRequest } from "@momentum/domain";
+import type { AgentRunRequest, ResearchWatchlistCandidate } from "@momentum/domain";
 
 import { createResearchPreparationQueueHandler } from "./research-preparation.js";
 import { createAlpacaResearchInputSource } from "./research-market-source.js";
@@ -19,6 +19,17 @@ export function buildPaperRiskCycleFailureAlert(input: { readonly agentType: str
 /** Structured, credential-free log record for hosted cycle observability. */
 export function buildResearchCycleLog(result: { readonly agentType: string; readonly runId: string; readonly status: string; readonly candidates?: readonly { readonly symbol: string }[] }) {
   return { agentType: result.agentType, candidateCount: result.candidates?.length ?? 0, event: "research_cycle_result", runId: result.runId, status: result.status, symbols: (result.candidates ?? []).map((candidate) => candidate.symbol).slice(0, 10) } as const;
+}
+
+/** Preserve the first agent's evidence when multiple agents emit the same asset. */
+export function dedupeResearchCandidates(candidates: readonly ResearchWatchlistCandidate[]): readonly ResearchWatchlistCandidate[] {
+  const seen = new Set<string>();
+  return candidates.filter((candidate) => {
+    const key = `${candidate.assetClass}:${candidate.symbol}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
 }
 
 export function createResearchSchedulerFromEnvironment(environment: NodeJS.ProcessEnv = process.env) {
@@ -62,7 +73,7 @@ export function createResearchSchedulerFromEnvironment(environment: NodeJS.Proce
         console.log(JSON.stringify(buildResearchCycleLog(result)));
       },
       onBatchResult: async (results) => {
-        const candidates = results.flatMap((result) => result.candidates ?? []);
+        const candidates = dedupeResearchCandidates(results.flatMap((result) => result.candidates ?? []));
         if (candidates.length === 0) return;
         const notifier = createRuntimeAlertNotifier(environment, alertRepository);
         try {

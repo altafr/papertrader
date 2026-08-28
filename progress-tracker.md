@@ -15,6 +15,13 @@
 - [x] Run the repository lint gate successfully after the reason-logging change.
 - [ ] Capture the 15:30 cycle's structured risk reasons and broker reconciliation outcome.
 
+### Phase 6.388 — Cross-agent candidate deduplication (2026-08-28)
+
+- [x] Deduplicate identical asset-class/symbol candidates before the cross-asset risk cycle.
+- [x] Preserve separate decisions when the same symbol belongs to different asset classes.
+- [x] Add regression coverage while preserving first-agent evidence and ordering.
+- [ ] Run full verification and deploy the Worker.
+
 ### Phase 6.384 — Hosted cadence and submission configuration audit (2026-08-28)
 
 - [x] Confirm the production research cadence is `*/15 * * * *` (15-minute ticks).
