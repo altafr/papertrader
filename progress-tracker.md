@@ -2,7 +2,7 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.260 — Guarded daily-cycle evidence attempt.
+- **Phase:** Phase 6.262 — Durable queue job-id compatibility.
 - **Status:** Notification delivery remains enabled, but routine research selections and portfolio/P&L summaries now use durable 24-hour cooldown checks. Individual rejected risk candidates are retained in the audit/dashboard and no longer generate Telegram warnings; approved selections, order/position lifecycle events, and failures remain immediate. Local tests, Worker typecheck, and lint pass; Railway deployment is healthy and reports the active policy. GitHub-triggered Vercel previews are Ready; production publish remains quota-limited.
 - **Current operating mode:** Paper Autopilot; continuous order submission is not enabled.
 - **Current goal:** Complete authenticated dashboard verification and reconcile the authorized AAPL order through its terminal broker state, then continue the 30-day paper-forward evidence gate.
@@ -23,7 +23,10 @@
 
 - [x] Replace the manual daily job key with a deterministic UUID accepted by pg-boss.
 - [x] Preserve same-day idempotency and add UUID-format regression coverage.
-- [ ] Deploy and rerun the guarded cycle; verify the queue result and persisted records.
+- [x] Deploy the UUID job-id fix; Railway deployment `b20fc847-991b-447d-b8e8-5ae3e4944b6c` reached `SUCCESS`.
+- [x] Rerun the guarded enqueue inside the Worker network; job `347d270d-2ed2-5371-989b-2922d2276911` returned `queued:true`.
+- [x] Isolate broker/database access with direct paper reconciliation; it completed successfully without submitting an order.
+- [ ] Verify the persistent Worker consumes the queued job and writes the daily-cycle audit/digest records; queue inspection currently shows two queued jobs.
 
 ### Phase 6.259 — Dashboard notification policy surface (2026-08-28)
 
