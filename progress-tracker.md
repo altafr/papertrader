@@ -2,11 +2,19 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.295 — Production alias state verification.
-- **Status:** The production alias is Ready and healthy, currently backed by the three-day-old production deployment. New branch previews are Ready, but promotion/direct deployment remains blocked by Vercel team/quota constraints. No production or order-submission state changed.
+- **Phase:** Phase 6.296 — Recovery acceptance verification.
+- **Status:** The hosted guarded recovery-readiness check returns `verified`; the bounded approval reference, UTC verification timestamp, and verified flag are all present. Production and paper-trading state remain unchanged.
 - **Current operating mode:** Paper Autopilot; continuous order submission is not enabled.
 - **Current goal:** Complete authenticated dashboard verification and reconcile the authorized AAPL order through its terminal broker state, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
+
+### Phase 6.296 — Recovery acceptance verification (2026-08-28)
+
+- [x] Run the guarded hosted recovery-readiness command without exposing secrets or changing infrastructure.
+- [x] Confirm `approvalReferencePresent:true`, `verifiedAtPresent:true`, and `verifiedFlag:true`.
+- [x] Confirm recovery status is `verified`.
+- [x] Confirm no broker order, scheduler setting, database, or production dashboard state changed.
+- [ ] Continue daily paper evidence and retry current-branch production publication after Vercel constraints clear.
 
 ### Phase 6.295 — Production alias state verification (2026-08-28)
 
