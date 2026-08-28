@@ -2,11 +2,21 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.305 — Risk-policy consumer verification.
-- **Status:** API and Web consumers remain type-safe after the invested-notional metric correction, and the optimized dashboard build succeeds with all dynamic routes intact. Hosted execution remains paper-only and dry-run.
+- **Phase:** Phase 6.306 — Fresh hosted performance checkpoint.
+- **Status:** Hosted performance reconciliation remains ready with 100 persisted snapshots, final equity `99,391.01`, captured P&L `+0.06`, and maximum drawdown `0.00027165%`. The only stability block remains the intentional 30-day evidence requirement.
 - **Current operating mode:** Paper Autopilot; continuous order submission is not enabled.
 - **Current goal:** Complete authenticated dashboard verification and reconcile the authorized AAPL order through its terminal broker state, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
+
+### Phase 6.306 — Fresh hosted performance checkpoint (2026-08-28)
+
+- [x] Run the hosted read-only paper performance report after the risk-policy deployment.
+- [x] Confirm 100 reconciled snapshots and report status `ready`.
+- [x] Confirm final equity `99,391.01`, total captured P&L `+0.06`, and maximum drawdown `0.00027165%`.
+- [x] Confirm the only stability block is `minimum_30_consecutive_calendar_days_not_met`.
+- [x] Confirm Worker health, schedulers, and position management remain healthy/ready.
+- [x] Confirm continuous order submission remains disabled.
+- [ ] Continue daily paper evidence toward the 30-day stability gate.
 
 ### Phase 6.305 — Risk-policy consumer verification (2026-08-28)
 
