@@ -442,6 +442,12 @@
 - [x] Keep the monitor read-only with cancellation of overlapping runs and a five-minute timeout.
 - [ ] Observe the first scheduled run and investigate any failed health check.
 
+### Phase 6.454 — Public dashboard surface monitor (2026-08-29)
+
+- [x] Extend the scheduled hosted monitor to verify the public Vercel dashboard surface returns a successful response.
+- [x] Add a small fail-closed verifier with regression tests; it checks availability only and never attempts authentication or trading actions.
+- [ ] Observe the first scheduled run including the dashboard check.
+
 ### Phase 6.387 — Hosted cycle baseline after reason-logging rollout (2026-08-28)
 
 - [x] Verify Worker deployment `8cabc43d-b343-47c1-9a0f-257198dabdcf` is `SUCCESS` and health is `healthy`.
