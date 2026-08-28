@@ -811,6 +811,13 @@
 - [x] Add regression coverage without changing scheduler, broker, or risk authority.
 - [ ] Deploy the Worker revision and verify the hosted health contract remains healthy with a fresh pass.
 
+### Phase 6.512 — Position-management liveness deployed (2026-08-29)
+
+- [x] Deploy Worker commit `b28173f` to Railway; deployment `e88bf853-0f80-4870-b9be-5f05d47f3b64` reached `SUCCESS`.
+- [x] Confirm live health remains `healthy`, Paper Autopilot, and position management `ready` with a fresh pass.
+- [x] Confirm stale-pass detection is health-only and cannot submit, cancel, or alter orders.
+- [ ] Continue observing the hosted liveness signal during the paper-forward evidence window.
+
 ### Phase 6.458 — Natural hosted cycle continuity (2026-08-29)
 
 - [x] Verify the hosted Worker remains healthy on release `febcda5f7a5…` with Paper Autopilot and order submission still enabled.
