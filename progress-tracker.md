@@ -2,8 +2,8 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.373 — Hosted cross-asset execution guard.
-- **Status:** Railway deployment `6fda1aff-ab2b-4ef9-973f-8283a4e17798` reached `SUCCESS`; live health confirms Alpaca/PostgreSQL configured, Paper Autopilot active, research scheduled, and position management ready. The cross-asset one-order guard is now hosted. Authenticated dashboard rendering and a successful broker-reconciled order remain pending.
+- **Phase:** Phase 6.374 — Single risk cycle per scheduler batch.
+- **Status:** Research preparation now aggregates crypto and stock results into one deterministic risk cycle per scheduler job, preventing cross-asset double entries while preserving fallback evaluation. Full regression passes with 307 tests. Deployment and a successful broker-reconciled order remain pending for this change.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Verify the first natural paper research/order cycle and authenticated dashboard portfolio/position rendering, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
@@ -120,6 +120,14 @@
 - [x] Confirm deployment `6fda1aff-ab2b-4ef9-973f-8283a4e17798` reached `SUCCESS`.
 - [x] Verify live configured health and ready position management after rollout.
 - [ ] Observe the next natural cross-asset cycle and reconcile a successful paper order.
+
+### Phase 6.374 — Single risk cycle per scheduler batch (2026-08-28)
+
+- [x] Identify that per-agent callbacks could create separate risk cycles within one scheduler job.
+- [x] Add a batch callback and aggregate all successful candidates before risk evaluation.
+- [x] Preserve per-agent persistence/notifications and fail closed when every plan fails.
+- [x] Verify the complete regression suite: 78 files and 307 tests passed.
+- [ ] Deploy and observe the cross-asset batch in the hosted worker.
 
 ### Phase 6.368 — Configuration-aware hosted acceptance (2026-08-28)
 
