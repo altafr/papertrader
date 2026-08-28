@@ -2,11 +2,20 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.383 — Idempotent paper submission retry guard.
-- **Status:** Paper execution now checks the durable submission ledger by client order ID before calling Alpaca, reuses broker-confirmed intents, and fails closed for ambiguous in-flight intents. The next natural cross-asset cycle and successful broker-reconciled order remain pending.
+- **Phase:** Phase 6.396 — Conservative hosted crypto sizing and operator-surface correction.
+- **Status:** The hosted Worker now has a reviewed `0.001` crypto quantity override, which keeps the BTC/USD paper candidate within the configured crypto and gross-exposure caps. The public landing page now accurately describes continuous paper submission as enabled behind deterministic gates. The next natural cross-asset cycle and successful broker-reconciled order remain pending.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Verify the first natural paper research/order cycle and authenticated dashboard portfolio/position rendering, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
+
+### Phase 6.396 — Conservative hosted crypto sizing and operator-surface correction (2026-08-28)
+
+- [x] Review the rejected one-unit BTC/USD candidate against the configured 100,000 USD paper baseline and crypto exposure policy.
+- [x] Set `PAPER_AUTOPILOT_CRYPTO_QUANTITY=0.001` in Railway production; no risk limit or live-trading setting changed.
+- [x] Confirm the resulting Worker deployment `75d88b82-ffc8-425c-b928-ef0a2426e538` reached `SUCCESS`.
+- [x] Correct the public landing page so its execution-gate description matches the enabled Paper Autopilot runtime.
+- [ ] Observe the next scheduled cycle and confirm Alpaca acknowledgement/reconciliation for an eligible candidate.
+- [ ] Run the web build with the hosted/bundled Node runtime; the local Node 22.9.0 is below pnpm's required 22.13 minimum.
 
 ### Phase 6.387 — Hosted cycle baseline after reason-logging rollout (2026-08-28)
 

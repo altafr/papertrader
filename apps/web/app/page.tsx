@@ -26,7 +26,8 @@ export default function Home() {
         <p className="lede">
           The dashboard, authenticated API, PostgreSQL read model, and background worker are
           deployed as separate services. The system is running in Paper Autopilot with continuous
-          order submission explicitly disabled until its separate execution gate is enabled.
+          order submission enabled behind deterministic risk, freshness, reconciliation, and
+          kill-switch gates.
         </p>
       </section>
 
@@ -47,7 +48,7 @@ export default function Home() {
             </div>
             <div>
               <dt>Order authority</dt>
-              <dd>Continuous submission disabled</dd>
+                <dd>Continuous submission gated and enabled</dd>
             </div>
           </dl>
         </article>
