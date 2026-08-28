@@ -2,8 +2,8 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.369 — Hosted release identity.
-- **Status:** Worker health now exposes an optional non-secret hosting commit identifier, making it possible to verify the exact source revision running in Railway. Domain/Worker typechecks and the full regression suite pass. Authenticated dashboard rendering and a successful broker-reconciled order remain pending.
+- **Phase:** Phase 6.370 — Hosted release identity deployment.
+- **Status:** Deployment `dd729cb2-4cf1-4380-8a8e-632d10b0990a` reached `SUCCESS`; live health confirms Alpaca and PostgreSQL remain configured and Paper Autopilot remains active. Railway does not currently provide a commit SHA environment value, so the optional release field is correctly omitted. Authenticated dashboard rendering and a successful broker-reconciled order remain pending.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Verify the first natural paper research/order cycle and authenticated dashboard portfolio/position rendering, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
@@ -90,6 +90,13 @@
 - [x] Add regression coverage and verify domain/Worker TypeScript compilation.
 - [x] Run the complete regression suite: 78 files and 307 tests passed.
 - [ ] Deploy and confirm the live health response reports the expected source revision.
+
+### Phase 6.370 — Hosted release identity deployment (2026-08-28)
+
+- [x] Deploy the release-identity health change to the explicit Railway worker service.
+- [x] Confirm deployment `dd729cb2-4cf1-4380-8a8e-632d10b0990a` reached `SUCCESS`.
+- [x] Confirm live health remains configured and healthy; absent host SHA is represented as omitted rather than fabricated.
+- [ ] Configure a non-secret release SHA at the host if exact revision display is required.
 
 ### Phase 6.368 — Configuration-aware hosted acceptance (2026-08-28)
 
