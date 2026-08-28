@@ -2,8 +2,8 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.365 — Deployment type-safety repair.
-- **Status:** A deployment build failure exposed an invalid `result.managed` reference in the new position-pass log. The reference is corrected to the locally computed managed-position count; worker tests and TypeScript validation pass. A corrected deployment is pending.
+- **Phase:** Phase 6.366 — Restored configured worker rollout.
+- **Status:** Corrected worker deployment `a61e314e-e75b-488f-8bf0-9200bd461e78` reached `SUCCESS`. Live health confirms Alpaca and PostgreSQL are configured, Paper Autopilot is active, research is scheduled, and position management is ready. Authenticated dashboard rendering and a successful broker-reconciled order remain pending.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Verify the first natural paper research/order cycle and authenticated dashboard portfolio/position rendering, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
@@ -68,6 +68,13 @@
 - [x] Correct the log record to use `managed.length` without changing trading behavior.
 - [x] Verify position-management tests and worker TypeScript compilation pass.
 - [ ] Redeploy and confirm configured Alpaca/database health; no order action is taken during this repair.
+
+### Phase 6.366 — Restored configured worker rollout (2026-08-28)
+
+- [x] Deploy the type-safety repair to the explicit Railway `worker` service.
+- [x] Confirm deployment `a61e314e-e75b-488f-8bf0-9200bd461e78` reached `SUCCESS`.
+- [x] Verify live health reports `alpaca: configured`, `database: configured`, `paper_autopilot`, scheduled research, and ready position management.
+- [ ] Observe the next natural cycle's structured logs and reconcile a successful paper order.
 
 ### Phase 6.360 — Independent single-order execution guard (2026-08-28)
 
