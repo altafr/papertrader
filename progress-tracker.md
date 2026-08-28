@@ -5356,3 +5356,9 @@
 - Live health remains `healthy`; research scheduling is enabled and position management is ready at a 60-second interval.
 - The new risk-cycle fields will populate after the next scheduled research batch; until then their absence is expected and does not imply a failed cycle.
 - **Next smallest unit:** verify the first post-deploy research batch reports risk-cycle status and decision counts in Worker health.
+
+### 2026-08-29 — Phase 6.260 typed risk-cycle health contract
+
+- Added the risk-cycle telemetry fields to the shared Worker health contract and regression coverage for bounded values.
+- Verification: domain build, Worker typecheck, targeted tests (10 tests), and ESLint passed.
+- **Next smallest unit:** deploy the typed contract and verify the health payload after the next risk-cycle execution.

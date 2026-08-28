@@ -56,6 +56,10 @@ export interface WorkerHealth {
   readonly researchSchedule: {
     readonly enabled: boolean;
     readonly handlerEnabled: boolean;
+    readonly lastRiskCycleAt?: string;
+    readonly lastRiskCycleStatus?: "completed" | "failed";
+    readonly lastRiskDecisionCount?: number;
+    readonly lastRiskApprovedCount?: number;
     readonly lastRunAt?: string;
     readonly nextRunAt?: string;
     readonly status: "blocked" | "degraded" | "disabled" | "ready" | "running" | "scheduled";
