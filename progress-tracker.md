@@ -85,7 +85,8 @@
 - [x] Validate and expose only bounded asset-class/symbol state to the browser.
 - [x] Update dashboard management labels and warning banner to use this authoritative field.
 - [x] Verify API/web typechecks and the complete 318-test suite.
-- [ ] Deploy API/web changes and verify the authenticated dashboard displays `BTCUSD` and `PFD` as review-required.
+- [x] Deploy the API change to Railway; deployment `f4621f9a-75af-47ba-bb02-01ac60e795f0` reached `SUCCESS` and API health remains `healthy`.
+- [ ] Publish the web change and verify the authenticated dashboard displays `BTCUSD` and `PFD` as review-required.
 
 ### Phase 6.387 — Hosted cycle baseline after reason-logging rollout (2026-08-28)
 
