@@ -2,11 +2,21 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.296 — Recovery acceptance verification.
-- **Status:** The hosted guarded recovery-readiness check returns `verified`; the bounded approval reference, UTC verification timestamp, and verified flag are all present. Production and paper-trading state remain unchanged.
+- **Phase:** Phase 6.297 — Pre-cycle runtime heartbeat.
+- **Status:** The natural UTC cycle has not reached its scheduled time yet. Research and durable schedulers remain scheduled for the same next run, position management is running within its one-minute interval, and continuous order submission remains disabled.
 - **Current operating mode:** Paper Autopilot; continuous order submission is not enabled.
 - **Current goal:** Complete authenticated dashboard verification and reconcile the authorized AAPL order through its terminal broker state, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
+
+### Phase 6.297 — Pre-cycle runtime heartbeat (2026-08-28)
+
+- [x] Confirm Worker health remains `healthy` in paper mode.
+- [x] Confirm research scheduler is enabled, handler-enabled, and `scheduled` for `2026-08-29T00:00:00Z`.
+- [x] Confirm durable daily scheduler is enabled and `ready` for `2026-08-29T00:00:00Z`.
+- [x] Confirm position management is `ready` with a recent run and no blocked reasons.
+- [x] Confirm Telegram remains ready with approved-only risk alerts and a 24-hour routine cooldown.
+- [x] Confirm continuous paper-order submission remains disabled.
+- [ ] Verify the natural cycle after `2026-08-29T00:00:00Z` and append its persisted audit evidence.
 
 ### Phase 6.296 — Recovery acceptance verification (2026-08-28)
 
