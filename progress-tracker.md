@@ -33,6 +33,13 @@
 - [x] Deploy Worker `ef03d353-1713-4256-899c-0aa102380c67` with `SUCCESS` and verify hosted health remains healthy, connected, scheduled, and position-management ready.
 - [ ] Verify the next hosted cycle log.
 
+### Phase 6.390 — Position decision observability (2026-08-28)
+
+- [x] Emit one bounded structured decision record for every managed position pass.
+- [x] Include symbol, deterministic exit reason, and the `shouldExit` result without prices or provider payloads.
+- [x] Add regression coverage for exit and no-exit decision records.
+- [ ] Run full verification and deploy the Worker.
+
 ### Phase 6.384 — Hosted cadence and submission configuration audit (2026-08-28)
 
 - [x] Confirm the production research cadence is `*/15 * * * *` (15-minute ticks).

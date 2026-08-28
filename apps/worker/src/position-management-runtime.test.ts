@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { buildPositionManagementLog, getPaperOrderStatusTransitions, getPositionDetectedDedupeKey, getPositionExitDecisionDedupeKey, getPositionExitIntentId, groupPositionSymbolsByAssetClass } from "./position-management-runtime.js";
+import { buildPositionExitDecisionLog, buildPositionManagementLog, getPaperOrderStatusTransitions, getPositionDetectedDedupeKey, getPositionExitDecisionDedupeKey, getPositionExitIntentId, groupPositionSymbolsByAssetClass } from "./position-management-runtime.js";
 
 describe("paper order status transitions", () => {
   it("returns only changed orders", () => {
@@ -33,5 +33,10 @@ describe("position alert deduplication", () => {
 describe("position pass observability", () => {
   it("builds a bounded credential-free pass record", () => {
     expect(buildPositionManagementLog({ managed: 1, positions: 2, submitted: 0 })).toEqual({ event: "position_management_pass", managed: 1, positions: 2, submitted: 0 });
+  });
+
+  it("builds a bounded decision record with an explicit no-exit reason", () => {
+    expect(buildPositionExitDecisionLog({ shouldExit: false, symbol: "AAPL" })).toEqual({ event: "position_exit_decision", reason: null, shouldExit: false, symbol: "AAPL" });
+    expect(buildPositionExitDecisionLog({ reason: "stop_loss", shouldExit: true, symbol: "BTC/USD" })).toEqual({ event: "position_exit_decision", reason: "stop_loss", shouldExit: true, symbol: "BTC/USD" });
   });
 });
