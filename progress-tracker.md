@@ -2,7 +2,7 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.302 — Post-deploy runtime checkpoint.
+- **Phase:** Phase 6.312 — Persisted risk-cycle outcome visibility.
 - **Status:** The hosted Worker and API are healthy in Paper Autopilot mode with deterministic entry/exit safeguards, durable reconciliation, Telegram alerting, lifecycle-stable PostgreSQL-backed risk evidence, and a read-only portfolio status command. The latest provenance and evidence guards are deployed and verified. Vercel production publication remains limited by the free-plan daily deployment quota, while the 30-day paper-forward evidence window and authenticated dashboard verification remain ongoing.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading, verify authenticated portfolio/P&L rendering and exports, and accumulate the 30-day evidence gate without loosening risk controls.
@@ -5693,6 +5693,13 @@
 - This preserves historical accuracy without changing any order or risk gate.
 - Verification: API/Worker typechecks, ESLint, and full regression passed (88 files, 354 tests).
 - **Next smallest unit:** deploy the compatibility query and verify the next cycle’s approved/decision totals.
+
+### Phase 6.312 persisted risk-cycle outcome visibility
+
+- Added the latest bounded persisted risk-cycle status to authenticated Operations Health and the dashboard freshness card.
+- The status is sourced from durable PostgreSQL evidence and remains separate from approval counts, so approval and reconciliation outcomes are not conflated.
+- Added serializer coverage; verification passes with 88 test files and 356 tests, plus API/web typechecks and ESLint.
+- **Next smallest unit:** deploy the API status query, verify the hosted health contract, and continue the paper-forward evidence window.
 
 ### 2026-08-29 — Phase 6.306 compatibility deployment verified
 

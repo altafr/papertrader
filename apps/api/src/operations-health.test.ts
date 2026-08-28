@@ -7,6 +7,7 @@ const now = new Date("2026-08-23T00:00:00.000Z");
 describe("reconciliation health", () => {
   it("serializes bounded durable risk-cycle counters", () => {
     expect(serializeRiskCycleSummary({ approved: 2, decisions: 4, latest_at: new Date("2026-08-29T00:00:00.000Z") })).toEqual({ approved: 2, decisions: 4, latestAt: "2026-08-29T00:00:00.000Z" });
+    expect(serializeRiskCycleSummary({ approved: 1, decisions: 1, latest_at: new Date("2026-08-29T00:00:00.000Z"), latest_status: "reconciled" })).toEqual({ approved: 1, decisions: 1, latestAt: "2026-08-29T00:00:00.000Z", latestStatus: "reconciled" });
     expect(serializeRiskCycleSummary({ approved: -1, decisions: "bad", latest_at: "not-a-date" })).toEqual({ approved: 0, decisions: 0 });
   });
   it("distinguishes disabled, blocked, and enabled scheduler-audit gates", () => {

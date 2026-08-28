@@ -34,7 +34,7 @@ Risk evidence stores an explicit `approvalStatus` alongside the policy assessmen
 
 During rollout, approved rows written before the explicit field was introduced remain counted through their legacy `risk_dry_run_approved` status; this compatibility path does not broaden execution authority.
 
-Position provenance and managed-state queries accept only approved risk evidence or a broker-bound order identity. Rejected research candidates therefore cannot accidentally mark an unrelated live position as managed.
+Position provenance and managed-state queries accept only approved risk evidence or a broker-bound order identity. Rejected research candidates therefore cannot accidentally mark an unrelated live position as managed. Operations Health also exposes the latest bounded execution status (when persisted), allowing the operator surface to distinguish an approved decision from its reconciliation outcome without exposing broker payloads.
 
 ### Separately gated order handoff (Phase 6.213)
 
