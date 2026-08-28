@@ -17,9 +17,20 @@ interface RuntimeWebSocketConstructor {
   new (url: string): RuntimeSocket;
 }
 
+const MARKET_STREAM_MAX_MESSAGE_AGE_MS = 5 * 60_000;
 let marketStreamHealth: { readonly assetClass?: "crypto" | "us_equity"; readonly lastMessageAt?: string; readonly reconnectCount: number; readonly status: "connected" | "connecting" | "disabled" | "reconnecting" | "stopped" } = { reconnectCount: 0, status: "disabled" };
 
-export function getMarketStreamHealth() { return marketStreamHealth; }
+export function classifyMarketStreamFreshness(lastMessageAt: string | undefined, now = new Date()): "fresh" | "stale" | "unknown" {
+  if (!lastMessageAt) return "unknown";
+  const capturedAt = Date.parse(lastMessageAt);
+  const age = now.getTime() - capturedAt;
+  return Number.isFinite(capturedAt) && age >= 0 && age <= MARKET_STREAM_MAX_MESSAGE_AGE_MS ? "fresh" : "stale";
+}
+
+export function getMarketStreamHealth(now = new Date()) {
+  if (!marketStreamHealth.lastMessageAt) return { ...marketStreamHealth, ...(marketStreamHealth.status === "connected" ? { freshness: "unknown" as const } : {}) };
+  return { ...marketStreamHealth, freshness: classifyMarketStreamFreshness(marketStreamHealth.lastMessageAt, now) };
+}
 
 function getRuntimeWebSocket(): RuntimeWebSocketConstructor {
   const constructor = (globalThis as unknown as { WebSocket?: RuntimeWebSocketConstructor }).WebSocket;

@@ -34,7 +34,7 @@ export function getWorkerHealth(now = new Date(), environment: NodeJS.ProcessEnv
     database: environment.DATABASE_URL?.trim() ? "configured" : "not_configured",
     durableScheduler: { ...durable, auditActivationApprovalReferencePresent, auditEnabled, activationApprovalReferencePresent, cron: durableConfig.cron, enabled: durableConfig.enabled, timezone: DAILY_PREPARATION_TIMEZONE },
     globalKillSwitchActive: isGlobalKillSwitchActive(environment),
-    marketStream: getMarketStreamHealth(),
+    marketStream: getMarketStreamHealth(now),
     operatingMode: getPaperOperatingMode(environment),
     paperAutopilotOrderSubmissionEnabled: environment.PAPER_AUTOPILOT_ORDER_SUBMISSION_ENABLED === "true",
     paperAutopilotOrderSubmissionApprovalReferencePresent: environment.PAPER_AUTOPILOT_ORDER_SUBMISSION_ENABLED !== "true" || Boolean(environment.PAPER_AUTOPILOT_ORDER_SUBMISSION_APPROVAL_REFERENCE?.trim() && /^[A-Za-z0-9][A-Za-z0-9._:/-]{0,127}$/.test(environment.PAPER_AUTOPILOT_ORDER_SUBMISSION_APPROVAL_REFERENCE.trim())),

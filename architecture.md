@@ -38,6 +38,8 @@ Position provenance and managed-state queries accept only approved risk evidence
 
 Position management applies a separate five-minute market-mark freshness gate before evaluating any stop, target, or time exit. If Alpaca supplies no positive, timestamped mark within that window, the pass fails closed, emits a deduplicated operational warning, and submits no exit based on stale data.
 
+Worker health separately classifies the market stream as `fresh`, `stale`, or `unknown` from the last message timestamp (five-minute threshold). This is observability-only and cannot be used to bypass the deterministic market-data gate.
+
 ### Separately gated order handoff (Phase 6.213)
 
 The scheduled risk cycle accepts an optional executor only when `PAPER_AUTOPILOT_ORDER_SUBMISSION_ENABLED=true` is explicitly configured server-side. That executor reuses `executePaperAutopilotOrder`, including deterministic approval, idempotent client order IDs, persistence, broker reconciliation, and lifecycle alerts. When the flag is absent or `false`, approved candidates remain persisted dry-run decisions and no broker write is reachable from the scheduled path. Worker health reports this gate as a redacted boolean so risk-cycle readiness cannot be confused with order-submission authority.

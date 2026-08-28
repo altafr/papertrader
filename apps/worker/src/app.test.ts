@@ -1,6 +1,16 @@
 import { describe, expect, it } from "vitest";
 
 import { getWorkerHealth } from "./app.js";
+import { classifyMarketStreamFreshness } from "./market-stream-runner.js";
+
+describe("market stream freshness", () => {
+  it("classifies missing, fresh, and stale message timestamps", () => {
+    const now = new Date("2026-08-29T00:05:00.000Z");
+    expect(classifyMarketStreamFreshness(undefined, now)).toBe("unknown");
+    expect(classifyMarketStreamFreshness("2026-08-29T00:04:30.000Z", now)).toBe("fresh");
+    expect(classifyMarketStreamFreshness("2026-08-28T23:59:00.000Z", now)).toBe("stale");
+  });
+});
 
 describe("worker health", () => {
   it("reports external integrations as disabled", () => {

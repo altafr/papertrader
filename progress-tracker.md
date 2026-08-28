@@ -2,7 +2,7 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.315 — Position-exit market freshness gate deployed.
+- **Phase:** Phase 6.316 — Market-stream freshness observability.
 - **Status:** The hosted Worker and API are healthy in Paper Autopilot mode with deterministic entry/exit safeguards, durable reconciliation, Telegram alerting, lifecycle-stable PostgreSQL-backed risk evidence, and a read-only portfolio status command. The latest provenance and evidence guards are deployed and verified. Vercel production publication remains limited by the free-plan daily deployment quota, while the 30-day paper-forward evidence window and authenticated dashboard verification remain ongoing.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading, verify authenticated portfolio/P&L rendering and exports, and accumulate the 30-day evidence gate without loosening risk controls.
@@ -5721,6 +5721,13 @@
 - Worker health remains HTTP 200 and reports Paper Autopilot, connected market stream, scheduled research/durable runs, and position management `ready` with no blocked reasons.
 - The stale-mark guard is now active in the always-on Worker; it can only reduce unsafe action by skipping exits when current marks are unavailable or older than five minutes.
 - **Next smallest unit:** continue paper-forward monitoring and verify an authenticated read-model snapshot when the operator session is available.
+
+### Phase 6.316 market-stream freshness observability
+
+- Added a bounded Worker health classification for market-stream message freshness: `fresh`, `stale`, or `unknown` using a five-minute threshold.
+- This exposes a real-time data-health signal without changing execution authority; deterministic research and position gates remain fail-closed.
+- Added focused coverage for missing, fresh, and stale timestamps; domain/Worker typechecks and ESLint pass.
+- **Next smallest unit:** deploy the Worker health contract and verify the hosted stream freshness field alongside the active paper schedule.
 
 ### 2026-08-29 — Phase 6.306 compatibility deployment verified
 

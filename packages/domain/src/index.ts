@@ -37,6 +37,7 @@ export interface WorkerHealth {
   readonly globalKillSwitchActive: boolean;
   readonly marketStream: {
     readonly assetClass?: "crypto" | "us_equity";
+    readonly freshness?: "fresh" | "stale" | "unknown";
     readonly lastMessageAt?: string;
     readonly reconnectCount: number;
     readonly status: "connected" | "connecting" | "disabled" | "reconnecting" | "stopped";
