@@ -676,6 +676,12 @@
 - [x] Reject invalid or unsafe URLs before any network request is made.
 - [x] Add regression coverage; focused public-surface tests and lint pass.
 
+### Phase 6.492 — Health monitor URL safety (2026-08-29)
+
+- [x] Apply HTTPS and no-embedded-credentials validation to Railway API and Worker health URLs.
+- [x] Reject unsafe health endpoints before any request is made.
+- [x] Add regression coverage; health and hosted verifier tests pass.
+
 ### Phase 6.458 — Natural hosted cycle continuity (2026-08-29)
 
 - [x] Verify the hosted Worker remains healthy on release `febcda5f7a5…` with Paper Autopilot and order submission still enabled.

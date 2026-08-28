@@ -3,6 +3,13 @@ import { describe, expect, it, vi } from "vitest";
 import { readHealthWithRetry } from "./verify-paper-runtime.js";
 
 describe("hosted health retry", () => {
+  it("rejects unsafe health URLs before fetching", async () => {
+    const fetcher = vi.fn<typeof fetch>();
+    await expect(readHealthWithRetry(fetcher, "http://worker.example", 1, 0)).rejects.toThrow("health_check_failed:unsafe_url");
+    await expect(readHealthWithRetry(fetcher, "https://user:pass@worker.example", 1, 0)).rejects.toThrow("health_check_failed:unsafe_url");
+    expect(fetcher).not.toHaveBeenCalled();
+  });
+
   it("retries transient failures and returns the first valid response", async () => {
     const fetcher = vi.fn<typeof fetch>()
       .mockRejectedValueOnce(new Error("starting"))

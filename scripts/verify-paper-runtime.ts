@@ -8,6 +8,9 @@ function isObject(value: unknown): value is JsonObject {
 }
 
 export async function readHealthWithRetry(fetcher: typeof fetch, url: string, attempts = 4, delayMs = 1_000): Promise<JsonObject> {
+  let parsed: URL;
+  try { parsed = new URL(url); } catch { throw new Error("health_check_failed:invalid_url"); }
+  if (parsed.protocol !== "https:" || parsed.username || parsed.password) throw new Error("health_check_failed:unsafe_url");
   let lastError = "health_check_failed";
   for (let attempt = 1; attempt <= attempts; attempt += 1) {
     try {
