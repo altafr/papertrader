@@ -2,11 +2,21 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.315 — Verification and hosted-runtime checkpoint.
-- **Status:** The latest phase-branch CI run and the local full verification pass. The hosted Worker remains healthy in Paper Autopilot with continuous order submission disabled; the next natural daily cycle and production Vercel publication remain outstanding.
+- **Phase:** Phase 6.316 — Hosted paper-performance evidence checkpoint.
+- **Status:** The corrected compiled Worker command now produces a read-only hosted performance report. It confirms 100 snapshots and one calendar day of paper evidence; the required 30-calendar-day stability gate remains the only performance block.
 - **Current operating mode:** Paper Autopilot; continuous order submission is not enabled.
 - **Current goal:** Complete authenticated dashboard verification and reconcile the authorized AAPL order through its terminal broker state, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
+
+### Phase 6.316 — Hosted paper-performance evidence checkpoint (2026-08-28)
+
+- [x] Run the deployed read-only performance report using the Worker’s compiled command path.
+- [x] Confirm the report is `ready` with 100 reconciled snapshots and `snapshotCount: 100`.
+- [x] Confirm paper evidence spans 1 consecutive calendar day (`2026-08-28T03:03:57.522Z` through `2026-08-28T04:41:27.808Z`).
+- [x] Confirm final equity `99,390.97`, total captured P&L `+0.27`, total return `0.00027166%`, and maximum drawdown `0.00036221%`.
+- [x] Confirm the only stability block is `minimum_30_consecutive_calendar_days_not_met`.
+- [x] Confirm the report was read-only and continuous paper-order submission remains disabled.
+- [ ] Verify the first natural daily scheduler cycle after `2026-08-29T00:00:00Z` and continue the 30-day evidence gate.
 
 ### Phase 6.315 — Verification and hosted-runtime checkpoint (2026-08-28)
 
