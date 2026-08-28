@@ -80,6 +80,12 @@ export interface PaperOrderSubmitterOptions {
   readonly secretKey: string;
 }
 
+/** Classify provider failures without exposing response bodies or credentials. */
+export function classifyPaperOrderFailure(assetClass: "crypto" | "us_equity", status: number, exit = false): string {
+  if (assetClass === "crypto" && status === 403) return "crypto_order_entitlement_blocked";
+  return `${exit ? "paper_exit" : "paper_entry"}_http_${status}`;
+}
+
 function normalizeOrder(parsed: z.infer<typeof orderSchema>, request: PaperOrderSubmissionRequest): PaperOrderSubmission {
   return {
     alpacaOrderId: parsed.id, assetClass: parsed.asset_class, clientOrderId: parsed.client_order_id ?? request.clientOrderId,
@@ -109,7 +115,7 @@ export function createPaperOrderSubmitter(options: PaperOrderSubmitterOptions): 
       if (existingResponse.status !== 404) throw new Error("Paper order idempotency lookup failed.");
       const body = { client_order_id: request.clientOrderId, limit_price: request.limitPrice, order_class: "simple", qty: request.quantity, side: request.side, symbol: request.symbol, time_in_force: request.assetClass === "crypto" ? "gtc" : request.timeInForce, type: request.type };
       const response = await requestJson("/v2/orders", { body: JSON.stringify(body), method: "POST" });
-      if (!response.ok) throw new Error(`Paper order submission failed with HTTP ${response.status}.`);
+      if (!response.ok) throw new Error(`Paper order submission failed with HTTP ${response.status} (${classifyPaperOrderFailure(request.assetClass, response.status)}).`);
       return normalizeOrder(orderSchema.parse(await response.json()), request);
     },
   };
@@ -134,7 +140,7 @@ export function createPaperExitOrderSubmitter(options: PaperOrderSubmitterOption
       if (existingResponse.ok) return normalizeOrder(orderSchema.parse(await existingResponse.json()), { approval: { approvalId: request.clientOrderId, intentId: request.clientOrderId, status: "approved" }, assetClass: request.assetClass, clientOrderId: request.clientOrderId, quantity: request.quantity, side: "buy", symbol: request.decision.symbol, timeInForce: request.timeInForce, type: request.type });
       if (existingResponse.status !== 404) throw new Error("Paper exit idempotency lookup failed.");
       const response = await requestJson("/v2/orders", { body: JSON.stringify({ client_order_id: request.clientOrderId, order_class: "simple", qty: request.quantity, side: "sell", symbol: request.decision.symbol, time_in_force: request.assetClass === "crypto" ? "gtc" : request.timeInForce, type: request.type }), method: "POST" });
-      if (!response.ok) throw new Error(`Paper exit submission failed with HTTP ${response.status}.`);
+      if (!response.ok) throw new Error(`Paper exit submission failed with HTTP ${response.status} (${classifyPaperOrderFailure(request.assetClass, response.status, true)}).`);
       return normalizeOrder(orderSchema.parse(await response.json()), { approval: { approvalId: request.clientOrderId, intentId: request.clientOrderId, status: "approved" }, assetClass: request.assetClass, clientOrderId: request.clientOrderId, quantity: request.quantity, side: "buy", symbol: request.decision.symbol, timeInForce: request.timeInForce, type: request.type });
     },
   };

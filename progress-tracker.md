@@ -2,8 +2,8 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.327 — Asset-aware crypto order execution.
-- **Status:** Alpaca-compatible crypto order handling is now deployed: crypto entries and exits are normalized to `gtc`, while equities remain `day`; crypto symbols also receive safe internal intent IDs. This removes application-level rejection causes observed on the earlier BTC/USD path. A fresh ETH/USD run now reaches Alpaca and receives HTTP 403, indicating an external account/provider permission gate remains. Continuous Worker health, live positions, dashboard route, and Telegram delivery remain verified.
+- **Phase:** Phase 6.330 — Provider error classification.
+- **Status:** Alpaca-compatible crypto order handling is deployed: crypto entries and exits are normalized to `gtc`, while equities remain `day`; crypto symbols receive safe internal intent IDs; and provider HTTP 403 responses are classified as a redacted crypto entitlement blocker. Continuous Worker health, live positions, dashboard route, and Telegram delivery remain verified.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Verify the first natural paper research/order cycle and authenticated dashboard portfolio/position rendering, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
@@ -25,6 +25,14 @@
 - [x] Confirm the rejection preserves the paper safety boundary while the Worker remains healthy and the next crypto tick is scheduled for `12:45 UTC`.
 - [ ] Verify the authenticated dashboard presents this risk decision and its bounded reasons in the Cycle card.
 - [ ] Resolve the separate Alpaca HTTP 403 crypto order-entitlement response before an approved crypto candidate can submit.
+
+### Phase 6.330 — Provider error classification (2026-08-28)
+
+- [x] Add a shared, credential-free classifier for Alpaca order HTTP failures.
+- [x] Identify crypto HTTP 403 responses as `crypto_order_entitlement_blocked` while preserving generic classification for other asset/status combinations.
+- [x] Include the bounded classification in server-side order errors without exposing provider response bodies.
+- [x] Verify Alpaca order tests (5), package TypeScript, and ESLint pass.
+- [ ] Deploy the classifier and verify the next approved crypto attempt reports the bounded blocker.
 
 ### Phase 6.327 — Asset-aware crypto order execution (2026-08-28)
 

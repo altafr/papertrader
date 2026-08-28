@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createPaperOrderSubmitter } from "./orders.js";
+import { classifyPaperOrderFailure, createPaperOrderSubmitter } from "./orders.js";
 
 const approval = { approvalId: "intent-1:2026-01-10T00:03:00Z", intentId: "intent-1", status: "approved" as const };
 const request = { approval, assetClass: "us_equity" as const, clientOrderId: "intent-1-order", quantity: "0.02", side: "buy" as const, symbol: "AAA", timeInForce: "day" as const, type: "market" as const };
@@ -8,6 +8,12 @@ function response(status: number, body: unknown): Response { return new Response
 const order = { asset_class: "us_equity", client_order_id: "intent-1-order", id: "alpaca-1", qty: "0.02", side: "buy", status: "accepted", symbol: "AAA", type: "market" };
 
 describe("paper order submitter", () => {
+  it("classifies crypto entitlement failures without exposing provider response bodies", () => {
+    expect(classifyPaperOrderFailure("crypto", 403)).toBe("crypto_order_entitlement_blocked");
+    expect(classifyPaperOrderFailure("us_equity", 403)).toBe("paper_entry_http_403");
+    expect(classifyPaperOrderFailure("crypto", 429, true)).toBe("paper_exit_http_429");
+  });
+
   it("looks up by client ID before posting and submits only approved paper orders", async () => {
     const calls: string[] = [];
     const submitter = createPaperOrderSubmitter({ apiKey: "key", brokerConnectionEnabled: true, secretKey: "secret", fetchImpl: async (url, init) => { calls.push(`${init?.method}:${url}`); return calls.length === 1 ? response(404, {}) : response(201, order); } });
