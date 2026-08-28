@@ -23,6 +23,14 @@
 - [x] Confirm no persistent execution flag was changed while checking the guarded path.
 - [ ] Resolve the deployed SSH command-runtime mismatch (the interactive shell does not expose the Node executable) or use the next scheduled cycle for hosted e2e evidence.
 
+### Phase 6.272 — Release baseline verification (2026-08-28)
+
+- [x] Run ESLint with zero warnings across `apps` and `packages`.
+- [x] Run TypeScript checks for Worker, API, and Web applications.
+- [x] Reconfirm hosted Worker health, UTC scheduler readiness, 60-second position management, and the approved-only/24-hour Telegram policy.
+- [x] Confirm Paper Autopilot order submission remains disabled.
+- [ ] Observe the next scheduled cycle and capture its persisted evidence.
+
 ### Phase 6.269 — Paper Autopilot runtime readiness (2026-08-28)
 
 - [x] Run the guarded hosted runtime-readiness check without exposing secrets or submitting an order.
