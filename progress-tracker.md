@@ -713,6 +713,14 @@
 - [x] Preserve explicit release control by not merging to `main` implicitly.
 - [ ] Merge the verified branch through the repository review process, then verify the first cron-triggered run.
 
+### Phase 6.498 — In-flight deterministic exit suppression (2026-08-29)
+
+- [x] Add a persisted-ledger check for non-terminal deterministic exit submissions before each position-management pass.
+- [x] Keep threshold evaluation and observability active while suppressing a second broker call for the same position lifecycle.
+- [x] Treat filled, canceled, expired, rejected, and failed exits as terminal; preserve the existing idempotent broker adapter and fail-closed behavior.
+- [x] Add regression coverage; focused position-management tests (11 tests), Worker typecheck, and ESLint passed.
+- [ ] Deploy the Worker revision and verify hosted monitoring reports no duplicate exit submission when an exit remains in flight.
+
 ### Phase 6.458 — Natural hosted cycle continuity (2026-08-29)
 
 - [x] Verify the hosted Worker remains healthy on release `febcda5f7a5…` with Paper Autopilot and order submission still enabled.

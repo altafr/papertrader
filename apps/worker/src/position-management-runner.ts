@@ -15,6 +15,8 @@ export interface PositionManagementResult {
 export async function runPaperPositionManagementOnce(input: {
   readonly now: string;
   readonly positions: readonly ManagedPositionInput[];
+  /** Exit intents already accepted by the broker and still in flight. */
+  readonly activeExitIntentIds?: ReadonlySet<string>;
   readonly submitter: Pick<PaperExitOrderSubmitter, "submitExit">;
 }): Promise<PositionManagementResult> {
   const decisions: PositionExitDecision[] = [];
@@ -24,6 +26,8 @@ export async function runPaperPositionManagementOnce(input: {
     const decision = evaluatePaperPositionExit(position, input.now);
     decisions.push(decision);
     if (!decision.shouldExit) continue;
+    const exitIntentId = `${position.intentId}:exit`;
+    if (input.activeExitIntentIds?.has(exitIntentId)) continue;
     submissions.push(await input.submitter.submitExit({ assetClass: position.assetClass, clientOrderId: `${position.intentId}-exit-${decision.reason}`, decision, quantity: position.quantity, timeInForce: position.assetClass === "crypto" ? "gtc" : "day", type: "market" }));
     submitted += 1;
   }

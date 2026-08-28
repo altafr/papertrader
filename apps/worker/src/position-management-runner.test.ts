@@ -18,6 +18,13 @@ describe("paper position management runner", () => {
     expect(submitExit).not.toHaveBeenCalled();
   });
 
+  it("does not submit a second exit while the same exit intent is active", async () => {
+    const submitExit = vi.fn();
+    const result = await runPaperPositionManagementOnce({ now: "2026-08-27T00:00:00Z", positions: [position], activeExitIntentIds: new Set(["intent-1:exit"]), submitter: { submitExit } });
+    expect(result).toMatchObject({ submitted: 0, decisions: [{ shouldExit: true, reason: "stop_loss" }] });
+    expect(submitExit).not.toHaveBeenCalled();
+  });
+
   it("fails closed when an exit submission fails", async () => {
     const submitExit = vi.fn().mockRejectedValue(new Error("broker unavailable"));
     await expect(runPaperPositionManagementOnce({ now: "2026-08-27T00:00:00Z", positions: [position], submitter: { submitExit } })).rejects.toThrow("broker unavailable");

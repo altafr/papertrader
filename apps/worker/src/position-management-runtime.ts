@@ -45,6 +45,12 @@ export function getPositionExitIntentId(clientOrderId: string): string {
   return clientOrderId.replace(/-exit-(?:profit_target|stop_loss|time_stop)$/, ":exit");
 }
 
+/** Return exit intents which already have an open broker lifecycle state. */
+export function getActiveExitIntentIds(submissions: ReadonlyArray<{ readonly clientOrderId: string; readonly intentId: string; readonly status: string }>): ReadonlySet<string> {
+  const terminal = new Set(["filled", "canceled", "cancelled", "expired", "rejected", "failed"]);
+  return new Set(submissions.filter((submission) => /-exit-(?:profit_target|stop_loss|time_stop)$/.test(submission.clientOrderId) && !terminal.has(submission.status.toLowerCase())).map((submission) => submission.intentId));
+}
+
 /** Bounded, credential-free record for the always-on position pass. */
 export function buildPositionManagementLog(input: { readonly managed: number; readonly positions: number; readonly submitted: number; readonly symbols?: readonly string[] }) {
   const symbols = input.symbols?.filter((symbol) => symbol.trim().length > 0).slice(0, 10);
@@ -112,6 +118,7 @@ export async function runPositionManagementCycle(environment: NodeJS.ProcessEnv 
       await notifier.notify({ code: "paper_order_status_changed", dedupeKey: `paper_order_status_changed:${transition.alpacaOrderId}:${transition.status}`, message: `Paper order status changed: ${transition.symbol} ${transition.from} → ${transition.status}.`, severity: terminal && transition.status.toLowerCase() !== "filled" ? "warning" : "info" });
     }
     const rows = await orderRepository.listExitPlans();
+    const activeExitIntentIds = getActiveExitIntentIds(await orderRepository.listRecent());
     const plans = new Map(rows.filter((row) => row.alpacaOrderId && row.entryPrice && row.plannedStopPrice && row.strategyKey && row.strategyVersion).map((row) => [`${row.assetClass}:${row.symbol}`, row]));
     const positions = model?.positions ?? [];
     const managedPositions = positions.filter((position) => plans.has(`${position.assetClass}:${position.symbol}`));
@@ -159,7 +166,7 @@ export async function runPositionManagementCycle(environment: NodeJS.ProcessEnv 
         }
       },
     };
-    const result = await runPaperPositionManagementOnce({ now: new Date().toISOString(), positions: managed, submitter: exitSubmitter });
+    const result = await runPaperPositionManagementOnce({ activeExitIntentIds, now: new Date().toISOString(), positions: managed, submitter: exitSubmitter });
     for (const decision of result.decisions) {
       console.log(JSON.stringify(buildPositionExitDecisionLog({ ...decision, submitted: result.submissions.some((submission) => submission.symbol === decision.symbol) })));
       if (!decision.shouldExit || !decision.reason) continue;
