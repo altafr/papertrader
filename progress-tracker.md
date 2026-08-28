@@ -16,6 +16,13 @@
 - [ ] Validate the next scheduled cycle and its persisted audit/digest records.
 - [ ] Complete authenticated dashboard visual verification and production alias publication when Vercel quota/team access permits.
 
+### Phase 6.271 — Verification pass and execution-path check (2026-08-28)
+
+- [x] Run the complete local regression suite: 77 files and 293 tests passed.
+- [x] Confirm the latest Worker deployment `46de0908-5707-4712-8d14-80d31c36a432` is `SUCCESS` and the public health contract remains healthy.
+- [x] Confirm no persistent execution flag was changed while checking the guarded path.
+- [ ] Resolve the deployed SSH command-runtime mismatch (the interactive shell does not expose the Node executable) or use the next scheduled cycle for hosted e2e evidence.
+
 ### Phase 6.269 — Paper Autopilot runtime readiness (2026-08-28)
 
 - [x] Run the guarded hosted runtime-readiness check without exposing secrets or submitting an order.
