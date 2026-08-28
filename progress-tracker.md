@@ -3,7 +3,7 @@
 ## Snapshot
 
 - **Phase:** Phase 6.319 — Asset-aware research cadence.
-- **Status:** Research preparation now supports a 15-minute cadence with crypto eligible on every tick and stock work restricted to the first and last two regular New York session hours. Local verification passed; hosted configuration has been set, but the deployment must be rebuilt from this branch before the new code is active.
+- **Status:** Research preparation now runs on a 15-minute cadence with crypto eligible on every tick and stock work restricted to the first and last two regular New York session hours. Deployment `9259eb0a-4ed7-4e32-a7cc-ff46be185c79` reached `SUCCESS`; Worker health reports the next research tick at `2026-08-28T11:30:00.000Z`. Paper-only order safeguards remain unchanged.
 - **Current operating mode:** Paper Autopilot; continuous order submission is not enabled.
 - **Current goal:** Complete authenticated dashboard verification and reconcile the authorized AAPL order through its terminal broker state, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
@@ -15,7 +15,8 @@
 - [x] Support minute-interval scheduler health calculation for `*/15 * * * *`.
 - [x] Verify 77 test files / 297 tests, ESLint, and Worker TypeScript checks locally.
 - [x] Set Railway Worker cadence variables to `RESEARCH_PREPARATION_CRON=*/15 * * * *` and `RESEARCH_STOCK_WINDOW_ONLY=true`.
-- [ ] Rebuild the Worker from the phase branch and verify the full configured health contract after deployment.
+- [x] Rebuild the Worker from the phase branch and verify the full configured health contract after deployment.
+- [x] Confirm hosted health remains `healthy`, position management is `ready`, and continuous paper-order submission is disabled.
 
 ### Phase 6.318 — Hosted paper-performance heartbeat (2026-08-28)
 
