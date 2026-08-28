@@ -640,6 +640,12 @@
 - [x] Confirm the unified runtime/public-surface contract continues to pass on successive branch-triggered runs.
 - [x] Confirm Railway is processing the matching release; the prior deployed runtime remains healthy during rollout.
 
+### Phase 6.486 — Monitor recurrence verified (2026-08-29)
+
+- [x] Confirm the latest branch-triggered monitor run for commit `f0c8fa5` completed successfully.
+- [x] Confirm consecutive hosted monitor runs remain green after the unified verifier rollout.
+- [x] Confirm Railway continues processing the corresponding release without changing runtime configuration.
+
 ### Phase 6.458 — Natural hosted cycle continuity (2026-08-29)
 
 - [x] Verify the hosted Worker remains healthy on release `febcda5f7a5…` with Paper Autopilot and order submission still enabled.
