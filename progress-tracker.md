@@ -2,7 +2,7 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.328 — Runtime tooling compatibility.
+- **Phase:** Phase 6.329 — Hosted verifier after tooling and stream gates.
 - **Status:** The hosted Worker and API are healthy in Paper Autopilot mode with deterministic entry/exit safeguards, durable reconciliation, Telegram alerting, lifecycle-stable PostgreSQL-backed risk evidence, and a read-only portfolio status command. The latest provenance and evidence guards are deployed and verified. Vercel production publication remains limited by the free-plan daily deployment quota, while the 30-day paper-forward evidence window and authenticated dashboard verification remain ongoing.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading, verify authenticated portfolio/P&L rendering and exports, and accumulate the 30-day evidence gate without loosening risk controls.
@@ -5809,6 +5809,13 @@
 - Updated CI and hosted-health workflows to use Node `22.13.0`, preventing false verification failures from Node `22.9.0` images.
 - Full ESLint and regression suite pass (88 files, 358 tests); diff check is clean.
 - **Next smallest unit:** rerun the Railway status command under the aligned runtime and continue paper-forward monitoring.
+
+### Phase 6.329 hosted verifier after tooling and stream gates
+
+- Re-ran the hosted verifier against Railway and Vercel using the strengthened stream-freshness contract.
+- Result remains `verified:true`: API/Worker healthy, paper mode and order gate active, stream connected with `marketStreamFreshnessValid:true`, position management ready, both schedulers scheduled, risk telemetry valid, next runs future, kill switch inactive, and Vercel HTTP 200.
+- The direct Worker database status command was attempted with Node 24 but cannot resolve Railway’s private Postgres hostname from the local network; no runtime failure is inferred from that local DNS limitation.
+- **Next smallest unit:** continue paper-forward monitoring and complete authenticated portfolio/read-model validation.
 
 ### 2026-08-29 — Phase 6.306 compatibility deployment verified
 
