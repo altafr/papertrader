@@ -2,8 +2,8 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.284 — Post-release queue and health verification.
-- **Status:** After the notification cooldown release, the Worker remains healthy and scheduled, position management remains ready, Telegram policy remains approved-only/24-hour cooldown, and both durable queues have zero queued or active jobs. Continuous paper-order submission remains disabled.
+- **Phase:** Phase 6.286 — One-run contention containment.
+- **Status:** A guarded manual scheduler attempt was stopped after it failed to obtain its audit provenance while the persistent Worker owned the shared queue. The recurring Worker remains healthy/scheduled, queues are drained of actionable jobs, and no execution setting changed. The manual one-run command must not be retried against the shared queue while recurring scheduling is active.
 - **Current operating mode:** Paper Autopilot; continuous order submission is not enabled.
 - **Current goal:** Complete authenticated dashboard verification and reconcile the authorized AAPL order through its terminal broker state, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
@@ -120,6 +120,14 @@
 - [x] Confirm work and dead-letter queues have zero queued/active jobs; retained failure history is non-actionable.
 - [x] Confirm continuous paper-order submission remains disabled.
 - [ ] Verify the next natural UTC cycle and its persisted digest/evidence record.
+
+### Phase 6.286 — One-run contention containment (2026-08-28)
+
+- [x] Record the guarded one-run attempt as incomplete because its provenance audit was not persisted.
+- [x] Confirm the recurring Worker remains `healthy`/`scheduled` with position management `ready`.
+- [x] Confirm durable queues have zero queued/active jobs; only retained historical failure count remains.
+- [x] Confirm continuous paper-order submission remains disabled and no broker order was created by the attempt.
+- [ ] Verify the next natural UTC cycle; do not run a shared-queue manual command while the recurring scheduler is active.
 
 ### Phase 6.269 — Paper Autopilot runtime readiness (2026-08-28)
 
