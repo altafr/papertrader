@@ -161,6 +161,12 @@
 - [x] Confirm the 16:15 UTC risk cycle approved BTC/USD and recorded `executionStatus: reconciled` with no policy reasons.
 - [ ] Verify the resulting position/P&L and export status through an authenticated operator session.
 
+### Phase 6.415 — Operator runbook status sync (2026-08-29)
+
+- [x] Update the root README with the current hosted Paper Autopilot behavior and fail-closed unmanaged-position rule.
+- [x] Link the operator to Railway health and Vercel dashboard surfaces without exposing credentials.
+- [ ] Publish the latest web source after Vercel quota reset and verify the authenticated dashboard/CSV state.
+
 ### Phase 6.387 — Hosted cycle baseline after reason-logging rollout (2026-08-28)
 
 - [x] Verify Worker deployment `8cabc43d-b343-47c1-9a0f-257198dabdcf` is `SUCCESS` and health is `healthy`.
