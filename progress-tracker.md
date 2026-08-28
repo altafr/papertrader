@@ -31,6 +31,13 @@
 - [x] Confirm Paper Autopilot order submission remains disabled.
 - [ ] Observe the next scheduled cycle and capture its persisted evidence.
 
+### Phase 6.273 — Hosted guarded e2e execution-path verification (2026-08-28)
+
+- [x] Resolve the Railway SSH runtime-path issue: the deployed Node runtime is present at `/mise/installs/node/22.23.2/bin/node`; the default interactive PATH omitted it.
+- [x] Execute the guarded paper e2e command with all order-submission gates disabled; no broker order was submitted.
+- [x] Preserve fail-closed behavior when the research input/handler did not complete; the command emitted only its bounded stage failure.
+- [ ] Diagnose the intermittent Alpaca research-stage failure using a separately bounded research verification, then rerun the e2e evidence cycle once.
+
 ### Phase 6.269 — Paper Autopilot runtime readiness (2026-08-28)
 
 - [x] Run the guarded hosted runtime-readiness check without exposing secrets or submitting an order.
