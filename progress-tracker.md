@@ -24,6 +24,14 @@
 - [x] Deploy Worker `f4bf4f24-fa7b-450e-a486-8b4a6a68ccb3` with `SUCCESS` and verify hosted health remains healthy, scheduled, and position-management ready.
 - [ ] Verify the next hosted cycle contains no duplicate symbol decisions and reconcile a successful paper order.
 
+### Phase 6.389 — Testable risk-cycle log contract (2026-08-28)
+
+- [x] Extract the structured risk-cycle log shape into a pure, testable builder.
+- [x] Bound run identifiers, decision count, and policy-reason strings in the log contract.
+- [x] Add regression coverage for the operator-facing reason payload.
+- [x] Verify full tests: 79 files and 313 tests; Worker typecheck and lint pass.
+- [ ] Deploy the Worker and verify the next hosted cycle log.
+
 ### Phase 6.384 — Hosted cadence and submission configuration audit (2026-08-28)
 
 - [x] Confirm the production research cadence is `*/15 * * * *` (15-minute ticks).
