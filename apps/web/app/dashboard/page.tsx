@@ -166,11 +166,12 @@ function indicatorSummary(row: Record<string, unknown>) {
 function riskDecisionSummary(row: Record<string, unknown>) {
   if (!isRecord(row.riskDecision)) return "No structured risk evidence";
   const risk = row.riskDecision;
+  const approvalStatus = risk.approvalStatus === "approved" || risk.approvalStatus === "rejected" ? risk.approvalStatus : undefined;
   const loss = value(risk, "estimatedLoss");
   const percent = value(risk, "estimatedLossPercent");
   const policy = value(risk, "policyVersion");
   const reasons = Array.isArray(risk.reasons) ? risk.reasons.filter((reason): reason is string => typeof reason === "string").join("; ") : "";
-  return [loss !== "—" ? `loss ${loss}` : "", percent !== "—" ? `${percent}% invested value` : "", policy !== "—" ? policy : "", reasons].filter(Boolean).join(" · ") || "Structured risk decision recorded";
+  return [approvalStatus ? `decision ${approvalStatus}` : "", loss !== "—" ? `loss ${loss}` : "", percent !== "—" ? `${percent}% invested value` : "", policy !== "—" ? policy : "", reasons].filter(Boolean).join(" · ") || "Structured risk decision recorded";
 }
 
 function StatusBadge({ state }: { readonly state: "degraded" | "delayed" | "fresh" | "stale" }) {

@@ -5614,3 +5614,10 @@
 - API and Worker health remain `healthy`; research scheduling is active and position management is ready.
 - The next scheduled research cycle is queued for 22:45 UTC, which will provide the first live evidence using the lifecycle-stable approval field.
 - **Next smallest unit:** verify the 22:45 cycle and confirm its durable risk decision remains represented after reconciliation.
+
+### 2026-08-29 — Phase 6.298 explicit dashboard decision outcome
+
+- Updated the dashboard’s decision explanation to show the persisted `approved` or `rejected` outcome alongside estimated loss, invested-value percentage, policy version, and rejection reasons.
+- This is presentation-only; it does not grant order authority or alter deterministic risk evaluation.
+- Verification: web TypeScript, ESLint, and full regression passed (88 files, 353 tests).
+- **Next smallest unit:** verify the enriched decision explanation against the next scheduled risk cycle.
