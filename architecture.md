@@ -357,7 +357,7 @@ The paper execution boundary performs a durable lookup by `clientOrderId` before
 | Trading integration | Alpaca Trading API | Account, orders, positions, portfolio and activity |
 | Market data | Alpaca Market Data REST/WebSocket APIs | Historical and real-time stocks/crypto data |
 | MCP | Alpaca MCP server in an authorized MCP client | Research/operator tooling; not assumed available to published runtime |
-| Notifications | Telegram Bot API (server-side Railway worker) | Critical operational and risk alerts; disabled until guarded channel test passes |
+| Notifications | Telegram Bot API (server-side Railway worker) | Critical operational and risk alerts; enabled with durable delivery tracking, while channel delivery verification remains unverified |
 
 Do not run the continuous trading loop in the browser or Vercel functions. Vercel hosts the dashboard; Railway hosts broker access, durable jobs, and the supervised continuous worker.
 
