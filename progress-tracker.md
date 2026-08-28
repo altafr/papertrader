@@ -5628,3 +5628,9 @@
 - This prevents an unexecuted research candidate from falsely making a live position appear actively managed.
 - Verification: API typecheck, ESLint, and full regression passed (88 files, 353 tests).
 - **Next smallest unit:** deploy the guard and verify the authenticated read model remains consistent with the Worker’s fail-closed position state.
+
+### 2026-08-29 — Phase 6.300 approved-source provenance guard deployed
+
+- Railway API deployment `2fdbefd5-5475-45a1-8426-151981eee345` reached `SUCCESS`.
+- API health remains `healthy`; position provenance now rejects unapproved candidate evidence at the hosted boundary.
+- **Next smallest unit:** verify the next natural risk cycle and authenticated read model, then continue the paper-forward evidence window.
