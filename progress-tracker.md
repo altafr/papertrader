@@ -5404,3 +5404,9 @@
 - Added regression coverage for malformed, negative, and valid database values; no secret or raw model content is included.
 - Verification: API tests (12 tests), TypeScript, and ESLint passed.
 - **Next smallest unit:** deploy the hardened API serializer and verify the live API health endpoint remains healthy.
+
+### 2026-08-29 — Phase 6.267 risk-cycle API hardening deployed
+
+- Railway API deployment `b28000cc-8063-43fa-ba19-548f01e865bc` reached `SUCCESS`.
+- Live API health remains `healthy`; risk-cycle evidence is now validated and bounded before dashboard consumption.
+- **Next smallest unit:** verify the authenticated dashboard after Vercel publication becomes available, while the Worker continues its scheduled paper cycles.
