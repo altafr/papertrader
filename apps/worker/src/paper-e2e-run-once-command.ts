@@ -32,7 +32,16 @@ try {
   const snapshot = await reconcilePaperAccount(reader, accountRepository, { approvalReference: config.approvalReference, runId: config.runId });
   stage = "research_input";
   const assetClass = config.agentType === "stock_research" ? "us_equity" : "crypto";
-  const marketInput = await createAlpacaResearchInputSource(createPaperMarketDataReader({ apiKey: process.env.ALPACA_API_KEY ?? "", secretKey: process.env.ALPACA_SECRET_KEY ?? "" })).read({ assetClass, limit: config.limit, maxCandidates: config.maxCandidates, symbols: config.symbols, timeframe: config.timeframe });
+  const marketReader = createAlpacaResearchInputSource(createPaperMarketDataReader({ apiKey: process.env.ALPACA_API_KEY ?? "", secretKey: process.env.ALPACA_SECRET_KEY ?? "" }));
+  let marketInput: ResearchAgentInput;
+  try {
+    marketInput = await marketReader.read({ assetClass, limit: config.limit, maxCandidates: config.maxCandidates, symbols: config.symbols, timeframe: config.timeframe });
+  } catch (error: unknown) {
+    // A newly opened paper feed can expose only one daily bar. Retry once with
+    // bounded hourly history so the research agent's two-bar invariant holds.
+    if (config.timeframe !== "1Day" || !(error instanceof Error) || !error.message.includes("fewer than 2 bars")) throw error;
+    marketInput = await marketReader.read({ assetClass, limit: config.limit, maxCandidates: config.maxCandidates, symbols: config.symbols, timeframe: "1Hour" });
+  }
   const request: AgentRunRequest = { agentType: config.agentType, createdAt: new Date().toISOString(), inputRefs: getResearchMarketInputRefs(assetClass, marketInput.capturedAt, config.approvalReference), promptVersion: "research-market-boundary@1", runId: `${config.runId}-research`, task: `Read and rank ${assetClass} market bars once as part of the paper evidence cycle.` };
   const handler = config.agentType === "stock_research" ? createStockResearchAgent(marketInput as ResearchAgentInput & { assetClass: "us_equity" }) : createCryptoResearchAgent(marketInput as ResearchAgentInput & { assetClass: "crypto" });
   stage = "research_agent";
