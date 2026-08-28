@@ -5439,6 +5439,13 @@
 - The next scheduled risk tick remains the specific pending check for retained post-fix counters.
 - **Next smallest unit:** verify the 22:00 UTC risk cycle retains its counters in Worker health and the PostgreSQL-backed API summary.
 
+### 2026-08-29 — Phase 6.280 post-cycle evidence and timestamp correction
+
+- Verified the 22:00 UTC scheduled cycle completed successfully: one BTC/USD decision approved, one decision recorded, next run scheduled for 22:15 UTC, and position management remained ready.
+- Corrected API and Worker risk-summary queries to use `COALESCE(updated_at, created_at)`, so recurring/upserted risk decisions are visible after their latest evaluation instead of remaining hidden behind their original creation timestamp.
+- Verification: focused API/Worker tests (14 tests), TypeScript, and ESLint passed.
+- **Next smallest unit:** deploy the timestamp correction and confirm the read-only Railway status command reports the 22:00 decision.
+
 ### 2026-08-29 — Phase 6.273 post-fix regression and hosted verification
 
 - Full regression passed: 86 files and 345 tests.
