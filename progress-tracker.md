@@ -2,8 +2,8 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.335 — Production promotion quota check.
-- **Status:** The current dashboard build is published as a Ready Vercel preview at `papertrader-b80ufib8a-altafrs-projects.vercel.app`. A production promotion attempt was rejected by Vercel's `api-deployments-free-per-day` limit (402; retry after 24 hours). Continuous Worker health, live positions, and Telegram delivery remain verified.
+- **Phase:** Phase 6.336 — Natural 12:45 crypto cycle.
+- **Status:** The scheduled `12:45 UTC` crypto preparation run completed successfully and persisted a BTC/USD candidate with point-in-time Alpaca bar metrics. The candidate remains subject to deterministic exposure gates; no new broker order was created. The current dashboard preview remains Ready, while production promotion is limited by Vercel's free-tier quota.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Verify the first natural paper research/order cycle and authenticated dashboard portfolio/position rendering, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
@@ -69,6 +69,15 @@
 - [x] Confirm Vercel rejected the promotion with the explicit free-tier deployment quota error `api-deployments-free-per-day` (HTTP 402).
 - [x] Preserve the Ready preview and production alias without changing application or trading state.
 - [ ] Retry promotion after Vercel's quota window resets.
+
+### Phase 6.336 — Natural 12:45 crypto cycle (2026-08-28)
+
+- [x] Observe the scheduled `12:45 UTC` crypto preparation tick without forcing a manual run.
+- [x] Confirm persisted run `research-preparation-crypto_research-20260828124525` completed with `status: succeeded`.
+- [x] Confirm BTC/USD candidate metrics and captured Alpaca evidence were persisted.
+- [x] Confirm no additional broker order was created while the candidate remained outside deterministic exposure limits.
+- [x] Confirm Worker health remains `healthy` and the crypto stream remains `connected`.
+- [ ] Continue the paper-forward evidence window and await an approved candidate for the next broker hand-off.
 
 ### Phase 6.327 — Asset-aware crypto order execution (2026-08-28)
 
