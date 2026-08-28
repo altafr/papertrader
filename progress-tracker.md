@@ -280,6 +280,13 @@
 - [x] Confirm the 30-day stability gate remains enforced and blocked until sufficient calendar-day evidence exists.
 - [ ] Continue paper-forward monitoring and complete authenticated dashboard/CSV verification after Vercel publication becomes available.
 
+### Phase 6.432 — Hosted recovery/PITR readiness verification (2026-08-29)
+
+- [x] Run the guarded recovery-readiness check on the hosted Worker.
+- [x] Confirm the recovery verification flag, bounded operator approval reference, and UTC verification timestamp are all present and valid.
+- [x] Confirm recovery status is `verified`; this evidence is separate from normal runtime health and does not enable live trading.
+- [ ] Continue the 30-day paper-forward evidence window and complete authenticated dashboard/CSV verification after Vercel publication becomes available.
+
 ### Phase 6.387 — Hosted cycle baseline after reason-logging rollout (2026-08-28)
 
 - [x] Verify Worker deployment `8cabc43d-b343-47c1-9a0f-257198dabdcf` is `SUCCESS` and health is `healthy`.
