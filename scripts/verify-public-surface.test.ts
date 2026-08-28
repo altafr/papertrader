@@ -17,4 +17,11 @@ describe("public surface verifier", () => {
     const fetcher = vi.fn<typeof fetch>().mockResolvedValue(new Response("placeholder", { status: 200 }));
     await expect(verifyPublicSurface(fetcher, "https://web.example")).rejects.toThrow("public_surface_check_failed:unexpected_content");
   });
+
+  it("rejects non-HTTPS and credential-bearing URLs before fetching", async () => {
+    const fetcher = vi.fn<typeof fetch>();
+    await expect(verifyPublicSurface(fetcher, "http://web.example")).rejects.toThrow("public_surface_check_failed:unsafe_url");
+    await expect(verifyPublicSurface(fetcher, "https://user:pass@web.example")).rejects.toThrow("public_surface_check_failed:unsafe_url");
+    expect(fetcher).not.toHaveBeenCalled();
+  });
 });

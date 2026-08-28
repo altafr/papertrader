@@ -1,6 +1,9 @@
 import { fileURLToPath } from "node:url";
 
 export async function verifyPublicSurface(fetcher: typeof fetch, url: string): Promise<{ status: number; url: string }> {
+  let parsed: URL;
+  try { parsed = new URL(url); } catch { throw new Error("public_surface_check_failed:invalid_url"); }
+  if (parsed.protocol !== "https:" || parsed.username || parsed.password) throw new Error("public_surface_check_failed:unsafe_url");
   const response = await fetcher(url, { headers: { accept: "text/html" } });
   if (!response.ok) throw new Error(`public_surface_check_failed:${response.status}`);
   const body = await response.text();

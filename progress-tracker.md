@@ -670,6 +670,12 @@
 - [x] Preserve explicit operator control: no implicit merge or default-branch mutation was performed.
 - [ ] Merge the verified branch to `main` through the repository review process to activate the scheduled cron trigger.
 
+### Phase 6.491 — Public monitor URL safety (2026-08-29)
+
+- [x] Require the public-surface verifier to use HTTPS URLs without embedded credentials.
+- [x] Reject invalid or unsafe URLs before any network request is made.
+- [x] Add regression coverage; focused public-surface tests and lint pass.
+
 ### Phase 6.458 — Natural hosted cycle continuity (2026-08-29)
 
 - [x] Verify the hosted Worker remains healthy on release `febcda5f7a5…` with Paper Autopilot and order submission still enabled.
