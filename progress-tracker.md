@@ -2,7 +2,7 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.333 — Exit decision alert rationale.
+- **Phase:** Phase 6.334 — Exit decision alert rationale deployed.
 - **Status:** The hosted Worker and API are healthy in Paper Autopilot mode with deterministic entry/exit safeguards, durable reconciliation, Telegram alerting, lifecycle-stable PostgreSQL-backed risk evidence, and a read-only portfolio status command. The latest provenance and evidence guards are deployed and verified. Vercel production publication remains limited by the free-plan daily deployment quota, while the 30-day paper-forward evidence window and authenticated dashboard verification remain ongoing.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading, verify authenticated portfolio/P&L rendering and exports, and accumulate the 30-day evidence gate without loosening risk controls.
@@ -5844,6 +5844,12 @@
 - The alert is observational and deduplicated; Telegram cannot approve, modify, or submit an order.
 - Added focused coverage; Worker typecheck, ESLint, and tests pass.
 - **Next smallest unit:** deploy the Worker alert change and verify hosted health remains ready.
+
+### Phase 6.334 exit alert deployment
+
+- Railway Worker deployment `97673352-1afb-4174-915a-0523c19f08df` reached `SUCCESS` from commit `f553129`.
+- Hosted Worker health remains HTTP 200 with a fresh market stream, Paper Autopilot active, research scheduled for 23:30 UTC, and position management ready.
+- **Next smallest unit:** verify the next exit event if one occurs and continue the paper-forward evidence window.
 
 ### 2026-08-29 — Phase 6.306 compatibility deployment verified
 
