@@ -1,10 +1,17 @@
 export type HealthObject = Record<string, unknown>;
 
+function validTimestamp(value: unknown): boolean {
+  return typeof value === "string" && Number.isFinite(Date.parse(value));
+}
+
 export function evaluatePaperRuntime(worker: HealthObject, api: HealthObject, expectedRelease?: string) {
   const marketStream = worker.marketStream;
   const positionManagement = worker.positionManagement;
   const researchSchedule = worker.researchSchedule;
   const durableScheduler = worker.durableScheduler;
+  const healthTimestampsValid = validTimestamp(worker.asOf)
+    && validTimestamp((researchSchedule as HealthObject | undefined)?.nextRunAt)
+    && validTimestamp((durableScheduler as HealthObject | undefined)?.nextRunAt);
   const streamConnected = typeof marketStream === "object" && marketStream !== null && !Array.isArray(marketStream) && (marketStream as HealthObject).status === "connected";
   const positionsReady = typeof positionManagement === "object" && positionManagement !== null && !Array.isArray(positionManagement) && (positionManagement as HealthObject).status === "ready";
   const positionsUnblocked = positionsReady && (!Array.isArray((positionManagement as HealthObject).blockedReasons) || ((positionManagement as HealthObject).blockedReasons as unknown[]).length === 0);
@@ -33,6 +40,7 @@ export function evaluatePaperRuntime(worker: HealthObject, api: HealthObject, ex
     release: typeof worker.release === "string" ? worker.release : "not_reported",
     releaseMatches,
     killSwitchInactive: worker.globalKillSwitchActive === false,
+    healthTimestampsValid,
   } as const;
-  return { ...result, verified: result.api === "healthy" && result.worker === "healthy" && result.alpaca === "configured" && result.database === "configured" && result.paperMode && result.orderSubmissionEnabled && result.orderSubmissionApprovalPresent && streamConnected && positionsReady && positionsUnblocked && researchScheduled && durableScheduled && releaseMatches && result.killSwitchInactive };
+  return { ...result, verified: result.api === "healthy" && result.worker === "healthy" && result.alpaca === "configured" && result.database === "configured" && result.paperMode && result.orderSubmissionEnabled && result.orderSubmissionApprovalPresent && streamConnected && positionsReady && positionsUnblocked && researchScheduled && durableScheduled && releaseMatches && result.killSwitchInactive && result.healthTimestampsValid };
 }

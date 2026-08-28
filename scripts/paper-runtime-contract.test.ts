@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { evaluatePaperRuntime } from "./paper-runtime-contract.js";
 
-const healthyWorker = { status: "healthy", alpaca: "configured", database: "configured", operatingMode: "paper_autopilot", paperAutopilotOrderSubmissionEnabled: true, paperAutopilotOrderSubmissionApprovalReferencePresent: true, globalKillSwitchActive: false, marketStream: { status: "connected" }, positionManagement: { status: "ready", blockedReasons: [] }, researchSchedule: { enabled: true, handlerEnabled: true, status: "scheduled", nextRunAt: "2026-08-28T14:45:00.000Z" }, durableScheduler: { enabled: true, status: "scheduled", nextRunAt: "2026-08-29T00:00:00.000Z" } };
+const healthyWorker = { status: "healthy", asOf: "2026-08-28T14:44:00.000Z", alpaca: "configured", database: "configured", operatingMode: "paper_autopilot", paperAutopilotOrderSubmissionEnabled: true, paperAutopilotOrderSubmissionApprovalReferencePresent: true, globalKillSwitchActive: false, marketStream: { status: "connected" }, positionManagement: { status: "ready", blockedReasons: [] }, researchSchedule: { enabled: true, handlerEnabled: true, status: "scheduled", nextRunAt: "2026-08-28T14:45:00.000Z" }, durableScheduler: { enabled: true, status: "scheduled", nextRunAt: "2026-08-29T00:00:00.000Z" } };
 
 describe("paper runtime contract", () => {
   it("accepts a healthy autonomous paper runtime", () => {
@@ -20,5 +20,6 @@ describe("paper runtime contract", () => {
     expect(evaluatePaperRuntime({ ...healthyWorker, globalKillSwitchActive: true }, { status: "healthy" }).verified).toBe(false);
     expect(evaluatePaperRuntime({ ...healthyWorker, positionManagement: { status: "ready", blockedReasons: ["stale_data"] } }, { status: "healthy" }).verified).toBe(false);
     expect(evaluatePaperRuntime({ ...healthyWorker, paperAutopilotOrderSubmissionApprovalReferencePresent: false }, { status: "healthy" }).verified).toBe(false);
+    expect(evaluatePaperRuntime({ ...healthyWorker, asOf: "not-a-date" }, { status: "healthy" }).verified).toBe(false);
   });
 });

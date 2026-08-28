@@ -538,6 +538,13 @@
 - [x] Verify the live contract reports an explicit submission approval reference, inactive kill switch, connected stream, ready position management, and active schedulers.
 - [x] Confirm the full hosted verifier returns `verified: true` with paper mode preserved.
 
+### Phase 6.470 — Health timestamp contract (2026-08-29)
+
+- [x] Require valid RFC3339 timestamps for Worker health and both scheduled next-run fields in the hosted verifier.
+- [x] Add fail-closed regression coverage for malformed health timestamps.
+- [x] Focused runtime-contract tests and lint pass.
+- [ ] Verify the timestamp-hardened contract after its Railway deployment reaches `SUCCESS`.
+
 ### Phase 6.458 — Natural hosted cycle continuity (2026-08-29)
 
 - [x] Verify the hosted Worker remains healthy on release `febcda5f7a5…` with Paper Autopilot and order submission still enabled.
