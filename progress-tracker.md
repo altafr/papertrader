@@ -576,6 +576,12 @@
 - [x] Preserve the same public URL defaults and read-only behavior while eliminating CI command drift.
 - [ ] Observe the first scheduled/branch-triggered run using the unified command.
 
+### Phase 6.476 — Unified verifier transient retry (2026-08-29)
+
+- [x] Add one bounded retry for the public Vercel surface within `verify:hosted`, matching the existing Railway health retry behavior.
+- [x] Keep failures closed after both attempts; no trading or authentication action is performed.
+- [x] Confirm the unified verifier passes against the live surfaces after a transient failure.
+
 ### Phase 6.458 — Natural hosted cycle continuity (2026-08-29)
 
 - [x] Verify the hosted Worker remains healthy on release `febcda5f7a5…` with Paper Autopilot and order submission still enabled.

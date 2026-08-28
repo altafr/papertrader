@@ -5,10 +5,17 @@ import { readHealthWithRetry } from "./verify-paper-runtime.js";
 import { verifyPublicSurface } from "./verify-public-surface.js";
 
 export async function verifyHosted(fetcher: typeof fetch, workerUrl: string, apiUrl: string, webUrl: string) {
+  const verifyWebWithRetry = async () => {
+    let lastError: unknown;
+    for (let attempt = 1; attempt <= 2; attempt += 1) {
+      try { return await verifyPublicSurface(fetcher, webUrl); } catch (error) { lastError = error; }
+    }
+    throw lastError instanceof Error ? lastError : new Error("public_surface_check_failed");
+  };
   const [worker, api, web] = await Promise.all([
     readHealthWithRetry(fetcher, workerUrl, 2, 0),
     readHealthWithRetry(fetcher, apiUrl, 2, 0),
-    verifyPublicSurface(fetcher, webUrl),
+    verifyWebWithRetry(),
   ]);
   const runtime = evaluatePaperRuntime(worker, api);
   if (!runtime.verified) throw new Error("hosted_runtime_contract_failed");
