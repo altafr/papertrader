@@ -2,11 +2,11 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.397 — First natural broker-reconciled paper order.
-- **Status:** The hosted Worker completed a natural 15:45 UTC crypto cycle and recorded an approved BTC/USD decision with `executionStatus: reconciled` after the conservative `0.001` sizing override. Continuous paper trading is now evidenced end to end for this cycle; the 30-day paper-forward evidence window and authenticated dashboard verification remain ongoing.
+- **Phase:** Phase 6.425 — Hosted paper-performance and reconciliation checkpoint.
+- **Status:** The hosted Worker is healthy in Paper Autopilot mode. Guarded Telegram delivery, paper reconciliation, and the read-only performance report have been verified; the 30-day paper-forward evidence window and authenticated dashboard verification remain ongoing.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
-- **Current goal:** Verify the first natural paper research/order cycle and authenticated dashboard portfolio/position rendering, then continue the 30-day paper-forward evidence gate.
-- **Last updated:** 2026-08-28.
+- **Current goal:** Continue durable paper trading, verify authenticated portfolio/P&L rendering and exports, and accumulate the 30-day evidence gate without loosening risk controls.
+- **Last updated:** 2026-08-29.
 
 ### Phase 6.396 — Conservative hosted crypto sizing and operator-surface correction (2026-08-28)
 
