@@ -7,7 +7,7 @@ import { runPaperPositionManagementOnce } from "./position-management-runner.js"
 import { createPositionManagementScheduler, type PositionManagementSchedulerStatus } from "./position-management-scheduler.js";
 import { createRuntimeAlertNotifier } from "./telegram-events.js";
 
-const alertedPositionKeys = new Set<string>();
+const POSITION_DETECTED_COOLDOWN_MS = 86_400_000;
 
 export interface PositionManagementRuntimeHealth {
   readonly enabled: boolean;
@@ -102,10 +102,8 @@ export async function runPositionManagementCycle(environment: NodeJS.ProcessEnv 
     if (managedPositions.length === 0) return { managed: 0, submitted: 0 };
     for (const position of managedPositions) {
       const plan = plans.get(`${position.assetClass}:${position.symbol}`);
-      const alertKey = `${position.assetClass}:${position.symbol}:${plan?.intentId ?? "unknown"}`;
-      if (alertedPositionKeys.has(alertKey)) continue;
-      alertedPositionKeys.add(alertKey);
-      await notifier.notify({ code: "position_detected", dedupeKey: getPositionDetectedDedupeKey(position.assetClass, position.symbol, plan?.intentId), message: `Managed paper position detected: ${position.symbol}. Exit plan is active and being monitored.`, severity: "info" });
+      const intentId = plan?.intentId ?? "unknown";
+      await notifier.notify({ code: "position_detected", cooldownKey: `position_detected:${position.assetClass}:${position.symbol}`, cooldownMs: POSITION_DETECTED_COOLDOWN_MS, dedupeKey: getPositionDetectedDedupeKey(position.assetClass, position.symbol, intentId), message: `Managed paper position detected: ${position.symbol}. Exit plan is active and being monitored.`, severity: "info" });
     }
     const reader = createPaperMarketDataReader({ apiKey, secretKey });
     const markGroups = await Promise.all(groupPositionSymbolsByAssetClass(managedPositions).map(async (group) => ({ assetClass: group.assetClass, marks: await reader.readSnapshots(group) })));
