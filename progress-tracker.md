@@ -2,8 +2,8 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.333 — Dashboard lifecycle labeling.
-- **Status:** Alpaca-compatible crypto order handling is deployed: crypto entries and exits are normalized to `gtc`, while equities remain `day`; crypto symbols receive safe internal intent IDs; provider HTTP 403 responses are classified as a redacted crypto entitlement blocker; failed-entry Telegram alerts include that bounded reason; and the dashboard uses current live-paper-operations wording with accurate server-side feed status. Continuous Worker health, live positions, dashboard route, and Telegram delivery remain verified.
+- **Phase:** Phase 6.334 — Dashboard preview publication.
+- **Status:** The current dashboard build is published as a Ready Vercel preview at `papertrader-b80ufib8a-altafrs-projects.vercel.app`. It uses current live-paper-operations wording, accurate server-side feed status, and the existing authenticated boundary. Continuous Worker health, live positions, and Telegram delivery remain verified.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Verify the first natural paper research/order cycle and authenticated dashboard portfolio/position rendering, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
@@ -55,6 +55,13 @@
 - [x] Preserve the authenticated, read-only dashboard boundary and paper-only semantics.
 - [x] Verify dashboard tests (10), web TypeScript, ESLint, and production Next.js build pass.
 - [ ] Publish the verified dashboard build to the production Vercel alias when deployment quota permits.
+
+### Phase 6.334 — Dashboard preview publication (2026-08-28)
+
+- [x] Confirm Vercel generated a Ready preview for the pushed dashboard commit.
+- [x] Confirm the preview `/dashboard` route preserves the authentication boundary (`302` to Vercel SSO/Clerk).
+- [x] Confirm the production dashboard build is available for operator review at the preview URL.
+- [ ] Publish the preview to the production alias when Vercel deployment quota permits.
 
 ### Phase 6.327 — Asset-aware crypto order execution (2026-08-28)
 
