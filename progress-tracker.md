@@ -2,11 +2,21 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.313 — Clean-checkout CI test bootstrap.
-- **Status:** The phase-branch CI workflow now builds workspace packages before tests, and the clean-checkout verification run passes all checks. Paper-only runtime and server-side secret boundaries remain intact.
+- **Phase:** Phase 6.315 — Verification and hosted-runtime checkpoint.
+- **Status:** The latest phase-branch CI run and the local full verification pass. The hosted Worker remains healthy in Paper Autopilot with continuous order submission disabled; the next natural daily cycle and production Vercel publication remain outstanding.
 - **Current operating mode:** Paper Autopilot; continuous order submission is not enabled.
 - **Current goal:** Complete authenticated dashboard verification and reconcile the authorized AAPL order through its terminal broker state, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
+
+### Phase 6.315 — Verification and hosted-runtime checkpoint (2026-08-28)
+
+- [x] Run the complete local Vitest suite: 77 test files and 295 tests passed.
+- [x] Run ESLint with `--max-warnings=0`; no warnings or errors reported.
+- [x] Confirm GitHub Actions run `33141957155` for commit `14851b2` completed successfully.
+- [x] Confirm the hosted Worker remains healthy in `paper_autopilot` mode with position management ready and no blocked reasons.
+- [x] Confirm continuous paper-order submission remains disabled and Telegram remains approved-only with a 24-hour routine cooldown.
+- [ ] Verify the next natural daily cycle after `2026-08-29T00:00:00Z` and append its persisted audit evidence.
+- [ ] Publish the verified branch build to the production Vercel alias when the free-tier deployment quota permits.
 
 ### Phase 6.314 — Public runtime-status alignment (2026-08-28)
 
