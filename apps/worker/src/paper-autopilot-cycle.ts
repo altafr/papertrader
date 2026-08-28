@@ -29,6 +29,21 @@ export function shouldNotifyPaperRiskDecision(status: PaperAutopilotRiskCycleRes
   return status === "approved";
 }
 
+/** Bounded, human-readable entry explanation for the important Telegram alert. */
+export function buildPaperRiskDecisionMessage(input: {
+  readonly approvalReference?: string;
+  readonly candidate: ResearchWatchlistCandidate;
+  readonly entryPrice: string;
+  readonly plannedStopPrice: string;
+  readonly plannedTargetPrice?: string;
+}): string {
+  const snapshot = input.candidate.marketSnapshot;
+  const indicators = snapshot
+    ? ` RSI14 ${snapshot.rsi14 ?? "n/a"}, EMA20 ${snapshot.ema20 ?? "n/a"}, EMA50 ${snapshot.ema50 ?? "n/a"}, RV20 ${snapshot.relativeVolume20 ?? "n/a"}.`
+    : " Indicators unavailable. ";
+  return `Paper entry selected: ${input.candidate.symbol} (${input.candidate.assetClass}), momentum ${input.candidate.momentumReturn}. Entry ${input.entryPrice}, stop ${input.plannedStopPrice}${input.plannedTargetPrice ? `, target ${input.plannedTargetPrice}.` : "."} Deterministic risk approved.${indicators}${input.approvalReference ? ` Ref ${input.approvalReference}.` : ""}`.slice(0, 900);
+}
+
 /**
  * Evaluates scheduled research candidates through the same deterministic risk
  * engine used by the guarded order path. This phase only persists a decision;
@@ -100,7 +115,7 @@ export async function runPaperAutopilotRiskCycle(input: {
     }
     results.push({ approvalStatus: approval.status, executionStatus, intentId, reasons: approval.assessment.reasons, symbol: candidate.symbol });
     if (shouldNotifyPaperRiskDecision(approval.status)) {
-      await input.notify?.({ code: "paper_risk_decision", dedupeKey: `paper_risk_decision:${intentId}`, message: `${candidate.symbol} selected for paper trading: deterministic risk checks approved.${input.approvalReference ? ` Reference ${input.approvalReference}.` : ""}`, severity: "info" });
+      await input.notify?.({ code: "paper_risk_decision", dedupeKey: `paper_risk_decision:${intentId}`, message: buildPaperRiskDecisionMessage({ ...(input.approvalReference ? { approvalReference: input.approvalReference } : {}), candidate, entryPrice: riskCandidate.proposedEntryPrice, plannedStopPrice: riskCandidate.plannedStopPrice, plannedTargetPrice: riskCandidate.plannedExitPrice }), severity: "info" });
     }
     // Do not place a second entry in the same reconciled cycle. This is
     // deliberately independent of Telegram delivery policy.

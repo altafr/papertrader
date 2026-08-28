@@ -2,7 +2,7 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.329 — Hosted verifier after tooling and stream gates.
+- **Phase:** Phase 6.330 — Entry decision alert rationale.
 - **Status:** The hosted Worker and API are healthy in Paper Autopilot mode with deterministic entry/exit safeguards, durable reconciliation, Telegram alerting, lifecycle-stable PostgreSQL-backed risk evidence, and a read-only portfolio status command. The latest provenance and evidence guards are deployed and verified. Vercel production publication remains limited by the free-plan daily deployment quota, while the 30-day paper-forward evidence window and authenticated dashboard verification remain ongoing.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading, verify authenticated portfolio/P&L rendering and exports, and accumulate the 30-day evidence gate without loosening risk controls.
@@ -5816,6 +5816,13 @@
 - Result remains `verified:true`: API/Worker healthy, paper mode and order gate active, stream connected with `marketStreamFreshnessValid:true`, position management ready, both schedulers scheduled, risk telemetry valid, next runs future, kill switch inactive, and Vercel HTTP 200.
 - The direct Worker database status command was attempted with Node 24 but cannot resolve Railway’s private Postgres hostname from the local network; no runtime failure is inferred from that local DNS limitation.
 - **Next smallest unit:** continue paper-forward monitoring and complete authenticated portfolio/read-model validation.
+
+### Phase 6.330 entry decision alert rationale
+
+- Expanded approved-entry Telegram alerts to include bounded structured rationale: asset, momentum, entry, stop, target, and key indicator values from the persisted market snapshot.
+- Rejected decisions remain audit-only and the alert remains approved-only with existing deduplication/cooldown behavior.
+- Added focused coverage; Worker typecheck, ESLint, and tests pass.
+- **Next smallest unit:** deploy the Worker alert change and verify the hosted cycle remains healthy.
 
 ### 2026-08-29 — Phase 6.306 compatibility deployment verified
 
