@@ -235,6 +235,14 @@
 - [x] Run one hosted paper-account reconciliation; it completed successfully and updated the durable read model without changing the paper/live mode.
 - [ ] Continue the 30-day paper-forward evidence window and verify the authenticated dashboard/CSV view when operator credentials are available.
 
+### Phase 6.426 — Hosted Paper Autopilot readiness verification (2026-08-29)
+
+- [x] Run the guarded hosted runtime-readiness check against the deployed Worker.
+- [x] Confirm all readiness gates are clear: paper credentials/mode, broker connection, database, durable scheduler, scheduler approval, kill switch, freshness, and order-submission approval reference.
+- [x] Confirm execution status is `enabled` only within Paper Autopilot and the configured policy remains a 100,000 USD baseline with a 5% invested-notional risk/stop limit.
+- [x] Confirm the latest reconciliation is `fresh` and no live-mode gate was enabled.
+- [ ] Continue the 30-day paper-forward evidence window and verify the authenticated dashboard/CSV view when operator credentials are available.
+
 ### Phase 6.387 — Hosted cycle baseline after reason-logging rollout (2026-08-28)
 
 - [x] Verify Worker deployment `8cabc43d-b343-47c1-9a0f-257198dabdcf` is `SUCCESS` and health is `healthy`.
