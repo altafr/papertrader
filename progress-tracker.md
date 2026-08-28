@@ -606,6 +606,13 @@
 - [x] Run the unified hosted verifier against the new release; runtime returned `verified: true` and public dashboard HTTP `200`.
 - [x] Confirm paper safety gates and scheduler/stream readiness remain intact after rollout.
 
+### Phase 6.481 — Hosted monitor active (2026-08-29)
+
+- [x] Confirm GitHub registers `.github/workflows/hosted-health.yml` as an active workflow.
+- [x] Confirm five branch-triggered runs completed successfully for the latest pushed revisions, including the unified hosted verifier.
+- [x] Confirm no protected credentials are required by the monitor; it remains read-only.
+- [ ] Confirm the first scheduled 15-minute run and publish the queued Vercel heartbeat revision when quota permits.
+
 ### Phase 6.458 — Natural hosted cycle continuity (2026-08-29)
 
 - [x] Verify the hosted Worker remains healthy on release `febcda5f7a5…` with Paper Autopilot and order submission still enabled.
