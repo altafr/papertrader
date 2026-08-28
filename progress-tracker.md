@@ -570,6 +570,12 @@
 - [x] Confirm the combined result reports runtime `verified: true` and public dashboard HTTP `200`.
 - [x] Confirm paper mode, approval evidence, inactive kill switch, connected stream, ready position management, and active schedulers in the combined result.
 
+### Phase 6.475 — Unified monitor workflow (2026-08-29)
+
+- [x] Replace the scheduled monitor's separate runtime and public-surface steps with the single `pnpm verify:hosted` command.
+- [x] Preserve the same public URL defaults and read-only behavior while eliminating CI command drift.
+- [ ] Observe the first scheduled/branch-triggered run using the unified command.
+
 ### Phase 6.458 — Natural hosted cycle continuity (2026-08-29)
 
 - [x] Verify the hosted Worker remains healthy on release `febcda5f7a5…` with Paper Autopilot and order submission still enabled.

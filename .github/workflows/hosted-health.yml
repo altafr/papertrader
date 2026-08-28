@@ -33,12 +33,9 @@ jobs:
           cache: pnpm
       - name: Install locked dependencies
         run: pnpm install --frozen-lockfile
-      - name: Verify hosted paper runtime
+      - name: Verify hosted runtime and public surface
         env:
           PAPERTRADER_WORKER_HEALTH_URL: ${{ vars.PAPERTRADER_WORKER_HEALTH_URL || 'https://worker-production-b362.up.railway.app/health' }}
           PAPERTRADER_API_HEALTH_URL: ${{ vars.PAPERTRADER_API_HEALTH_URL || 'https://api-production-e0a6.up.railway.app/health' }}
-        run: pnpm verify:paper-runtime
-      - name: Verify public dashboard surface
-        env:
           PAPERTRADER_WEB_URL: ${{ vars.PAPERTRADER_WEB_URL || 'https://papertrader-web.vercel.app/' }}
-        run: pnpm verify:public-surface
+        run: pnpm verify:hosted
