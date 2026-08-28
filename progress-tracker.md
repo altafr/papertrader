@@ -2,8 +2,8 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.269 — Dashboard build verification and durable risk-cycle evidence.
-- **Status:** The hosted Worker and API are healthy in Paper Autopilot mode with deterministic entry/exit safeguards, durable reconciliation, Telegram alerting, and PostgreSQL-backed risk-cycle evidence. The verified feature branch still requires publication/merge; Vercel production publication is currently limited by the free-plan daily deployment quota, while the 30-day paper-forward evidence window and authenticated dashboard verification remain ongoing.
+- **Phase:** Phase 6.283 — Hosted portfolio status verification.
+- **Status:** The hosted Worker and API are healthy in Paper Autopilot mode with deterministic entry/exit safeguards, durable reconciliation, Telegram alerting, PostgreSQL-backed risk-cycle evidence, and a read-only portfolio status command. The verified feature branch still requires publication/merge; Vercel production publication is currently limited by the free-plan daily deployment quota, while the 30-day paper-forward evidence window and authenticated dashboard verification remain ongoing.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading, verify authenticated portfolio/P&L rendering and exports, and accumulate the 30-day evidence gate without loosening risk controls.
 - **Last updated:** 2026-08-29.
@@ -5466,6 +5466,12 @@
 - The guarded portfolio command returned a fresh reconciled snapshot at `2026-08-28T22:07:44.938Z`: equity `99401.22000000`, cash `64835.18000000`, and three positions (AAPL, BTCUSD, PFD) with bounded market value and unrealized P/L fields.
 - This confirms live portfolio/position state is available from the durable Railway ledger without requiring the dashboard or exposing secrets.
 - **Next smallest unit:** continue scheduled reconciliation and verify authenticated dashboard rendering against this snapshot when the Vercel publication quota permits.
+
+### 2026-08-29 — Phase 6.284 status snapshot synchronization
+
+- Synchronized the tracker and architecture top snapshots with the latest deployed portfolio-status phase and current Vercel publication constraint.
+- Documentation-only change; no runtime, broker, risk, or scheduler behavior changed.
+- **Next smallest unit:** verify the next scheduled research cycle and authenticated dashboard rendering when publication is available.
 
 ### 2026-08-29 — Phase 6.273 post-fix regression and hosted verification
 

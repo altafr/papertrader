@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.269 Dashboard build verification and durable risk-cycle evidence; continuous Paper Autopilot and multi-day evidence collection continue.
+- **Stage:** Phase 6.283 Hosted portfolio status verification; continuous Paper Autopilot and multi-day evidence collection continue.
 
 ### Always-on multi-agent runtime requirement
 
