@@ -2,11 +2,20 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.322 — First natural asset-aware research cycle.
-- **Status:** The first naturally scheduled 15-minute cycle completed after the cadence deployment. Worker health records research completion at `2026-08-28T11:30:03.786Z`, and the read-only performance report includes a fresh reconciliation capture at `2026-08-28T11:30:34.664Z`. Paper-only order safeguards remain unchanged.
+- **Phase:** Phase 6.323 — Follow-up cadence and performance checkpoint.
+- **Status:** The follow-up hosted heartbeat remains healthy after the first natural cycle. The latest read-only report has 100 snapshots through `2026-08-28T11:31:35.190Z`, equity `99,391.42`, captured P&L `+0.39`, and only the 30-day evidence gate remains blocked.
 - **Current operating mode:** Paper Autopilot; continuous order submission is not enabled.
 - **Current goal:** Complete authenticated dashboard verification and reconcile the authorized AAPL order through its terminal broker state, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
+
+### Phase 6.323 — Follow-up cadence and performance checkpoint (2026-08-28)
+
+- [x] Confirm the first cycle remains recorded and the next crypto tick is scheduled for 11:45 UTC.
+- [x] Confirm the crypto stream remains connected and position management remains ready.
+- [x] Run the deployed read-only performance report through the compiled Worker command path.
+- [x] Record current evidence: 100 snapshots, final equity `99,391.42`, captured P&L `+0.39`, maximum drawdown `0.00027165%`.
+- [x] Confirm continuous paper-order submission remains disabled.
+- [ ] Observe the 11:45 UTC cycle and a stock-window cycle during regular New York hours.
 
 ### Phase 6.322 — First natural asset-aware research cycle (2026-08-28)
 
