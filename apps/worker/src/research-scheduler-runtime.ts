@@ -73,7 +73,7 @@ export function createResearchSchedulerFromEnvironment(environment: NodeJS.Proce
           } : undefined;
           const approvalReference = results.find((result) => result.status === "succeeded")?.runId;
           const riskResults = await runPaperAutopilotRiskCycle({ ...(approvalReference ? { approvalReference } : {}), candidates, db, environment, quantity: environment.PAPER_AUTOPILOT_QUANTITY?.trim() || "1", ...(executeApproved ? { executeApproved } : {}), notify: notifier.notify });
-          console.log(JSON.stringify({ event: "paper_risk_cycle_result", researchRunIds: results.map((result) => result.runId).slice(0, 10), decisions: riskResults.map((decision) => ({ approvalStatus: decision.approvalStatus, executionStatus: decision.executionStatus, intentId: decision.intentId, symbol: decision.symbol })) }));
+          console.log(JSON.stringify({ event: "paper_risk_cycle_result", researchRunIds: results.map((result) => result.runId).slice(0, 10), decisions: riskResults.map((decision) => ({ approvalStatus: decision.approvalStatus, executionStatus: decision.executionStatus, intentId: decision.intentId, reasons: decision.reasons.slice(0, 8), symbol: decision.symbol })) }));
         } catch {
           await notifier.notify(buildPaperRiskCycleFailureAlert({ agentType: "research_batch", runId: results.map((result) => result.runId).join(",").slice(0, 120) }));
           throw new Error("paper_risk_cycle_failed");

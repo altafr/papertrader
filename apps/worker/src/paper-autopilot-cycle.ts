@@ -20,6 +20,7 @@ export interface PaperAutopilotRiskCycleResult {
   readonly approvalStatus: "approved" | "rejected";
   readonly executionStatus: "not_submitted" | "reconciled";
   readonly intentId: string;
+  readonly reasons: readonly string[];
   readonly symbol: string;
 }
 
@@ -95,7 +96,7 @@ export async function runPaperAutopilotRiskCycle(input: {
       executionStatus = "reconciled";
       executionSubmitted = true;
     }
-    results.push({ approvalStatus: approval.status, executionStatus, intentId, symbol: candidate.symbol });
+    results.push({ approvalStatus: approval.status, executionStatus, intentId, reasons: approval.assessment.reasons, symbol: candidate.symbol });
     if (shouldNotifyPaperRiskDecision(approval.status)) {
       await input.notify?.({ code: "paper_risk_decision", dedupeKey: `paper_risk_decision:${intentId}`, message: `${candidate.symbol} selected for paper trading: deterministic risk checks approved.${input.approvalReference ? ` Reference ${input.approvalReference}.` : ""}`, severity: "info" });
     }

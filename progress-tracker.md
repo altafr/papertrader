@@ -24,6 +24,13 @@
 - [x] Confirm the Worker remained healthy with the crypto stream connected and no kill switch activation.
 - [ ] Inspect the persisted cross-asset risk decisions and reconcile a successful paper order.
 
+### Phase 6.386 — Risk decision reason observability (2026-08-28)
+
+- [x] Confirm the natural 15:15 UTC cycle produced a deterministic BTC/USD rejection for exposure-cap reasons.
+- [x] Include bounded deterministic rejection/approval reasons in the structured `paper_risk_cycle_result` log.
+- [x] Keep reasons limited to policy text and exclude market payloads, credentials, and private model traces.
+- [ ] Run tests, deploy the Worker, and verify the next hosted cycle log includes the reasons.
+
 ### Phase 6.383 — Idempotent paper submission retry guard (2026-08-28)
 
 - [x] Check the durable paper-submission ledger before every broker call.
