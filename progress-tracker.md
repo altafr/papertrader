@@ -2,8 +2,8 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.380 — Startup-convergent runtime verification.
-- **Status:** The credential-free hosted verifier now retries transient startup health convergence up to four times, while still failing closed on persistent stream, scheduler, configuration, or release mismatches. The next natural cross-asset cycle and successful broker-reconciled order remain pending.
+- **Phase:** Phase 6.381 — Tested runtime verifier retries.
+- **Status:** Health retry behavior is now an importable, testable contract: transient fetch failures recover, repeated non-healthy responses fail closed, and the live hosted verifier passes. Full regression passes with 309 tests. The next natural cross-asset cycle and successful broker-reconciled order remain pending.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Verify the first natural paper research/order cycle and authenticated dashboard portfolio/position rendering, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
@@ -142,6 +142,14 @@
 - [x] Preserve fail-closed behavior after all retry attempts are exhausted.
 - [x] Keep the verifier read-only and credential-free.
 - [ ] Run the retried verifier against the next natural cross-asset cycle and reconcile a successful paper order.
+
+### Phase 6.381 — Tested runtime verifier retries (2026-08-28)
+
+- [x] Extract health retry logic behind an injectable fetcher and delay.
+- [x] Add regression tests for transient recovery and exhausted attempts.
+- [x] Keep script imports side-effect free; environment validation runs only from the CLI entry point.
+- [x] Verify the complete regression suite: 79 files and 309 tests passed.
+- [ ] Observe the next natural cross-asset cycle and reconcile a successful paper order.
 
 ### Phase 6.379 — Release verification configuration (2026-08-28)
 
