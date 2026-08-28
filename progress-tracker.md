@@ -5573,3 +5573,17 @@
 - Railway API deployment `726a000e-5583-4554-adbe-fd5ef634a8a6` reached `SUCCESS`.
 - API health remains `healthy`; the protected CSV now carries the same position provenance and safety state as the dashboard read model.
 - **Next smallest unit:** verify the authenticated CSV against the live position snapshot, then continue the 30-day paper-forward evidence window.
+
+### 2026-08-29 — Phase 6.292 authenticated CSV contract verifier
+
+- Extended the protected operator-auth verifier with an optional authenticated CSV contract check.
+- When `OPERATOR_AUTH_TOKEN` is supplied, the verifier validates HTTP 200 and required provenance columns without printing or persisting the token; without it, the existing 401 boundary check remains unchanged.
+- Added regression coverage for valid and incomplete headers. Full regression passes: 88 files, 353 tests; ESLint passes.
+- **Next smallest unit:** run the authenticated contract check in CI once the protected operator token is configured, while the paper runtime continues independently.
+
+### 2026-08-29 — Phase 6.293 CI account-export contract coverage
+
+- Extended the authenticated operator-overview verifier to fetch and validate `/v1/read-model.csv` as well as the audit CSV.
+- The CI check now requires the account export's provenance columns (`exitPlanStatus`, strategy/version, stop/target, and position-opened timestamp) while keeping token handling environment-only.
+- Verification: focused verifier tests and the full regression pass (88 files, 353 tests); ESLint passes.
+- **Next smallest unit:** run the expanded authenticated verifier when `OPERATOR_AUTH_TOKEN` is available, then continue the paper-forward evidence window.

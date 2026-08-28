@@ -1,11 +1,12 @@
 import { fileURLToPath } from "node:url";
 
 import { validateAuditCsvHeader, validateOperatorOverviewContract, validateReadModelContract } from "./operator-overview-contract.js";
+import { validateAccountCsvHeader } from "./verify-operator-auth-boundary.js";
 
 const baseUrl = (process.env.OPERATOR_API_BASE_URL ?? "https://api-production-e0a6.up.railway.app").replace(/\/$/, "");
 const token = process.env.OPERATOR_AUTH_TOKEN;
 
-export async function verifyOperatorOverview(fetcher: typeof fetch, targetBaseUrl: string, bearerToken: string): Promise<{ readonly csvStatus: number; readonly overviewStatus: number; readonly readModelStatus: number }> {
+export async function verifyOperatorOverview(fetcher: typeof fetch, targetBaseUrl: string, bearerToken: string): Promise<{ readonly accountCsvStatus: number; readonly csvStatus: number; readonly overviewStatus: number; readonly readModelStatus: number }> {
   const normalizedBaseUrl = targetBaseUrl.replace(/\/$/, "");
   const request = (path: string) => fetcher(`${normalizedBaseUrl}${path}`, { headers: { authorization: `Bearer ${bearerToken}` } });
   const overviewResponse = await request("/v1/operator-overview?limit=1&page=1");
@@ -21,7 +22,10 @@ export async function verifyOperatorOverview(fetcher: typeof fetch, targetBaseUr
   if (!readModelResponse.ok) throw new Error(`read_model_http_${readModelResponse.status}`);
   const readModelResult = validateReadModelContract(await readModelResponse.json());
   if (!readModelResult.valid) throw new Error(`read_model_contract_${readModelResult.reason}`);
-  return { csvStatus: csvResponse.status, overviewStatus: overviewResponse.status, readModelStatus: readModelResponse.status };
+  const accountCsvResponse = await request("/v1/read-model.csv");
+  if (!accountCsvResponse.ok) throw new Error(`account_csv_http_${accountCsvResponse.status}`);
+  try { validateAccountCsvHeader((await accountCsvResponse.text()).split(/\r?\n/, 1)[0] ?? ""); } catch (error) { throw new Error(`account_csv_contract_${error instanceof Error ? error.message : "invalid_header"}`); }
+  return { accountCsvStatus: accountCsvResponse.status, csvStatus: csvResponse.status, overviewStatus: overviewResponse.status, readModelStatus: readModelResponse.status };
 }
 
 async function main() {
