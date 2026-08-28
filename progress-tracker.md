@@ -594,6 +594,12 @@
 - [x] Run `pnpm verify:hosted` against the current release; runtime returned `verified: true` and the public Vercel surface returned HTTP `200`.
 - [x] Confirm all safety and scheduler checks remain passing after the rollout.
 
+### Phase 6.479 — Hosted retry regression coverage (2026-08-29)
+
+- [x] Add a regression test proving the unified verifier retries a transient public-surface `503` and succeeds on the next response.
+- [x] Confirm the retry remains bounded to two attempts and does not alter runtime or trading behavior.
+- [x] Focused unified-verifier tests and lint pass.
+
 ### Phase 6.458 — Natural hosted cycle continuity (2026-08-29)
 
 - [x] Verify the hosted Worker remains healthy on release `febcda5f7a5…` with Paper Autopilot and order submission still enabled.

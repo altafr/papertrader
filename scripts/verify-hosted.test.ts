@@ -12,4 +12,14 @@ describe("hosted verifier", () => {
       .mockResolvedValueOnce(new Response("Momentum Autopilot", { status: 200 }));
     await expect(verifyHosted(fetcher, "https://worker.example", "https://api.example", "https://web.example")).resolves.toMatchObject({ runtime: { verified: true }, web: { status: 200 } });
   });
+
+  it("retries a transient public-surface response", async () => {
+    const fetcher = vi.fn<typeof fetch>()
+      .mockResolvedValueOnce(new Response(JSON.stringify(worker), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ status: "healthy" }), { status: 200 }))
+      .mockResolvedValueOnce(new Response("temporarily unavailable", { status: 503 }))
+      .mockResolvedValueOnce(new Response("Momentum Autopilot", { status: 200 }));
+    await expect(verifyHosted(fetcher, "https://worker.example", "https://api.example", "https://web.example")).resolves.toMatchObject({ runtime: { verified: true }, web: { status: 200 } });
+    expect(fetcher).toHaveBeenCalledTimes(4);
+  });
 });
