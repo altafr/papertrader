@@ -2,11 +2,20 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.289 — Release readiness regression checkpoint.
-- **Status:** Hosted Worker/API health, scheduler readiness, position management, queue drain, and the low-noise Telegram policy were rechecked. The full local regression suite passes (295 tests). No order-submission setting changed.
+- **Phase:** Phase 6.290 — Hosted performance reconciliation checkpoint.
+- **Status:** The hosted read-only performance report now contains 100 reconciled snapshots. Current captured equity is `99,390.86`, total captured P&L is `+0.31`, and the only stability block is the intentional 30-consecutive-calendar-day evidence requirement. No order-submission setting changed.
 - **Current operating mode:** Paper Autopilot; continuous order submission is not enabled.
 - **Current goal:** Complete authenticated dashboard verification and reconcile the authorized AAPL order through its terminal broker state, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
+
+### Phase 6.290 — Hosted performance reconciliation checkpoint (2026-08-28)
+
+- [x] Run the hosted read-only paper performance report through the Worker network.
+- [x] Confirm 100 reconciled account snapshots are persisted and the report status is `ready`.
+- [x] Confirm captured metrics: final equity `99,390.86`, total P&L `+0.31`, max drawdown `0.19` (`0.00019116%`).
+- [x] Confirm the only stability block is `minimum_30_consecutive_calendar_days_not_met`.
+- [x] Confirm paper mode and continuous order submission remain unchanged.
+- [ ] Continue daily scheduled evidence until the 30-day stability gate is satisfied.
 
 ### Phase 6.289 — Release readiness regression checkpoint (2026-08-28)
 
