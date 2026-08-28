@@ -39,7 +39,9 @@
 - [x] Include symbol, deterministic exit reason, and the `shouldExit` result without prices or provider payloads.
 - [x] Distinguish an exit decision from a confirmed submission in the structured record.
 - [x] Add regression coverage for exit and no-exit decision records.
-- [ ] Run full verification and deploy the Worker.
+- [x] Run full verification: 79 files and 314 tests passed; Worker typecheck and lint passed.
+- [x] Deploy Worker `4a41b0a7-0b66-4776-b8b3-4114af169b2f` with `SUCCESS` and verify hosted health remains healthy, scheduled, and position-management ready.
+- [ ] Verify the next position pass emits the new submission field and reconcile any eligible paper order.
 - [x] Run full verification: 79 files and 314 tests passed; Worker typecheck and lint passed.
 - [x] Deploy Worker `23e99f53-0266-489c-b6df-c7f0c8b0f922` with `SUCCESS` and verify hosted health remains healthy, scheduled, and position-management ready.
 - [ ] Verify the next position pass emits per-decision records and reconcile any eligible paper order.
