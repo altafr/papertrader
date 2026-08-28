@@ -840,6 +840,13 @@
 - [x] Confirm stale episodes invoke one failure callback and successful recovery clears the latch; focused scheduler tests pass.
 - [ ] Continue hosted observation and verify a real market-close summary delivery.
 
+### Phase 6.516 — Telegram outbox verification command (2026-08-29)
+
+- [x] Add a guarded read-only `telegram-alert-status` command for Railway-hosted outbox inspection.
+- [x] Return only bounded delivery counts and latest event metadata; omit message content and credentials.
+- [x] Add regression coverage and package the command without changing alert or trading behavior.
+- [ ] Deploy the Worker revision and run the status command after a market-close cycle.
+
 ### Phase 6.458 — Natural hosted cycle continuity (2026-08-29)
 
 - [x] Verify the hosted Worker remains healthy on release `febcda5f7a5…` with Paper Autopilot and order submission still enabled.
