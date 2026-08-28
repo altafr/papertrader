@@ -769,6 +769,13 @@
 - [x] Preserve terminal-state handling, paper-only execution, and existing focused test/typecheck/lint contracts.
 - [ ] Deploy the Worker revision and verify hosted position management remains healthy.
 
+### Phase 6.506 — Full-ledger exit guard deployed (2026-08-29)
+
+- [x] Deploy Worker commit `dd202cd` to Railway; deployment `1e87cd2e-a6d2-45b6-ba34-9241474a4c14` reached `SUCCESS`.
+- [x] Confirm live Worker health remains `healthy`, Paper Autopilot, and position-management `ready` with a fresh pass.
+- [x] Preserve the 5% deterministic risk/stop policy and paper-only execution boundary.
+- [ ] Publish the pending web revision after Vercel quota reset and complete authenticated dashboard verification.
+
 ### Phase 6.458 — Natural hosted cycle continuity (2026-08-29)
 
 - [x] Verify the hosted Worker remains healthy on release `febcda5f7a5…` with Paper Autopilot and order submission still enabled.
