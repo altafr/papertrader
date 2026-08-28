@@ -5621,3 +5621,10 @@
 - This is presentation-only; it does not grant order authority or alter deterministic risk evaluation.
 - Verification: web TypeScript, ESLint, and full regression passed (88 files, 353 tests).
 - **Next smallest unit:** verify the enriched decision explanation against the next scheduled risk cycle.
+
+### 2026-08-29 — Phase 6.299 approved-source provenance guard
+
+- Tightened the API’s position provenance and unmanaged-position queries to ignore rejected candidates and accept only approved risk evidence or broker-bound orders.
+- This prevents an unexecuted research candidate from falsely making a live position appear actively managed.
+- Verification: API typecheck, ESLint, and full regression passed (88 files, 353 tests).
+- **Next smallest unit:** deploy the guard and verify the authenticated read model remains consistent with the Worker’s fail-closed position state.

@@ -32,6 +32,8 @@ The same projection is included in the protected account CSV export, including `
 
 Risk evidence stores an explicit `approvalStatus` alongside the policy assessment. Summary queries use the presence of this evidence rather than the transient broker/order status, so an approved decision remains auditable after it becomes filled, canceled, or otherwise reconciled.
 
+Position provenance and managed-state queries accept only approved risk evidence or a broker-bound order identity. Rejected research candidates therefore cannot accidentally mark an unrelated live position as managed.
+
 ### Separately gated order handoff (Phase 6.213)
 
 The scheduled risk cycle accepts an optional executor only when `PAPER_AUTOPILOT_ORDER_SUBMISSION_ENABLED=true` is explicitly configured server-side. That executor reuses `executePaperAutopilotOrder`, including deterministic approval, idempotent client order IDs, persistence, broker reconciliation, and lifecycle alerts. When the flag is absent or `false`, approved candidates remain persisted dry-run decisions and no broker write is reachable from the scheduled path. Worker health reports this gate as a redacted boolean so risk-cycle readiness cannot be confused with order-submission authority.
