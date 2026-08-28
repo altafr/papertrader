@@ -755,6 +755,13 @@
 - [x] Add contract and dashboard regression coverage; no broker or trading authority changed.
 - [ ] Deploy API/web revisions and verify authenticated position-state labels in production.
 
+### Phase 6.504 — Active-exit projection API deployment (2026-08-29)
+
+- [x] Deploy API commit `6fbc765` to Railway; deployment `b8064e24-4fdd-4a08-86c3-1007b496c189` reached `SUCCESS`.
+- [x] Confirm the production API health endpoint remains `healthy` after rollout.
+- [x] Preserve paper-only, read-only behavior; no broker call or risk-policy change was introduced.
+- [ ] Publish the web revision after Vercel quota reset and verify authenticated `Exit in flight` rendering.
+
 ### Phase 6.458 — Natural hosted cycle continuity (2026-08-29)
 
 - [x] Verify the hosted Worker remains healthy on release `febcda5f7a5…` with Paper Autopilot and order submission still enabled.
