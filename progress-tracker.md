@@ -2,11 +2,19 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.269 — Paper Autopilot runtime readiness.
-- **Status:** Notification delivery remains enabled, but routine research selections and portfolio/P&L summaries now use durable 24-hour cooldown checks. Individual rejected risk candidates are retained in the audit/dashboard and no longer generate Telegram warnings; approved selections, order/position lifecycle events, and failures remain immediate. Local tests, Worker typecheck, and lint pass; Railway deployment is healthy and reports the active policy. GitHub-triggered Vercel previews are Ready; production publish remains quota-limited.
+- **Phase:** Phase 6.270 — Critical-path status verification.
+- **Status:** Live Railway verification is healthy: the Worker and API are responding, the UTC durable scheduler is ready for its next run, position management is ready, and order submission remains disabled by policy. Telegram is configured for approved-only risk decisions and a durable 24-hour routine digest cooldown. The fastest path is now to validate one scheduled cycle, complete authenticated dashboard verification, and then collect the required multi-day paper evidence; Vercel production publishing remains quota-limited.
 - **Current operating mode:** Paper Autopilot; continuous order submission is not enabled.
 - **Current goal:** Complete authenticated dashboard verification and reconcile the authorized AAPL order through its terminal broker state, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
+
+### Phase 6.270 — Critical-path status verification (2026-08-28)
+
+- [x] Verify live Worker health: `healthy`, paper mode, kill switch inactive, scheduler `ready`, position management `ready`.
+- [x] Verify live notification policy: approved risk decisions only and one routine digest per 24-hour scope.
+- [x] Verify continuous order submission remains disabled pending the explicit paper-order gate.
+- [ ] Validate the next scheduled cycle and its persisted audit/digest records.
+- [ ] Complete authenticated dashboard visual verification and production alias publication when Vercel quota/team access permits.
 
 ### Phase 6.269 — Paper Autopilot runtime readiness (2026-08-28)
 
