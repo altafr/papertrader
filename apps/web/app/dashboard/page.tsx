@@ -187,7 +187,8 @@ function OperationsHealthCard({ health }: { readonly health: OperationsHealth | 
         <div><span className="label">Daily handler</span><strong>{health.runtime.dailyPreparationHandlerEnabled ? "Enabled" : "Disabled"}</strong></div>
         <div><span className="label">Scheduler activation review</span><strong>{health.runtime.scheduler.activationApprovalReferencePresent ? "Recorded" : "Missing"}</strong></div>
         <div><span className="label">Research schedule</span><strong>{researchScheduleLabel}</strong></div>
-        <div><span className="label">Telegram alerts</span><strong>{telegramLabel}</strong><small className="provenance">Delivery unverified</small></div>
+        <div><span className="label">Telegram alerts</span><strong>{telegramLabel}</strong><small className="provenance">Delivery unverified · routine digest every {health.runtime.telegramAlerts.routineCooldownHours}h</small></div>
+        <div><span className="label">Risk decision alerts</span><strong>Approved only</strong><small className="provenance">Rejected candidates stay in audit history</small></div>
         <div><span className="label">Telegram test preflight</span><strong>{telegramTestLabel}</strong><small className="provenance">{health.runtime.telegramAlertTest.status === "ready" ? "Ready for one guarded message" : "Approval reference required · no message sent"}</small></div>
         <div><span className="label">Audit migration</span><strong>{migrationLabel}</strong></div>
         <div><span className="label">Broker read gate</span><strong>{health.runtime.brokerConnectionEnabled ? "Enabled" : "Disabled"}</strong></div>

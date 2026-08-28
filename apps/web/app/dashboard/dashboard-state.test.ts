@@ -45,6 +45,8 @@ describe("dashboard state", () => {
     expect(health?.runtime.dailyPreparationHandlerEnabled).toBe(false);
     expect(health?.runtime.schedulerAudit.status).toBe("completed");
     expect(health?.runtime.schedulerAuditGate.status).toBe("disabled");
+    expect(health?.runtime.telegramAlerts.routineCooldownHours).toBe(24);
+    expect(health?.runtime.telegramAlerts.riskDecisionAlerts).toBe("approved_only");
     expect(parseOperationsHealth({ reconciliation: { status: "fresh" }, runtime: {} })).toBeUndefined();
     expect(parseOperationsHealth({
       reconciliation: { status: "fresh" },

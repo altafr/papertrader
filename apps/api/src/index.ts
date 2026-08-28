@@ -382,7 +382,7 @@ async function readOperationsHealth(request: IncomingMessage) {
           handlerEnabled: researchHandlerEnabled,
           status: assessResearchScheduleActivation({ brokerConnectionEnabled, databaseConfigured: true, handlerEnabled: researchHandlerEnabled, paperCredentialsConfigured, paperMode, schedulerEnabled: researchSchedulerEnabled }),
         },
-        telegramAlerts: { deliveryVerification: telegram.deliveryVerification, enabled: telegram.checks.enabled, status: telegram.status },
+        telegramAlerts: { deliveryVerification: telegram.deliveryVerification, enabled: telegram.checks.enabled, riskDecisionAlerts: "approved_only", routineCooldownHours: 24, status: telegram.status },
         telegramAlertTest: { approvalReferencePresent: telegramTest.approvalReferencePresent, status: telegramTest.status },
         migration,
       },

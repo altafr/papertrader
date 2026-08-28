@@ -35,7 +35,7 @@ export type OperationsHealth = {
     };
     readonly researchSchedule: { readonly enabled: boolean; readonly handlerEnabled: boolean; readonly status: ResearchScheduleStatus };
     readonly scheduler: { readonly activationApprovalReferencePresent: boolean; readonly cron: string; readonly enabled: boolean; readonly status: "blocked" | "disabled" | "ready"; readonly timezone: "UTC" };
-    readonly telegramAlerts: { readonly deliveryVerification: "unverified"; readonly enabled: boolean; readonly status: TelegramAlertReadinessStatus };
+    readonly telegramAlerts: { readonly deliveryVerification: "unverified"; readonly enabled: boolean; readonly riskDecisionAlerts: "approved_only"; readonly routineCooldownHours: number; readonly status: TelegramAlertReadinessStatus };
     readonly telegramAlertTest: { readonly approvalReferencePresent: boolean; readonly status: TelegramAlertTestStatus };
   };
 };
@@ -166,6 +166,8 @@ export function parseOperationsHealth(value: unknown): OperationsHealth | undefi
   if (!( ["blocked", "disabled", "ready"] as const).includes(researchSchedule.status as ResearchScheduleStatus)) return undefined;
   if (!( ["blocked", "disabled", "ready"] as const).includes(telegramAlerts.status as TelegramAlertReadinessStatus)) return undefined;
   if (telegramAlerts.deliveryVerification !== "unverified") return undefined;
+  if (telegramAlerts.riskDecisionAlerts !== undefined && telegramAlerts.riskDecisionAlerts !== "approved_only") return undefined;
+  if (telegramAlerts.routineCooldownHours !== undefined && (typeof telegramAlerts.routineCooldownHours !== "number" || !Number.isFinite(telegramAlerts.routineCooldownHours) || telegramAlerts.routineCooldownHours <= 0)) return undefined;
   if (!( ["blocked", "ready"] as const).includes(telegramAlertTest.status as TelegramAlertTestStatus)) return undefined;
   if (!( ["completed", "unavailable"] as const).includes(dailyReconciliation.status as OperationsHealth["runtime"]["dailyReconciliation"]["status"])) return undefined;
   if (!( ["completed", "failed", "running", "unavailable"] as const).includes(schedulerAudit.status as SchedulerAuditStatus)) return undefined;
@@ -206,7 +208,7 @@ export function parseOperationsHealth(value: unknown): OperationsHealth | undefi
       },
       researchSchedule: { enabled: researchSchedule.enabled, handlerEnabled: researchSchedule.handlerEnabled, status: researchSchedule.status as ResearchScheduleStatus },
       scheduler: { activationApprovalReferencePresent: scheduler.activationApprovalReferencePresent, cron: scheduler.cron, enabled: scheduler.enabled, status: scheduler.status as OperationsHealth["runtime"]["scheduler"]["status"], timezone: "UTC" },
-      telegramAlerts: { deliveryVerification: "unverified", enabled: telegramAlerts.enabled, status: telegramAlerts.status as TelegramAlertReadinessStatus },
+      telegramAlerts: { deliveryVerification: "unverified", enabled: telegramAlerts.enabled, riskDecisionAlerts: "approved_only", routineCooldownHours: typeof telegramAlerts.routineCooldownHours === "number" ? telegramAlerts.routineCooldownHours : 24, status: telegramAlerts.status as TelegramAlertReadinessStatus },
       telegramAlertTest: { approvalReferencePresent: telegramAlertTest.approvalReferencePresent, status: telegramAlertTest.status as TelegramAlertTestStatus },
     },
   };
