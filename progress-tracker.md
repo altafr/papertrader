@@ -13,6 +13,7 @@
 - [x] Align the public landing page with the hosted Worker’s `paper_autopilot` operating mode.
 - [x] Clarify that continuous order submission is disabled as a separate execution gate.
 - [x] Remove stale Observe-mode/foundation wording from the public status surface.
+- [x] Attempt production publication; Vercel still reports the free-tier `api-deployments-free-per-day` limit and leaves the existing alias unchanged.
 - [ ] Publish the verified branch build to the production Vercel alias when deployment quota permits.
 
 ### Phase 6.313 — Clean-checkout CI test bootstrap (2026-08-28)
