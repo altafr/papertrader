@@ -2,8 +2,8 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.339 — Continuous paper runtime deployment verification.
-- **Status:** The regression-verified runtime is now deployed successfully to Railway. The hosted Worker remains healthy in Paper Autopilot with order submission enabled, a connected Alpaca crypto stream, position management ready, and research scheduling active. The local full regression suite passes 301 tests across 77 files. The scheduled `12:45 UTC` crypto preparation run persisted a BTC/USD candidate and deterministic risk kept it from broker submission; the remaining execution blocker is Alpaca's external crypto-order entitlement response. The current dashboard preview remains Ready, while production promotion is limited by Vercel's free-tier quota.
+- **Phase:** Phase 6.340 — Credential-free runtime verification command.
+- **Status:** The regression-verified runtime is deployed successfully to Railway. A new read-only verification command checks the API and Worker health contracts, paper mode, order-submission gate, connected market stream, and position-management readiness without reading or exposing credentials and without placing orders. The hosted Worker remains healthy in Paper Autopilot; the remaining execution blocker is Alpaca's external crypto-order entitlement response. The current dashboard preview remains Ready, while production promotion is limited by Vercel's free-tier quota.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Verify the first natural paper research/order cycle and authenticated dashboard portfolio/position rendering, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
@@ -101,6 +101,13 @@
 - [ ] Resolve Alpaca's external `crypto_order_entitlement_blocked` response for an approved crypto candidate.
 - [ ] Verify the authenticated dashboard against a persisted natural cycle and reconcile one successful paper order.
 - [ ] Promote the Ready Vercel preview after the deployment quota window resets.
+
+### Phase 6.340 — Credential-free runtime verification command (2026-08-28)
+
+- [x] Add `pnpm verify:paper-runtime` to validate API and Worker health using only public health endpoints.
+- [x] Fail closed unless Paper Autopilot, order submission, connected market data, and ready position management are all reported.
+- [x] Keep the command read-only: it does not load secrets, query private account data, or submit broker orders.
+- [ ] Run the command against hosted URLs in the next verification window and record a successful natural order/reconciliation separately.
 
 ### Phase 6.327 — Asset-aware crypto order execution (2026-08-28)
 
