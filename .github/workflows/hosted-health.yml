@@ -1,6 +1,8 @@
 name: Hosted paper runtime health
 
 on:
+  push:
+    branches: [main, phase-6-10-operator-health]
   schedule:
     - cron: "*/15 * * * *"
   workflow_dispatch:

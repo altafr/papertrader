@@ -506,6 +506,12 @@
 - [x] Confirm API and Worker remain healthy, paper-only, stream-connected, and scheduler-ready after rollout.
 - [ ] Observe the same result from the first scheduled GitHub Actions monitor run.
 
+### Phase 6.465 — Monitor branch-trigger activation (2026-08-29)
+
+- [x] Add a push trigger for `main` and `phase-6-10-operator-health` so the monitor runs immediately on repository updates, even before the scheduled trigger is available on the default branch.
+- [x] Preserve the 15-minute schedule and manual trigger for the hosted monitor.
+- [ ] Observe the first branch-triggered monitor run after GitHub registers the workflow.
+
 ### Phase 6.458 — Natural hosted cycle continuity (2026-08-29)
 
 - [x] Verify the hosted Worker remains healthy on release `febcda5f7a5…` with Paper Autopilot and order submission still enabled.
