@@ -2,11 +2,18 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.348 — Disabled Telegram delivery correctness.
+- **Phase:** Phase 6.349 — Telegram delivery deployment recovery.
 - **Status:** The hosted Worker and API are healthy in Paper Autopilot mode with deterministic entry/exit safeguards, durable reconciliation, Telegram alerting, lifecycle-stable PostgreSQL-backed risk evidence, and a read-only portfolio status command. The latest provenance and evidence guards are deployed and verified. Vercel production publication remains limited by the free-plan daily deployment quota, while the 30-day paper-forward evidence window and authenticated dashboard verification remain ongoing.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading, verify authenticated portfolio/P&L rendering and exports, and accumulate the 30-day evidence gate without loosening risk controls.
 - **Last updated:** 2026-08-29.
+
+### Phase 6.349 — Telegram delivery deployment recovery (2026-08-29)
+
+- [x] The code and notifier regression tests remain green; commit `7589f8e` is pushed to the active branch.
+- [x] A fresh Railway trigger was attempted to clear the long-running build queue without changing runtime variables or order permissions.
+- [x] Railway rejected the fresh trigger at `SNAPSHOT_CODE` (`Failed to snapshot repository`); this is a provider-side deployment failure with no build logs, not an application failure.
+- [ ] Retry the deployment after Railway snapshot service recovers, then run hosted verification before declaring the notifier fix live.
 
 ### Phase 6.348 — Disabled Telegram delivery correctness (2026-08-29)
 
