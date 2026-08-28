@@ -5607,3 +5607,10 @@
 - Updated API and Worker risk summaries to count durable risk evidence even after broker reconciliation changes the submission status.
 - Verification: all workspace typechecks, ESLint, and full regression passed (88 files, 353 tests).
 - **Next smallest unit:** deploy the evidence-query change and confirm the next cycle remains visible after any broker status transition.
+
+### 2026-08-29 — Phase 6.297 lifecycle-stable evidence deployed
+
+- Railway API deployment `dedf2c7e-aa1c-478e-8e46-6077cf771e53` and Worker deployment `d99323d3-20f1-4b68-981b-63ab27a2bf5e` both reached `SUCCESS`.
+- API and Worker health remain `healthy`; research scheduling is active and position management is ready.
+- The next scheduled research cycle is queued for 22:45 UTC, which will provide the first live evidence using the lifecycle-stable approval field.
+- **Next smallest unit:** verify the 22:45 cycle and confirm its durable risk decision remains represented after reconciliation.
