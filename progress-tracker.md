@@ -2,7 +2,7 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.323 — Public stream last-message visibility.
+- **Phase:** Phase 6.324 — Sell-side exit mark correction.
 - **Status:** The hosted Worker and API are healthy in Paper Autopilot mode with deterministic entry/exit safeguards, durable reconciliation, Telegram alerting, lifecycle-stable PostgreSQL-backed risk evidence, and a read-only portfolio status command. The latest provenance and evidence guards are deployed and verified. Vercel production publication remains limited by the free-plan daily deployment quota, while the 30-day paper-forward evidence window and authenticated dashboard verification remain ongoing.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading, verify authenticated portfolio/P&L rendering and exports, and accumulate the 30-day evidence gate without loosening risk controls.
@@ -5775,6 +5775,13 @@
 - Added parser coverage; web typecheck and ESLint pass.
 - This source revision is queued for Vercel publication; deployment remains subject to the free-plan quota.
 - **Next smallest unit:** publish after quota reset and verify the timestamp against the live Worker health endpoint.
+
+### Phase 6.324 sell-side exit mark correction
+
+- Corrected deterministic position-exit pricing to prefer Alpaca’s bid quote for sell exits rather than the ask.
+- This keeps stop-loss and target evaluation aligned with the executable side of the market while preserving the five-minute freshness and fail-closed gates.
+- Added focused quote-selection coverage; Worker typecheck, ESLint, and position-management tests pass.
+- **Next smallest unit:** deploy the Worker correction and verify continuous position-management health.
 
 ### 2026-08-29 — Phase 6.306 compatibility deployment verified
 

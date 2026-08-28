@@ -38,6 +38,8 @@ Position provenance and managed-state queries accept only approved risk evidence
 
 Position management applies a separate five-minute market-mark freshness gate before evaluating any stop, target, or time exit. If Alpaca supplies no positive, timestamped mark within that window, the pass fails closed, emits a deduplicated operational warning, and submits no exit based on stale data.
 
+For sell-side exits, a fresh quote uses the bid price first (falling back only when unavailable), because it is the executable side of the market for a long-position liquidation.
+
 Worker health separately classifies the market stream as `fresh`, `stale`, or `unknown` from the last message timestamp (five-minute threshold). This is observability-only and cannot be used to bypass the deterministic market-data gate.
 
 The public Vercel heartbeat safely renders that bounded stream-freshness classification when available; it continues to omit account, position, order, credential, and broker-payload values.

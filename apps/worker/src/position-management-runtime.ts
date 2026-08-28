@@ -54,7 +54,8 @@ export function getPositionExitIntentId(clientOrderId: string): string {
 export function getFreshPositionMark(snapshot: PaperMarketSnapshot, now = new Date(), maxAgeMs = POSITION_MARK_MAX_AGE_MS): string | undefined {
   const candidates = [
     snapshot.latestTrade ? { price: snapshot.latestTrade.price, timestamp: snapshot.latestTrade.timestamp } : undefined,
-    snapshot.latestQuote ? { price: snapshot.latestQuote.askPrice || snapshot.latestQuote.bidPrice, timestamp: snapshot.latestQuote.timestamp } : undefined,
+    // Exits sell into the bid; preferring ask would overstate realizable proceeds.
+    snapshot.latestQuote ? { price: snapshot.latestQuote.bidPrice || snapshot.latestQuote.askPrice, timestamp: snapshot.latestQuote.timestamp } : undefined,
     snapshot.minuteBar ? { price: snapshot.minuteBar.close, timestamp: snapshot.minuteBar.timestamp } : undefined,
   ].filter((candidate): candidate is { price: string; timestamp: string } => Boolean(candidate));
   for (const candidate of candidates) {
