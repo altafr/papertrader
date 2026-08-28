@@ -264,6 +264,14 @@
 - [x] Keep the existing production dashboard and server-side paper runtime unchanged while the quota is exhausted.
 - [ ] Publish the queued dashboard source after the provider quota resets, then verify authenticated positions, P/L, review-required state, and CSV export.
 
+### Phase 6.430 — Extended hosted paper evidence checkpoint (2026-08-29)
+
+- [x] Run the hosted read-only paper-performance report with the full bounded snapshot window.
+- [x] Confirm 500 persisted account snapshots spanning the latest captured session; the stability gate remains correctly blocked until 30 calendar days.
+- [x] Record current observed metrics without implying a guarantee: initial equity `99391.10`, final equity `99496.38`, observed P/L `+105.28`, and maximum drawdown `0.14660924%`.
+- [x] Run hosted paper-account reconciliation successfully after the report; no live-mode or risk-policy settings changed.
+- [ ] Continue accumulating paper-forward evidence and verify authenticated dashboard/CSV state after dashboard publication.
+
 ### Phase 6.387 — Hosted cycle baseline after reason-logging rollout (2026-08-28)
 
 - [x] Verify Worker deployment `8cabc43d-b343-47c1-9a0f-257198dabdcf` is `SUCCESS` and health is `healthy`.
