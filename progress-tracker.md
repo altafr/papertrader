@@ -474,6 +474,11 @@
 - [x] Document the scheduled GitHub Actions health monitor in the platform architecture table.
 - [x] Keep its role explicitly read-only and separate from Railway execution, database, authentication, and broker authority.
 
+### Phase 6.460 — Monitor discoverability (2026-08-29)
+
+- [x] Add a README badge and direct link for the independent hosted paper runtime monitor.
+- [x] Document its 15-minute scope: Railway API/Worker health and public Vercel shell availability.
+
 ### Phase 6.458 — Natural hosted cycle continuity (2026-08-29)
 
 - [x] Verify the hosted Worker remains healthy on release `febcda5f7a5…` with Paper Autopilot and order submission still enabled.

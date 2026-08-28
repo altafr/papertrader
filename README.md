@@ -1,6 +1,7 @@
 # Momentum Autopilot — Project Context Pack
 
 [![Paper-only verification](https://github.com/altafr/papertrader/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/altafr/papertrader/actions/workflows/ci.yml)
+[![Hosted paper runtime health](https://github.com/altafr/papertrader/actions/workflows/hosted-health.yml/badge.svg)](https://github.com/altafr/papertrader/actions/workflows/hosted-health.yml)
 
 This folder contains the project context for a continuously running, multi-agent trading application with a Next.js dashboard on Vercel and a Railway backend connected to Alpaca.
 
@@ -57,6 +58,8 @@ Use `pnpm typecheck`, `pnpm lint`, `pnpm test`, and `pnpm build` for the local v
 GitHub Actions runs the same locked, paper-only verification loop on pushes to `main`, every pull request, and manual `workflow_dispatch` runs. The workflow has read-only repository permissions and does not receive broker, database, Clerk, or deployment secrets.
 
 Monitor runs or start a manual verification from the [GitHub Actions workflow page](https://github.com/altafr/papertrader/actions/workflows/ci.yml).
+
+The independent [hosted paper runtime monitor](https://github.com/altafr/papertrader/actions/workflows/hosted-health.yml) runs every 15 minutes and checks Railway API/Worker health plus the public Vercel shell.
 
 Hosted health monitors:
 
