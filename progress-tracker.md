@@ -2,11 +2,20 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.320 — Hosted asset-aware cadence verification.
-- **Status:** The deployed compiled Worker confirms `RESEARCH_STOCK_WINDOW_ONLY=true`, crypto symbols, and both New York stock windows at runtime. Paper-only order safeguards remain unchanged.
+- **Phase:** Phase 6.321 — Hosted crypto stream observability.
+- **Status:** Worker deployment `a79793a7-dfdf-4325-bd96-d7d849d88277` reached `SUCCESS`; `/health` now reports the crypto stream as connected with a recent message timestamp and supervised reconnect count. Paper-only order safeguards remain unchanged.
 - **Current operating mode:** Paper Autopilot; continuous order submission is not enabled.
 - **Current goal:** Complete authenticated dashboard verification and reconcile the authorized AAPL order through its terminal broker state, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
+
+### Phase 6.321 — Hosted crypto stream observability (2026-08-28)
+
+- [x] Add redacted market-stream state to the Worker health contract.
+- [x] Track connecting, connected, reconnecting, and stopped states without exposing credentials.
+- [x] Verify full tests (77 files / 297 tests), lint, and Worker TypeScript checks.
+- [x] Deploy and confirm Railway deployment `a79793a7-dfdf-4325-bd96-d7d849d88277` reached `SUCCESS`.
+- [x] Confirm hosted `/health` reports `assetClass: crypto`, `status: connected`, and a recent `lastMessageAt`.
+- [ ] Observe and reconcile the first naturally completed 15-minute crypto research run.
 
 ### Phase 6.320 — Hosted asset-aware cadence verification (2026-08-28)
 
