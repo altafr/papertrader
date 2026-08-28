@@ -2,11 +2,18 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.264 — Legacy queue retry containment.
+- **Phase:** Phase 6.265 — Legacy queue cleanup and scheduler recovery.
 - **Status:** Notification delivery remains enabled, but routine research selections and portfolio/P&L summaries now use durable 24-hour cooldown checks. Individual rejected risk candidates are retained in the audit/dashboard and no longer generate Telegram warnings; approved selections, order/position lifecycle events, and failures remain immediate. Local tests, Worker typecheck, and lint pass; Railway deployment is healthy and reports the active policy. GitHub-triggered Vercel previews are Ready; production publish remains quota-limited.
 - **Current operating mode:** Paper Autopilot; continuous order submission is not enabled.
 - **Current goal:** Complete authenticated dashboard verification and reconcile the authorized AAPL order through its terminal broker state, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
+
+### Phase 6.265 — Legacy queue cleanup and scheduler recovery (2026-08-28)
+
+- [x] Remove only the validated stale pre-fix retry job; terminal failure/dead-letter history remains retained.
+- [x] Restart the Worker and verify Railway deployment `a9cc189a-6dab-43fc-b193-ffebc76bc017` reached `SUCCESS`.
+- [x] Verify hosted Worker health is `healthy`, scheduler `scheduled`, position management `ready`, Telegram `ready`, and order submission disabled.
+- [ ] Validate a fresh manual trigger on the next UTC date under its distinct audit identity.
 
 ### Phase 6.264 — Legacy queue retry containment (2026-08-28)
 
