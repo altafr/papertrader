@@ -131,6 +131,14 @@
 - [x] Pass the Next.js production build with Node `v24.15.0`.
 - [ ] Publish the corrected dashboard revision after Vercel's deployment quota resets.
 
+### Phase 6.411 — Full release quality gate (2026-08-29)
+
+- [x] Run the complete Vitest suite: 80 files and 318 tests passed.
+- [x] Run all eight workspace TypeScript checks successfully.
+- [x] Run ESLint with `--max-warnings=0` successfully.
+- [x] Run the Next.js production build successfully with Node `v24.15.0`.
+- [ ] Publish the verified dashboard revision after Vercel's deployment quota resets.
+
 ### Phase 6.387 — Hosted cycle baseline after reason-logging rollout (2026-08-28)
 
 - [x] Verify Worker deployment `8cabc43d-b343-47c1-9a0f-257198dabdcf` is `SUCCESS` and health is `healthy`.
