@@ -2,11 +2,31 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.302 — Paper Autopilot runtime-readiness verification.
-- **Status:** The hosted guarded runtime-readiness check is fully ready: all broker, database, scheduler, baseline, risk, freshness, and kill-switch gates pass. Execution remains intentionally `dry_run` with continuous order submission disabled.
+- **Phase:** Phase 6.304 — Deployed invested-notional risk policy reporting.
+- **Status:** The corrected 5%-of-invested-notional risk percentage is deployed to Railway successfully. Hosted health and runtime readiness remain green with fresh reconciliation and dry-run execution.
 - **Current operating mode:** Paper Autopilot; continuous order submission is not enabled.
 - **Current goal:** Complete authenticated dashboard verification and reconcile the authorized AAPL order through its terminal broker state, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
+
+### Phase 6.304 — Deployed invested-notional risk policy reporting (2026-08-28)
+
+- [x] Deploy the corrected risk metric to the Railway Worker.
+- [x] Confirm deployment `a52317cd-89ba-43c1-be00-1d2a19cbaea3` reached `SUCCESS`.
+- [x] Confirm hosted Worker health is `healthy`, research/durable schedulers are scheduled, and position management is ready.
+- [x] Confirm hosted Paper Autopilot readiness is `ready` with fresh reconciliation at 31 seconds.
+- [x] Confirm policy remains baseline `100000`, 5% maximum invested-notional risk, and 5% maximum stop distance.
+- [x] Confirm execution remains `dry_run` and continuous order submission remains disabled.
+- [ ] Continue daily paper evidence and monitor the next natural cycle.
+
+### Phase 6.303 — Invested-notional risk reporting fix (2026-08-28)
+
+- [x] Change `estimatedLossPercent` to calculate against invested notional rather than total account equity.
+- [x] Preserve non-negative equity validation and deterministic 5% approval enforcement.
+- [x] Update the dry-run regression expectation to `5.00000000%` for a 5% stop.
+- [x] Rebuild the domain package and run the complete suite: 77 files and 295 tests passed.
+- [x] Run ESLint with zero warnings and Worker TypeScript validation successfully.
+- [x] Push the fix in commit `e76053b`.
+- [ ] Deploy the safety fix to Railway and verify hosted readiness before any continuous-order decision.
 
 ### Phase 6.302 — Paper Autopilot runtime-readiness verification (2026-08-28)
 
