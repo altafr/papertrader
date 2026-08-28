@@ -3,7 +3,7 @@
 ## Snapshot
 
 - **Phase:** Phase 6.326 — Continuous paper-trading activation checkpoint.
-- **Status:** The user supplied bounded reference `CONTINUOUS-PAPER-TRADING-001`; Railway Worker deployment was updated with continuous paper-order submission enabled. Health is green with Alpaca configured, crypto market stream connected, position management ready, and scheduler active. Guarded crypto research and paper-evidence runs completed against Alpaca historical bars; after recording the confirmed USD 100,000 baseline and tightening generated stops to 4.99%, an AAPL candidate passed deterministic risk checks and an Alpaca paper order was submitted and reconciled. The persisted read model now exposes live equity, AAPL and PFD positions, and order states for the dashboard. The new AAPL order remains `new` with zero fill while the check is before the US regular-session open; the next step is verifying its terminal state during market hours and Telegram delivery.
+- **Status:** The user supplied bounded reference `CONTINUOUS-PAPER-TRADING-001`; Railway Worker deployment was updated with continuous paper-order submission enabled. Health is green with Alpaca configured, crypto market stream connected, position management ready, and scheduler active. Guarded crypto research and paper-evidence runs completed against Alpaca historical bars; after recording the confirmed USD 100,000 baseline and tightening generated stops to 4.99%, an AAPL candidate passed deterministic risk checks and an Alpaca paper order was submitted and reconciled. The persisted read model now exposes live equity, AAPL and PFD positions, and order states for the dashboard. Telegram delivery is also evidenced for the AAPL submission, BTC/USD failure, position detection, and daily portfolio summaries. The new AAPL order remains `new` with zero fill while the check is before the US regular-session open; the next step is verifying its terminal state during market hours and the natural scheduled cycle.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Verify the first natural paper research/order cycle and authenticated dashboard portfolio/position rendering, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
@@ -20,6 +20,7 @@
 - [x] Run the guarded end-to-end paper path with AAPL (`CONTINUOUS-PAPER-E2E-007`); deterministic approval passed and Alpaca paper order `4af1ef57-4c1f-4c82-9e1a-725704ad28d2` was submitted and reconciled.
 - [x] Verify the persisted read model after reconciliation: equity `99392.30000000`, AAPL position `1.00000000`, and PFD position `2903.00000000` are available for dashboard/API rendering.
 - [x] Reconcile again at `2026-08-28T12:05:13.633Z`; the new AAPL order remains `new`/`0.00000000` filled, consistent with the premarket check, while live positions remain persisted.
+- [x] Verify Telegram events are delivered (`sent`) for paper entry submission, paper entry failure, position detection, and daily portfolio summaries.
 - [ ] Confirm historical bars are retrieved and persisted during the next natural scheduled research cycle.
 - [ ] Confirm any approved paper order, reconciliation, portfolio snapshot, dashboard display, and Telegram alert end to end.
 
