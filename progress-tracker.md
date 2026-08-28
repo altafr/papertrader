@@ -44,6 +44,14 @@
 - [x] Confirm Railway API health returns `healthy` and the Worker health remains Paper Autopilot, scheduled, connected, and position-management ready.
 - [ ] Verify authenticated read-model rendering and position/P&L values with an operator browser session.
 
+### Phase 6.400 — Post-entry position-management evidence (2026-08-28)
+
+- [x] Confirm the Worker remains healthy at `2026-08-28T15:50Z` with the crypto stream connected and the next research tick scheduled for `16:00 UTC`.
+- [x] Confirm position-management passes continue every 60 seconds with no exit submitted and no blocked readiness reason.
+- [x] Confirm the reconciled entry increased the persisted/managed position count from two to three in the hosted position-management log.
+- [ ] Verify the new BTC/USD position's quantity, mark, unrealized P/L, and originating intent in the authenticated dashboard.
+- [ ] Continue observing deterministic exit handling and reconciliation across subsequent cycles.
+
 ### Phase 6.387 — Hosted cycle baseline after reason-logging rollout (2026-08-28)
 
 - [x] Verify Worker deployment `8cabc43d-b343-47c1-9a0f-257198dabdcf` is `SUCCESS` and health is `healthy`.
