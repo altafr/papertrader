@@ -33,6 +33,10 @@ export function assessResearchCandidateRisk(input: { readonly candidate: Researc
   const currentAt = input.currentAt ?? new Date().toISOString();
   const candidate = buildRiskCandidate(input.candidate, new Date(currentAt));
   const signal = createImmutablePaperSignal({ candidate, createdAt: currentAt, signalId: `signal:${candidate.symbol}:${candidate.dataAsOf}` });
-  const intent = createImmutablePaperTradeIntent({ createdAt: currentAt, estimatedFees: "0", estimatedSlippage: "0", intentId: `intent:${candidate.symbol}:${candidate.dataAsOf}`, quantity: input.quantity, signal });
+  // Alpaca client-order IDs permit only a bounded identifier alphabet; keep
+  // the original symbol in the signal/order while making slash-delimited
+  // crypto pairs safe for the derived idempotency key.
+  const safeSymbol = candidate.symbol.replace(/[^A-Za-z0-9._:-]/g, "_");
+  const intent = createImmutablePaperTradeIntent({ createdAt: currentAt, estimatedFees: "0", estimatedSlippage: "0", intentId: `intent:${safeSymbol}:${candidate.dataAsOf}`, quantity: input.quantity, signal });
   return { approval: approvePaperTradeIntent({ approvedAt: currentAt, currentAt, equity: input.equity, intent, state: input.state }), intentId: intent.intentId };
 }
