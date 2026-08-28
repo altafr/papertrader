@@ -3,7 +3,7 @@
 ## Snapshot
 
 - **Phase:** Phase 6.257 — Durable 24-hour notification cooldown.
-- **Status:** Notification delivery remains enabled, but routine research selections and portfolio/P&L summaries now use durable once-per-UTC-day dedupe keys. Individual rejected risk candidates are retained in the audit/dashboard and no longer generate Telegram warnings; approved selections, order/position lifecycle events, and failures remain immediate. Local tests, Worker typecheck, and lint pass; Railway deployment is healthy.
+- **Status:** Notification delivery remains enabled, but routine research selections and portfolio/P&L summaries now use durable 24-hour cooldown checks. Individual rejected risk candidates are retained in the audit/dashboard and no longer generate Telegram warnings; approved selections, order/position lifecycle events, and failures remain immediate. Local tests, Worker typecheck, and lint pass; Railway deployment is healthy.
 - **Current operating mode:** Paper Autopilot; continuous order submission is not enabled.
 - **Current goal:** Complete authenticated dashboard verification and reconcile the authorized AAPL order through its terminal broker state, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
@@ -14,7 +14,8 @@
 - [x] Prevent UTC midnight boundary duplicates while preserving immediate critical/lifecycle alerts.
 - [x] Verify cooldown behavior across restarts/day boundaries with regression coverage.
 - [x] Verify 293 tests across 77 files, Worker/database TypeScript, ESLint, and diff hygiene.
-- [ ] Deploy the cooldown hardening to Railway and verify the Worker health response.
+- [x] Deploy the cooldown hardening to Railway and verify the Worker health response.
+- [x] Railway deployment `fa095a6d-eaf2-411f-944e-4233a17c24ef` reached `SUCCESS`; Worker health is `healthy`, scheduler `scheduled`, position management `ready`, and Telegram `ready`.
 
 ### Phase 6.256 — Notification policy regression coverage (2026-08-28)
 
