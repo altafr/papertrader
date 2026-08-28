@@ -479,6 +479,12 @@
 - [x] Add a README badge and direct link for the independent hosted paper runtime monitor.
 - [x] Document its 15-minute scope: Railway API/Worker health and public Vercel shell availability.
 
+### Phase 6.461 — Full regression pass (2026-08-29)
+
+- [x] Run the complete repository suite after the monitoring additions: 83 files and 326 tests passed.
+- [x] Confirm no test changes weakened paper-mode, deterministic-risk, reconciliation, authentication, or secret-surface coverage.
+- [ ] Publish the queued Vercel heartbeat revision when the provider quota resets.
+
 ### Phase 6.458 — Natural hosted cycle continuity (2026-08-29)
 
 - [x] Verify the hosted Worker remains healthy on release `febcda5f7a5…` with Paper Autopilot and order submission still enabled.
