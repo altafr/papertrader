@@ -5376,3 +5376,10 @@
 - Added strict dashboard parsing and an Operations Health card showing this evidence, so the operator view does not depend on process-local Worker memory.
 - Verification: API/web TypeScript checks, dashboard tests (11 tests), and targeted ESLint passed.
 - **Next smallest unit:** deploy the API/dashboard change and verify the authenticated operations-health contract against the live database.
+
+### 2026-08-29 — Phase 6.263 API deployment
+
+- Railway API deployment for the durable risk-cycle evidence change reached `SUCCESS` (`8c7bd019-1517-49db-b774-65bbdcd7c066`).
+- Live API health is healthy. The authenticated operations-health contract is now backed by the persisted PostgreSQL submission ledger; dashboard source is pushed to the feature branch.
+- Vercel production publication remains separately constrained by the existing daily deployment quota; no false “live” claim is made for the newest web source.
+- **Next smallest unit:** verify the authenticated endpoint once the Vercel quota clears, then capture the first post-deploy risk-cycle counts.
