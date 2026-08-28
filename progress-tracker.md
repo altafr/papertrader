@@ -28,6 +28,12 @@
 - [x] Isolate broker/database access with direct paper reconciliation; it completed successfully without submitting an order.
 - [ ] Verify the persistent Worker consumes the queued job and writes the daily-cycle audit/digest records; queue inspection currently shows two queued jobs.
 
+### Phase 6.263 — Manual daily-run audit identity (2026-08-28)
+
+- [x] Give manually enqueued daily jobs a distinct bounded audit run ID so they cannot collide with the same-day scheduled run.
+- [x] Preserve scheduled-run IDs and queue idempotency for normal cron execution.
+- [ ] Deploy and verify the queued manual job is consumed and completes its audit lifecycle.
+
 ### Phase 6.259 — Dashboard notification policy surface (2026-08-28)
 
 - [x] Add the 24-hour routine digest and approved-only risk-alert policy to the authenticated dashboard health card.

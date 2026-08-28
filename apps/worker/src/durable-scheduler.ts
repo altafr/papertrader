@@ -199,9 +199,13 @@ export function getScheduledDailyRunId(now = new Date()): string {
   return `scheduled-daily-preparation-${now.toISOString().slice(0, 10)}`;
 }
 
+export function getManualDailyRunId(now = new Date()): string {
+  return `manual-daily-preparation-${now.toISOString().slice(0, 10)}`;
+}
+
 export async function enqueueDailyPreparation(sender: DurableQueueSender, now = new Date()): Promise<{ readonly jobId: string; readonly queued: boolean }> {
   const jobId = getDailyPreparationJobId(now);
-  const sentId = await sender.send(DAILY_PREPARATION_QUEUE, { kind: "daily_preparation", version: 1 }, { id: jobId });
+  const sentId = await sender.send(DAILY_PREPARATION_QUEUE, { kind: "daily_preparation", runId: getManualDailyRunId(now), version: 1 }, { id: jobId });
   return { jobId, queued: sentId !== null };
 }
 
@@ -326,10 +330,11 @@ export function createDurableScheduler(input: {
           try {
             for (const job of jobs) {
               const startedAt = now();
-              const runId = getScheduledDailyRunId(startedAt);
+              const data = parseDurableDailyJob(job.data);
+              const runId = data.runId ?? getScheduledDailyRunId(startedAt);
               await input.audit?.start(runId, startedAt, startedAt);
               try {
-                const result = await input.runDailyPreparation(parseDurableDailyJob(job.data));
+                const result = await input.runDailyPreparation(data);
                 if (result?.accountSnapshotId) await input.audit?.complete(runId, now(), result.accountSnapshotId);
               } catch (error) {
                 await input.audit?.fail(runId, now(), "reconciliation_failed");
