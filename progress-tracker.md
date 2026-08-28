@@ -5560,3 +5560,10 @@
 - API health remains `healthy`; the protected read-model path now serves the enriched position provenance projection.
 - The web source is pushed on `phase-6-10-operator-health`; Vercel publication remains provider-limited, so authenticated UI verification is still pending.
 - **Next smallest unit:** publish the web revision after quota reset and verify the enriched positions table, then continue paper-forward evidence collection.
+
+### 2026-08-29 — Phase 6.290 position provenance export
+
+- Extended the protected account CSV with strategy/version, planned stop/target, and position-opened timestamp columns for position rows.
+- Exported provenance uses the same latest-snapshot projection as the dashboard and preserves `review_required` for unmanaged positions.
+- Verification: API typecheck, ESLint, and full regression passed (88 files, 351 tests).
+- **Next smallest unit:** deploy the export revision and verify authenticated CSV column/value alignment with the live position table.

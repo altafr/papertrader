@@ -28,6 +28,8 @@ The authenticated API derives `unmanagedPositions` from the latest persisted acc
 
 For each position in the latest reconciled account snapshot, the authenticated API joins the newest matching paper-order submission and projects only bounded provenance fields: originating strategy/version, entry price, planned stop/target, and position-opened timestamp. The dashboard renders these alongside quantity and live P/L, while the broker-reconciled position values remain authoritative. Missing provenance stays explicitly `Not reported`; it is never inferred from an unrelated order or audit page.
 
+The same projection is included in the protected account CSV export, including `exitPlanStatus`, so downloaded audit data cannot silently diverge from the authenticated dashboard.
+
 ### Separately gated order handoff (Phase 6.213)
 
 The scheduled risk cycle accepts an optional executor only when `PAPER_AUTOPILOT_ORDER_SUBMISSION_ENABLED=true` is explicitly configured server-side. That executor reuses `executePaperAutopilotOrder`, including deterministic approval, idempotent client order IDs, persistence, broker reconciliation, and lifecycle alerts. When the flag is absent or `false`, approved candidates remain persisted dry-run decisions and no broker write is reachable from the scheduled path. Worker health reports this gate as a redacted boolean so risk-cycle readiness cannot be confused with order-submission authority.
