@@ -8,6 +8,15 @@
 - **Current goal:** Verify the first natural paper research/order cycle and authenticated dashboard portfolio/position rendering, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
 
+### Phase 6.328 — Natural 15-minute crypto cycle (2026-08-28)
+
+- [x] Observe the scheduled `12:30 UTC` crypto preparation tick without forcing a manual run.
+- [x] Confirm persisted run `research-preparation-crypto_research-20260828123046` completed with `status: succeeded`.
+- [x] Confirm the run persisted a BTC/USD watchlist candidate with point-in-time bar metrics (`dataAsOf: 2026-08-28T12:00:00Z`) and an Alpaca market evidence reference.
+- [x] Confirm hosted health remains `healthy`, crypto stream remains `connected`, and position management remains `ready` after the cycle.
+- [ ] Resolve Alpaca's external HTTP 403 crypto order-entitlement response before allowing an approved crypto candidate to submit.
+- [ ] Verify the authenticated dashboard Cycle card and live portfolio/position rendering.
+
 ### Phase 6.327 — Asset-aware crypto order execution (2026-08-28)
 
 - [x] Confirm Alpaca documentation supports `gtc`/`ioc` for crypto and not `day`.
