@@ -2,8 +2,8 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.349 — Public Worker deployment of scheduler liveness guard.
-- **Status:** The liveness guard is now deployed to the public `worker` service (Railway deployment `d052b88b-0898-4631-9fee-517ffc7d178f`, `SUCCESS`). Its public health endpoint reports Paper Autopilot healthy, connected crypto stream, ready position management, and the next scheduled cycle at 13:15 UTC. Authenticated dashboard rendering and Alpaca crypto entitlement resolution remain pending.
+- **Phase:** Phase 6.350 — Natural 13:15 crypto cycle after liveness deployment.
+- **Status:** The public Worker completed the naturally scheduled `13:15 UTC` crypto preparation cycle at `13:15:09 UTC`, persisted run `research-preparation-crypto_research-20260828131509` with `status: succeeded`, and advanced the next run to 13:30 UTC. The BTC/USD hand-off remains `risk_dry_run_rejected` with no submission timestamp, while Worker health stays healthy with connected market data and ready position management. Authenticated dashboard rendering and Alpaca crypto entitlement resolution remain pending.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Verify the first natural paper research/order cycle and authenticated dashboard portfolio/position rendering, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
@@ -174,6 +174,15 @@
 - [x] Confirm deployment `d052b88b-0898-4631-9fee-517ffc7d178f` reached `SUCCESS`.
 - [x] Confirm the public Worker health endpoint remains healthy after deployment.
 - [ ] Observe the guard across a hosted missed-tick scenario without changing scheduler cadence or order behavior.
+
+### Phase 6.350 — Natural 13:15 crypto cycle after liveness deployment (2026-08-28)
+
+- [x] Observe the scheduled 13:15 UTC cycle without forcing a manual run.
+- [x] Confirm persisted run `research-preparation-crypto_research-20260828131509` completed with `status: succeeded`.
+- [x] Confirm the latest BTC/USD hand-off is `risk_dry_run_rejected` with no `submitted_at` value.
+- [x] Confirm Worker health remained healthy and the next run advanced to 13:30 UTC.
+- [ ] Verify the persisted decision and bounded reasons in the authenticated dashboard.
+- [ ] Resolve Alpaca's external crypto-order entitlement response before an approved crypto candidate can submit.
 
 ### Phase 6.327 — Asset-aware crypto order execution (2026-08-28)
 
