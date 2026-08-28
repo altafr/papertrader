@@ -682,6 +682,12 @@
 - [x] Reject unsafe health endpoints before any request is made.
 - [x] Add regression coverage; health and hosted verifier tests pass.
 
+### Phase 6.493 — Health monitor safety rollout (2026-08-29)
+
+- [x] Confirm the branch-triggered monitor run for `824b316` completed successfully after the health-URL safety change.
+- [x] Confirm the immediately prior `1ffb601` run failure was followed by successful runs; no broker or trading action was involved.
+- [x] Confirm Railway is processing the corresponding release while the previously deployed runtime remains healthy.
+
 ### Phase 6.458 — Natural hosted cycle continuity (2026-08-29)
 
 - [x] Verify the hosted Worker remains healthy on release `febcda5f7a5…` with Paper Autopilot and order submission still enabled.
