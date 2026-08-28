@@ -433,7 +433,7 @@
 - [x] Make the public heartbeat prefer the Railway Worker health URL so scheduler, position-management, and stream state are visible when configured.
 - [x] Retain a safe API-health fallback for deployments that have not yet added the optional Worker URL.
 - [x] Keep the browser payload read-only and credential-free; web TypeScript check and focused heartbeat tests pass.
-- [ ] Add `NEXT_PUBLIC_WORKER_HEALTH_URL` to the Vercel production environment and publish once the provider quota resets.
+- [x] Add the non-secret `NEXT_PUBLIC_WORKER_HEALTH_URL` to the Vercel production environment; publish once the provider quota resets.
 
 ### Phase 6.387 — Hosted cycle baseline after reason-logging rollout (2026-08-28)
 
