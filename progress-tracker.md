@@ -2,8 +2,8 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.336 — Natural 12:45 crypto cycle.
-- **Status:** The scheduled `12:45 UTC` crypto preparation run completed successfully and persisted a BTC/USD candidate with point-in-time Alpaca bar metrics. The candidate remains subject to deterministic exposure gates; no new broker order was created. The current dashboard preview remains Ready, while production promotion is limited by Vercel's free-tier quota.
+- **Phase:** Phase 6.337 — Dashboard operating-mode accuracy.
+- **Status:** The dashboard now describes the live server-controlled operating mode accurately instead of claiming continuous scheduling and Paper Autopilot are disabled. The scheduled `12:45 UTC` crypto preparation run completed successfully and persisted a BTC/USD candidate; no new broker order was created. The current dashboard preview remains Ready, while production promotion is limited by Vercel's free-tier quota.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Verify the first natural paper research/order cycle and authenticated dashboard portfolio/position rendering, then continue the 30-day paper-forward evidence gate.
 - **Last updated:** 2026-08-28.
@@ -78,6 +78,13 @@
 - [x] Confirm no additional broker order was created while the candidate remained outside deterministic exposure limits.
 - [x] Confirm Worker health remains `healthy` and the crypto stream remains `connected`.
 - [ ] Continue the paper-forward evidence window and await an approved candidate for the next broker hand-off.
+
+### Phase 6.337 — Dashboard operating-mode accuracy (2026-08-28)
+
+- [x] Replace stale dashboard copy that contradicted the active server-side Paper Autopilot state.
+- [x] Make the operating-mode footer render the resolved mode dynamically.
+- [x] Verify dashboard tests (10), web TypeScript, ESLint, and production Next.js build pass.
+- [ ] Publish the verified dashboard build to the production alias when Vercel quota permits.
 
 ### Phase 6.327 — Asset-aware crypto order execution (2026-08-28)
 
