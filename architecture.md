@@ -100,6 +100,8 @@ Reconciliation readiness also rejects account snapshots dated more than five min
 
 The deploy-equivalent workspace build has been verified across the domain, database, broker adapter, notification, API, Worker, and Next.js dashboard artifacts. Build success is treated as a release prerequisite only; it does not substitute for hosted health or authenticated operator verification.
 
+The current release candidate also passes the complete regression suite, workspace typechecks, lint, production build, and credential-surface audit. This establishes local artifact readiness; hosted Worker scheduling and authenticated runtime behavior remain separate verification gates.
+
 The research scheduler also has a bounded self-recovery path: after a missed scheduled tick, it may enqueue one idempotent preparation job through the same durable `pg-boss` queue. The Worker remains degraded until that job completes, and recovery cannot bypass research validation, reconciliation, deterministic risk checks, paper-mode enforcement, or the kill switch.
 
 For interval schedules, scheduler startup also enqueues one idempotent catch-up job for the current UTC interval. This closes the restart-to-next-cron gap for continuous crypto research while using the normal durable queue and all existing validation/risk gates. Daily stock preparation remains driven only by its scheduled daily cron.

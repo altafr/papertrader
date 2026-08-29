@@ -6485,6 +6485,13 @@
 - Added release-match regression coverage; verifier tests, workspace typechecks, lint, and diff hygiene pass.
 - **Next smallest unit:** after Railway rollout, pin the deployed SHA and verify both service health responses match.
 
+### Phase 6.527 — Release candidate full regression
+
+- Complete Vitest suite passed: 91 test files and 394 tests.
+- All workspace typechecks, ESLint, production build, secret-surface audit, and diff validation passed.
+- This confirms local release-candidate readiness; it does not claim the queued Railway Worker deployment is active.
+- **Next smallest unit:** after Railway infrastructure recovery and authorized rollout, run the dual-service release-pinned hosted verifier and authenticated operator checks.
+
 ### Phase 6.521 — Hosted verifier gate isolation
 
 - Credential-free `pnpm verify:hosted` reproduced failed gates `worker`, `research_schedule`, and `next_runs`.
