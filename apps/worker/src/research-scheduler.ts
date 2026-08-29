@@ -44,6 +44,29 @@ export interface ResearchSchedulerClient extends ResearchQueueClient {
   stop(): Promise<void>;
 }
 
+export async function startWithBoundedRetry(input: {
+  readonly attempts?: number;
+  readonly delayMs?: number;
+  readonly sleep?: (delayMs: number) => Promise<void>;
+  readonly start: () => Promise<void>;
+}): Promise<void> {
+  const attempts = input.attempts ?? 3;
+  const delayMs = input.delayMs ?? 30_000;
+  if (!Number.isSafeInteger(attempts) || attempts < 1 || attempts > 5 || !Number.isSafeInteger(delayMs) || delayMs < 0 || delayMs > 300_000) throw new Error("Bounded scheduler retry settings are invalid.");
+  const sleep = input.sleep ?? ((delay: number) => new Promise<void>((resolve) => { const timer = setTimeout(resolve, delay); timer.unref?.(); }));
+  let lastError: unknown;
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    try {
+      await input.start();
+      return;
+    } catch (error: unknown) {
+      lastError = error;
+      if (attempt < attempts) await sleep(delayMs);
+    }
+  }
+  throw lastError instanceof Error ? lastError : new Error("research_scheduler_start_failed");
+}
+
 export type ResearchSchedulerRuntimeStatus = "degraded" | "disabled" | "running" | "scheduled";
 
 export interface ResearchSchedulerHealth {

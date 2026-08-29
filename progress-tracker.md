@@ -6458,6 +6458,13 @@
 - No order, deployment retry, variable change, or database mutation was performed.
 - **Next smallest unit:** after Railway infrastructure recovers and rollout is authorized, deploy the current branch and verify scheduler recovery, risk-cycle telemetry, and Telegram outbox status.
 
+### Phase 6.523 — Bounded research scheduler startup recovery
+
+- Added a reusable startup retry wrapper for transient research scheduler queue/database failures.
+- The Worker retries at most three times with a bounded 30-second delay, then preserves degraded health after exhaustion; no order or risk gate can be bypassed.
+- Added recovery and exhaustion regression coverage; focused scheduler tests, workspace typechecks, lint, and diff hygiene pass.
+- **Next smallest unit:** deploy the Worker revision and verify the scheduler recovers or fails visibly under the hosted infrastructure conditions.
+
 ### Phase 6.521 — Hosted verifier gate isolation
 
 - Credential-free `pnpm verify:hosted` reproduced failed gates `worker`, `research_schedule`, and `next_runs`.

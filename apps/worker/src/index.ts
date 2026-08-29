@@ -13,7 +13,7 @@ import { createAlpacaShadowBarSource, createShadowEvaluationScheduler, runShadow
 import { createDurableScheduler, getDurableSchedulerConfig, setDurableSchedulerHealth, validateDurableSchedulerAuditActivation } from "./durable-scheduler.js";
 import { assertDurableScheduleRunMigrationReady, assertDurableSchedulerMigrationReady, readDurableScheduleRunMigrationState, readDurableSchedulerMigrationState } from "./durable-scheduler-migration-guard.js";
 import { reconcilePaperAccount } from "./reconcile.js";
-import { getResearchScheduleReadiness } from "./research-scheduler.js";
+import { getResearchScheduleReadiness, startWithBoundedRetry } from "./research-scheduler.js";
 import { createResearchSchedulerFromEnvironment, isMarketCloseSummaryEnabled } from "./research-scheduler-runtime.js";
 import { reconcileBeforeSchedulerStart } from "./startup-recovery.js";
 import { createPositionManagementSchedulerFromEnvironment } from "./position-management-runtime.js";
@@ -43,7 +43,7 @@ if (getResearchScheduleReadiness().status === "blocked" && process.env.RESEARCH_
   throw new Error("RESEARCH_SCHEDULER_ENABLED=true requires paper database, broker, credentials, and handler gates.");
 }
 const researchScheduler = createResearchSchedulerFromEnvironment();
-if (researchScheduler) void researchScheduler.start().catch(() => { /* health endpoint reports degraded state */ });
+if (researchScheduler) void startWithBoundedRetry({ start: () => researchScheduler.start() }).catch(() => { /* health endpoint reports degraded state after bounded recovery */ });
 const marketCloseSummaryEnabled = isMarketCloseSummaryEnabled();
 const autopilotConfiguration = getPaperAutopilotConfig();
 if (autopilotConfiguration.enabled && !process.env.DATABASE_URL?.trim()) throw new Error("PAPER_AUTOPILOT_ENABLED=true requires DATABASE_URL.");

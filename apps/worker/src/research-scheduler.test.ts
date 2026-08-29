@@ -1,7 +1,19 @@
 import { describe, expect, it, vi } from "vitest";
-import { assessResearchSchedulerLiveness, createResearchScheduler, enqueueResearchPreparation, getNextResearchRunAt, getResearchPreparationJobId, getResearchScheduleConfig, getResearchScheduleReadiness, getResearchSchedulerHealth, getResearchStartupCatchupJobId, isResearchPreparationJob, provisionResearchQueues, runResearchPreparationJob, setResearchRiskCycleHealth, RESEARCH_PREPARATION_CRON, RESEARCH_PREPARATION_DEAD_LETTER_QUEUE, RESEARCH_PREPARATION_QUEUE } from "./research-scheduler.js";
+import { assessResearchSchedulerLiveness, createResearchScheduler, enqueueResearchPreparation, getNextResearchRunAt, getResearchPreparationJobId, getResearchScheduleConfig, getResearchScheduleReadiness, getResearchSchedulerHealth, getResearchStartupCatchupJobId, isResearchPreparationJob, provisionResearchQueues, runResearchPreparationJob, setResearchRiskCycleHealth, startWithBoundedRetry, RESEARCH_PREPARATION_CRON, RESEARCH_PREPARATION_DEAD_LETTER_QUEUE, RESEARCH_PREPARATION_QUEUE } from "./research-scheduler.js";
 
 describe("research schedule boundary", () => {
+  it("recovers transient scheduler startup failures with bounded retries", async () => {
+    let attempts = 0;
+    await startWithBoundedRetry({ attempts: 3, delayMs: 1, sleep: async () => {}, start: async () => { attempts += 1; if (attempts < 3) throw new Error("transient"); } });
+    expect(attempts).toBe(3);
+  });
+
+  it("fails after bounded scheduler startup retries are exhausted", async () => {
+    let attempts = 0;
+    await expect(startWithBoundedRetry({ attempts: 2, delayMs: 1, sleep: async () => {}, start: async () => { attempts += 1; throw new Error("unavailable"); } })).rejects.toThrow("unavailable");
+    expect(attempts).toBe(2);
+  });
+
   it("is disabled by default with bounded configuration", () => {
     expect(getResearchScheduleConfig()).toEqual({ cron: RESEARCH_PREPARATION_CRON, enabled: false, handlerEnabled: false, retryDelaySeconds: 300, retryLimit: 2 });
     expect(RESEARCH_PREPARATION_QUEUE).toContain("research-preparation");
