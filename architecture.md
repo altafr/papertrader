@@ -72,6 +72,8 @@ The public heartbeat also renders the server-reported next research run in UTC, 
 
 The authenticated dashboard also reads that same bounded Worker heartbeat server-side and surfaces Worker status, market-stream freshness, and next research time beside persisted account freshness. This is observational only; it never grants the browser broker, queue, or order authority.
 
+For interval schedules, the heartbeat additionally reports the bounded startup catch-up timestamp, id, and queue result (`queued` or `rejected`). This gives operators restart recovery evidence without exposing queue payloads or credentials.
+
 It also shows the last market-stream message timestamp as bounded UTC metadata, allowing operators to distinguish a fresh connection from a recently active data feed without exposing payloads.
 
 ### Separately gated order handoff (Phase 6.213)

@@ -58,6 +58,9 @@ export interface WorkerHealth {
   readonly researchSchedule: {
     readonly enabled: boolean;
     readonly handlerEnabled: boolean;
+    readonly lastCatchupAt?: string;
+    readonly lastCatchupJobId?: string;
+    readonly lastCatchupStatus?: "queued" | "rejected";
     readonly lastRiskCycleAt?: string;
     readonly lastRiskCycleStatus?: "completed" | "failed";
     readonly lastRiskDecisionCount?: number;

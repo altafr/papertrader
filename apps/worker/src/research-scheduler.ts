@@ -54,6 +54,9 @@ export interface ResearchSchedulerHealth {
   readonly lastRiskDecisionCount?: number;
   readonly lastRiskApprovedCount?: number;
   readonly lastRunAt?: string;
+  readonly lastCatchupAt?: string;
+  readonly lastCatchupJobId?: string;
+  readonly lastCatchupStatus?: "queued" | "rejected";
   readonly nextRunAt?: string;
   readonly status: ResearchSchedulerRuntimeStatus;
 }
@@ -253,15 +256,16 @@ export function createResearchScheduler(input: {
             throw error;
           }
         });
+        const nextRunAt = getNextResearchRunAt(now(), input.config.cron);
+        schedulerHealth = { enabled: true, handlerEnabled: input.config.handlerEnabled, ...(nextRunAt ? { nextRunAt } : {}), status: "scheduled" };
         const startupCatchupId = getResearchStartupCatchupJobId(now(), input.config.cron);
         if (startupCatchupId) {
           // Use the same durable queue and an idempotency key scoped to the
           // current interval. A restart therefore cannot create a burst of
           // duplicate crypto research cycles.
-          await client.send(RESEARCH_PREPARATION_QUEUE, { kind: "research_preparation", version: 1 }, { id: startupCatchupId });
+          const queued = await client.send(RESEARCH_PREPARATION_QUEUE, { kind: "research_preparation", version: 1 }, { id: startupCatchupId });
+          schedulerHealth = { ...schedulerHealth, lastCatchupAt: now().toISOString(), lastCatchupJobId: startupCatchupId, lastCatchupStatus: queued ? "queued" : "rejected" };
         }
-        const nextRunAt = getNextResearchRunAt(now(), input.config.cron);
-        schedulerHealth = { enabled: true, handlerEnabled: input.config.handlerEnabled, ...(nextRunAt ? { nextRunAt } : {}), status: "scheduled" };
         watchdogTimer = setInterval(watchdog, 60_000);
         watchdogTimer.unref?.();
       } catch (error) {

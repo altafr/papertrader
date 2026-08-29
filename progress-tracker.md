@@ -22,6 +22,13 @@
 - [x] Verify the web typecheck, lint, focused dashboard/public-health tests, and diff hygiene.
 - [ ] Verify the rendered authenticated dashboard against the hosted Worker after the next authorized deployment.
 
+### Phase 6.395 — Startup catch-up queue telemetry (2026-08-29)
+
+- [x] Record the bounded startup catch-up timestamp, deterministic job id, and queue result in Worker health.
+- [x] Preserve the public heartbeat’s secret-free contract and render the catch-up result beside Worker status in the dashboard.
+- [x] Add scheduler and heartbeat regression coverage.
+- [ ] Verify hosted catch-up telemetry after deployment; current no-deploy instruction remains in force.
+
 ### Phase 6.373 — Local safety-batch verification (2026-08-29)
 
 - [x] Verify complete exit-plan coverage, actionable unmanaged-position reasons, and deterministic entry pausing as one local batch.

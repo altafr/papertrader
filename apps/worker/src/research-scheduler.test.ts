@@ -104,6 +104,7 @@ describe("research schedule boundary", () => {
       const onStale = vi.fn();
       const scheduler = createResearchScheduler({ clientFactory: () => client, config: { cron: "*/15 * * * *", enabled: true, handlerEnabled: true, retryDelaySeconds: 1, retryLimit: 1 }, environment: { ALPACA_API_KEY: "key", ALPACA_SECRET_KEY: "secret", ALPACA_PAPER_TRADE: "true", BROKER_CONNECTION_ENABLED: "true", DATABASE_URL: "postgres://private", RESEARCH_HANDLER_ENABLED: "true", RESEARCH_SCHEDULER_ENABLED: "true", TRADING_MODE: "paper" }, now: () => current, onStale, runPreparation: async () => {} });
       await scheduler.start();
+      expect(getResearchSchedulerHealth()).toMatchObject({ lastCatchupJobId: "research-startup-20260823T010000000Z", lastCatchupStatus: "queued" });
       current = new Date("2026-08-23T01:18:01.000Z");
       await vi.advanceTimersByTimeAsync(60_000);
       expect(sent).toEqual([
