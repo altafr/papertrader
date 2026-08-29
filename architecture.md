@@ -92,6 +92,8 @@ The verifier also validates optional Worker heartbeat telemetry when present: sc
 
 When `PAPERTRADER_EXPECTED_RELEASE` is supplied, hosted verification now pins both the API and Worker health responses to that release identifier. This prevents a partial rollout from being reported as fully verified while preserving optional compatibility when no pin is configured.
 
+The API health response exposes the same bounded non-secret release identifier as the Worker when Railway or CI supplies one, enabling that dual-service pin without exposing configuration or broker data.
+
 Runtime readiness additionally fails closed when Paper Autopilot is configured but order submission remains in dry-run mode. A `ready` runtime therefore represents an enabled paper execution path, not merely valid configuration; disabled and dry-run states remain distinguishable for diagnostics.
 
 Reconciliation readiness also rejects account snapshots dated more than five minutes in the future relative to the Worker clock. Such clock-skewed evidence is classified as unavailable and blocks autonomous execution until a fresh, coherent snapshot is captured.

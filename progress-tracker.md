@@ -6478,6 +6478,13 @@
 - API and PostgreSQL remain `SUCCESS`; no broker, database, variable, or deployment mutation was performed.
 - **Next smallest unit:** retry the authorized rollout only after Railway clears the provider queue, then verify both services against the expected release pin.
 
+### Phase 6.526 — API release identity for dual-service verification
+
+- Added a bounded, non-secret release identifier to API health when supplied by Railway/CI.
+- Hosted verification now checks the expected release against both API and Worker responses, preventing partial-rollout false positives.
+- Added release-match regression coverage; verifier tests, workspace typechecks, lint, and diff hygiene pass.
+- **Next smallest unit:** after Railway rollout, pin the deployed SHA and verify both service health responses match.
+
 ### Phase 6.521 — Hosted verifier gate isolation
 
 - Credential-free `pnpm verify:hosted` reproduced failed gates `worker`, `research_schedule`, and `next_runs`.
