@@ -313,36 +313,31 @@ function OperatorAuditCards({ historyQuery, overview }: { readonly historyQuery:
   </>;
 }
 
-type StrategySummary = { readonly averageReturn: number | undefined; readonly closed: number; readonly losses: number; readonly open: number; readonly strategy: string; readonly total: number; readonly wins: number };
+type StrategySummary = { readonly averageReturn: string | undefined; readonly closed: number; readonly losses: number; readonly open: number; readonly strategy: string; readonly total: number; readonly wins: number };
 
 function summarizeStrategies(overview: OperatorOverview | undefined): readonly StrategySummary[] {
-  const byStrategy = new Map<string, { returns: number[]; closed: number; open: number; wins: number; losses: number; total: number }>();
+  const byStrategy = new Map<string, { returns: DisplayDecimal[]; closed: number; open: number; wins: number; losses: number; total: number }>();
   for (const row of overview?.filteredTrades ?? []) {
     const strategy = `${value(row, "strategyKey")} ${value(row, "strategyVersion")}`.trim() || "Unknown strategy";
     const current = byStrategy.get(strategy) ?? { returns: [], closed: 0, open: 0, wins: 0, losses: 0, total: 0 };
     current.total += 1;
     if (value(row, "status") === "closed") {
       current.closed += 1;
-      const outcome = isRecord(row.outcome) ? Number(outcomeValue(row.outcome, "returnPercent")) : Number.NaN;
-      if (Number.isFinite(outcome)) {
+      const outcome = isRecord(row.outcome) ? decimalValue(row.outcome, "returnPercent") : undefined;
+      if (outcome) {
         current.returns.push(outcome);
-        if (outcome > 0) current.wins += 1;
-        if (outcome < 0) current.losses += 1;
+        if (!outcome.isNegative() && !outcome.isZero()) current.wins += 1;
+        if (outcome.isNegative()) current.losses += 1;
       }
     } else current.open += 1;
     byStrategy.set(strategy, current);
   }
-  return [...byStrategy.entries()].map(([strategy, current]) => ({ averageReturn: current.returns.length ? current.returns.reduce((sum, item) => sum + item, 0) / current.returns.length : undefined, closed: current.closed, losses: current.losses, open: current.open, strategy, total: current.total, wins: current.wins })).sort((left, right) => right.total - left.total);
-}
-
-function outcomeValue(row: Record<string, unknown>, key: string) {
-  const result = row[key];
-  return typeof result === "string" || typeof result === "number" ? String(result) : "";
+  return [...byStrategy.entries()].map(([strategy, current]) => ({ averageReturn: current.returns.length ? current.returns.reduce((sum, item) => sum.plus(item), new DisplayDecimal("0")).div(String(current.returns.length)).toDecimalPlaces(4).toFixed(4) : undefined, closed: current.closed, losses: current.losses, open: current.open, strategy, total: current.total, wins: current.wins })).sort((left, right) => right.total - left.total);
 }
 
 function StrategyPerformanceCard({ overview }: { readonly overview: OperatorOverview | undefined }) {
   const summaries = summarizeStrategies(overview);
-  return <article className="card full-width" id="strategy-performance"><div className="card-heading"><div><p className="label">Strategy performance</p><h2>{summaries.length ? `${summaries.length} strategies observed` : "No strategy outcomes yet"}</h2></div><span className="provenance">Shadow observations only</span></div>{summaries.length === 0 ? <p className="empty-state">Strategy-level metrics will appear after persisted signal outcomes are available.</p> : <div className="responsive-table"><table><thead><tr><th>Strategy</th><th>Total signals</th><th>Open</th><th>Closed</th><th>Wins</th><th>Losses</th><th>Avg observed return</th></tr></thead><tbody>{summaries.map((summary) => <tr key={summary.strategy}><th scope="row">{summary.strategy}</th><td>{summary.total}</td><td>{summary.open}</td><td>{summary.closed}</td><td>{summary.wins}</td><td>{summary.losses}</td><td>{summary.averageReturn === undefined ? "Not available" : `${summary.averageReturn.toFixed(4)}%`}</td></tr>)}</tbody></table></div>}<p className="provenance">These are descriptive shadow/research observations, not live-trade returns or a profitability claim.</p></article>;
+  return <article className="card full-width" id="strategy-performance"><div className="card-heading"><div><p className="label">Strategy performance</p><h2>{summaries.length ? `${summaries.length} strategies observed` : "No strategy outcomes yet"}</h2></div><span className="provenance">Shadow observations only</span></div>{summaries.length === 0 ? <p className="empty-state">Strategy-level metrics will appear after persisted signal outcomes are available.</p> : <div className="responsive-table"><table><thead><tr><th>Strategy</th><th>Total signals</th><th>Open</th><th>Closed</th><th>Wins</th><th>Losses</th><th>Avg observed return</th></tr></thead><tbody>{summaries.map((summary) => <tr key={summary.strategy}><th scope="row">{summary.strategy}</th><td>{summary.total}</td><td>{summary.open}</td><td>{summary.closed}</td><td>{summary.wins}</td><td>{summary.losses}</td><td>{summary.averageReturn === undefined ? "Not available" : `${summary.averageReturn}%`}</td></tr>)}</tbody></table></div>}<p className="provenance">These are descriptive shadow/research observations, not live-trade returns or a profitability claim.</p></article>;
 }
 
 function StrategyLifecycleCard({ overview }: { readonly overview: OperatorOverview | undefined }) {
