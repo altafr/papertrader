@@ -85,6 +85,13 @@
 - [x] Add malformed-payload regression coverage and verify 385 tests, workspace typechecks, and lint.
 - [ ] Verify the normalized fields against the hosted heartbeat after deployment.
 
+### Phase 6.407 — Unmanaged-position health regression guard (2026-08-29)
+
+- [x] Add regression coverage proving a non-zero unmanaged-position count makes Worker health `degraded`.
+- [x] Verify clearing the count removes the transient telemetry field without changing disabled scheduler semantics.
+- [x] Verify 386 tests, workspace typechecks, lint, and diff hygiene.
+- [ ] Confirm the guard against hosted position-management telemetry after deployment.
+
 ### Phase 6.405 — Exit-plan remediation runbook (2026-08-29)
 
 - [x] Document the guarded read-only `exit-plan-review` command and its no-write/no-broker guarantees.

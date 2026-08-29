@@ -2,8 +2,16 @@ import { describe, expect, it } from "vitest";
 
 import { deriveWorkerHealthStatus, getWorkerHealth } from "./app.js";
 import { classifyMarketStreamFreshness, getExpectedBarIntervalMs, getMarketStreamStaleDedupeKey } from "./market-stream-runner.js";
+import { setPositionManagementUnmanagedCount } from "./position-management-scheduler.js";
 
 describe("market stream freshness", () => {
+  it("degrades Worker health while unmanaged positions remain", () => {
+    setPositionManagementUnmanagedCount(2);
+    expect(getWorkerHealth(new Date("2026-08-21T00:00:00.000Z"), {}).positionManagement).toMatchObject({ unmanagedCount: 2, status: "degraded" });
+    setPositionManagementUnmanagedCount(undefined);
+    expect(getWorkerHealth(new Date("2026-08-21T00:00:00.000Z"), {}).positionManagement.status).toBe("disabled");
+  });
+
   it("classifies missing, fresh, and stale message timestamps", () => {
     const now = new Date("2026-08-29T00:05:00.000Z");
     expect(classifyMarketStreamFreshness(undefined, now)).toBe("unknown");

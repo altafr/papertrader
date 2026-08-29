@@ -8,8 +8,8 @@ let unmanagedCount: number | undefined;
 export function getPositionManagementHealth() { return { lastError, lastRunAt, ...(unmanagedCount === undefined ? {} : { unmanagedCount }), status }; }
 
 /** Record the bounded count of broker positions lacking a complete exit plan. */
-export function setPositionManagementUnmanagedCount(count: number): void {
-  unmanagedCount = Math.max(0, Math.min(100, Math.floor(count)));
+export function setPositionManagementUnmanagedCount(count: number | undefined): void {
+  unmanagedCount = count === undefined ? undefined : Math.max(0, Math.min(100, Math.floor(count)));
 }
 
 /** Mark the supervisor degraded when no successful pass arrives within a bounded interval. */
