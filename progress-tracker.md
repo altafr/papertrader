@@ -6443,6 +6443,13 @@
 - No deployment retry, variable change, database mutation, or broker action was performed.
 - **Next smallest unit:** when Railway clears the infrastructure queue and rollout is explicitly authorized, deploy the current branch, set the expected release variable, and run hosted health plus Telegram outbox verification.
 
+### Phase 6.522 — Release pin across CI verification
+
+- Wired the optional `PAPERTRADER_EXPECTED_RELEASE` variable into the paper-only CI hosted-runtime check as well as the scheduled hosted-health monitor.
+- Documented that both verification paths can detect a stale Worker release after Railway rollout.
+- The pin remains optional during development; no deployment or broker action was performed.
+- **Next smallest unit:** set the repository variable to the deployed commit SHA after Railway rollout and confirm both workflows pass.
+
 ### Phase 6.520 — Hosted Worker degraded-health checkpoint
 
 - Read-only Worker health probe reports release `26d6903d474505fb27d2ede33ca936390a4f7511` as `degraded`.

@@ -61,7 +61,7 @@ Monitor runs or start a manual verification from the [GitHub Actions workflow pa
 
 The independent [hosted paper runtime monitor](https://github.com/altafr/papertrader/actions/workflows/hosted-health.yml) runs every 15 minutes and checks Railway API/Worker health plus the public Vercel shell.
 
-After a Railway rollout, set the repository Actions variable `PAPERTRADER_EXPECTED_RELEASE` to the deployed commit SHA. The scheduled monitor will then fail closed if the Worker health endpoint reports a different release; leaving the variable unset preserves compatibility during development.
+After a Railway rollout, set the repository Actions variable `PAPERTRADER_EXPECTED_RELEASE` to the deployed commit SHA. The scheduled monitor and paper-only CI verifier will then fail closed if the Worker health endpoint reports a different release; leaving the variable unset preserves compatibility during development.
 
 Hosted health monitors:
 
