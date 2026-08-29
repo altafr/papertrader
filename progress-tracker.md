@@ -86,6 +86,13 @@
 - [x] Verify the Railway service configuration persisted the narrowed watch scope; no order permissions or secrets changed.
 - [ ] Allow the current provider queue to recover, then promote the latest Worker code in one intentional deployment.
 
+### Phase 6.367 — Complete exit-plan audit export (2026-08-29)
+
+- [x] Add `timeStopAt` to the authenticated account CSV position records.
+- [x] Keep CSV exit-plan status aligned with the API/dashboard completeness rule.
+- [x] API typecheck and lint pass.
+- [ ] Publish the export revision and verify a downloaded authenticated CSV after provider limits clear.
+
 ### Phase 6.355 — Repeatable stale-stream incident audit (2026-08-29)
 
 - [x] Replace the permanent stale-stream dedupe key with a bounded UTC-hour episode key.
