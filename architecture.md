@@ -56,6 +56,8 @@ Read-only Railway inspection on 2026-08-29 found the latest Worker and recovery-
 
 A subsequent read-only health probe reported the active Worker as `degraded`: Paper Autopilot remained selected, the market stream was connected/fresh, and position management was ready, but the research scheduler was degraded with no recorded run or catch-up telemetry. This must be treated as an operational stop for new research-driven entries until the deployed release is healthy; no order or retry was triggered by the probe.
 
+The credential-free hosted verifier reproduced the same condition with failed gates `worker`, `research_schedule`, and `next_runs`. The API remained reachable and the public dashboard returned HTTP 200. Since the verifier performs only health/public-surface GETs, this check cannot submit orders or mutate database state.
+
 The guarded `exit-plan-review` command provides a read-only, bounded remediation report for the latest account snapshot. It lists each position as managed or review-required with the exact missing plan fields; it never infers prices or mutates PostgreSQL/broker state.
 
 The report sorts positions by asset class/symbol, selects the newest persisted plan by update/create timestamp with a deterministic tie-breaker, and caps output at 100 positions. Repeated reviews therefore produce stable, bounded operator evidence.

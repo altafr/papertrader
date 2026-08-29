@@ -6450,3 +6450,10 @@
 - Research scheduler is degraded with no recorded run or catch-up telemetry, so the hosted state is not considered ready for autonomous new entries.
 - No order, deployment retry, variable change, or database mutation was performed.
 - **Next smallest unit:** after Railway infrastructure recovers and rollout is authorized, deploy the current branch and verify scheduler recovery, risk-cycle telemetry, and Telegram outbox status.
+
+### Phase 6.521 — Hosted verifier gate isolation
+
+- Credential-free `pnpm verify:hosted` reproduced failed gates `worker`, `research_schedule`, and `next_runs`.
+- API health remained reachable and the public dashboard returned HTTP 200; no additional surface failure was observed.
+- The verifier uses only bounded health/public GET requests, so no broker order, database mutation, or deployment retry occurred.
+- **Next smallest unit:** restore the Worker release through the Railway infrastructure queue, then rerun the verifier and confirm scheduler/risk telemetry before considering autonomous entries ready.
