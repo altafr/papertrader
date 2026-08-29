@@ -4,6 +4,38 @@ function validTimestamp(value: unknown): boolean {
   return typeof value === "string" && Number.isFinite(Date.parse(value));
 }
 
+function boundedCount(value: unknown): boolean {
+  return typeof value === "number" && Number.isSafeInteger(value) && value >= 0 && value <= 100;
+}
+
+/** Validate optional heartbeat telemetry without requiring older releases to emit it. */
+export function validateWorkerHeartbeat(worker: HealthObject): boolean {
+  const research = worker.researchSchedule;
+  const positions = worker.positionManagement;
+  const stream = worker.marketStream;
+  if (research !== undefined && (typeof research !== "object" || research === null || Array.isArray(research))) return false;
+  if (positions !== undefined && (typeof positions !== "object" || positions === null || Array.isArray(positions))) return false;
+  if (stream !== undefined && (typeof stream !== "object" || stream === null || Array.isArray(stream))) return false;
+  const researchObject = research as HealthObject | undefined;
+  const positionObject = positions as HealthObject | undefined;
+  const streamObject = stream as HealthObject | undefined;
+  for (const key of ["lastRunAt", "nextRunAt", "lastRiskCycleAt", "lastCatchupAt"] as const) {
+    if (researchObject?.[key] !== undefined && !validTimestamp(researchObject[key])) return false;
+  }
+  if (researchObject?.lastCatchupStatus !== undefined && researchObject.lastCatchupStatus !== "queued" && researchObject.lastCatchupStatus !== "rejected") return false;
+  if (researchObject?.lastCatchupJobId !== undefined && typeof researchObject.lastCatchupJobId !== "string") return false;
+  if (researchObject?.lastRiskCycleStatus !== undefined && researchObject.lastRiskCycleStatus !== "completed" && researchObject.lastRiskCycleStatus !== "failed") return false;
+  for (const key of ["lastRiskDecisionCount", "lastRiskApprovedCount"] as const) {
+    if (researchObject?.[key] !== undefined && !boundedCount(researchObject[key])) return false;
+  }
+  if (researchObject?.lastRiskApprovedCount !== undefined && researchObject.lastRiskDecisionCount !== undefined && researchObject.lastRiskApprovedCount > researchObject.lastRiskDecisionCount) return false;
+  if (positionObject?.unmanagedCount !== undefined && !boundedCount(positionObject.unmanagedCount)) return false;
+  if (streamObject?.lastMessageAt !== undefined && !validTimestamp(streamObject.lastMessageAt)) return false;
+  if (streamObject?.freshnessMaxAgeSeconds !== undefined && (typeof streamObject.freshnessMaxAgeSeconds !== "number" || !Number.isSafeInteger(streamObject.freshnessMaxAgeSeconds) || streamObject.freshnessMaxAgeSeconds < 0 || streamObject.freshnessMaxAgeSeconds > 86_400)) return false;
+  if (streamObject?.freshness !== undefined && streamObject.freshness !== "fresh" && streamObject.freshness !== "stale" && streamObject.freshness !== "unknown") return false;
+  return true;
+}
+
 export function evaluatePaperRuntime(worker: HealthObject, api: HealthObject, expectedRelease?: string) {
   const marketStream = worker.marketStream;
   const positionManagement = worker.positionManagement;
@@ -47,6 +79,7 @@ export function evaluatePaperRuntime(worker: HealthObject, api: HealthObject, ex
     && researchObject.lastRiskApprovedCount >= 0
     && researchObject.lastRiskApprovedCount <= researchObject.lastRiskDecisionCount
   );
+  const workerHeartbeatValid = validateWorkerHeartbeat(worker);
   const result = {
     api: api.status === "healthy" ? "healthy" : "degraded",
     worker: worker.status === "healthy" ? "healthy" : "degraded",
@@ -66,6 +99,7 @@ export function evaluatePaperRuntime(worker: HealthObject, api: HealthObject, ex
     healthTimestampsValid,
     nextRunsFuture,
     riskTelemetryValid,
+    workerHeartbeatValid,
   } as const;
-  return { ...result, verified: result.api === "healthy" && result.worker === "healthy" && result.alpaca === "configured" && result.database === "configured" && result.paperMode && result.orderSubmissionEnabled && result.orderSubmissionApprovalPresent && streamConnected && marketStreamFreshnessValid && positionsReady && positionsUnblocked && researchScheduled && durableScheduled && releaseMatches && result.killSwitchInactive && result.healthTimestampsValid && result.nextRunsFuture && result.riskTelemetryValid };
+  return { ...result, verified: result.api === "healthy" && result.worker === "healthy" && result.alpaca === "configured" && result.database === "configured" && result.paperMode && result.orderSubmissionEnabled && result.orderSubmissionApprovalPresent && streamConnected && marketStreamFreshnessValid && positionsReady && positionsUnblocked && researchScheduled && durableScheduled && releaseMatches && result.killSwitchInactive && result.healthTimestampsValid && result.nextRunsFuture && result.riskTelemetryValid && result.workerHeartbeatValid };
 }

@@ -74,6 +74,8 @@ The freshness-enabled web revision is published to the production Vercel alias. 
 
 The hosted paper-runtime verifier also fails closed when the Worker explicitly reports a stale market stream, while remaining backward-compatible with older health payloads that omit the optional freshness field.
 
+The verifier also validates optional Worker heartbeat telemetry when present: scheduler run/catch-up timestamps and statuses, bounded risk-cycle counts, unmanaged-position counts, and stream freshness metadata. Invalid shapes, timestamps, enum values, or out-of-range counters fail closed without requiring older releases to emit newer fields.
+
 The research scheduler also has a bounded self-recovery path: after a missed scheduled tick, it may enqueue one idempotent preparation job through the same durable `pg-boss` queue. The Worker remains degraded until that job completes, and recovery cannot bypass research validation, reconciliation, deterministic risk checks, paper-mode enforcement, or the kill switch.
 
 For interval schedules, scheduler startup also enqueues one idempotent catch-up job for the current UTC interval. This closes the restart-to-next-cron gap for continuous crypto research while using the normal durable queue and all existing validation/risk gates. Daily stock preparation remains driven only by its scheduled daily cron.

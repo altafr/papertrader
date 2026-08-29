@@ -6381,3 +6381,10 @@
 - Railway API deployment `514049ed-de16-4430-80ab-aeba1d927394` and Worker deployment `05471841-299e-4fd2-ada3-6654abb801e8` both reached `SUCCESS`.
 - Worker health remains `healthy`; research scheduling is active and position management is ready.
 - **Next smallest unit:** verify the next natural risk cycle’s durable totals after the compatibility deployment.
+
+### Phase 6.409 hosted heartbeat contract guard
+
+- Extended the credential-free hosted runtime verifier with a bounded Worker heartbeat contract for research cadence/catch-up telemetry, risk-cycle counters, position unmanaged counts, and market-stream freshness metadata.
+- Malformed timestamps, enum values, counters, or telemetry objects now fail closed; fields remain optional for compatibility with older hosted releases.
+- Added regression coverage for valid, malformed, and unsafe heartbeat payloads. Focused verifier tests pass.
+- **Next smallest unit:** run the full repository quality suite, then deploy only when the operator authorizes a hosted rollout.

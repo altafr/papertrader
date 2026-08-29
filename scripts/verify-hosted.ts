@@ -20,6 +20,7 @@ export function getFailedRuntimeGates(runtime: ReturnType<typeof evaluatePaperRu
     ["health_timestamps", runtime.healthTimestampsValid],
     ["next_runs", runtime.nextRunsFuture],
     ["risk_telemetry", runtime.riskTelemetryValid],
+    ["worker_heartbeat", runtime.workerHeartbeatValid],
   ] as const;
   return checks.filter(([, passed]) => !passed).map(([name]) => name);
 }

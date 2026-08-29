@@ -1,9 +1,19 @@
 import { describe, expect, it } from "vitest";
-import { evaluatePaperRuntime } from "./paper-runtime-contract.js";
+import { evaluatePaperRuntime, validateWorkerHeartbeat } from "./paper-runtime-contract.js";
 
 const healthyWorker = { status: "healthy", asOf: "2026-08-28T14:44:00.000Z", alpaca: "configured", database: "configured", operatingMode: "paper_autopilot", paperAutopilotOrderSubmissionEnabled: true, paperAutopilotOrderSubmissionApprovalReferencePresent: true, globalKillSwitchActive: false, marketStream: { status: "connected" }, positionManagement: { status: "ready", blockedReasons: [] }, researchSchedule: { enabled: true, handlerEnabled: true, status: "scheduled", nextRunAt: "2026-08-28T14:45:00.000Z" }, durableScheduler: { enabled: true, status: "scheduled", nextRunAt: "2026-08-29T00:00:00.000Z" } };
 
 describe("paper runtime contract", () => {
+  it("accepts bounded heartbeat telemetry", () => {
+    expect(validateWorkerHeartbeat({ ...healthyWorker, marketStream: { status: "connected", freshness: "fresh", lastMessageAt: "2026-08-28T14:44:00.000Z", freshnessMaxAgeSeconds: 120 }, positionManagement: { status: "ready", unmanagedCount: 0 }, researchSchedule: { ...healthyWorker.researchSchedule, lastRunAt: "2026-08-28T14:40:00.000Z", lastCatchupAt: "2026-08-28T14:41:00.000Z", lastCatchupJobId: "job-1", lastCatchupStatus: "queued", lastRiskCycleAt: "2026-08-28T14:42:00.000Z", lastRiskCycleStatus: "completed", lastRiskDecisionCount: 4, lastRiskApprovedCount: 2 } })).toBe(true);
+  });
+
+  it("rejects malformed or unsafe heartbeat telemetry", () => {
+    expect(validateWorkerHeartbeat({ ...healthyWorker, researchSchedule: { ...healthyWorker.researchSchedule, lastCatchupAt: "invalid" } })).toBe(false);
+    expect(validateWorkerHeartbeat({ ...healthyWorker, positionManagement: { status: "ready", unmanagedCount: 101 } })).toBe(false);
+    expect(validateWorkerHeartbeat({ ...healthyWorker, marketStream: { status: "connected", freshness: "broken" } })).toBe(false);
+  });
+
   it("accepts a healthy autonomous paper runtime", () => {
     expect(evaluatePaperRuntime(healthyWorker, { status: "healthy" })).toMatchObject({ verified: true, alpaca: "configured", database: "configured", marketStream: "connected", positionManagement: "ready", researchSchedule: "scheduled", durableScheduler: "scheduled" });
   });
