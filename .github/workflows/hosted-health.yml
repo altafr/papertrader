@@ -38,4 +38,5 @@ jobs:
           PAPERTRADER_WORKER_HEALTH_URL: ${{ vars.PAPERTRADER_WORKER_HEALTH_URL || 'https://worker-production-b362.up.railway.app/health' }}
           PAPERTRADER_API_HEALTH_URL: ${{ vars.PAPERTRADER_API_HEALTH_URL || 'https://api-production-e0a6.up.railway.app/health' }}
           PAPERTRADER_WEB_URL: ${{ vars.PAPERTRADER_WEB_URL || 'https://papertrader-web.vercel.app/' }}
+          PAPERTRADER_EXPECTED_RELEASE: ${{ vars.PAPERTRADER_EXPECTED_RELEASE || '' }}
         run: pnpm verify:hosted

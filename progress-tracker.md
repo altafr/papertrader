@@ -6414,3 +6414,10 @@
 - Ran the full workspace production build, including all packages, the Next.js dashboard, API, and Worker artifacts.
 - Build completed successfully; generated routes include the authenticated dashboard, exports, agent detail, and sign-in surfaces.
 - **Next smallest unit:** deploy the accumulated changes only after explicit operator authorization, then execute runtime readiness, hosted health, and authenticated operator verification.
+
+### Phase 6.414 hosted release-pin workflow wiring
+
+- Wired the existing optional `PAPERTRADER_EXPECTED_RELEASE` contract into the scheduled GitHub hosted-health workflow.
+- Documented the post-Railway-rollout operator step: set the deployed commit SHA as an Actions variable to detect stale Worker releases automatically.
+- The variable remains optional for development compatibility; no deployment or broker action was performed.
+- **Next smallest unit:** after an authorized Railway rollout, set the release variable and verify the first pinned hosted-health run.
