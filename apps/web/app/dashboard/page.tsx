@@ -134,7 +134,7 @@ function value(row: Record<string, unknown>, key: string) {
   return typeof result === "string" || typeof result === "number" ? String(result) : "—";
 }
 
-interface DisplayDecimal { div(value: DisplayDecimal | string): DisplayDecimal; isNegative(): boolean; isZero(): boolean; plus(value: DisplayDecimal | string): DisplayDecimal; times(value: DisplayDecimal | string): DisplayDecimal; toDecimalPlaces(places: number): DisplayDecimal; toFixed(places?: number): string; }
+interface DisplayDecimal { div(value: DisplayDecimal | string): DisplayDecimal; greaterThan(value: DisplayDecimal | string): boolean; isNegative(): boolean; isZero(): boolean; lessThan(value: DisplayDecimal | string): boolean; minus(value: DisplayDecimal | string): DisplayDecimal; plus(value: DisplayDecimal | string): DisplayDecimal; times(value: DisplayDecimal | string): DisplayDecimal; toDecimalPlaces(places: number): DisplayDecimal; toFixed(places?: number): string; }
 interface DisplayDecimalConstructor { new (value: string): DisplayDecimal; }
 const DisplayDecimal = (DecimalModule as unknown as { readonly default: DisplayDecimalConstructor }).default;
 
@@ -364,11 +364,11 @@ function PaperPerformanceCard({ historyFrom, historyTo, performance }: { readonl
   if (!performance) return <article className="card" id="performance"><p className="label">Performance</p><h2>Unavailable</h2><p>Authenticated performance data is currently unavailable.</p></article>;
   const metrics = performance.metrics;
   const curve = performance.equityCurve ?? [];
-  const numeric = curve.map((point) => Number(point.equity)).filter(Number.isFinite);
-  const minimum = Math.min(...numeric);
-  const maximum = Math.max(...numeric);
-  const span = maximum - minimum || 1;
-  const points = curve.map((point, index) => `${(index / Math.max(curve.length - 1, 1)) * 100},${100 - ((Number(point.equity) - minimum) / span) * 88 - 6}`).join(" ");
+  const numeric = curve.map((point) => decimalValue(point as unknown as Record<string, unknown>, "equity")).filter((point): point is DisplayDecimal => Boolean(point));
+  const minimum = numeric.reduce((low, point) => point.lessThan(low) ? point : low, numeric[0] ?? new DisplayDecimal("0"));
+  const maximum = numeric.reduce((high, point) => point.greaterThan(high) ? point : high, numeric[0] ?? new DisplayDecimal("0"));
+  const span = maximum.minus(minimum);
+  const points = curve.map((point, index) => { const equity = decimalValue(point as unknown as Record<string, unknown>, "equity"); const normalized = equity && !span.isZero() ? equity.minus(minimum).div(span) : new DisplayDecimal("0"); const x = ((index / Math.max(curve.length - 1, 1)) * 100).toFixed(4); const y = new DisplayDecimal("100").minus(normalized.times("88")).minus("6").toFixed(4); return `${x},${y}`; }).join(" ");
   return <article className="card" id="performance"><div className="card-heading"><div><p className="label">Paper performance</p><h2>{metrics ? `${metrics.totalReturnPercent}% return` : "Insufficient history"}</h2></div><div className="range-links" aria-label="Performance time range">{(["7d", "30d", "all"] as const).map((range) => <a className={performance.performanceRange === range ? "active" : ""} href={`/dashboard?${buildDashboardHistoryParams(1, range, historyFrom, historyTo).toString()}#performance`} key={range}>{range === "all" ? "All" : range}</a>)}</div></div><p>{performance.snapshotCount} snapshots · {performance.calendarDays} calendar days · {performance.consecutiveCalendarDays} consecutive days</p>{metrics && <p>Max drawdown {metrics.maxDrawdownPercent}% · P/L {metrics.totalPnl}</p>}{points && <div className="equity-chart" aria-label="Paper equity curve"><svg viewBox="0 0 100 100" role="img" aria-label="Equity curve"><polyline points={points} fill="none" stroke="currentColor" strokeWidth="2" vectorEffect="non-scaling-stroke" /></svg><span className="chart-caption">{performance.performanceRange === "all" ? "All history" : performance.performanceRange} · latest {formatUtc(curve[curve.length - 1]!.capturedAt)}</span></div>}{curve.length > 0 && <details className="snapshot-details"><summary>Show capture rows</summary><div className="responsive-table"><table><thead><tr><th>Captured</th><th>Equity</th><th>Return</th><th>Drawdown</th></tr></thead><tbody>{curve.map((point) => <tr key={point.capturedAt}><th scope="row">{formatUtc(point.capturedAt)}</th><td>{point.equity}</td><td>{point.returnPercent}%</td><td>{point.drawdownPercent}%</td></tr>)}</tbody></table></div></details>}<p className="provenance">Stability gate: {performance.stability.status === "ready" ? "Ready" : `Blocked · ${performance.stability.blockedReasons.join(", ")}`}</p></article>;
 }
 

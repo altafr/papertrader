@@ -128,6 +128,13 @@
 - [x] Verify 374 tests, all workspace typechecks, and lint.
 - [ ] Promote the reviewed web batch and verify strategy summaries against persisted outcomes.
 
+### Phase 6.390 — Decimal-safe equity-curve rendering (2026-08-29)
+
+- [x] Remove browser-side floating-point conversion from equity-curve range and drawdown coordinate calculations.
+- [x] Preserve SVG chart rendering, invalid-point fallback, and authenticated paper-performance semantics.
+- [x] Verify 374 tests, workspace typechecks, and lint.
+- [ ] Promote the reviewed web batch and verify the chart against persisted performance snapshots.
+
 ### Phase 6.356 — Live runtime incident checkpoint (2026-08-29)
 
 - [x] Confirm the live API remains healthy and the Worker is connected to Alpaca paper mode with a fresh crypto stream, active position management, and order submission approval present.
