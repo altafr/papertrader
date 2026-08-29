@@ -21,10 +21,11 @@ describe("paper risk notification policy", () => {
   });
 
   it("includes bounded entry rationale and indicator evidence", () => {
-    const message = buildPaperRiskDecisionMessage({ approvalReference: "paper-001", candidate: { assetClass: "crypto", averageVolume: "10", dataAsOf: "2026-08-29T00:00:00Z", marketSnapshot: { asOf: "2026-08-29T00:00:00Z", atr14: "2", close: "100", ema20: "99", ema50: "98", relativeVolume20: "1.4", rsi14: "61", volume: "10" }, momentumReturn: "0.03", symbol: "BTC/USD" }, entryPrice: "100", plannedStopPrice: "95", plannedTargetPrice: "104" });
+    const message = buildPaperRiskDecisionMessage({ approvalReference: "paper-001", candidate: { assetClass: "crypto", averageVolume: "10", dataAsOf: "2026-08-29T00:00:00Z", marketSnapshot: { asOf: "2026-08-29T00:00:00Z", atr14: "2", close: "100", ema20: "99", ema50: "98", relativeVolume20: "1.4", rsi14: "61", volume: "10" }, momentumReturn: "0.03", symbol: "BTC/USD" }, entryPrice: "100", plannedStopPrice: "95", plannedTargetPrice: "104", timeStopAt: "2026-08-30T00:00:00.000Z" });
     expect(message).toContain("Paper entry selected: BTC/USD");
     expect(message).toContain("RSI14 61");
     expect(message).toContain("stop 95, target 104");
+    expect(message).toContain("time stop 2026-08-30T00:00:00.000Z");
     expect(message.length).toBeLessThanOrEqual(900);
   });
 });

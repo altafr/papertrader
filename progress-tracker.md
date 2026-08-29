@@ -37,6 +37,13 @@
 - [x] Position-management tests and workspace typecheck/lint pass.
 - [ ] Verify the alert through hosted telemetry after the reviewed batch is promoted.
 
+### Phase 6.377 — Time-stop entry alert provenance (2026-08-29)
+
+- [x] Include a configured UTC time stop in approved paper-entry Telegram explanations.
+- [x] Preserve indicator evidence, bounded message size, approval-only notification policy, and execution behavior.
+- [x] Paper-autopilot tests and workspace typecheck/lint pass.
+- [ ] Verify the entry rationale through hosted telemetry after the reviewed batch is promoted.
+
 ### Phase 6.356 — Live runtime incident checkpoint (2026-08-29)
 
 - [x] Confirm the live API remains healthy and the Worker is connected to Alpaca paper mode with a fresh crypto stream, active position management, and order submission approval present.
