@@ -6630,6 +6630,13 @@
 - Added regression coverage for candidate filtering and deterministic ordering.
 - **Next smallest unit:** run the broker provenance report on Railway and use only operator-confirmed candidates when completing `BTCUSD` and `PFD` exit plans.
 
+### Phase 6.549 — Hosted broker provenance candidates (2026-08-29)
+
+- Deployed the read-only broker review command and ran it against the Alpaca paper account over Railway SSH.
+- `BTCUSD` has multiple historical filled `BTC/USD` buy candidates, so its exact opening order still requires operator selection; `PFD` has one filled buy candidate.
+- The report did not write state or mutate the broker. The release-pinned verifier remains blocked only by the two incomplete exit plans.
+- **Next smallest unit:** operator selects the correct broker order for each position and supplies protective stop plus target/time-stop and strategy provenance; then the guarded backfill can be applied.
+
 ### Phase 6.532 — Railway rollout initializing
 
 - Railway status transitioned both Worker and recovery-worker latest deployments from `QUEUED` to `INITIALIZING`.
