@@ -2,11 +2,18 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.355 — Repeatable stale-stream incident audit.
-- **Status:** The hosted Worker and API are healthy in Paper Autopilot mode with deterministic entry/exit safeguards, durable reconciliation, Telegram alerting, lifecycle-stable PostgreSQL-backed risk evidence, and a read-only portfolio status command. The latest provenance and evidence guards are deployed and verified. Vercel production publication remains limited by the free-plan daily deployment quota, while the 30-day paper-forward evidence window and authenticated dashboard verification remain ongoing.
+- **Phase:** Phase 6.373 — Local safety-batch verification.
+- **Status:** The hosted Worker and API continue paper trading with deterministic entry/exit safeguards, durable reconciliation, Telegram alerting, lifecycle-stable PostgreSQL-backed risk evidence, and a read-only portfolio status command. The latest exit-plan coverage, per-position remediation reasons, and entry pause gate are implemented and verified locally in one batch, but are intentionally not deployed yet so the active paper-trading release is uninterrupted. Vercel production publication remains limited by the free-plan daily deployment quota, while authenticated dashboard verification and the 30-day paper-forward evidence window remain ongoing.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
-- **Current goal:** Continue durable paper trading, verify authenticated portfolio/P&L rendering and exports, and accumulate the 30-day evidence gate without loosening risk controls.
+- **Current goal:** Continue durable paper trading, then promote one reviewed batch when provider limits clear; verify authenticated portfolio/P&L rendering and exports, and accumulate the 30-day evidence gate without loosening risk controls.
 - **Last updated:** 2026-08-29.
+
+### Phase 6.373 — Local safety-batch verification (2026-08-29)
+
+- [x] Verify complete exit-plan coverage, actionable unmanaged-position reasons, and deterministic entry pausing as one local batch.
+- [x] Run 89 test files / 371 tests, all workspace typechecks, lint, and the secret-surface audit successfully.
+- [x] Record the batch in local commit `c655a8a` without triggering Railway or Vercel deployment.
+- [ ] Promote the reviewed batch once provider limits clear, then verify the authenticated dashboard and hosted Worker telemetry.
 
 ### Phase 6.356 — Live runtime incident checkpoint (2026-08-29)
 
