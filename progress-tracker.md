@@ -6526,6 +6526,13 @@
 - Added deterministic alert-contract coverage; Worker tests, workspace typechecks, lint, and diff hygiene pass.
 - **Next smallest unit:** deploy and verify stale-scheduler alert delivery in the Telegram outbox.
 
+### Phase 6.534 — API release identity regression guard
+
+- Added API health tests for valid Railway/CI release identifiers and malformed-value omission.
+- This protects dual-service release pinning from trusting unsafe metadata.
+- Focused tests, workspace typechecks, lint, and diff hygiene pass.
+- **Next smallest unit:** after rollout, verify API and Worker health both report the pinned release SHA.
+
 ### Phase 6.532 — Railway rollout initializing
 
 - Railway status transitioned both Worker and recovery-worker latest deployments from `QUEUED` to `INITIALIZING`.
