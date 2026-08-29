@@ -1366,6 +1366,13 @@
 - [x] Add regression coverage and package the command without changing alert or trading behavior.
 - [ ] Deploy the Worker revision and run the status command after a market-close cycle.
 
+### Phase 6.517 — Telegram outbox metadata guard
+
+- Bound and validate the latest outbox delivery attempt count, event code/status, and occurrence timestamp before reporting status.
+- Malformed latest delivery metadata now fails closed; no message content or provider credentials are exposed.
+- Added regression coverage; focused tests, workspace typechecks, lint, and diff hygiene pass.
+- **Next smallest unit:** deploy the Worker revision and run the read-only status command after a market-close cycle.
+
 ### Phase 6.458 — Natural hosted cycle continuity (2026-08-29)
 
 - [x] Verify the hosted Worker remains healthy on release `febcda5f7a5…` with Paper Autopilot and order submission still enabled.
