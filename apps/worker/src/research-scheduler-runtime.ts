@@ -6,7 +6,7 @@ import { isCompleteExitPlan, type AgentRunRequest, type ResearchWatchlistCandida
 
 import { createResearchPreparationQueueHandler } from "./research-preparation.js";
 import { createAlpacaResearchInputSource } from "./research-market-source.js";
-import { createResearchScheduler, getResearchScheduleReadiness, getResearchScheduleConfig, setResearchRiskCycleHealth } from "./research-scheduler.js";
+import { createResearchScheduler, getResearchScheduleReadiness, getResearchScheduleConfig, getResearchSchedulerErrorMetadata, setResearchRiskCycleHealth } from "./research-scheduler.js";
 import { createRuntimeAlertNotifier } from "./telegram-events.js";
 import { runPaperAutopilotRiskCycle } from "./paper-autopilot-cycle.js";
 import { executePaperAutopilotOrder } from "./paper-execution.js";
@@ -145,6 +145,13 @@ export function createResearchSchedulerFromEnvironment(environment: NodeJS.Proce
     config,
     environment,
     onStale: async (error) => { void error; const occurredAt = new Date().toISOString(); await createRuntimeAlertNotifier(environment, alertRepository).notify({ ...buildResearchSchedulerStaleAlert(occurredAt), occurredAt }); },
-    runPreparation: async (job) => { await handler(job); },
+    runPreparation: async (job) => {
+      try {
+        await handler(job);
+      } catch (error: unknown) {
+        console.error(JSON.stringify({ ...getResearchSchedulerErrorMetadata(error), event: "research_preparation_failed" }));
+        throw error;
+      }
+    },
   });
 }

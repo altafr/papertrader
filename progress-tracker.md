@@ -6580,6 +6580,12 @@
 - Research scheduler tests (17), Worker typecheck, workspace lint, and production build pass.
 - **Next smallest unit:** deploy the UUID boundary correction and verify the Worker records a scheduled research run and completed paper risk cycle.
 
+### Phase 6.542 — Research handler failure diagnostics (2026-08-29)
+
+- Hosted verification confirmed the UUID boundary correction allows scheduler startup and catch-up enqueue; the catch-up job now reaches the handler but is retried by pg-boss.
+- Added bounded, non-secret error-code/name telemetry at the research-preparation handler boundary so the remaining failure can be isolated without logging provider messages or credentials.
+- **Next smallest unit:** deploy this diagnostic wrapper, classify the handler failure, and correct the underlying paper research-cycle issue.
+
 ### Phase 6.532 — Railway rollout initializing
 
 - Railway status transitioned both Worker and recovery-worker latest deployments from `QUEUED` to `INITIALIZING`.
