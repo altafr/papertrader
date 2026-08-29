@@ -2,7 +2,7 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.409 — Hosted Worker heartbeat contract guard.
+- **Phase:** Phase 6.413 — Deploy-equivalent build verification.
 - **Status:** The hosted Worker and API continue paper trading with deterministic entry/exit safeguards, durable reconciliation, Telegram alerting, lifecycle-stable PostgreSQL-backed risk evidence, and a read-only portfolio status command. Local Worker/dashboard batches expose startup catch-up, risk-cycle, position-management, and bounded heartbeat telemetry; the hosted release remains older because deployment is intentionally deferred. Authenticated dashboard verification, exit-plan remediation, and the 30-day paper-forward evidence window remain ongoing.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading, promote one reviewed local batch when provider limits clear, verify authenticated portfolio/P&L rendering and exports, and accumulate the 30-day evidence gate without loosening risk controls. Deploy the current local heartbeat/dashboard changes only after explicit operator authorization.
@@ -6408,3 +6408,9 @@
 - Documented the guarded runtime-readiness command and its bounded output states in the operator README.
 - Clarified that `ready` requires enabled paper order submission plus fresh, coherent reconciliation; future-dated snapshots fail closed and no command path submits orders.
 - **Next smallest unit:** deploy the accumulated Worker/API changes only after explicit operator authorization, then run this readiness check and the hosted verifier against the deployed release.
+
+### Phase 6.413 deploy-equivalent build verification
+
+- Ran the full workspace production build, including all packages, the Next.js dashboard, API, and Worker artifacts.
+- Build completed successfully; generated routes include the authenticated dashboard, exports, agent detail, and sign-in surfaces.
+- **Next smallest unit:** deploy the accumulated changes only after explicit operator authorization, then execute runtime readiness, hosted health, and authenticated operator verification.

@@ -80,6 +80,8 @@ Runtime readiness additionally fails closed when Paper Autopilot is configured b
 
 Reconciliation readiness also rejects account snapshots dated more than five minutes in the future relative to the Worker clock. Such clock-skewed evidence is classified as unavailable and blocks autonomous execution until a fresh, coherent snapshot is captured.
 
+The deploy-equivalent workspace build has been verified across the domain, database, broker adapter, notification, API, Worker, and Next.js dashboard artifacts. Build success is treated as a release prerequisite only; it does not substitute for hosted health or authenticated operator verification.
+
 The research scheduler also has a bounded self-recovery path: after a missed scheduled tick, it may enqueue one idempotent preparation job through the same durable `pg-boss` queue. The Worker remains degraded until that job completes, and recovery cannot bypass research validation, reconciliation, deterministic risk checks, paper-mode enforcement, or the kill switch.
 
 For interval schedules, scheduler startup also enqueues one idempotent catch-up job for the current UTC interval. This closes the restart-to-next-cron gap for continuous crypto research while using the normal durable queue and all existing validation/risk gates. Daily stock preparation remains driven only by its scheduled daily cron.
