@@ -47,6 +47,8 @@ export interface ResearchSchedulerClient extends ResearchQueueClient {
 export async function startWithBoundedRetry(input: {
   readonly attempts?: number;
   readonly delayMs?: number;
+  readonly onExhausted?: (error: unknown) => Promise<void> | void;
+  readonly onRetry?: (attempt: number, error: unknown) => Promise<void> | void;
   readonly sleep?: (delayMs: number) => Promise<void>;
   readonly start: () => Promise<void>;
 }): Promise<void> {
@@ -61,9 +63,13 @@ export async function startWithBoundedRetry(input: {
       return;
     } catch (error: unknown) {
       lastError = error;
-      if (attempt < attempts) await sleep(delayMs);
+      if (attempt < attempts) {
+        await input.onRetry?.(attempt, error);
+        await sleep(delayMs);
+      }
     }
   }
+  await input.onExhausted?.(lastError);
   throw lastError instanceof Error ? lastError : new Error("research_scheduler_start_failed");
 }
 

@@ -6492,6 +6492,13 @@
 - This confirms local release-candidate readiness; it does not claim the queued Railway Worker deployment is active.
 - **Next smallest unit:** after Railway infrastructure recovery and authorized rollout, run the dual-service release-pinned hosted verifier and authenticated operator checks.
 
+### Phase 6.528 — Scheduler startup recovery telemetry
+
+- Added bounded structured log events for each research scheduler startup retry and final exhaustion.
+- Logs expose only attempt/status metadata; provider errors, credentials, and broker payloads remain excluded.
+- Added callback regression coverage; scheduler tests, workspace typechecks, lint, and diff hygiene pass.
+- **Next smallest unit:** deploy the Worker revision and verify retry/exhaustion events are visible without sensitive payloads.
+
 ### Phase 6.521 — Hosted verifier gate isolation
 
 - Credential-free `pnpm verify:hosted` reproduced failed gates `worker`, `research_schedule`, and `next_runs`.

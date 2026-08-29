@@ -4,14 +4,18 @@ import { assessResearchSchedulerLiveness, createResearchScheduler, enqueueResear
 describe("research schedule boundary", () => {
   it("recovers transient scheduler startup failures with bounded retries", async () => {
     let attempts = 0;
-    await startWithBoundedRetry({ attempts: 3, delayMs: 1, sleep: async () => {}, start: async () => { attempts += 1; if (attempts < 3) throw new Error("transient"); } });
+    const retries: number[] = [];
+    await startWithBoundedRetry({ attempts: 3, delayMs: 1, onRetry: (attempt) => { retries.push(attempt); }, sleep: async () => {}, start: async () => { attempts += 1; if (attempts < 3) throw new Error("transient"); } });
     expect(attempts).toBe(3);
+    expect(retries).toEqual([1, 2]);
   });
 
   it("fails after bounded scheduler startup retries are exhausted", async () => {
     let attempts = 0;
-    await expect(startWithBoundedRetry({ attempts: 2, delayMs: 1, sleep: async () => {}, start: async () => { attempts += 1; throw new Error("unavailable"); } })).rejects.toThrow("unavailable");
+    let exhausted: unknown;
+    await expect(startWithBoundedRetry({ attempts: 2, delayMs: 1, onExhausted: (error) => { exhausted = error; }, sleep: async () => {}, start: async () => { attempts += 1; throw new Error("unavailable"); } })).rejects.toThrow("unavailable");
     expect(attempts).toBe(2);
+    expect(exhausted).toBeInstanceOf(Error);
   });
 
   it("is disabled by default with bounded configuration", () => {

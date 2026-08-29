@@ -43,7 +43,11 @@ if (getResearchScheduleReadiness().status === "blocked" && process.env.RESEARCH_
   throw new Error("RESEARCH_SCHEDULER_ENABLED=true requires paper database, broker, credentials, and handler gates.");
 }
 const researchScheduler = createResearchSchedulerFromEnvironment();
-if (researchScheduler) void startWithBoundedRetry({ start: () => researchScheduler.start() }).catch(() => { /* health endpoint reports degraded state after bounded recovery */ });
+if (researchScheduler) void startWithBoundedRetry({
+  onExhausted: () => { console.error(JSON.stringify({ event: "research_scheduler_start_failed", status: "degraded" })); },
+  onRetry: (attempt) => { console.warn(JSON.stringify({ attempt, event: "research_scheduler_start_retry" })); },
+  start: () => researchScheduler.start(),
+}).catch(() => { /* health endpoint reports degraded state after bounded recovery */ });
 const marketCloseSummaryEnabled = isMarketCloseSummaryEnabled();
 const autopilotConfiguration = getPaperAutopilotConfig();
 if (autopilotConfiguration.enabled && !process.env.DATABASE_URL?.trim()) throw new Error("PAPER_AUTOPILOT_ENABLED=true requires DATABASE_URL.");

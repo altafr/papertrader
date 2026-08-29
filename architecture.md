@@ -60,6 +60,8 @@ The follow-up Railway status check showed no queue recovery: the latest Worker a
 
 Research scheduler startup now performs up to three bounded retries with a 30-second delay for transient queue/database startup failures. Exhaustion leaves the health endpoint degraded and does not submit orders or bypass any readiness gate.
 
+Each startup retry and final exhaustion also emits a bounded structured Worker log event (`research_scheduler_start_retry` / `research_scheduler_start_failed`) without error text, credentials, or broker payloads. This gives operators an auditable recovery signal without leaking provider details.
+
 The credential-free hosted verifier reproduced the same condition with failed gates `worker`, `research_schedule`, and `next_runs`. The API remained reachable and the public dashboard returned HTTP 200. Since the verifier performs only health/public-surface GETs, this check cannot submit orders or mutate database state.
 
 The guarded `exit-plan-review` command provides a read-only, bounded remediation report for the latest account snapshot. It lists each position as managed or review-required with the exact missing plan fields; it never infers prices or mutates PostgreSQL/broker state.
