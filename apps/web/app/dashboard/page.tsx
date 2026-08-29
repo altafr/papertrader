@@ -11,7 +11,7 @@ type ReadModel = {
   positions: Array<Record<string, unknown>>;
   snapshot: Record<string, unknown>;
   activeExitPositions: Array<{ assetClass: string; symbol: string }>;
-  unmanagedPositions: Array<{ assetClass: string; symbol: string }>;
+  unmanagedPositions: Array<{ assetClass: string; symbol: string; missingFields?: string[] }>;
 };
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -39,7 +39,7 @@ function parseReadModel(value: unknown): ReadModel | undefined {
     positions: model.positions.filter(isRecord),
     snapshot: model.snapshot,
     activeExitPositions: model.activeExitPositions.filter((row): row is { assetClass: string; symbol: string } => isRecord(row) && typeof row.assetClass === "string" && typeof row.symbol === "string"),
-    unmanagedPositions: model.unmanagedPositions.filter((row): row is { assetClass: string; symbol: string } => isRecord(row) && typeof row.assetClass === "string" && typeof row.symbol === "string"),
+    unmanagedPositions: model.unmanagedPositions.filter((row): row is { assetClass: string; symbol: string; missingFields?: string[] } => isRecord(row) && typeof row.assetClass === "string" && typeof row.symbol === "string" && (row.missingFields === undefined || (Array.isArray(row.missingFields) && row.missingFields.every((field) => typeof field === "string")))),
   };
 }
 
@@ -510,7 +510,7 @@ export default async function DashboardPage({ searchParams }: { readonly searchP
 
           <article className="card full-width" id="positions">
             <div className="card-heading"><div><p className="label">Positions</p><h2>{result.model.positions.length} open positions</h2></div><span className="provenance">Persisted account snapshot</span></div>
-            {unmanagedKeys.size > 0 && <div className="audit-unavailable" role="alert"><strong>{unmanagedKeys.size} position(s) require review.</strong><span>{result.model.unmanagedPositions.map((position) => position.symbol).join(", ")} do not have a complete portfolio-aligned exit plan (protective stop plus target or time stop). They are fail-closed and will not receive automatic exits.</span></div>}
+            {unmanagedKeys.size > 0 && <div className="audit-unavailable" role="alert"><strong>{unmanagedKeys.size} position(s) require review.</strong><span>{result.model.unmanagedPositions.map((position) => `${position.symbol}${position.missingFields?.length ? ` (missing: ${position.missingFields.join(", ")})` : ""}`).join(", ")} do not have a complete portfolio-aligned exit plan (protective stop plus target or time stop). They are fail-closed and will not receive automatic exits.</span></div>}
             {result.model.positions.length === 0 ? <p className="empty-state">No open positions in the latest reconciled snapshot.</p> : (
               <div className="responsive-table"><table><thead><tr><th>Symbol</th><th>Class</th><th>Quantity</th><th>Avg entry</th><th>Invested notional</th><th>Market value</th><th>Unrealized P/L</th><th>Return</th><th>Strategy</th><th>Stop</th><th>Target</th><th>Time stop</th><th>Age</th><th>Exit state</th></tr></thead><tbody>
                 {result.model.positions.map((position) => { const notional = positionNotional(position); const returnPercent = positionReturnPercent(position); const assetClass = value(position, "assetClass"); const symbol = value(position, "symbol"); const exitState = getPositionExitDisplayState({ assetClass, symbol }, result.model.unmanagedPositions, result.model.activeExitPositions); const exitLabel = exitState === "review_required" ? "Review required" : exitState === "exit_in_flight" ? "Exit in flight" : "Monitoring"; return <tr key={`${symbol}-${value(position, "accountSnapshotId")}`}><th scope="row">{symbol}</th><td>{assetClass}</td><td>{value(position, "quantity")}</td><td>{value(position, "averageEntryPrice")}</td><td>{notional === undefined ? "Not reported" : notional.toFixed(2)}</td><td>{value(position, "marketValue")}</td><td className={numericValue(position, "unrealizedPl") !== undefined && (numericValue(position, "unrealizedPl") ?? 0) < 0 ? "negative-value" : ""}>{value(position, "unrealizedPl")}</td><td className={returnPercent !== undefined && returnPercent < 0 ? "negative-value" : ""}>{returnPercent === undefined ? "Not reported" : `${returnPercent.toFixed(2)}%`}</td><td>{value(position, "strategyKey")}{value(position, "strategyVersion") !== "—" ? ` ${value(position, "strategyVersion")}` : ""}</td><td>{value(position, "plannedStopPrice")}</td><td>{value(position, "plannedTargetPrice")}</td><td>{value(position, "timeStopAt") === "—" ? "Not specified" : formatUtc(value(position, "timeStopAt"))}</td><td>{positionAge(position)}</td><td>{exitLabel}</td></tr>; })}

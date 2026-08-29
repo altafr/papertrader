@@ -1,4 +1,4 @@
-export type UnmanagedPosition = { readonly assetClass: string; readonly symbol: string };
+export type UnmanagedPosition = { readonly assetClass: string; readonly symbol: string; readonly missingFields?: readonly string[] };
 export type ActiveExitPosition = UnmanagedPosition;
 export type PositionMetadata = UnmanagedPosition & {
   readonly entryPrice?: string;

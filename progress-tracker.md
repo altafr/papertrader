@@ -107,6 +107,13 @@
 - [x] Full suite remains green: 89 test files / 370 tests; workspace typecheck and lint pass.
 - [ ] Surface missing-field reasons in the authenticated position audit after the next batched API/dashboard promotion.
 
+### Phase 6.370 — Per-position exit-plan remediation details (2026-08-29)
+
+- [x] Extend the authenticated API unmanaged-position projection with bounded missing-field reasons from the latest matching submission.
+- [x] Render those reasons in the dashboard review warning while preserving credential-free, fail-closed behavior.
+- [x] Full suite passes: 89 test files / 370 tests; domain build, workspace typecheck, and lint pass.
+- [ ] Batch this API/dashboard work with the queued release and verify it through an authenticated operator session after provider recovery.
+
 ### Phase 6.355 — Repeatable stale-stream incident audit (2026-08-29)
 
 - [x] Replace the permanent stale-stream dedupe key with a bounded UTC-hour episode key.
