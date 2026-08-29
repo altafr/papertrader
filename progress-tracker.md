@@ -6608,6 +6608,13 @@
 - Updated rollout guidance to pin the same release identifier on both services and in hosted verification.
 - **Next smallest unit:** set one identical non-secret release identifier on API and Worker, redeploy if required, and rerun the release-pinned hosted verifier.
 
+### Phase 6.546 — Hosted dual-service release pin verified (2026-08-29)
+
+- Set the same bounded `PAPERTRADER_RELEASE=b17c2ad` on the Railway API and Worker and deployed both services.
+- API and Worker health both report `b17c2ad`; the expected-release verifier confirms release pinning with no mismatch.
+- The verifier now fails only `worker` and `position_management`, both caused by the two known review-required exit plans; scheduler, research cycle, risk telemetry, freshness, and release gates pass.
+- **Next smallest unit:** apply operator-reviewed exit-plan provenance for `BTCUSD` and `PFD`, then rerun the pinned verifier.
+
 ### Phase 6.532 — Railway rollout initializing
 
 - Railway status transitioned both Worker and recovery-worker latest deployments from `QUEUED` to `INITIALIZING`.
