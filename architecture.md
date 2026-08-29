@@ -60,6 +60,8 @@ The dashboard Alerts panel also emits a critical Worker-runtime review item for 
 
 It also repeats a critical alert when the authenticated read model contains unmanaged positions, matching the Positions-table warning and Worker health count.
 
+The shared `assessMinimalSupervision` contract combines these independent gates into a conservative ready/blocked result for operator surfaces. It is informational only and cannot enable execution or override any individual gate.
+
 The stream supervisor derives its gap-recovery interval from the configured bar timeframe (including 5-minute and 15-minute crypto bars), rather than treating every non-1-minute stream as hourly. A one-minute watchdog emits one deduplicated critical alert when a connected stream becomes stale and clears the episode after fresh messages resume; its durable key is time-bucketed so a later outage remains auditable after the cooldown. It never submits or changes an order.
 
 The public Vercel heartbeat safely renders that bounded stream-freshness classification when available; it continues to omit account, position, order, credential, and broker-payload values.

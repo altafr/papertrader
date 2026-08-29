@@ -71,6 +71,13 @@
 - [x] Verify the full workspace tests, typechecks, lint, and diff hygiene.
 - [ ] Verify hosted alert rendering after deployment and exit-plan remediation.
 
+### Phase 6.405 — Minimal-supervision readiness contract (2026-08-29)
+
+- [x] Add a shared conservative readiness assessment covering paper mode, order submission, baseline, freshness, Worker/schedulers, Telegram, kill switch, and exit-plan coverage.
+- [x] Surface the blocked/ready result and bounded reasons in the authenticated dashboard.
+- [x] Add domain regression coverage and verify the full workspace suite, typechecks, and lint.
+- [ ] Verify the readiness result against the hosted runtime after deployment and remediation.
+
 ### Phase 6.405 — Exit-plan remediation runbook (2026-08-29)
 
 - [x] Document the guarded read-only `exit-plan-review` command and its no-write/no-broker guarantees.

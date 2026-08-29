@@ -1,6 +1,6 @@
 import { UserButton } from "@clerk/nextjs";
 import { auth } from "@clerk/nextjs/server";
-import { EXIT_PLAN_MISSING_FIELDS } from "@momentum/domain";
+import { assessMinimalSupervision, EXIT_PLAN_MISSING_FIELDS } from "@momentum/domain";
 import * as DecimalModule from "decimal.js";
 
 import { auditPageCount, buildDashboardHistoryParams, formatAuditDateRange, formatUtc, getDashboardSystemState, getFreshnessLabel, getFreshnessState, getPositionExitDisplayState, parseAgentRuns, parseOperatorOverview, parseOperationsHealth, parsePaperPerformance, type AgentRunSummary, type OperationsHealth, type OperatorOverview, type PaperPerformance } from "./dashboard-state";
@@ -442,6 +442,18 @@ export default async function DashboardPage({ searchParams }: { readonly searchP
   const dayPnl = equity && lastEquity ? equity.plus(lastEquity.times("-1")).toDecimalPlaces(2).toFixed(2) : undefined;
   const grossExposurePercent = equity && portfolioMarketValue && !equity.isZero() ? new DisplayDecimal(portfolioMarketValue).div(equity).times("100").toDecimalPlaces(2).toFixed(2) : undefined;
   const unmanagedKeys = new Set(result.kind === "ready" ? result.model.unmanagedPositions.map((position) => `${position.assetClass}:${position.symbol}`) : []);
+  const supervision = assessMinimalSupervision({
+    accountFresh: freshness === "fresh",
+    baselineVerified: operationsHealth?.runtime.paperBaseline.status === "ready",
+    globalKillSwitchActive: operationsHealth?.runtime.globalKillSwitchActive ?? true,
+    orderSubmissionEnabled: operationsHealth?.runtime.paperAutopilotOrderSubmissionEnabled ?? false,
+    paperMode: operationsHealth?.runtime.operatingMode === "paper_autopilot",
+    positionManagementReady: workerHealth?.positionManagement?.status === "ready",
+    researchScheduled: workerHealth?.researchSchedule?.status === "scheduled",
+    telegramReady: operationsHealth?.runtime.telegramAlerts.status === "ready",
+    unmanagedPositions: unmanagedKeys.size,
+    workerHealthy: workerHealth?.status === "healthy",
+  });
   const today = new Date();
   const toDate = today.toISOString().slice(0, 10);
   const presetDate = (days: number) => { const from = new Date(today); from.setUTCDate(from.getUTCDate() - (days - 1)); return from.toISOString().slice(0, 10); };
@@ -473,6 +485,7 @@ export default async function DashboardPage({ searchParams }: { readonly searchP
             <span className="health-detail">Market stream: {workerHealth?.marketStream?.freshness ?? "not reported"}</span>
             <span className="health-detail">Worker: {workerHealth?.status ?? "unavailable"}{workerHealth?.positionManagement?.unmanagedCount ? ` · ${workerHealth.positionManagement.unmanagedCount} position(s) need exit plans` : ""}{workerHealth?.researchSchedule?.nextRunAt ? ` · next research ${formatUtc(workerHealth.researchSchedule.nextRunAt)}` : ""}{workerHealth?.researchSchedule?.lastCatchupStatus ? ` · catch-up ${workerHealth.researchSchedule.lastCatchupStatus}` : ""}</span>
             <span className="health-detail">Risk cycle: {workerHealth?.researchSchedule?.lastRiskCycleStatus ?? "not reported"}{workerHealth?.researchSchedule?.lastRiskDecisionCount !== undefined ? ` · ${workerHealth.researchSchedule.lastRiskDecisionCount} decisions` : ""}{workerHealth?.researchSchedule?.lastRiskCycleAt ? ` · ${formatUtc(workerHealth.researchSchedule.lastRiskCycleAt)}` : ""}</span>
+            <span className="health-detail">Minimal supervision: {supervision.status === "ready" ? "ready" : `blocked · ${supervision.blockedReasons.join(", ")}`}</span>
           </div>
         </div>
       </section>
