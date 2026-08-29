@@ -54,6 +54,8 @@ Outbox delivery-count keys are sorted deterministically before the bounded statu
 
 Read-only Railway inspection on 2026-08-29 found the latest Worker and recovery-worker deployments queued/stopped with Railway reporting upstream GCP issues, while the API and PostgreSQL services remained successful. This is an infrastructure rollout state, not evidence of a trading or risk failure; no deployment retry was triggered automatically.
 
+A subsequent read-only health probe reported the active Worker as `degraded`: Paper Autopilot remained selected, the market stream was connected/fresh, and position management was ready, but the research scheduler was degraded with no recorded run or catch-up telemetry. This must be treated as an operational stop for new research-driven entries until the deployed release is healthy; no order or retry was triggered by the probe.
+
 The guarded `exit-plan-review` command provides a read-only, bounded remediation report for the latest account snapshot. It lists each position as managed or review-required with the exact missing plan fields; it never infers prices or mutates PostgreSQL/broker state.
 
 The report sorts positions by asset class/symbol, selects the newest persisted plan by update/create timestamp with a deterministic tie-breaker, and caps output at 100 positions. Repeated reviews therefore produce stable, bounded operator evidence.

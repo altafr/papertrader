@@ -6442,3 +6442,11 @@
 - The latest Worker and recovery-worker deployments are `QUEUED`/stopped with Railway reason `Deployment queued due to upstream GCP issues`; the previously active release remains the hosted runtime evidence point.
 - No deployment retry, variable change, database mutation, or broker action was performed.
 - **Next smallest unit:** when Railway clears the infrastructure queue and rollout is explicitly authorized, deploy the current branch, set the expected release variable, and run hosted health plus Telegram outbox verification.
+
+### Phase 6.520 — Hosted Worker degraded-health checkpoint
+
+- Read-only Worker health probe reports release `26d6903d474505fb27d2ede33ca936390a4f7511` as `degraded`.
+- Paper Autopilot remains selected; market stream is connected/fresh and position management is ready.
+- Research scheduler is degraded with no recorded run or catch-up telemetry, so the hosted state is not considered ready for autonomous new entries.
+- No order, deployment retry, variable change, or database mutation was performed.
+- **Next smallest unit:** after Railway infrastructure recovers and rollout is authorized, deploy the current branch and verify scheduler recovery, risk-cycle telemetry, and Telegram outbox status.
