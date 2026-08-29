@@ -22,6 +22,7 @@ describe("exit plan completeness", () => {
     expect(() => validateExitPlanValues({ entryPrice: "100", plannedStopPrice: "100", plannedTargetPrice: "104" })).toThrow("below the entry");
     expect(() => validateExitPlanValues({ entryPrice: "100", plannedStopPrice: "95", plannedTargetPrice: "99" })).toThrow("above the entry");
     expect(() => validateExitPlanValues({ entryPrice: "100", plannedStopPrice: "95" })).toThrow("target price or time stop");
+    expect(() => validateExitPlanValues({ entryPrice: "100", plannedStopPrice: "95", timeStopAt: "not-a-date" })).toThrow("valid timestamp");
     expect(() => validateExitPlanValues({ entryPrice: "100", plannedStopPrice: "95", timeStopAt: "2026-08-30T00:00:00Z" })).not.toThrow();
   });
 });

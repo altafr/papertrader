@@ -23,6 +23,13 @@
 - [x] Verify 89 test files / 372 tests, all workspace typechecks, lint, and the secret-surface audit.
 - [ ] Promote the reviewed batch and verify remediation of an actual review-required paper position through hosted telemetry.
 
+### Phase 6.375 — Shared time-stop validation (2026-08-29)
+
+- [x] Extend the shared remediation validator to reject malformed time-stop timestamps, including callers outside the CLI wrapper.
+- [x] Add regression coverage while preserving target-based plans and paper-only execution boundaries.
+- [x] Rebuild the domain package and verify 89 test files / 372 tests, all workspace typechecks, and lint.
+- [ ] Promote the reviewed batch and verify the corrected exit plan in the authenticated dashboard.
+
 ### Phase 6.356 — Live runtime incident checkpoint (2026-08-29)
 
 - [x] Confirm the live API remains healthy and the Worker is connected to Alpaca paper mode with a fresh crypto stream, active position management, and order submission approval present.

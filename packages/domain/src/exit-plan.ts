@@ -46,6 +46,9 @@ export function validateExitPlanValues(input: { readonly entryPrice: string; rea
     try { target = new Decimal(input.plannedTargetPrice); } catch { throw new Error("Exit-plan target price must be a valid decimal string."); }
     if (target.lessThanOrEqualTo(input.entryPrice)) throw new Error("Exit-plan target price must be above the entry price.");
   }
+  if (input.timeStopAt !== undefined && input.timeStopAt !== null && !Number.isFinite(Date.parse(typeof input.timeStopAt === "string" ? input.timeStopAt : input.timeStopAt.toISOString()))) {
+    throw new Error("Exit-plan time stop must be a valid timestamp.");
+  }
   if (!input.plannedTargetPrice?.trim() && !input.timeStopAt) throw new Error("Exit-plan requires a target price or time stop.");
 }
 
