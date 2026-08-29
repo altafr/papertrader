@@ -54,6 +54,8 @@ The freshness-enabled web revision is published to the production Vercel alias. 
 
 The hosted paper-runtime verifier also fails closed when the Worker explicitly reports a stale market stream, while remaining backward-compatible with older health payloads that omit the optional freshness field.
 
+The research scheduler also has a bounded self-recovery path: after a missed scheduled tick, it may enqueue one idempotent preparation job through the same durable `pg-boss` queue. The Worker remains degraded until that job completes, and recovery cannot bypass research validation, reconciliation, deterministic risk checks, paper-mode enforcement, or the kill switch.
+
 Approved-entry Telegram events include a bounded explanation with symbol/asset class, momentum, entry, stop, optional target, and captured RSI/EMA/relative-volume indicators. This is structured decision evidence only; it never includes hidden chain-of-thought or credentials.
 
 Exit decision alerts use the persisted position plan to include the trigger reason, executable mark, strategy/version, entry, stop, and target. This keeps exit notifications explainable without allowing Telegram delivery to influence execution.

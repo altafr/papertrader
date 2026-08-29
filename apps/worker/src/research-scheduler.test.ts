@@ -40,7 +40,7 @@ describe("research schedule boundary", () => {
 
   it("provisions a separately named research queue with bounded retries", async () => {
     const calls: Array<{ readonly name: string; readonly options?: object }> = [];
-    await provisionResearchQueues({ createQueue: async (name, options) => { calls.push({ name, ...(options ? { options } : {}) }); }, schedule: async () => {}, work: async () => "worker" }, getResearchScheduleConfig({ RESEARCH_RETRY_DELAY_SECONDS: "30", RESEARCH_RETRY_LIMIT: "1" }));
+    await provisionResearchQueues({ createQueue: async (name, options) => { calls.push({ name, ...(options ? { options } : {}) }); }, send: async () => null, schedule: async () => {}, work: async () => "worker" }, getResearchScheduleConfig({ RESEARCH_RETRY_DELAY_SECONDS: "30", RESEARCH_RETRY_LIMIT: "1" }));
     expect(calls.map((call) => call.name)).toEqual([RESEARCH_PREPARATION_DEAD_LETTER_QUEUE, RESEARCH_PREPARATION_QUEUE]);
     expect(calls[1]?.options).toMatchObject({ deadLetter: RESEARCH_PREPARATION_DEAD_LETTER_QUEUE, retryDelay: 30, retryLimit: 1 });
   });
@@ -70,6 +70,7 @@ describe("research schedule boundary", () => {
       start: async () => { calls.push("start"); },
       stop: async () => { calls.push("stop"); },
       createQueue: async (name: string) => { calls.push(`queue:${name}`); },
+      send: async () => null,
       schedule: async (name: string, cron: string, _data?: object | null, options?: { readonly tz?: string }) => { calls.push(`schedule:${name}:${cron}:${options?.tz ?? ""}`); },
       work: async <T>(_name: string, handler: (jobs: readonly { readonly data: T }[]) => Promise<unknown>) => { workerHandler = handler as (jobs: readonly { readonly data: unknown }[]) => Promise<unknown>; calls.push("work"); return "worker"; },
     };
@@ -87,7 +88,7 @@ describe("research schedule boundary", () => {
   it("preserves risk-cycle telemetry when a scheduled tick completes", async () => {
     let workerHandler: ((jobs: readonly { readonly data: unknown }[]) => Promise<unknown>) | undefined;
     const client = {
-      start: async () => {}, stop: async () => {}, createQueue: async () => {}, schedule: async () => {},
+      start: async () => {}, stop: async () => {}, createQueue: async () => {}, send: async () => null, schedule: async () => {},
       work: async <T>(_name: string, handler: (jobs: readonly { readonly data: T }[]) => Promise<unknown>) => { workerHandler = handler as (jobs: readonly { readonly data: unknown }[]) => Promise<unknown>; return "worker"; },
     };
     const scheduler = createResearchScheduler({ clientFactory: () => client, config: { cron: RESEARCH_PREPARATION_CRON, enabled: true, handlerEnabled: true, retryDelaySeconds: 1, retryLimit: 1 }, environment: { ALPACA_API_KEY: "key", ALPACA_SECRET_KEY: "secret", ALPACA_PAPER_TRADE: "true", BROKER_CONNECTION_ENABLED: "true", DATABASE_URL: "postgres://private", RESEARCH_HANDLER_ENABLED: "true", RESEARCH_SCHEDULER_ENABLED: "true", TRADING_MODE: "paper" }, now: () => new Date("2026-08-23T01:00:00.000Z"), runPreparation: async () => { setResearchRiskCycleHealth({ approved: 1, decisions: 2, status: "completed", at: "2026-08-23T01:00:05.000Z" }); } });

@@ -34,6 +34,7 @@ export interface ResearchQueueSender {
 
 export interface ResearchQueueClient {
   createQueue(name: string, options?: { readonly deleteAfterSeconds?: number; readonly expireInSeconds?: number; readonly retryBackoff?: boolean; readonly retryDelay?: number; readonly retryDelayMax?: number; readonly retryLimit?: number; readonly retentionSeconds?: number; readonly deadLetter?: string }): Promise<void>;
+  send(name: string, data?: object | null, options?: { readonly id?: string }): Promise<string | null>;
   schedule(name: string, cron: string, data?: object | null, options?: { readonly key?: string; readonly tz?: string }): Promise<void>;
   work<T>(name: string, handler: (jobs: readonly { readonly data: T }[]) => Promise<unknown>): Promise<string>;
 }
@@ -198,7 +199,16 @@ export function createResearchScheduler(input: {
     if (assessResearchSchedulerLiveness(health, now()).status !== "degraded") return;
     schedulerHealth = { ...health, status: "degraded" };
     staleAlerted = true;
-    void input.onStale?.(new Error("research_scheduler_stale"));
+    const recoveryId = `research-recovery-${(health.nextRunAt ?? now().toISOString()).replace(/[^0-9A-Za-z]/g, "").slice(0, 32)}`;
+    void (async () => {
+      try {
+        const queued = await client?.send(RESEARCH_PREPARATION_QUEUE, { kind: "research_preparation", version: 1 }, { id: recoveryId });
+        if (queued) return;
+      } catch {
+        // Preserve the degraded state and emit the incident below.
+      }
+      await input.onStale?.(new Error("research_scheduler_stale"));
+    })();
   };
   return {
     async start(): Promise<void> {

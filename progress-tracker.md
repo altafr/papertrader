@@ -15,6 +15,13 @@
 - [x] Identify the current degraded state as a missed 15-minute research queue tick; the fail-closed contract is preventing a new research decision until the scheduler recovers.
 - [ ] Recover the queued Railway Worker deployment or restart the active Worker process, then rerun the hosted contract verifier and capture the next successful research cycle.
 
+### Phase 6.357 — Durable research tick self-recovery (2026-08-29)
+
+- [x] Add a bounded, idempotent recovery enqueue when the research watchdog detects a missed scheduled tick.
+- [x] Keep the Worker degraded until the recovered job completes; no direct handler invocation or order-path bypass was introduced.
+- [x] Add queue-client contract coverage and verify the research scheduler tests (11 passing) plus Worker typecheck.
+- [ ] Deploy after Railway’s queue recovers and confirm the next 15-minute cycle and hosted runtime contract.
+
 ### Phase 6.355 — Repeatable stale-stream incident audit (2026-08-29)
 
 - [x] Replace the permanent stale-stream dedupe key with a bounded UTC-hour episode key.
