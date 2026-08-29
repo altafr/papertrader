@@ -6645,6 +6645,13 @@
 - Added regression coverage for exact order and quantity matching and documented the runbook.
 - **Next smallest unit:** use the hosted broker candidate report with operator-reviewed values to adopt `PFD` and `BTCUSD`, then verify managed coverage.
 
+### Phase 6.551 — Hosted legacy adoption tooling deployed (2026-08-29)
+
+- Worker deployment `58fad0da-95ff-44ff-8127-4d23382850ae` reached `SUCCESS` with the guarded adoption command and runbook.
+- The command is available server-side and validates broker order identity, filled status, symbol/asset class, and exact quantity before writing provenance.
+- No adoption was executed because the required operator-reviewed stop/target and strategy values were not supplied; current Worker health remains fail-closed with two unmanaged positions.
+- **Next smallest unit:** run the command for each position using reviewed values, then verify the pinned hosted contract and position-management readiness.
+
 ### Phase 6.532 — Railway rollout initializing
 
 - Railway status transitioned both Worker and recovery-worker latest deployments from `QUEUED` to `INITIALIZING`.
