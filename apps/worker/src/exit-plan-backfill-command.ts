@@ -1,5 +1,6 @@
 import { getPaperOnlyRuntimeConfig } from "@momentum/config";
 import { createDatabase, createPaperOrderRepository } from "@momentum/db";
+import { validateExitPlanValues } from "@momentum/domain";
 
 if (process.env.EXIT_PLAN_BACKFILL !== "true") throw new Error("EXIT_PLAN_BACKFILL must be exactly true.");
 getPaperOnlyRuntimeConfig();
@@ -14,6 +15,7 @@ const strategyKey = bounded("EXIT_PLAN_STRATEGY_KEY");
 const strategyVersion = bounded("EXIT_PLAN_STRATEGY_VERSION");
 const timeStopAt = process.env.EXIT_PLAN_TIME_STOP_AT?.trim();
 if (timeStopAt && !Number.isFinite(Date.parse(timeStopAt))) throw new Error("EXIT_PLAN_TIME_STOP_AT must be a valid timestamp.");
+validateExitPlanValues({ entryPrice, plannedStopPrice, ...(plannedTargetPrice ? { plannedTargetPrice } : {}), ...(timeStopAt ? { timeStopAt } : {}) });
 const { db, pool } = createDatabase();
 try {
   await createPaperOrderRepository(db).backfillExitPlan({ intentId, entryPrice, plannedStopPrice, ...(plannedTargetPrice ? { plannedTargetPrice } : {}), strategyKey, strategyVersion, ...(timeStopAt ? { timeStopAt: new Date(timeStopAt) } : {}), exitPlanReference: reference });

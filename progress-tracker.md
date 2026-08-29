@@ -15,6 +15,14 @@
 - [x] Record the batch in local commit `c655a8a` without triggering Railway or Vercel deployment.
 - [ ] Promote the reviewed batch once provider limits clear, then verify the authenticated dashboard and hosted Worker telemetry.
 
+### Phase 6.374 — Safe exit-plan remediation validation (2026-08-29)
+
+- [x] Validate operator-supplied backfill prices with decimal-safe rules before a legacy position can become automatically managed.
+- [x] Reject zero/invalid prices, stops at or above entry, stops beyond the 5% adverse-loss limit, and targets at or below entry.
+- [x] Preserve target-or-time-stop completeness and paper-only runtime gating.
+- [x] Verify 89 test files / 372 tests, all workspace typechecks, lint, and the secret-surface audit.
+- [ ] Promote the reviewed batch and verify remediation of an actual review-required paper position through hosted telemetry.
+
 ### Phase 6.356 — Live runtime incident checkpoint (2026-08-29)
 
 - [x] Confirm the live API remains healthy and the Worker is connected to Alpaca paper mode with a fresh crypto stream, active position management, and order submission approval present.
