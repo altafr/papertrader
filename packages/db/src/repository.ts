@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, gte, inArray, isNotNull, lt, sql } from "drizzle-orm";
+import { and, asc, desc, eq, gte, inArray, isNotNull, lt, or, sql } from "drizzle-orm";
 
 import type { Database } from "./client.js";
 import { accountSnapshots, activities, agentRuns, durableOneRunAudits, durableScheduleRuns, orders, paperBaselineConfirmations, paperOrderSubmissions, positions, shadowObservationOutcomes, shadowObservations, strategyLifecycleEvents, strategyPaperEvidence, telegramAlertEvents } from "./schema.js";
@@ -623,6 +623,7 @@ export function createPaperOrderRepository(db: Database) {
         isNotNull(paperOrderSubmissions.plannedStopPrice),
         isNotNull(paperOrderSubmissions.strategyKey),
         isNotNull(paperOrderSubmissions.strategyVersion),
+        or(isNotNull(paperOrderSubmissions.plannedTargetPrice), isNotNull(paperOrderSubmissions.timeStopAt)),
       )).orderBy(desc(paperOrderSubmissions.createdAt));
     },
 

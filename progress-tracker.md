@@ -57,6 +57,14 @@
 - [x] Web typecheck and production build pass.
 - [ ] Publish the web revision after Vercel quota recovery and verify the behavior in production.
 
+### Phase 6.363 — Complete exit-plan invariant (2026-08-29)
+
+- [x] Require every managed position to have entry, protective stop, strategy/version, and either a profit target or explicit time stop.
+- [x] Apply the same completeness rule in Worker position management and the authenticated API/read model.
+- [x] Update the overall objective and architecture documentation to tie exit plans to risk-adjusted portfolio optimization; incomplete legacy positions remain fail-closed and review-required.
+- [x] Full suite passes: 88 test files / 368 tests, all workspace typechecks, and lint with zero warnings.
+- [ ] Deploy the invariant and verify the live positions view after Railway provider recovery.
+
 ### Phase 6.355 — Repeatable stale-stream incident audit (2026-08-29)
 
 - [x] Replace the permanent stale-stream dedupe key with a bounded UTC-hour episode key.

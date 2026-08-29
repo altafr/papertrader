@@ -24,7 +24,7 @@ The product is designed for a single operator initially. It launches in Alpaca p
 
 ### Always-on multi-agent operating objective
 
-The production system is intended to be self-running and server-resident: specialist research, macro context, strategy evaluation, deterministic risk validation, execution, reconciliation, position management, and alerting must continue when the browser is closed. The agents cooperate through durable, versioned artifacts and auditable hand-offs; no agent may bypass the deterministic risk engine or safety gates. “Optimize profits” means continuously improve measured, risk-adjusted portfolio performance within the configured paper-risk policy, never a guarantee of returns or permission to loosen controls.
+The production system is intended to be self-running and server-resident: specialist research, macro context, strategy evaluation, deterministic risk validation, execution, reconciliation, position management, and alerting must continue when the browser is closed. The agents cooperate through durable, versioned artifacts and auditable hand-offs; no agent may bypass the deterministic risk engine or safety gates. “Optimize profits” means continuously improve measured, risk-adjusted portfolio performance within the configured paper-risk policy, never a guarantee of returns or permission to loosen controls. Every open position must have a complete, strategy-linked exit plan that serves this portfolio objective: a bounded protective stop plus either a profit target or an explicit time stop. Positions without that complete plan are review-required and excluded from automatic exit management.
 
 ## Non-Goals for Version 1
 
@@ -159,7 +159,7 @@ These are conservative engineering defaults for validation, not recommendations.
 - Peak-to-trough portfolio drawdown kill switch: `5%` from recorded high-water mark.
 - Reject an entry when market data, account data, or position state is stale beyond its configured threshold.
 - Reject orders that exceed configured spread, estimated slippage, or liquidity limits.
-- Exit behavior must be specified before entry; an intent without a valid exit plan is rejected.
+- Exit behavior must be specified before entry; an intent without a valid exit plan is rejected. A valid plan includes the bounded protective stop and either a portfolio-aligned profit target or explicit time stop.
 
 The 5% invested-notional rule aligns position sizing and the maximum adverse stop distance. Gaps, liquidity failures, and execution slippage mean no system can guarantee the final realized loss.
 

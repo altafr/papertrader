@@ -156,7 +156,7 @@ export async function runPositionManagementCycle(environment: NodeJS.ProcessEnv 
     }
     const rows = await orderRepository.listExitPlans();
     const activeExitIntentIds = getActiveExitIntentIds(await orderRepository.listActiveExitSubmissions());
-    const plans = new Map(rows.filter((row) => row.alpacaOrderId && row.entryPrice && row.plannedStopPrice && row.strategyKey && row.strategyVersion).map((row) => [`${row.assetClass}:${row.symbol}`, row]));
+    const plans = new Map(rows.filter((row) => row.alpacaOrderId && row.entryPrice && row.plannedStopPrice && row.strategyKey && row.strategyVersion && (row.plannedTargetPrice || row.timeStopAt)).map((row) => [`${row.assetClass}:${row.symbol}`, row]));
     const positions = model?.positions ?? [];
     const managedPositions = positions.filter((position) => plans.has(`${position.assetClass}:${position.symbol}`));
     const unmanagedPositions = positions.filter((position) => !plans.has(`${position.assetClass}:${position.symbol}`));

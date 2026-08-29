@@ -56,6 +56,8 @@ The hosted paper-runtime verifier also fails closed when the Worker explicitly r
 
 The research scheduler also has a bounded self-recovery path: after a missed scheduled tick, it may enqueue one idempotent preparation job through the same durable `pg-boss` queue. The Worker remains degraded until that job completes, and recovery cannot bypass research validation, reconciliation, deterministic risk checks, paper-mode enforcement, or the kill switch.
 
+Every managed position must have complete exit-plan provenance: entry price, protective stop, originating strategy/version, and either a profit target or explicit time stop. The Worker and authenticated API apply this same completeness check; positions missing any element are shown as review-required and receive no automatic exit. This keeps position management aligned with the portfolio objective of improving risk-adjusted returns rather than leaving exits unspecified.
+
 Approved-entry Telegram events include a bounded explanation with symbol/asset class, momentum, entry, stop, optional target, and captured RSI/EMA/relative-volume indicators. This is structured decision evidence only; it never includes hidden chain-of-thought or credentials.
 
 Exit decision alerts use the persisted position plan to include the trigger reason, executable mark, strategy/version, entry, stop, and target. This keeps exit notifications explainable without allowing Telegram delivery to influence execution.
