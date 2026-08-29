@@ -1373,6 +1373,13 @@
 - Added regression coverage; focused tests, workspace typechecks, lint, and diff hygiene pass.
 - **Next smallest unit:** deploy the Worker revision and run the read-only status command after a market-close cycle.
 
+### Phase 6.518 — Deterministic Telegram outbox status
+
+- Sort bounded delivery-count keys before emitting the read-only outbox status response.
+- Add regression coverage so monitoring comparisons remain stable across retries and query-result ordering.
+- Focused tests, workspace typechecks, lint, and diff hygiene pass.
+- **Next smallest unit:** deploy the Worker revision and run the status command after a market-close cycle.
+
 ### Phase 6.458 — Natural hosted cycle continuity (2026-08-29)
 
 - [x] Verify the hosted Worker remains healthy on release `febcda5f7a5…` with Paper Autopilot and order submission still enabled.

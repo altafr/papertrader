@@ -50,6 +50,8 @@ The end-of-session Telegram digest includes that same unmanaged-position count, 
 
 The read-only Telegram outbox status command validates and bounds latest delivery attempts, event code/status, and timestamps before emitting monitoring metadata. Malformed delivery evidence fails closed and never includes message content, chat identifiers, or provider credentials.
 
+Outbox delivery-count keys are sorted deterministically before the bounded status response is emitted, making repeated operator checks stable across retries and database result ordering.
+
 The guarded `exit-plan-review` command provides a read-only, bounded remediation report for the latest account snapshot. It lists each position as managed or review-required with the exact missing plan fields; it never infers prices or mutates PostgreSQL/broker state.
 
 The report sorts positions by asset class/symbol, selects the newest persisted plan by update/create timestamp with a deterministic tie-breaker, and caps output at 100 positions. Repeated reviews therefore produce stable, bounded operator evidence.

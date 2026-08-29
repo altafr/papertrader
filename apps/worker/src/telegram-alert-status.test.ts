@@ -11,6 +11,10 @@ describe("Telegram alert status", () => {
     expect(buildTelegramAlertStatus({ counts: {} })).toEqual({ counts: {}, latest: null });
   });
 
+  it("orders delivery counts deterministically", () => {
+    expect(buildTelegramAlertStatus({ counts: { sent: 3, failed: 1, queued: 2 } }).counts).toEqual({ failed: 1, queued: 2, sent: 3 });
+  });
+
   it("fails closed on malformed latest delivery metadata", () => {
     expect(() => buildTelegramAlertStatus({ counts: {}, latest: { attempts: -1, code: "daily_portfolio_summary", deliveryStatus: "sent", occurredAt: "2026-08-29T00:00:00.000Z" } })).toThrow("telegram_alert_status_invalid_latest");
     expect(() => buildTelegramAlertStatus({ counts: {}, latest: { attempts: 1, code: "bad code", deliveryStatus: "sent", occurredAt: "2026-08-29T00:00:00.000Z" } })).toThrow("telegram_alert_status_invalid_latest");
