@@ -6586,6 +6586,14 @@
 - Added bounded, non-secret error-code/name telemetry at the research-preparation handler boundary so the remaining failure can be isolated without logging provider messages or credentials.
 - **Next smallest unit:** deploy this diagnostic wrapper, classify the handler failure, and correct the underlying paper research-cycle issue.
 
+### Phase 6.543 — Hosted research-to-risk cycle restored (2026-08-29)
+
+- Deployed the UUID job-ID correction and handler diagnostics to Railway Worker deployment `311c9737-42d5-4206-9298-ee64ce1ab0e1` (successful rollout).
+- Worker health now reports the research scheduler `scheduled`, with a completed run, next run, and completed risk-cycle telemetry.
+- Hosted logs confirm one crypto research candidate (`BTC/USD`) reached the deterministic risk engine; it was rejected and not submitted because two existing positions still lack complete exit plans.
+- No broker order was submitted by this cycle; the fail-closed entry pause is working as designed.
+- **Next smallest unit:** remediate the two operator-reviewed exit plans, then verify an approved paper decision can pass risk and reconcile without bypassing safeguards.
+
 ### Phase 6.532 — Railway rollout initializing
 
 - Railway status transitioned both Worker and recovery-worker latest deployments from `QUEUED` to `INITIALIZING`.
