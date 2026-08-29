@@ -6615,6 +6615,13 @@
 - The verifier now fails only `worker` and `position_management`, both caused by the two known review-required exit plans; scheduler, research cycle, risk telemetry, freshness, and release gates pass.
 - **Next smallest unit:** apply operator-reviewed exit-plan provenance for `BTCUSD` and `PFD`, then rerun the pinned verifier.
 
+### Phase 6.547 — Continuous cadence verification (2026-08-29)
+
+- The Worker completed the next scheduled 15-minute crypto cycle at `09:15:04Z` and advanced its next run to `09:30:00Z`.
+- Hosted logs confirm research succeeded, the candidate reached deterministic risk evaluation, and the decision remained rejected/not submitted solely because of the two unmanaged positions.
+- No scheduler retries, stale-data events, or broker order submissions occurred during this cadence check.
+- **Next smallest unit:** complete the two reviewed exit plans; until then, the system will continue safe research/risk evaluations without new entries.
+
 ### Phase 6.532 — Railway rollout initializing
 
 - Railway status transitioned both Worker and recovery-worker latest deployments from `QUEUED` to `INITIALIZING`.
