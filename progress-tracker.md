@@ -2,8 +2,8 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.413 — Deploy-equivalent build verification.
-- **Status:** The hosted Worker and API continue paper trading with deterministic entry/exit safeguards, durable reconciliation, Telegram alerting, lifecycle-stable PostgreSQL-backed risk evidence, and a read-only portfolio status command. Local Worker/dashboard batches expose startup catch-up, risk-cycle, position-management, and bounded heartbeat telemetry; the hosted release remains older because deployment is intentionally deferred. Authenticated dashboard verification, exit-plan remediation, and the 30-day paper-forward evidence window remain ongoing.
+- **Phase:** Phase 6.516 — Telegram outbox verification command.
+- **Status:** The hosted Worker and API continue paper trading with deterministic entry/exit safeguards, durable reconciliation, Telegram alerting, lifecycle-stable PostgreSQL-backed risk evidence, and a read-only portfolio status command. Local Worker/dashboard batches additionally enforce bounded heartbeat, runtime execution-state, and reconciliation clock-skew guards; the hosted release remains older because deployment is intentionally deferred. Authenticated dashboard verification, exit-plan remediation, Telegram outbox confirmation, and the 30-day paper-forward evidence window remain ongoing.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading, promote one reviewed local batch when provider limits clear, verify authenticated portfolio/P&L rendering and exports, and accumulate the 30-day evidence gate without loosening risk controls. Deploy the current local heartbeat/dashboard changes only after explicit operator authorization.
 - **Last updated:** 2026-08-29.
