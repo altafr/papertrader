@@ -6544,6 +6544,13 @@
 - Direct API health confirms `status: healthy` but no release field, proving the mismatch is deployment version skew rather than a runtime health failure.
 - **Next smallest unit:** deploy the API release-identity change and rerun the pinned hosted verifier.
 
+### Phase 6.537 — API rollout and unpinned hosted verification
+
+- Targeted API deployment completed with Railway status `SUCCESS`.
+- Unpinned hosted verifier passes all runtime gates after the rollout.
+- API health still omits `release` because Railway did not provide a commit identifier for the local-source deployment; no fabricated value was introduced.
+- **Next smallest unit:** use a commit-backed Railway deployment (or explicitly managed release identifier), then rerun dual-service release-pinned verification.
+
 ### Phase 6.532 — Railway rollout initializing
 
 - Railway status transitioned both Worker and recovery-worker latest deployments from `QUEUED` to `INITIALIZING`.

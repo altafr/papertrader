@@ -62,6 +62,8 @@ The latest read-only check shows both Worker services have transitioned to `INIT
 
 Railway subsequently completed both Worker deployments successfully. The credential-free hosted verifier now passes all runtime gates without an expected-release pin. When pinned to the active Worker SHA, it fails only `api_release_match` because the deployed API health response lacks the new release field; this is treated as a partial rollout until the current API build is deployed.
 
+The API was subsequently deployed successfully from the local verified source, and the unpinned hosted verifier still passes all gates. Railway did not inject a commit SHA for that local-source deployment, so API health continues to omit `release`; dual-service pinning must wait for a commit-backed deployment or an explicitly managed release identifier.
+
 Research scheduler startup now performs up to three bounded retries with a 30-second delay for transient queue/database startup failures. Exhaustion leaves the health endpoint degraded and does not submit orders or bypass any readiness gate.
 
 Each startup retry and final exhaustion also emits a bounded structured Worker log event (`research_scheduler_start_retry` / `research_scheduler_start_failed`) without error text, credentials, or broker payloads. This gives operators an auditable recovery signal without leaking provider details.
