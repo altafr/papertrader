@@ -6622,6 +6622,14 @@
 - No scheduler retries, stale-data events, or broker order submissions occurred during this cadence check.
 - **Next smallest unit:** complete the two reviewed exit plans; until then, the system will continue safe research/risk evaluations without new entries.
 
+### Phase 6.548 — Read-only broker provenance review (2026-08-29)
+
+- Added a guarded `exit-plan-broker-review` command that reads Alpaca paper account state and lists bounded filled-buy-order candidates per open position.
+- Symbol normalization handles Alpaca crypto slash formatting (`BTC/USD` vs `BTCUSD`); sell, open, and zero-filled orders are excluded.
+- The command performs no database write, broker mutation, exit-plan inference, or order submission; it only supplies candidates for operator review before backfill.
+- Added regression coverage for candidate filtering and deterministic ordering.
+- **Next smallest unit:** run the broker provenance report on Railway and use only operator-confirmed candidates when completing `BTCUSD` and `PFD` exit plans.
+
 ### Phase 6.532 — Railway rollout initializing
 
 - Railway status transitioned both Worker and recovery-worker latest deployments from `QUEUED` to `INITIALIZING`.
