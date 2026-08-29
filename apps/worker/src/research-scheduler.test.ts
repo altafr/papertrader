@@ -85,6 +85,30 @@ describe("research schedule boundary", () => {
     expect(calls.at(-1)).toBe("stop");
   });
 
+  it("enqueues one idempotent recovery job after a missed scheduled tick", async () => {
+    vi.useFakeTimers();
+    try {
+      let current = new Date("2026-08-23T01:00:00.000Z");
+      const sent: Array<{ readonly name: string; readonly id?: string }> = [];
+      const client = {
+        start: async () => {}, stop: async () => {}, createQueue: async () => {},
+        send: async (name: string, _data?: object | null, options?: { readonly id?: string }) => { sent.push({ name, ...(options?.id ? { id: options.id } : {}) }); return options?.id ?? null; },
+        schedule: async () => {},
+        work: async <T>(_name: string, _handler: (jobs: readonly { readonly data: T }[]) => Promise<unknown>) => "worker",
+      };
+      const onStale = vi.fn();
+      const scheduler = createResearchScheduler({ clientFactory: () => client, config: { cron: "*/15 * * * *", enabled: true, handlerEnabled: true, retryDelaySeconds: 1, retryLimit: 1 }, environment: { ALPACA_API_KEY: "key", ALPACA_SECRET_KEY: "secret", ALPACA_PAPER_TRADE: "true", BROKER_CONNECTION_ENABLED: "true", DATABASE_URL: "postgres://private", RESEARCH_HANDLER_ENABLED: "true", RESEARCH_SCHEDULER_ENABLED: "true", TRADING_MODE: "paper" }, now: () => current, onStale, runPreparation: async () => {} });
+      await scheduler.start();
+      current = new Date("2026-08-23T01:18:01.000Z");
+      await vi.advanceTimersByTimeAsync(60_000);
+      expect(sent).toEqual([{ name: RESEARCH_PREPARATION_QUEUE, id: "research-recovery-20260823T011500000Z" }]);
+      expect(onStale).not.toHaveBeenCalled();
+      await scheduler.stop();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it("preserves risk-cycle telemetry when a scheduled tick completes", async () => {
     let workerHandler: ((jobs: readonly { readonly data: unknown }[]) => Promise<unknown>) | undefined;
     const client = {

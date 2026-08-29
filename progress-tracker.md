@@ -29,6 +29,13 @@
 - [x] Hosted paper-runtime verifier returned `verified:true` with paper mode, order approval, scheduler, freshness, kill-switch, and timestamp gates passing.
 - [ ] Confirm Railway deploy `a2abec2` reaches `SUCCESS` so the self-recovery code is the active release, then capture the next completed research cycle.
 
+### Phase 6.359 — Recovery enqueue regression coverage (2026-08-29)
+
+- [x] Add a timer-driven regression test proving a missed 15-minute tick produces exactly one bounded recovery enqueue with a deterministic idempotency key.
+- [x] Confirm a successful recovery enqueue does not emit a duplicate stale alert; the Worker remains degraded until the queue job completes.
+- [x] Research scheduler suite now passes 12 tests.
+- [ ] Promote the recovery implementation through Railway and verify the next completed research cycle in the hosted contract.
+
 ### Phase 6.355 — Repeatable stale-stream incident audit (2026-08-29)
 
 - [x] Replace the permanent stale-stream dedupe key with a bounded UTC-hour episode key.
