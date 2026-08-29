@@ -1,7 +1,8 @@
 import type { PaperAccountState, PaperOrder, PaperPosition } from "@momentum/alpaca";
 import * as DecimalModule from "decimal.js";
+import { CRYPTO_POSITION_QUANTITY_TOLERANCE } from "./exit-plan-adoption.js";
 
-interface DecimalValue { eq(value: DecimalValue): boolean; plus(value: DecimalValue): DecimalValue; }
+interface DecimalValue { eq(value: DecimalValue): boolean; isNegative(): boolean; isZero(): boolean; lte(value: DecimalValue): boolean; minus(value: DecimalValue): DecimalValue; plus(value: DecimalValue): DecimalValue; }
 interface DecimalConstructor { new (value: string): DecimalValue; }
 const Decimal = (DecimalModule as unknown as { readonly default: DecimalConstructor }).default;
 
@@ -20,7 +21,7 @@ export interface ExitPlanBrokerReviewRow {
   readonly assetClass: string;
   readonly brokerCandidates: readonly ExitPlanBrokerCandidate[];
   readonly candidateFilledQuantityTotal: string;
-  readonly coverage: "complete" | "incomplete";
+  readonly coverage: "complete" | "complete_with_net_adjustment" | "incomplete";
   readonly positionQuantity: string;
   readonly symbol: string;
 }
@@ -50,6 +51,8 @@ export function buildExitPlanBrokerReview(state: Pick<PaperAccountState, "orders
     .map((position: PaperPosition) => {
       const matching = orders.filter((order) => order.assetClass === position.assetClass && canonicalSymbol(order.symbol) === canonicalSymbol(position.symbol)).slice(0, 100);
       const candidateFilledQuantityTotal = matching.reduce((sum, order) => sum.plus(new Decimal(order.filledQuantity!)), new Decimal("0"));
-      return { assetClass: position.assetClass, brokerCandidates: matching.map(toCandidate), candidateFilledQuantityTotal: String(candidateFilledQuantityTotal), coverage: candidateFilledQuantityTotal.eq(new Decimal(position.quantity)) ? "complete" as const : "incomplete" as const, positionQuantity: position.quantity, symbol: position.symbol };
+      const difference = candidateFilledQuantityTotal.minus(new Decimal(position.quantity));
+      const complete = !difference.isNegative() && (position.assetClass === "crypto" ? difference.lte(new Decimal(CRYPTO_POSITION_QUANTITY_TOLERANCE)) : difference.isZero());
+      return { assetClass: position.assetClass, brokerCandidates: matching.map(toCandidate), candidateFilledQuantityTotal: String(candidateFilledQuantityTotal), coverage: complete ? (difference.isZero() ? "complete" as const : "complete_with_net_adjustment" as const) : "incomplete" as const, positionQuantity: position.quantity, symbol: position.symbol };
     });
 }

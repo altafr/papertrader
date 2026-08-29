@@ -6686,6 +6686,14 @@
 - Coverage uses decimal-safe arithmetic and remains bounded to 100 candidates per position; no state or broker behavior changes.
 - **Next smallest unit:** deploy and confirm the live report marks the reviewed BTC fill set complete before adoption.
 
+### Phase 6.557 — Crypto net-position dust handling (2026-08-29)
+
+- Live report identified a `0.0000425` BTC difference between filled buys (`0.017`) and Alpaca's net position (`0.0169575`).
+- Added a narrow crypto-only `0.0001` decimal tolerance; US-equity adoption remains exact. Materially mismatched or under-covered selections still fail closed.
+- Broker report now distinguishes `complete`, `complete_with_net_adjustment`, and `incomplete` coverage.
+- Focused adoption/report tests, Worker typecheck, lint, and build pass.
+- **Next smallest unit:** deploy and confirm BTC coverage is classified as complete-with-net-adjustment, then proceed only with reviewed plan values.
+
 ### Phase 6.532 — Railway rollout initializing
 
 - Railway status transitioned both Worker and recovery-worker latest deployments from `QUEUED` to `INITIALIZING`.

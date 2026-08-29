@@ -17,4 +17,10 @@ describe("legacy position adoption", () => {
     expect(selectLegacyPositionBrokerOrders(state, { alpacaOrderIds: ["order-1", "order-2"], assetClass: "crypto", symbol: "BTCUSD" }).orders).toHaveLength(2);
     expect(() => selectLegacyPositionBrokerOrders(state, { alpacaOrderIds: ["order-1"], assetClass: "crypto", symbol: "BTCUSD" })).toThrow("quantity");
   });
+
+  it("allows only the documented crypto net-position dust tolerance", () => {
+    const state = { positions: [{ ...position, quantity: "0.00095" }], orders: [{ alpacaOrderId: "order-1", assetClass: "crypto", filledQuantity: "0.001", quantity: "0.001", side: "buy", status: "filled", symbol: "BTC/USD", type: "market" }] };
+    expect(selectLegacyPositionBrokerOrders(state, { alpacaOrderIds: ["order-1"], assetClass: "crypto", symbol: "BTCUSD" }).orders).toHaveLength(1);
+    expect(() => selectLegacyPositionBrokerOrders({ positions: [{ ...position, quantity: "0.0008" }], orders: state.orders }, { alpacaOrderIds: ["order-1"], assetClass: "crypto", symbol: "BTCUSD" })).toThrow("quantity");
+  });
 });
