@@ -6667,6 +6667,12 @@
 - The system continues scheduled research/risk evaluation while pausing new entries and unmanaged exits until reviewed provenance is applied.
 - **Next smallest unit:** operator supplies the reviewed fill list and plan values, then execute the guarded adoption command and rerun hosted verification.
 
+### Phase 6.554 — Complete aggregate-fill candidate coverage (2026-08-29)
+
+- Identified that the broker review report's per-position cap of 10 candidates was insufficient for the live `BTCUSD` quantity, which requires at least 17 fills at the observed `0.001` size.
+- Increased the per-position candidate bound to 100 while retaining bounded output and deterministic filtering; no broker or database behavior changed.
+- **Next smallest unit:** deploy and rerun the broker review to obtain the complete BTC fill candidate set.
+
 ### Phase 6.532 — Railway rollout initializing
 
 - Railway status transitioned both Worker and recovery-worker latest deployments from `QUEUED` to `INITIALIZING`.

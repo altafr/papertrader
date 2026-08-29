@@ -43,7 +43,7 @@ export function buildExitPlanBrokerReview(state: Pick<PaperAccountState, "orders
       assetClass: position.assetClass,
       brokerCandidates: orders
         .filter((order) => order.assetClass === position.assetClass && canonicalSymbol(order.symbol) === canonicalSymbol(position.symbol))
-        .slice(0, 10)
+        .slice(0, 100)
         .map(toCandidate),
       symbol: position.symbol,
     }));
