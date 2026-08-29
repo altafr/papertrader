@@ -164,7 +164,7 @@ export async function runPositionManagementCycle(environment: NodeJS.ProcessEnv 
       const symbols = unmanagedPositions.map((position) => position.symbol);
       console.log(JSON.stringify(buildUnmanagedPositionLog(symbols)));
       for (const position of unmanagedPositions) {
-        await notifier.notify({ code: "unmanaged_position_detected", cooldownKey: `unmanaged_position_detected:${position.assetClass}:${position.symbol}`, cooldownMs: POSITION_DETECTED_COOLDOWN_MS, dedupeKey: `unmanaged_position_detected:${position.assetClass}:${position.symbol}`, message: `Paper position requires review: ${position.symbol} has no stored deterministic exit plan and was not managed.`, severity: "critical" });
+        await notifier.notify({ code: "unmanaged_position_detected", cooldownKey: `unmanaged_position_detected:${position.assetClass}:${position.symbol}`, cooldownMs: POSITION_DETECTED_COOLDOWN_MS, dedupeKey: `unmanaged_position_detected:${position.assetClass}:${position.symbol}`, message: `Paper position requires review: ${position.symbol} lacks a complete portfolio-aligned exit plan (protective stop plus target or time stop) and was not managed.`, severity: "critical" });
       }
     }
     if (managedPositions.length === 0) {

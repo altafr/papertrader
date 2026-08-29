@@ -72,6 +72,13 @@
 - [x] Web typecheck, production build, and lint pass.
 - [ ] Publish and verify the updated positions table after provider deployment limits clear.
 
+### Phase 6.365 — Exit-plan alert clarity (2026-08-29)
+
+- [x] Update unmanaged-position Telegram/log alerts to name the complete-plan requirement and portfolio-aligned purpose.
+- [x] Preserve deduplication, fail-closed behavior, and no-automatic-exit semantics.
+- [x] Position-management tests, workspace typecheck, and lint pass.
+- [ ] Deploy and verify the alert wording in the live Worker after Railway provider recovery.
+
 ### Phase 6.355 — Repeatable stale-stream incident audit (2026-08-29)
 
 - [x] Replace the permanent stale-stream dedupe key with a bounded UTC-hour episode key.
