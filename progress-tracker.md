@@ -30,6 +30,13 @@
 - [x] Rebuild the domain package and verify 89 test files / 372 tests, all workspace typechecks, and lint.
 - [ ] Promote the reviewed batch and verify the corrected exit plan in the authenticated dashboard.
 
+### Phase 6.376 — Time-stop exit alert provenance (2026-08-29)
+
+- [x] Include the stored UTC time stop in bounded Telegram exit-decision explanations when a position exits by time stop.
+- [x] Preserve stop/target explanations, deduplication, and execution behavior; this is observability-only.
+- [x] Position-management tests and workspace typecheck/lint pass.
+- [ ] Verify the alert through hosted telemetry after the reviewed batch is promoted.
+
 ### Phase 6.356 — Live runtime incident checkpoint (2026-08-29)
 
 - [x] Confirm the live API remains healthy and the Worker is connected to Alpaca paper mode with a fresh crypto stream, active position management, and order submission approval present.

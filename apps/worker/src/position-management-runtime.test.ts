@@ -78,6 +78,7 @@ describe("position pass observability", () => {
 
   it("explains an exit with the stored deterministic plan", () => {
     expect(buildPositionExitDecisionMessage({ currentPrice: "95", entryPrice: "100", plannedStopPrice: "95", plannedTargetPrice: "104", reason: "stop_loss", strategyKey: "momentum", strategyVersion: "1.0.0", symbol: "AAPL" })).toContain("Strategy momentum 1.0.0; entry 100, stop 95, target 104");
+    expect(buildPositionExitDecisionMessage({ currentPrice: "95", entryPrice: "100", plannedStopPrice: "95", reason: "time_stop", strategyKey: "momentum", strategyVersion: "1.0.0", symbol: "AAPL", timeStopAt: "2026-08-30T00:00:00.000Z" })).toContain("time stop 2026-08-30T00:00:00.000Z");
   });
 
   it("includes bounded symbols and deterministic reasons in the aggregate exit alert", () => {
