@@ -78,6 +78,13 @@
 - [x] Add domain regression coverage and verify the full workspace suite, typechecks, and lint.
 - [ ] Verify the readiness result against the hosted runtime after deployment and remediation.
 
+### Phase 6.406 — Heartbeat timestamp validation (2026-08-29)
+
+- [x] Normalize valid Worker heartbeat timing fields to canonical UTC ISO timestamps.
+- [x] Omit malformed timestamps so the dashboard renders an explicit unavailable state rather than a guessed schedule.
+- [x] Add malformed-payload regression coverage and verify 385 tests, workspace typechecks, and lint.
+- [ ] Verify the normalized fields against the hosted heartbeat after deployment.
+
 ### Phase 6.405 — Exit-plan remediation runbook (2026-08-29)
 
 - [x] Document the guarded read-only `exit-plan-review` command and its no-write/no-broker guarantees.

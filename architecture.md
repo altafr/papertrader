@@ -58,6 +58,8 @@ The dashboard’s primary system badge combines account-snapshot freshness with 
 
 The dashboard Alerts panel also emits a critical Worker-runtime review item for the same condition, keeping the failure visible in both summary and detailed health views.
 
+All heartbeat timing fields are normalized to valid UTC ISO timestamps at the dashboard boundary; malformed values are discarded and shown as unavailable.
+
 It also repeats a critical alert when the authenticated read model contains unmanaged positions, matching the Positions-table warning and Worker health count.
 
 The shared `assessMinimalSupervision` contract combines these independent gates into a conservative ready/blocked result for operator surfaces. It is informational only and cannot enable execution or override any individual gate.
