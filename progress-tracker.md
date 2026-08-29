@@ -79,6 +79,13 @@
 - [x] Position-management tests, workspace typecheck, and lint pass.
 - [ ] Deploy and verify the alert wording in the live Worker after Railway provider recovery.
 
+### Phase 6.366 — Railway deployment-scope optimization (2026-08-29)
+
+- [x] Confirm the Worker previously watched every repository change, causing web/docs commits to create unnecessary Worker deployments.
+- [x] Configure Worker watch patterns to deploy only for `apps/worker/**`, shared `packages/**`, runtime manifests, lockfile, or Railway configuration changes.
+- [x] Verify the Railway service configuration persisted the narrowed watch scope; no order permissions or secrets changed.
+- [ ] Allow the current provider queue to recover, then promote the latest Worker code in one intentional deployment.
+
 ### Phase 6.355 — Repeatable stale-stream incident audit (2026-08-29)
 
 - [x] Replace the permanent stale-stream dedupe key with a bounded UTC-hour episode key.
