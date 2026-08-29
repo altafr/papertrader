@@ -2,7 +2,8 @@ import { createServer } from "node:http";
 
 import { createPaperAccountReader, createPaperMarketDataReader } from "@momentum/alpaca";
 import { getPaperAutopilotConfig, getPaperOperatingMode, getPaperOnlyRuntimeConfig, getServerPort, isGlobalKillSwitchActive } from "@momentum/config";
-import { createAccountStateRepository, createDatabase, createDurableScheduleRunRepository, createShadowObservationRepository, createTelegramAlertRepository } from "@momentum/db";
+import { createAccountStateRepository, createDatabase, createDurableScheduleRunRepository, createPaperOrderRepository, createShadowObservationRepository, createTelegramAlertRepository } from "@momentum/db";
+import { isCompleteExitPlan } from "@momentum/domain";
 import { getTelegramNotificationConfig } from "@momentum/notifications";
 
 import { getWorkerHealth } from "./app.js";
@@ -18,7 +19,7 @@ import { reconcileBeforeSchedulerStart } from "./startup-recovery.js";
 import { createPositionManagementSchedulerFromEnvironment } from "./position-management-runtime.js";
 import { createRuntimeAlertNotifier } from "./telegram-events.js";
 import { getDailyNotificationDedupeKey } from "./notification-dedupe.js";
-import { formatDailyPortfolioSummary } from "./daily-summary.js";
+import { countUnmanagedPositions, formatDailyPortfolioSummary } from "./daily-summary.js";
 
 const streamEnabled = process.env.MARKET_STREAM_ENABLED;
 if (streamEnabled !== undefined && streamEnabled !== "true" && streamEnabled !== "false") {
@@ -112,7 +113,8 @@ if (durableConfiguration.enabled) {
       const model = await accountRepository.getLatestReadModel(snapshot.accountId);
       const account = model?.snapshot;
       if (account && !marketCloseSummaryEnabled) {
-        await createRuntimeAlertNotifier(process.env, createTelegramAlertRepository(db)).notify({ code: "daily_portfolio_summary", cooldownKey: "daily_portfolio_summary:portfolio", cooldownMs: 86_400_000, dedupeKey: getDailyNotificationDedupeKey("daily_portfolio_summary", "portfolio", account.capturedAt), message: formatDailyPortfolioSummary({ buyingPower: account.buyingPower, cash: account.cash, equity: account.equity, ...(account.lastEquity == null ? {} : { lastEquity: account.lastEquity }), orders: model?.orders.length ?? 0, positions: model?.positions ?? [] }), occurredAt: account.capturedAt.toISOString(), severity: "info" });
+        const plans = (await createPaperOrderRepository(db).listExitPlans()).filter((plan) => isCompleteExitPlan(plan));
+        await createRuntimeAlertNotifier(process.env, createTelegramAlertRepository(db)).notify({ code: "daily_portfolio_summary", cooldownKey: "daily_portfolio_summary:portfolio", cooldownMs: 86_400_000, dedupeKey: getDailyNotificationDedupeKey("daily_portfolio_summary", "portfolio", account.capturedAt), message: formatDailyPortfolioSummary({ buyingPower: account.buyingPower, cash: account.cash, equity: account.equity, ...(account.lastEquity == null ? {} : { lastEquity: account.lastEquity }), orders: model?.orders.length ?? 0, unmanagedPositions: countUnmanagedPositions(model?.positions ?? [], plans), positions: model?.positions ?? [] }), occurredAt: account.capturedAt.toISOString(), severity: "info" });
       }
       return { accountSnapshotId: snapshot.id };
     } finally {

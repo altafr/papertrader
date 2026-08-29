@@ -46,6 +46,8 @@ Top-level Worker health is `degraded` when an active market stream is stale, whe
 
 The position supervisor also records the bounded count of broker positions missing complete exit-plan provenance. Any non-zero count makes Worker health `degraded` and is surfaced in the public heartbeat/dashboard, while automatic exits remain disabled for those positions.
 
+The end-of-session Telegram digest includes that same unmanaged-position count, computed from the latest reconciled positions and complete stored plans. This keeps routine reporting aligned with the fail-closed management state.
+
 The stream supervisor derives its gap-recovery interval from the configured bar timeframe (including 5-minute and 15-minute crypto bars), rather than treating every non-1-minute stream as hourly. A one-minute watchdog emits one deduplicated critical alert when a connected stream becomes stale and clears the episode after fresh messages resume; its durable key is time-bucketed so a later outage remains auditable after the cooldown. It never submits or changes an order.
 
 The public Vercel heartbeat safely renders that bounded stream-freshness classification when available; it continues to omit account, position, order, credential, and broker-payload values.

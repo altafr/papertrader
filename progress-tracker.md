@@ -22,6 +22,13 @@
 - [x] Surface the count in the public heartbeat/dashboard and verify 377 tests, typechecks, and lint.
 - [ ] Backfill complete plans for the existing review-required positions and verify hosted health after deployment.
 
+### Phase 6.398 — Daily digest exit-plan coverage (2026-08-29)
+
+- [x] Compute unmanaged-position count from the latest reconciled positions and complete persisted exit plans.
+- [x] Include the count in both fallback daily and market-close Telegram summaries.
+- [x] Add coverage tests and verify 378 tests, workspace typechecks, lint, and diff hygiene.
+- [ ] Verify the count in a hosted end-of-session digest after deployment.
+
 ### Phase 6.393 — Interval scheduler startup catch-up (2026-08-29)
 
 - [x] Add an idempotent startup catch-up enqueue for interval (crypto) schedules, scoped to the current UTC interval.

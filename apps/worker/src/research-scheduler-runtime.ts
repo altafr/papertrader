@@ -2,7 +2,7 @@ import { PgBoss } from "pg-boss";
 
 import { createPaperAccountReader, createPaperMarketDataReader, createPaperOrderSubmitter } from "@momentum/alpaca";
 import { createAccountStateRepository, createAgentRunRepository, createDatabase, createPaperOrderRepository, createTelegramAlertRepository, type PersistedAgentRun } from "@momentum/db";
-import type { AgentRunRequest, ResearchWatchlistCandidate } from "@momentum/domain";
+import { isCompleteExitPlan, type AgentRunRequest, type ResearchWatchlistCandidate } from "@momentum/domain";
 
 import { createResearchPreparationQueueHandler } from "./research-preparation.js";
 import { createAlpacaResearchInputSource } from "./research-market-source.js";
@@ -12,7 +12,7 @@ import { runPaperAutopilotRiskCycle } from "./paper-autopilot-cycle.js";
 import { executePaperAutopilotOrder } from "./paper-execution.js";
 import { reconcilePaperAccount } from "./reconcile.js";
 import { getPaperAutopilotQuantity } from "./paper-quantity.js";
-import { formatDailyPortfolioSummary } from "./daily-summary.js";
+import { countUnmanagedPositions, formatDailyPortfolioSummary } from "./daily-summary.js";
 import { getDailyNotificationDedupeKey } from "./notification-dedupe.js";
 
 /** True during the weekday New York 16:00 close hour, including DST. */
@@ -109,11 +109,12 @@ export function createResearchSchedulerFromEnvironment(environment: NodeJS.Proce
           const accountRepository = createAccountStateRepository(db);
           const snapshot = await reconcilePaperAccount(createPaperAccountReader({ apiKey, secretKey }), accountRepository);
           const model = await accountRepository.getLatestReadModel(snapshot.accountId);
+          const orderRepository = createPaperOrderRepository(db);
           if (model?.snapshot && isMarketCloseSummaryEnabled(environment) && isUsMarketCloseSummaryWindow(model.snapshot.capturedAt)) {
-            await notifier.notify({ code: "daily_portfolio_summary", cooldownKey: "daily_portfolio_summary:market_close", cooldownMs: 86_400_000, dedupeKey: getDailyNotificationDedupeKey("daily_portfolio_summary", "market_close", model.snapshot.capturedAt), message: formatDailyPortfolioSummary({ buyingPower: model.snapshot.buyingPower, cash: model.snapshot.cash, equity: model.snapshot.equity, ...(model.snapshot.lastEquity == null ? {} : { lastEquity: model.snapshot.lastEquity }), orders: model.orders.length, positions: model.positions }), occurredAt: model.snapshot.capturedAt.toISOString(), severity: "info" });
+            const plans = (await orderRepository.listExitPlans()).filter((plan) => isCompleteExitPlan(plan));
+            await notifier.notify({ code: "daily_portfolio_summary", cooldownKey: "daily_portfolio_summary:market_close", cooldownMs: 86_400_000, dedupeKey: getDailyNotificationDedupeKey("daily_portfolio_summary", "market_close", model.snapshot.capturedAt), message: formatDailyPortfolioSummary({ buyingPower: model.snapshot.buyingPower, cash: model.snapshot.cash, equity: model.snapshot.equity, ...(model.snapshot.lastEquity == null ? {} : { lastEquity: model.snapshot.lastEquity }), orders: model.orders.length, unmanagedPositions: countUnmanagedPositions(model.positions, plans), positions: model.positions }), occurredAt: model.snapshot.capturedAt.toISOString(), severity: "info" });
           }
           if (candidates.length === 0) return;
-          const orderRepository = createPaperOrderRepository(db);
           const executeApproved = orderSubmissionFlag === "true" ? async (order: Parameters<typeof executePaperAutopilotOrder>[0]["order"]) => {
             await executePaperAutopilotOrder({ autopilot: { enabled: true, mode: "paper_autopilot" }, order, notify: notifier.notify, persistence: orderRepository, submitter: createPaperOrderSubmitter({ apiKey, brokerConnectionEnabled: true, secretKey }) });
           } : undefined;
