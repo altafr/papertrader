@@ -36,6 +36,13 @@
 - [x] Research scheduler suite now passes 12 tests.
 - [ ] Promote the recovery implementation through Railway and verify the next completed research cycle in the hosted contract.
 
+### Phase 6.360 — Faster authenticated dashboard refresh (2026-08-29)
+
+- [x] Reduce the dashboard’s client refresh interval from 60 seconds to 30 seconds for fresher persisted positions, P&L, and trade history.
+- [x] Keep manual refresh available and preserve server-side reconciliation as the source of truth.
+- [x] Web typecheck and production build pass.
+- [ ] Publish the web revision after Vercel quota recovery and verify the refresh control in production.
+
 ### Phase 6.355 — Repeatable stale-stream incident audit (2026-08-29)
 
 - [x] Replace the permanent stale-stream dedupe key with a bounded UTC-hour episode key.
