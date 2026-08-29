@@ -100,6 +100,13 @@
 - [x] Full suite passes: 89 test files / 370 tests; domain build, workspace typecheck, and lint pass.
 - [ ] Batch this and the queued dashboard/API revisions into one intentional Railway/Vercel promotion.
 
+### Phase 6.369 — Explicit exit-plan missing reasons (2026-08-29)
+
+- [x] Add a bounded domain helper that reports exactly which exit-plan fields are missing.
+- [x] Preserve the shared boolean completeness predicate while enabling actionable operator remediation.
+- [x] Full suite remains green: 89 test files / 370 tests; workspace typecheck and lint pass.
+- [ ] Surface missing-field reasons in the authenticated position audit after the next batched API/dashboard promotion.
+
 ### Phase 6.355 — Repeatable stale-stream incident audit (2026-08-29)
 
 - [x] Replace the permanent stale-stream dedupe key with a bounded UTC-hour episode key.

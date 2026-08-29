@@ -9,6 +9,19 @@ export interface ExitPlanCompletenessInput {
   readonly alpacaOrderId?: string | null;
 }
 
+export type ExitPlanMissingField = "alpacaOrderId" | "entryPrice" | "plannedStopPrice" | "strategyKey" | "strategyVersion" | "plannedTargetPriceOrTimeStop";
+
+export function getExitPlanMissingFields(input: ExitPlanCompletenessInput): readonly ExitPlanMissingField[] {
+  return [
+    ...(input.alpacaOrderId?.trim() ? [] : ["alpacaOrderId" as const]),
+    ...(input.entryPrice?.trim() ? [] : ["entryPrice" as const]),
+    ...(input.plannedStopPrice?.trim() ? [] : ["plannedStopPrice" as const]),
+    ...(input.strategyKey?.trim() ? [] : ["strategyKey" as const]),
+    ...(input.strategyVersion?.trim() ? [] : ["strategyVersion" as const]),
+    ...(input.plannedTargetPrice?.trim() || input.timeStopAt ? [] : ["plannedTargetPriceOrTimeStop" as const]),
+  ];
+}
+
 export function isCompleteExitPlan(input: ExitPlanCompletenessInput): boolean {
-  return Boolean(input.alpacaOrderId?.trim() && input.entryPrice?.trim() && input.plannedStopPrice?.trim() && input.strategyKey?.trim() && input.strategyVersion?.trim() && (input.plannedTargetPrice?.trim() || input.timeStopAt));
+  return getExitPlanMissingFields(input).length === 0;
 }
