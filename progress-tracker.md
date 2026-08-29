@@ -6660,6 +6660,13 @@
 - Added aggregate-fill regression coverage and updated the runbook.
 - **Next smallest unit:** run aggregate adoption for `BTCUSD` and single-order adoption for `PFD` after operator review.
 
+### Phase 6.553 — Aggregate adoption tooling deployed (2026-08-29)
+
+- Worker deployment `735cc885-56d1-4ef1-9d94-32e2c9ed3095` reached `SUCCESS` with aggregate-fill validation.
+- Read-only account state confirms `BTCUSD` quantity `0.01695750` and `PFD` quantity `2903`; no adoption was run automatically.
+- The system continues scheduled research/risk evaluation while pausing new entries and unmanaged exits until reviewed provenance is applied.
+- **Next smallest unit:** operator supplies the reviewed fill list and plan values, then execute the guarded adoption command and rerun hosted verification.
+
 ### Phase 6.532 — Railway rollout initializing
 
 - Railway status transitioned both Worker and recovery-worker latest deployments from `QUEUED` to `INITIALIZING`.
