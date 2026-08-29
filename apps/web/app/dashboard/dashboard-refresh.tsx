@@ -11,7 +11,14 @@ export function DashboardRefresh() {
 
   useEffect(() => {
     const timer = window.setInterval(() => router.refresh(), REFRESH_INTERVAL_MS);
-    return () => window.clearInterval(timer);
+    const refreshWhenVisible = () => {
+      if (document.visibilityState === "visible") router.refresh();
+    };
+    document.addEventListener("visibilitychange", refreshWhenVisible);
+    return () => {
+      window.clearInterval(timer);
+      document.removeEventListener("visibilitychange", refreshWhenVisible);
+    };
   }, [router]);
 
   const refresh = () => {

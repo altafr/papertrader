@@ -50,6 +50,13 @@
 - [x] Add regression coverage; focused verifier/scheduler tests and lint pass.
 - [ ] Promote the verifier/dashboard revisions after Railway and Vercel provider limits clear.
 
+### Phase 6.362 — Visibility-aware dashboard refresh (2026-08-29)
+
+- [x] Refresh the authenticated dashboard immediately when the browser tab becomes visible again.
+- [x] Preserve the 30-second background refresh and clean up timers/listeners on unmount.
+- [x] Web typecheck and production build pass.
+- [ ] Publish the web revision after Vercel quota recovery and verify the behavior in production.
+
 ### Phase 6.355 — Repeatable stale-stream incident audit (2026-08-29)
 
 - [x] Replace the permanent stale-stream dedupe key with a bounded UTC-hour episode key.
