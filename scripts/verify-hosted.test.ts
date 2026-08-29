@@ -1,10 +1,17 @@
 import { describe, expect, it, vi } from "vitest";
 
-import { verifyHosted } from "./verify-hosted.js";
+import { getFailedRuntimeGates, verifyHosted } from "./verify-hosted.js";
+import { evaluatePaperRuntime } from "./paper-runtime-contract.js";
 
 const worker = { status: "healthy", asOf: "2026-08-28T14:44:00Z", alpaca: "configured", database: "configured", operatingMode: "paper_autopilot", paperAutopilotOrderSubmissionEnabled: true, paperAutopilotOrderSubmissionApprovalReferencePresent: true, globalKillSwitchActive: false, marketStream: { status: "connected" }, positionManagement: { status: "ready", blockedReasons: [] }, researchSchedule: { enabled: true, handlerEnabled: true, status: "scheduled", nextRunAt: "2026-08-28T14:45:00Z" }, durableScheduler: { enabled: true, status: "scheduled", nextRunAt: "2026-08-29T00:00:00Z" } };
 
 describe("hosted verifier", () => {
+  it("reports the exact failed gates without exposing runtime payloads", () => {
+    const runtime = evaluatePaperRuntime({ ...worker, status: "degraded", researchSchedule: { ...worker.researchSchedule, status: "degraded" } }, { status: "healthy" });
+    expect(getFailedRuntimeGates(runtime)).toContain("research_schedule");
+    expect(getFailedRuntimeGates(runtime)).toContain("worker");
+  });
+
   it("verifies runtime and public surface together", async () => {
     const fetcher = vi.fn<typeof fetch>()
       .mockResolvedValueOnce(new Response(JSON.stringify(worker), { status: 200 }))

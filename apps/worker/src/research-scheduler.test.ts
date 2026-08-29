@@ -94,7 +94,7 @@ describe("research schedule boundary", () => {
         start: async () => {}, stop: async () => {}, createQueue: async () => {},
         send: async (name: string, _data?: object | null, options?: { readonly id?: string }) => { sent.push({ name, ...(options?.id ? { id: options.id } : {}) }); return options?.id ?? null; },
         schedule: async () => {},
-        work: async <T>(_name: string, _handler: (jobs: readonly { readonly data: T }[]) => Promise<unknown>) => "worker",
+        work: async <T>(name: string, handler: (jobs: readonly { readonly data: T }[]) => Promise<unknown>) => { void name; void handler; return "worker"; },
       };
       const onStale = vi.fn();
       const scheduler = createResearchScheduler({ clientFactory: () => client, config: { cron: "*/15 * * * *", enabled: true, handlerEnabled: true, retryDelaySeconds: 1, retryLimit: 1 }, environment: { ALPACA_API_KEY: "key", ALPACA_SECRET_KEY: "secret", ALPACA_PAPER_TRADE: "true", BROKER_CONNECTION_ENABLED: "true", DATABASE_URL: "postgres://private", RESEARCH_HANDLER_ENABLED: "true", RESEARCH_SCHEDULER_ENABLED: "true", TRADING_MODE: "paper" }, now: () => current, onStale, runPreparation: async () => {} });

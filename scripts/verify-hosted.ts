@@ -4,6 +4,26 @@ import { evaluatePaperRuntime } from "./paper-runtime-contract.js";
 import { readHealthWithRetry } from "./verify-paper-runtime.js";
 import { verifyPublicSurface } from "./verify-public-surface.js";
 
+export function getFailedRuntimeGates(runtime: ReturnType<typeof evaluatePaperRuntime>): readonly string[] {
+  const checks = [
+    ["api", runtime.api === "healthy"],
+    ["worker", runtime.worker === "healthy"],
+    ["paper_mode", runtime.paperMode],
+    ["order_submission_approval", runtime.orderSubmissionApprovalPresent],
+    ["market_stream", runtime.marketStream === "connected"],
+    ["market_stream_freshness", runtime.marketStreamFreshnessValid],
+    ["position_management", runtime.positionManagement === "ready"],
+    ["research_schedule", runtime.researchSchedule === "scheduled"],
+    ["durable_scheduler", runtime.durableScheduler === "scheduled"],
+    ["release_match", runtime.releaseMatches],
+    ["kill_switch", runtime.killSwitchInactive],
+    ["health_timestamps", runtime.healthTimestampsValid],
+    ["next_runs", runtime.nextRunsFuture],
+    ["risk_telemetry", runtime.riskTelemetryValid],
+  ] as const;
+  return checks.filter(([, passed]) => !passed).map(([name]) => name);
+}
+
 export async function verifyHosted(fetcher: typeof fetch, workerUrl: string, apiUrl: string, webUrl: string, expectedRelease?: string) {
   const verifyWebWithRetry = async () => {
     let lastError: unknown;
@@ -18,7 +38,10 @@ export async function verifyHosted(fetcher: typeof fetch, workerUrl: string, api
     verifyWebWithRetry(),
   ]);
   const runtime = evaluatePaperRuntime(worker, api, expectedRelease);
-  if (!runtime.verified) throw new Error("hosted_runtime_contract_failed");
+  if (!runtime.verified) {
+    const failedGates = getFailedRuntimeGates(runtime);
+    throw new Error(`hosted_runtime_contract_failed:${failedGates.join(",") || "unknown"}`);
+  }
   return { runtime, web };
 }
 

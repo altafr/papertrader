@@ -43,6 +43,13 @@
 - [x] Web typecheck and production build pass.
 - [ ] Publish the web revision after Vercel quota recovery and verify the refresh control in production.
 
+### Phase 6.361 — Actionable hosted gate diagnostics (2026-08-29)
+
+- [x] Make the hosted verifier report bounded failed-gate names instead of a generic contract error.
+- [x] Keep diagnostics credential-free and preserve the existing `hosted_runtime_contract_failed` error prefix for compatibility.
+- [x] Add regression coverage; focused verifier/scheduler tests and lint pass.
+- [ ] Promote the verifier/dashboard revisions after Railway and Vercel provider limits clear.
+
 ### Phase 6.355 — Repeatable stale-stream incident audit (2026-08-29)
 
 - [x] Replace the permanent stale-stream dedupe key with a bounded UTC-hour episode key.
