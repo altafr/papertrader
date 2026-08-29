@@ -12,8 +12,8 @@ describe("exit-plan broker review", () => {
       ],
     });
     expect(result).toEqual([
-      { assetClass: "crypto", brokerCandidates: [{ alpacaOrderId: "crypto-order", assetClass: "crypto", filledQuantity: "1", quantity: "1", status: "filled", symbol: "BTC/USD", type: "market" }], symbol: "BTCUSD" },
-      { assetClass: "us_equity", brokerCandidates: [], symbol: "PFD" },
+      { assetClass: "crypto", brokerCandidates: [{ alpacaOrderId: "crypto-order", assetClass: "crypto", filledQuantity: "1", quantity: "1", status: "filled", symbol: "BTC/USD", type: "market" }], candidateFilledQuantityTotal: "1", coverage: "complete", positionQuantity: "1", symbol: "BTCUSD" },
+      { assetClass: "us_equity", brokerCandidates: [], candidateFilledQuantityTotal: "0", coverage: "incomplete", positionQuantity: "1", symbol: "PFD" },
     ]);
   });
 });

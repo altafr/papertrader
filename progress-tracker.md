@@ -6680,6 +6680,12 @@
 - No broker or database mutation occurred; candidates remain operator-review inputs only.
 - **Next smallest unit:** select the exact 17 BTC fills and the PFD fill, then provide reviewed exit-plan values for guarded adoption.
 
+### Phase 6.556 — Broker-fill coverage accounting (2026-08-29)
+
+- Extended the read-only broker report with position quantity, candidate filled-quantity total, and deterministic `complete`/`incomplete` coverage status.
+- Coverage uses decimal-safe arithmetic and remains bounded to 100 candidates per position; no state or broker behavior changes.
+- **Next smallest unit:** deploy and confirm the live report marks the reviewed BTC fill set complete before adoption.
+
 ### Phase 6.532 — Railway rollout initializing
 
 - Railway status transitioned both Worker and recovery-worker latest deployments from `QUEUED` to `INITIALIZING`.
