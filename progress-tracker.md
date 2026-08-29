@@ -22,6 +22,13 @@
 - [x] Add queue-client contract coverage and verify the research scheduler tests (11 passing) plus Worker typecheck.
 - [ ] Deploy after Railway’s queue recovers and confirm the next 15-minute cycle and hosted runtime contract.
 
+### Phase 6.358 — Live scheduler recovery verification (2026-08-29)
+
+- [x] Restart the Worker container in place without rebuilding or touching PostgreSQL.
+- [x] Confirm the live Worker returned to `healthy`, with a fresh crypto stream, ready position management, and research schedule restored to `scheduled` for the next 15-minute boundary.
+- [x] Hosted paper-runtime verifier returned `verified:true` with paper mode, order approval, scheduler, freshness, kill-switch, and timestamp gates passing.
+- [ ] Confirm Railway deploy `a2abec2` reaches `SUCCESS` so the self-recovery code is the active release, then capture the next completed research cycle.
+
 ### Phase 6.355 — Repeatable stale-stream incident audit (2026-08-29)
 
 - [x] Replace the permanent stale-stream dedupe key with a bounded UTC-hour episode key.
