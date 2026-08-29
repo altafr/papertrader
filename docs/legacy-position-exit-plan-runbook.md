@@ -18,6 +18,24 @@ For the current AAPL position, the stored point-in-time entry snapshot is `314.3
 
 ## Apply an explicitly approved plan
 
+For a legacy position with no persisted submission row, first select an exact filled Alpaca order from the broker review report and use the guarded adoption command below. It requires the selected order's filled quantity to equal the current open position quantity, validates the order against the live paper account, and writes provenance only; it never submits or cancels an order.
+
+```sh
+EXIT_PLAN_ADOPT=true \
+EXIT_PLAN_ASSET_CLASS='us_equity' \
+EXIT_PLAN_SYMBOL='PFD' \
+EXIT_PLAN_ALPACA_ORDER_ID='<reviewed filled order id>' \
+EXIT_PLAN_ENTRY_PRICE='<reviewed entry price>' \
+EXIT_PLAN_STOP_PRICE='<operator-approved stop>' \
+EXIT_PLAN_TARGET_PRICE='<operator-approved target>' \
+EXIT_PLAN_STRATEGY_KEY='<reviewed strategy key>' \
+EXIT_PLAN_STRATEGY_VERSION='<reviewed strategy version>' \
+EXIT_PLAN_REFERENCE='PFD-EXIT-PLAN-REVIEW-001' \
+node /app/apps/worker/dist/exit-plan-adoption-command.js
+```
+
+Use `EXIT_PLAN_TIME_STOP_AT` instead of `EXIT_PLAN_TARGET_PRICE` only when an explicit time stop is the reviewed plan.
+
 Run the guarded command on the Railway Worker only after reviewing the values:
 
 ```sh

@@ -6637,6 +6637,14 @@
 - The report did not write state or mutate the broker. The release-pinned verifier remains blocked only by the two incomplete exit plans.
 - **Next smallest unit:** operator selects the correct broker order for each position and supplies protective stop plus target/time-stop and strategy provenance; then the guarded backfill can be applied.
 
+### Phase 6.550 — Guarded legacy-position adoption path (2026-08-29)
+
+- Added `exit-plan-adopt`, a paper-only guarded command for legacy positions with no persisted submission row.
+- It validates the selected filled Alpaca buy order, symbol/asset class, and exact filled-quantity match against the current open position before writing provenance.
+- It requires operator-provided entry, protective stop, target/time-stop, strategy key/version, and non-secret review reference; it performs no broker mutation.
+- Added regression coverage for exact order and quantity matching and documented the runbook.
+- **Next smallest unit:** use the hosted broker candidate report with operator-reviewed values to adopt `PFD` and `BTCUSD`, then verify managed coverage.
+
 ### Phase 6.532 — Railway rollout initializing
 
 - Railway status transitioned both Worker and recovery-worker latest deployments from `QUEUED` to `INITIALIZING`.
