@@ -2,10 +2,10 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.396 — End-to-end Worker cycle telemetry.
-- **Status:** The hosted Worker and API continue paper trading with deterministic entry/exit safeguards, durable reconciliation, Telegram alerting, lifecycle-stable PostgreSQL-backed risk evidence, and a read-only portfolio status command. Local Worker/dashboard batches now expose startup catch-up and latest risk-cycle telemetry; the hosted release remains older because deployment is intentionally deferred. Authenticated dashboard verification and the 30-day paper-forward evidence window remain ongoing.
+- **Phase:** Phase 6.409 — Hosted Worker heartbeat contract guard.
+- **Status:** The hosted Worker and API continue paper trading with deterministic entry/exit safeguards, durable reconciliation, Telegram alerting, lifecycle-stable PostgreSQL-backed risk evidence, and a read-only portfolio status command. Local Worker/dashboard batches expose startup catch-up, risk-cycle, position-management, and bounded heartbeat telemetry; the hosted release remains older because deployment is intentionally deferred. Authenticated dashboard verification, exit-plan remediation, and the 30-day paper-forward evidence window remain ongoing.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
-- **Current goal:** Continue durable paper trading, promote one reviewed local batch when provider limits clear, verify authenticated portfolio/P&L rendering and exports, and accumulate the 30-day evidence gate without loosening risk controls.
+- **Current goal:** Continue durable paper trading, promote one reviewed local batch when provider limits clear, verify authenticated portfolio/P&L rendering and exports, and accumulate the 30-day evidence gate without loosening risk controls. Deploy the current local heartbeat/dashboard changes only after explicit operator authorization.
 - **Last updated:** 2026-08-29.
 
 ### Phase 6.396 — End-to-end Worker cycle telemetry (2026-08-29)
