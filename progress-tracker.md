@@ -2,11 +2,18 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.392 — Hosted research watchdog checkpoint.
-- **Status:** The hosted Worker and API continue paper trading with deterministic entry/exit safeguards, durable reconciliation, Telegram alerting, lifecycle-stable PostgreSQL-backed risk evidence, and a read-only portfolio status command. Position management and the crypto stream remain healthy, but the existing deployed Worker missed the 01:00 UTC crypto research tick and correctly degraded; the local self-recovery and safety batches remain intentionally un-deployed. Vercel production publication remains limited by the free-plan daily deployment quota, while authenticated dashboard verification and the 30-day paper-forward evidence window remain ongoing.
+- **Phase:** Phase 6.396 — End-to-end Worker cycle telemetry.
+- **Status:** The hosted Worker and API continue paper trading with deterministic entry/exit safeguards, durable reconciliation, Telegram alerting, lifecycle-stable PostgreSQL-backed risk evidence, and a read-only portfolio status command. Local Worker/dashboard batches now expose startup catch-up and latest risk-cycle telemetry; the hosted release remains older because deployment is intentionally deferred. Authenticated dashboard verification and the 30-day paper-forward evidence window remain ongoing.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading, promote one reviewed local batch when provider limits clear, verify authenticated portfolio/P&L rendering and exports, and accumulate the 30-day evidence gate without loosening risk controls.
 - **Last updated:** 2026-08-29.
+
+### Phase 6.396 — End-to-end Worker cycle telemetry (2026-08-29)
+
+- [x] Expose the latest research run, risk-cycle status/counts, and startup catch-up result through the bounded Worker heartbeat.
+- [x] Render those signals in the authenticated dashboard beside account and market-stream freshness.
+- [x] Verify 89 test files / 376 tests, all workspace typechecks, lint, and diff hygiene.
+- [ ] Deploy once authorized and confirm the hosted dashboard shows a completed research → risk → execution cycle.
 
 ### Phase 6.393 — Interval scheduler startup catch-up (2026-08-29)
 

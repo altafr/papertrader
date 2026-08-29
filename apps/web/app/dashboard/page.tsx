@@ -469,6 +469,7 @@ export default async function DashboardPage({ searchParams }: { readonly searchP
             <StatusBadge state={result.kind === "ready" ? freshness : "degraded"} />
             <span className="health-detail">Market stream: {workerHealth?.marketStream?.freshness ?? "not reported"}</span>
             <span className="health-detail">Worker: {workerHealth?.status ?? "unavailable"}{workerHealth?.researchSchedule?.nextRunAt ? ` · next research ${formatUtc(workerHealth.researchSchedule.nextRunAt)}` : ""}{workerHealth?.researchSchedule?.lastCatchupStatus ? ` · catch-up ${workerHealth.researchSchedule.lastCatchupStatus}` : ""}</span>
+            <span className="health-detail">Risk cycle: {workerHealth?.researchSchedule?.lastRiskCycleStatus ?? "not reported"}{workerHealth?.researchSchedule?.lastRiskDecisionCount !== undefined ? ` · ${workerHealth.researchSchedule.lastRiskDecisionCount} decisions` : ""}{workerHealth?.researchSchedule?.lastRiskCycleAt ? ` · ${formatUtc(workerHealth.researchSchedule.lastRiskCycleAt)}` : ""}</span>
           </div>
         </div>
       </section>
