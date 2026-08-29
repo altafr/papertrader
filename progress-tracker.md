@@ -2,8 +2,8 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.516 — Telegram outbox verification command.
-- **Status:** The hosted Worker and API continue paper trading with deterministic entry/exit safeguards, durable reconciliation, Telegram alerting, lifecycle-stable PostgreSQL-backed risk evidence, and a read-only portfolio status command. Local Worker/dashboard batches additionally enforce bounded heartbeat, runtime execution-state, and reconciliation clock-skew guards; the hosted release remains older because deployment is intentionally deferred. Authenticated dashboard verification, exit-plan remediation, Telegram outbox confirmation, and the 30-day paper-forward evidence window remain ongoing.
+- **Phase:** Phase 6.536 — Dual-service release pin mismatch identified.
+- **Status:** The hosted Worker and API are healthy enough for the unpinned runtime contract, with Paper Autopilot, fresh market data, ready position management, scheduled research, and valid telemetry. The active Worker release is newer than the API health surface, so the dual-service release pin remains blocked until the API release-identity build is deployed. Authenticated dashboard verification, exit-plan remediation, Telegram outbox confirmation, and the 30-day paper-forward evidence window remain ongoing.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading, promote one reviewed local batch when provider limits clear, verify authenticated portfolio/P&L rendering and exports, and accumulate the 30-day evidence gate without loosening risk controls. Deploy the current local heartbeat/dashboard changes only after explicit operator authorization.
 - **Last updated:** 2026-08-29.
@@ -6531,7 +6531,18 @@
 - Added API health tests for valid Railway/CI release identifiers and malformed-value omission.
 - This protects dual-service release pinning from trusting unsafe metadata.
 - Focused tests, workspace typechecks, lint, and diff hygiene pass.
-- **Next smallest unit:** after rollout, verify API and Worker health both report the pinned release SHA.
+
+### Phase 6.535 — Hosted Worker recovery verification
+
+- Railway Worker and recovery-worker deployments reached `SUCCESS`.
+- Credential-free hosted verification passes all runtime gates: API/Worker healthy, paper mode and order submission enabled, market stream fresh, position management ready, schedulers scheduled, telemetry valid, and dashboard HTTP 200.
+- **Next smallest unit:** deploy the current API build, then verify both services against the expected release pin.
+
+### Phase 6.536 — Dual-service pin mismatch identified
+
+- Pinning `PAPERTRADER_EXPECTED_RELEASE` to the active Worker SHA fails only `api_release_match`.
+- Direct API health confirms `status: healthy` but no release field, proving the mismatch is deployment version skew rather than a runtime health failure.
+- **Next smallest unit:** deploy the API release-identity change and rerun the pinned hosted verifier.
 
 ### Phase 6.532 — Railway rollout initializing
 
