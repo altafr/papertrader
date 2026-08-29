@@ -6694,6 +6694,13 @@
 - Focused adoption/report tests, Worker typecheck, lint, and build pass.
 - **Next smallest unit:** deploy and confirm BTC coverage is classified as complete-with-net-adjustment, then proceed only with reviewed plan values.
 
+### Phase 6.558 — Hosted crypto coverage verification (2026-08-29)
+
+- Worker deployment `818209c1-69a1-4506-8a5f-6068a5cd1ca2` reached `SUCCESS`.
+- Live broker review classifies `BTCUSD` as `complete_with_net_adjustment` (`0.017` fills vs `0.0169575` net position), `PFD` as `complete`, and `AAPL` as `complete`.
+- No adoption or broker mutation was performed; the remaining gate is still operator-approved exit-plan values and strategy provenance.
+- **Next smallest unit:** run guarded adoption with the reviewed order IDs and risk/strategy values, then verify the position-management gate.
+
 ### Phase 6.532 — Railway rollout initializing
 
 - Railway status transitioned both Worker and recovery-worker latest deployments from `QUEUED` to `INITIALIZING`.
