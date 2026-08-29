@@ -52,6 +52,8 @@ The read-only Telegram outbox status command validates and bounds latest deliver
 
 Outbox delivery-count keys are sorted deterministically before the bounded status response is emitted, making repeated operator checks stable across retries and database result ordering.
 
+Read-only Railway inspection on 2026-08-29 found the latest Worker and recovery-worker deployments queued/stopped with Railway reporting upstream GCP issues, while the API and PostgreSQL services remained successful. This is an infrastructure rollout state, not evidence of a trading or risk failure; no deployment retry was triggered automatically.
+
 The guarded `exit-plan-review` command provides a read-only, bounded remediation report for the latest account snapshot. It lists each position as managed or review-required with the exact missing plan fields; it never infers prices or mutates PostgreSQL/broker state.
 
 The report sorts positions by asset class/symbol, selects the newest persisted plan by update/create timestamp with a deterministic tie-breaker, and caps output at 100 positions. Repeated reviews therefore produce stable, bounded operator evidence.

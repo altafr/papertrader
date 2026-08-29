@@ -6435,3 +6435,10 @@
 - Documented the post-Railway-rollout operator step: set the deployed commit SHA as an Actions variable to detect stale Worker releases automatically.
 - The variable remains optional for development compatibility; no deployment or broker action was performed.
 - **Next smallest unit:** after an authorized Railway rollout, set the release variable and verify the first pinned hosted-health run.
+
+### Phase 6.519 — Hosted deployment queue checkpoint
+
+- Read-only Railway status confirmed API and PostgreSQL services are `SUCCESS`.
+- The latest Worker and recovery-worker deployments are `QUEUED`/stopped with Railway reason `Deployment queued due to upstream GCP issues`; the previously active release remains the hosted runtime evidence point.
+- No deployment retry, variable change, database mutation, or broker action was performed.
+- **Next smallest unit:** when Railway clears the infrastructure queue and rollout is explicitly authorized, deploy the current branch, set the expected release variable, and run hosted health plus Telegram outbox verification.
