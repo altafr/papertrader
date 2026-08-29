@@ -50,6 +50,7 @@ export interface WorkerHealth {
     readonly blockedReasons: readonly string[];
     readonly enabled: boolean;
     readonly intervalSeconds: number;
+    readonly unmanagedCount?: number;
     readonly lastError?: string;
     readonly lastRunAt?: string;
     readonly readiness: "blocked" | "disabled" | "ready";

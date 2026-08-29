@@ -15,6 +15,13 @@
 - [x] Verify 89 test files / 376 tests, all workspace typechecks, lint, and diff hygiene.
 - [ ] Deploy once authorized and confirm the hosted dashboard shows a completed research → risk → execution cycle.
 
+### Phase 6.397 — Unmanaged-position health escalation (2026-08-29)
+
+- [x] Record the bounded unmanaged-position count during each position-management pass.
+- [x] Escalate Worker health to `degraded` whenever one or more positions lack a complete exit plan, while keeping automatic exits fail-closed.
+- [x] Surface the count in the public heartbeat/dashboard and verify 377 tests, typechecks, and lint.
+- [ ] Backfill complete plans for the existing review-required positions and verify hosted health after deployment.
+
 ### Phase 6.393 — Interval scheduler startup catch-up (2026-08-29)
 
 - [x] Add an idempotent startup catch-up enqueue for interval (crypto) schedules, scoped to the current UTC interval.

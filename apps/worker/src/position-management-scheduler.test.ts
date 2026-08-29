@@ -1,7 +1,13 @@
 import { describe, expect, it, vi } from "vitest";
-import { createPositionManagementScheduler } from "./position-management-scheduler.js";
+import { createPositionManagementScheduler, getPositionManagementHealth, setPositionManagementUnmanagedCount } from "./position-management-scheduler.js";
 
 describe("position management scheduler", () => {
+  it("records a bounded unmanaged-position count for operator health", () => {
+    setPositionManagementUnmanagedCount(3.9);
+    expect(getPositionManagementHealth()).toMatchObject({ unmanagedCount: 3 });
+    setPositionManagementUnmanagedCount(0);
+  });
+
   it("runs immediately, records readiness, and stops", async () => {
     const run = vi.fn().mockResolvedValue(undefined);
     const scheduler = createPositionManagementScheduler({ intervalSeconds: 30, run });

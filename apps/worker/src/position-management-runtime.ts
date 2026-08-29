@@ -7,7 +7,7 @@ import { createAccountStateRepository, createDatabase, createPaperOrderRepositor
 
 import { reconcilePaperAccount } from "./reconcile.js";
 import { runPaperPositionManagementOnce } from "./position-management-runner.js";
-import { createPositionManagementScheduler, type PositionManagementSchedulerStatus } from "./position-management-scheduler.js";
+import { createPositionManagementScheduler, setPositionManagementUnmanagedCount, type PositionManagementSchedulerStatus } from "./position-management-scheduler.js";
 import { createRuntimeAlertNotifier } from "./telegram-events.js";
 
 const POSITION_DETECTED_COOLDOWN_MS = 86_400_000;
@@ -167,6 +167,7 @@ export async function runPositionManagementCycle(environment: NodeJS.ProcessEnv 
     const positions = model?.positions ?? [];
     const managedPositions = positions.filter((position) => plans.has(`${position.assetClass}:${position.symbol}`));
     const unmanagedPositions = positions.filter((position) => !plans.has(`${position.assetClass}:${position.symbol}`));
+    setPositionManagementUnmanagedCount(unmanagedPositions.length);
     if (unmanagedPositions.length > 0) {
       const symbols = unmanagedPositions.map((position) => position.symbol);
       console.log(JSON.stringify(buildUnmanagedPositionLog(symbols)));

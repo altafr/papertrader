@@ -3,8 +3,14 @@ export type PositionManagementSchedulerStatus = "degraded" | "disabled" | "ready
 let status: PositionManagementSchedulerStatus = "disabled";
 let lastRunAt: string | undefined;
 let lastError: string | undefined;
+let unmanagedCount: number | undefined;
 
-export function getPositionManagementHealth() { return { lastError, lastRunAt, status }; }
+export function getPositionManagementHealth() { return { lastError, lastRunAt, ...(unmanagedCount === undefined ? {} : { unmanagedCount }), status }; }
+
+/** Record the bounded count of broker positions lacking a complete exit plan. */
+export function setPositionManagementUnmanagedCount(count: number): void {
+  unmanagedCount = Math.max(0, Math.min(100, Math.floor(count)));
+}
 
 /** Mark the supervisor degraded when no successful pass arrives within a bounded interval. */
 export function assessPositionManagementLiveness(health: { readonly lastRunAt?: string | undefined; readonly status: PositionManagementSchedulerStatus }, intervalSeconds: number, now = new Date()): PositionManagementSchedulerStatus {
