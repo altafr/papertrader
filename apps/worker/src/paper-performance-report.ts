@@ -1,4 +1,4 @@
-import { calculatePerformanceMetrics, type PerformanceMetrics } from "@momentum/domain";
+import { calculatePerformanceMetrics, isDecimalAtMost, type PerformanceMetrics } from "@momentum/domain";
 
 export interface PaperPerformanceSnapshot {
   readonly capturedAt: string;
@@ -38,7 +38,7 @@ export function buildPaperPerformanceReport(snapshots: readonly PaperPerformance
   const metrics = calculatePerformanceMetrics(ordered);
   const stabilityBlockedReasons = [
     ...(consecutiveCalendarDays >= 30 ? [] : ["minimum_30_consecutive_calendar_days_not_met"]),
-    ...(Number(metrics.maxDrawdownPercent) <= 5 ? [] : ["maximum_drawdown_policy_exceeded"]),
+    ...(isDecimalAtMost(metrics.maxDrawdownPercent, "5") ? [] : ["maximum_drawdown_policy_exceeded"]),
   ];
   return {
     calendarDays: dates.length,

@@ -24,6 +24,11 @@ const Decimal = (DecimalModule as unknown as { readonly default: DecimalConstruc
 
 export type DecimalString = string;
 
+/** Compare persisted decimal strings without converting through binary Number. */
+export function isDecimalAtMost(value: DecimalString, limit: DecimalString): boolean {
+  return decimal(value).lessThanOrEqualTo(decimal(limit));
+}
+
 /** Maximum planned loss as a percentage of the position's invested notional. */
 export const MAX_SINGLE_TRADE_RISK_PERCENT_OF_NOTIONAL = "5";
 /** Maximum adverse entry-to-stop distance for a long position. */
@@ -65,6 +70,28 @@ export function formatDecimalString(value: DecimalString, decimalPlaces = 2): st
 export interface PerformancePoint {
   readonly capturedAt: string;
   readonly equity: DecimalString;
+}
+
+export interface PerformanceCurvePoint extends PerformancePoint {
+  readonly drawdownPercent: DecimalString;
+  readonly returnPercent: DecimalString;
+}
+
+/** Build a decimal-safe equity curve for authenticated operator read models. */
+export function calculatePerformanceCurve(points: readonly PerformancePoint[]): readonly PerformanceCurvePoint[] {
+  if (points.length === 0) return [];
+  const initial = nonNegative(points[0]?.equity ?? "", "initial equity");
+  let peak = initial;
+  return points.map((point) => {
+    const equity = nonNegative(point.equity, "equity");
+    if (equity.greaterThan(peak)) peak = equity;
+    return {
+      capturedAt: point.capturedAt,
+      drawdownPercent: peak.isZero() ? "0.00000000" : peak.minus(equity).div(peak).times(100).toDecimalPlaces(8).toFixed(8),
+      equity: point.equity,
+      returnPercent: initial.isZero() ? "0.00000000" : equity.minus(initial).div(initial).times(100).toDecimalPlaces(8).toFixed(8),
+    };
+  });
 }
 
 export interface PerformanceMetrics {

@@ -93,6 +93,13 @@
 - [x] Verify 374 tests, all workspace typechecks, and lint.
 - [ ] Promote the reviewed batch and verify broker-facing quantity persistence through hosted telemetry.
 
+### Phase 6.385 — Decimal-safe performance reporting (2026-08-29)
+
+- [x] Move API equity-curve return/drawdown calculations to shared decimal-safe domain logic.
+- [x] Replace Worker/API drawdown policy checks that converted persisted percentages through JavaScript `Number`.
+- [x] Rebuild the domain artifact and verify 374 tests, workspace typechecks, and lint.
+- [ ] Promote the reviewed batch and verify the authenticated performance curve against persisted snapshots.
+
 ### Phase 6.356 — Live runtime incident checkpoint (2026-08-29)
 
 - [x] Confirm the live API remains healthy and the Worker is connected to Alpaca paper mode with a fresh crypto stream, active position management, and order submission approval present.
