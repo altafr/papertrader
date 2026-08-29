@@ -26,6 +26,7 @@ export interface ExitPlanCompletenessInput {
 }
 
 export type ExitPlanMissingField = "alpacaOrderId" | "entryPrice" | "plannedStopPrice" | "strategyKey" | "strategyVersion" | "plannedTargetPriceOrTimeStop";
+export const EXIT_PLAN_MISSING_FIELDS = ["alpacaOrderId", "entryPrice", "plannedStopPrice", "strategyKey", "strategyVersion", "plannedTargetPriceOrTimeStop"] as const satisfies readonly ExitPlanMissingField[];
 
 /** Validate operator-supplied remediation values before they can mark a position managed. */
 export function validateExitPlanValues(input: { readonly entryPrice: string; readonly plannedStopPrice: string; readonly plannedTargetPrice?: string; readonly timeStopAt?: Date | string | null }): void {

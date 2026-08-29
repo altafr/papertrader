@@ -65,6 +65,13 @@
 - [x] Update the authenticated CSV contract verifier and regression fixtures; tests, typecheck, and lint pass.
 - [ ] Verify the expanded CSV header and remediation values through the hosted authenticated endpoint after promotion.
 
+### Phase 6.381 — Bounded exit-plan field contract (2026-08-29)
+
+- [x] Publish the shared exit-plan missing-field vocabulary from the domain package.
+- [x] Reject unknown missing-field labels while parsing the authenticated dashboard read model.
+- [x] Preserve fail-closed rendering and verify domain build, workspace typecheck, and lint.
+- [ ] Verify the bounded field contract against the promoted authenticated dashboard.
+
 ### Phase 6.356 — Live runtime incident checkpoint (2026-08-29)
 
 - [x] Confirm the live API remains healthy and the Worker is connected to Alpaca paper mode with a fresh crypto stream, active position management, and order submission approval present.

@@ -1,5 +1,6 @@
 import { UserButton } from "@clerk/nextjs";
 import { auth } from "@clerk/nextjs/server";
+import { EXIT_PLAN_MISSING_FIELDS } from "@momentum/domain";
 
 import { auditPageCount, buildDashboardHistoryParams, formatAuditDateRange, formatUtc, getFreshnessLabel, getFreshnessState, getPositionExitDisplayState, parseAgentRuns, parseOperatorOverview, parseOperationsHealth, parsePaperPerformance, type AgentRunSummary, type OperationsHealth, type OperatorOverview, type PaperPerformance } from "./dashboard-state";
 import { DashboardRefresh } from "./dashboard-refresh";
@@ -39,7 +40,7 @@ function parseReadModel(value: unknown): ReadModel | undefined {
     positions: model.positions.filter(isRecord),
     snapshot: model.snapshot,
     activeExitPositions: model.activeExitPositions.filter((row): row is { assetClass: string; symbol: string } => isRecord(row) && typeof row.assetClass === "string" && typeof row.symbol === "string"),
-    unmanagedPositions: model.unmanagedPositions.filter((row): row is { assetClass: string; symbol: string; missingFields?: string[] } => isRecord(row) && typeof row.assetClass === "string" && typeof row.symbol === "string" && (row.missingFields === undefined || (Array.isArray(row.missingFields) && row.missingFields.every((field) => typeof field === "string")))),
+    unmanagedPositions: model.unmanagedPositions.filter((row): row is { assetClass: string; symbol: string; missingFields?: string[] } => isRecord(row) && typeof row.assetClass === "string" && typeof row.symbol === "string" && (row.missingFields === undefined || (Array.isArray(row.missingFields) && row.missingFields.every((field) => typeof field === "string" && (EXIT_PLAN_MISSING_FIELDS as readonly string[]).includes(field))))),
   };
 }
 
