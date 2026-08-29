@@ -68,6 +68,8 @@ When startup retries are exhausted, the Worker also emits one deduplicated criti
 
 The exhaustion event uses a UTC-day incident key, preventing repeated restart attempts from flooding Telegram while allowing a distinct outage on a later day to be reported again.
 
+Stale-scheduler incidents use the same UTC-day keying policy, so repeated watchdog callbacks remain bounded while a later independent missed-tick episode is visible to the operator.
+
 The credential-free hosted verifier reproduced the same condition with failed gates `worker`, `research_schedule`, and `next_runs`. The API remained reachable and the public dashboard returned HTTP 200. Since the verifier performs only health/public-surface GETs, this check cannot submit orders or mutate database state.
 
 The guarded `exit-plan-review` command provides a read-only, bounded remediation report for the latest account snapshot. It lists each position as managed or review-required with the exact missing plan fields; it never infers prices or mutates PostgreSQL/broker state.

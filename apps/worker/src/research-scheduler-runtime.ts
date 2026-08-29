@@ -40,6 +40,11 @@ export function buildResearchSchedulerStartFailureAlert(occurredAt = new Date().
   return { code: "research_scheduler_start_failed", dedupeKey: `research_scheduler_start_failed:${day}`, message: "Research scheduler startup retries were exhausted; no new paper decision was authorized.", severity: "critical" as const };
 }
 
+export function buildResearchSchedulerStaleAlert(occurredAt = new Date().toISOString()) {
+  const day = Number.isFinite(Date.parse(occurredAt)) ? new Date(occurredAt).toISOString().slice(0, 10) : "unknown";
+  return { code: "research_scheduler_stale", dedupeKey: `research_scheduler_stale:${day}`, message: "Research scheduler missed its expected tick; no new paper decision was authorized until the next successful cycle.", severity: "critical" as const };
+}
+
 /** Structured, credential-free log record for hosted cycle observability. */
 export function buildResearchCycleLog(result: { readonly agentType: string; readonly runId: string; readonly status: string; readonly candidates?: readonly { readonly symbol: string }[] }) {
   return { agentType: result.agentType, candidateCount: result.candidates?.length ?? 0, event: "research_cycle_result", runId: result.runId, status: result.status, symbols: (result.candidates ?? []).map((candidate) => candidate.symbol).slice(0, 10) } as const;
@@ -139,7 +144,7 @@ export function createResearchSchedulerFromEnvironment(environment: NodeJS.Proce
     clientFactory: () => new PgBoss(databaseUrl),
     config,
     environment,
-    onStale: async (error) => { void error; await createRuntimeAlertNotifier(environment, alertRepository).notify({ code: "research_scheduler_stale", dedupeKey: "research_scheduler_stale", message: "Research scheduler missed its expected tick; no new paper decision was authorized until the next successful cycle.", severity: "critical", occurredAt: new Date().toISOString() }); },
+    onStale: async (error) => { void error; const occurredAt = new Date().toISOString(); await createRuntimeAlertNotifier(environment, alertRepository).notify({ ...buildResearchSchedulerStaleAlert(occurredAt), occurredAt }); },
     runPreparation: async (job) => { await handler(job); },
   });
 }

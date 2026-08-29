@@ -1,13 +1,18 @@
 import { describe, expect, it } from "vitest";
 import type { ResearchWatchlistCandidate } from "@momentum/domain";
 
-import { buildPaperRiskCycleFailureAlert, buildPaperRiskCycleLog, buildResearchCycleLog, buildResearchSchedulerStartFailureAlert, createResearchSchedulerFromEnvironment, dedupeResearchCandidates, isMarketCloseSummaryEnabled, isUsMarketCloseSummaryWindow } from "./research-scheduler-runtime.js";
+import { buildPaperRiskCycleFailureAlert, buildPaperRiskCycleLog, buildResearchCycleLog, buildResearchSchedulerStaleAlert, buildResearchSchedulerStartFailureAlert, createResearchSchedulerFromEnvironment, dedupeResearchCandidates, isMarketCloseSummaryEnabled, isUsMarketCloseSummaryWindow } from "./research-scheduler-runtime.js";
 
 describe("research scheduler startup composition", () => {
   it("builds a redacted startup-failure alert", () => {
     expect(buildResearchSchedulerStartFailureAlert("2026-08-29T01:02:03.000Z")).toEqual({ code: "research_scheduler_start_failed", dedupeKey: "research_scheduler_start_failed:2026-08-29", message: "Research scheduler startup retries were exhausted; no new paper decision was authorized.", severity: "critical" });
     expect(buildResearchSchedulerStartFailureAlert("2026-08-29T23:59:59.000Z").dedupeKey).toBe("research_scheduler_start_failed:2026-08-29");
     expect(buildResearchSchedulerStartFailureAlert("2026-08-30T00:00:00.000Z").dedupeKey).toBe("research_scheduler_start_failed:2026-08-30");
+  });
+
+  it("scopes stale-scheduler alerts to a UTC incident day", () => {
+    expect(buildResearchSchedulerStaleAlert("2026-08-29T23:59:59.000Z").dedupeKey).toBe("research_scheduler_stale:2026-08-29");
+    expect(buildResearchSchedulerStaleAlert("2026-08-30T00:00:00.000Z").dedupeKey).toBe("research_scheduler_stale:2026-08-30");
   });
 
   it("does not construct external clients when the schedule is disabled", () => {

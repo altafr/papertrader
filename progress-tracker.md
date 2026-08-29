@@ -6519,6 +6519,13 @@
 - Focused Worker tests, workspace typechecks, lint, and diff hygiene pass.
 - **Next smallest unit:** deploy and verify one alert per outage day in the Telegram outbox.
 
+### Phase 6.533 — Stale-scheduler incident deduplication
+
+- Changed stale-scheduler Telegram alerts to use the same bounded UTC-day incident key as startup-exhaustion alerts.
+- Repeated watchdog callbacks remain deduplicated while independent later-day missed-tick episodes remain reportable.
+- Added deterministic alert-contract coverage; Worker tests, workspace typechecks, lint, and diff hygiene pass.
+- **Next smallest unit:** deploy and verify stale-scheduler alert delivery in the Telegram outbox.
+
 ### Phase 6.532 — Railway rollout initializing
 
 - Railway status transitioned both Worker and recovery-worker latest deployments from `QUEUED` to `INITIALIZING`.
