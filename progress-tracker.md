@@ -2,10 +2,10 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.373 — Local safety-batch verification.
-- **Status:** The hosted Worker and API continue paper trading with deterministic entry/exit safeguards, durable reconciliation, Telegram alerting, lifecycle-stable PostgreSQL-backed risk evidence, and a read-only portfolio status command. The latest exit-plan coverage, per-position remediation reasons, and entry pause gate are implemented and verified locally in one batch, but are intentionally not deployed yet so the active paper-trading release is uninterrupted. Vercel production publication remains limited by the free-plan daily deployment quota, while authenticated dashboard verification and the 30-day paper-forward evidence window remain ongoing.
+- **Phase:** Phase 6.378 — Hosted Worker scheduler recovery.
+- **Status:** The hosted Worker and API are healthy and continue paper trading with deterministic entry/exit safeguards, durable reconciliation, Telegram alerting, lifecycle-stable PostgreSQL-backed risk evidence, and a read-only portfolio status command. A Worker restart restored the missed research tick without a rebuild or deploy; the latest exit-plan coverage and alert changes remain local until one reviewed promotion. Vercel production publication remains limited by the free-plan daily deployment quota, while authenticated dashboard verification and the 30-day paper-forward evidence window remain ongoing.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
-- **Current goal:** Continue durable paper trading, then promote one reviewed batch when provider limits clear; verify authenticated portfolio/P&L rendering and exports, and accumulate the 30-day evidence gate without loosening risk controls.
+- **Current goal:** Continue durable paper trading, promote one reviewed local batch when provider limits clear, verify authenticated portfolio/P&L rendering and exports, and accumulate the 30-day evidence gate without loosening risk controls.
 - **Last updated:** 2026-08-29.
 
 ### Phase 6.373 — Local safety-batch verification (2026-08-29)
@@ -43,6 +43,13 @@
 - [x] Preserve indicator evidence, bounded message size, approval-only notification policy, and execution behavior.
 - [x] Paper-autopilot tests and workspace typecheck/lint pass.
 - [ ] Verify the entry rationale through hosted telemetry after the reviewed batch is promoted.
+
+### Phase 6.378 — Hosted Worker scheduler recovery (2026-08-29)
+
+- [x] Restart only the Worker process after the hosted research watchdog reported a missed tick.
+- [x] Confirm hosted health returned to `healthy` with fresh crypto stream data, ready position management, paper order submission approval, and research status `scheduled`.
+- [x] Preserve the active release, database, credentials, and deployment state; no rebuild or deploy was triggered.
+- [ ] Verify a completed research/risk cycle at the next scheduled boundary.
 
 ### Phase 6.356 — Live runtime incident checkpoint (2026-08-29)
 
