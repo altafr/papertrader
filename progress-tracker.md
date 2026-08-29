@@ -8,6 +8,13 @@
 - **Current goal:** Continue durable paper trading, verify authenticated portfolio/P&L rendering and exports, and accumulate the 30-day evidence gate without loosening risk controls.
 - **Last updated:** 2026-08-29.
 
+### Phase 6.356 — Live runtime incident checkpoint (2026-08-29)
+
+- [x] Confirm the live API remains healthy and the Worker is connected to Alpaca paper mode with a fresh crypto stream, active position management, and order submission approval present.
+- [x] Confirm the full local suite remains green: 88 test files / 366 tests, all workspace typechecks, and lint with zero warnings.
+- [x] Identify the current degraded state as a missed 15-minute research queue tick; the fail-closed contract is preventing a new research decision until the scheduler recovers.
+- [ ] Recover the queued Railway Worker deployment or restart the active Worker process, then rerun the hosted contract verifier and capture the next successful research cycle.
+
 ### Phase 6.355 — Repeatable stale-stream incident audit (2026-08-29)
 
 - [x] Replace the permanent stale-stream dedupe key with a bounded UTC-hour episode key.
