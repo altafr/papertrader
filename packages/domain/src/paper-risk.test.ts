@@ -36,6 +36,12 @@ describe("paper signals and deterministic risk", () => {
     expect(result.reasons[0]).toContain("baseline");
   });
 
+  it("pauses new entries while an existing position lacks exit-plan coverage", () => {
+    const result = assessPaperRisk({ estimatedFees: "0", estimatedSlippage: "0", equity: "1000", quantity: "0.01", signal, state: { ...state, unmanagedPositions: ["PFD"] } });
+    expect(result.passes).toBe(false);
+    expect(result.reasons).toContain("Existing positions lack complete exit plans; new entries are paused until portfolio coverage is restored.");
+  });
+
   it("rejects a long stop more than 5% below entry", () => {
     const signal = createImmutablePaperSignal({
       candidate: { ...candidate, plannedStopPrice: "94" },

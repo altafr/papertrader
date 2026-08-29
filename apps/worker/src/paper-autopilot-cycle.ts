@@ -4,6 +4,7 @@ import { isGlobalKillSwitchActive } from "@momentum/config";
 import { createAccountStateRepository, createPaperOrderRepository, type Database, type PersistedPaperOrderSubmission } from "@momentum/db";
 
 import { assessResearchCandidateRisk, buildRiskCandidate, isPaperBaselineVerified } from "./paper-risk-dry-run.js";
+import { isCompleteExitPlan } from "@momentum/domain";
 
 /**
  * Bound each cycle to a small candidate set. Broker-enabled cycles still
@@ -70,6 +71,9 @@ export async function runPaperAutopilotRiskCycle(input: {
   const initialSnapshot = await accountRepository.getInitial(snapshot.accountId);
   const baselineConfirmation = await accountRepository.getLatestPaperBaselineConfirmation(snapshot.accountId, "100000");
   const baselineVerified = Boolean(baselineConfirmation || (initialSnapshot && isPaperBaselineVerified(initialSnapshot.equity)));
+  const repository = createPaperOrderRepository(input.db);
+  const completePlans = new Set((await repository.listExitPlans()).filter((plan) => isCompleteExitPlan(plan)).map((plan) => `${plan.assetClass}:${plan.symbol}`));
+  const unmanagedPositions = model.positions.filter((position) => !completePlans.has(`${position.assetClass}:${position.symbol}`)).map((position) => position.symbol).slice(0, 20);
   const accountFresh = Math.floor((now.getTime() - model.freshness.capturedAt.getTime()) / 1000) <= 172_800;
   const baseState = {
     accountBaselineVerified: baselineVerified,
@@ -77,8 +81,8 @@ export async function runPaperAutopilotRiskCycle(input: {
     killSwitchActive: isGlobalKillSwitchActive(input.environment ?? process.env),
     openPositions: model.positions.map((position) => ({ assetClass: position.assetClass === "crypto" ? "crypto" as const : "us_equity" as const, marketValue: position.marketValue })),
     submittedEntriesLast24Hours: model.orders.filter((order) => order.side.toLowerCase() === "buy" && order.submittedAt && now.getTime() - order.submittedAt.getTime() <= 86_400_000).length,
+    ...(unmanagedPositions.length > 0 ? { unmanagedPositions } : {}),
   };
-  const repository = createPaperOrderRepository(input.db);
   const results: PaperAutopilotRiskCycleResult[] = [];
   let executionSubmitted = false;
   // A broker-enabled cycle evaluates a bounded candidate set but submits at

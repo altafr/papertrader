@@ -36,6 +36,8 @@ export interface PaperRiskState {
   readonly killSwitchActive: boolean;
   readonly openPositions: readonly PaperRiskPosition[];
   readonly submittedEntriesLast24Hours: number;
+  /** Symbols that cannot be automatically managed because their exit plan is incomplete. */
+  readonly unmanagedPositions?: readonly string[];
 }
 
 export interface PaperRiskPolicy {
@@ -127,6 +129,7 @@ export function assessPaperRisk(input: {
   if (!input.state.accountFresh) reasons.push("Account state is stale.");
   if (!input.state.dataFresh) reasons.push("Market data is stale.");
   if (input.state.killSwitchActive) reasons.push("Global kill switch is active.");
+  if ((input.state.unmanagedPositions?.length ?? 0) > 0) reasons.push("Existing positions lack complete exit plans; new entries are paused until portfolio coverage is restored.");
   if (input.state.submittedEntriesLast24Hours >= policy.maxSubmittedEntriesLast24Hours) reasons.push("Rolling 24-hour entry limit has been reached.");
   if (input.state.openPositions.length >= policy.maxOpenPositions) reasons.push("Maximum open-position limit has been reached.");
   if (!risk.passes) reasons.push("Estimated planned-stop loss exceeds 5% of invested notional.");

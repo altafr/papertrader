@@ -114,6 +114,13 @@
 - [x] Full suite passes: 89 test files / 370 tests; domain build, workspace typecheck, and lint pass.
 - [ ] Batch this API/dashboard work with the queued release and verify it through an authenticated operator session after provider recovery.
 
+### Phase 6.371 — Portfolio coverage gate for new entries (2026-08-29)
+
+- [x] Add a deterministic risk rejection when any existing position lacks a complete exit plan.
+- [x] Preserve paper execution, kill-switch, freshness, exposure, and reconciliation gates; no automatic plan is invented for legacy positions.
+- [x] Add regression coverage and verify 89 test files / 371 tests, domain build, workspace typecheck, and lint.
+- [ ] Batch this Worker change with the queued release and verify new-entry rejection/plan coverage through hosted telemetry.
+
 ### Phase 6.355 — Repeatable stale-stream incident audit (2026-08-29)
 
 - [x] Replace the permanent stale-stream dedupe key with a bounded UTC-hour episode key.
