@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { assessResearchSchedulerLiveness, createResearchScheduler, enqueueResearchPreparation, getNextResearchRunAt, getResearchPreparationJobId, getResearchScheduleConfig, getResearchScheduleReadiness, getResearchSchedulerHealth, isResearchPreparationJob, provisionResearchQueues, runResearchPreparationJob, setResearchRiskCycleHealth, RESEARCH_PREPARATION_CRON, RESEARCH_PREPARATION_DEAD_LETTER_QUEUE, RESEARCH_PREPARATION_QUEUE } from "./research-scheduler.js";
+import { assessResearchSchedulerLiveness, createResearchScheduler, enqueueResearchPreparation, getNextResearchRunAt, getResearchPreparationJobId, getResearchScheduleConfig, getResearchScheduleReadiness, getResearchSchedulerHealth, getResearchStartupCatchupJobId, isResearchPreparationJob, provisionResearchQueues, runResearchPreparationJob, setResearchRiskCycleHealth, RESEARCH_PREPARATION_CRON, RESEARCH_PREPARATION_DEAD_LETTER_QUEUE, RESEARCH_PREPARATION_QUEUE } from "./research-scheduler.js";
 
 describe("research schedule boundary", () => {
   it("is disabled by default with bounded configuration", () => {
@@ -25,6 +25,11 @@ describe("research schedule boundary", () => {
   it("calculates the next 15-minute boundary without relying on wall-clock execution", () => {
     expect(getNextResearchRunAt(new Date("2026-08-28T11:32:50.000Z"), "*/15 * * * *")).toBe("2026-08-28T11:45:00.000Z");
     expect(getNextResearchRunAt(new Date("2026-08-28T11:45:00.000Z"), "*/15 * * * *")).toBe("2026-08-28T12:00:00.000Z");
+  });
+
+  it("creates an idempotent startup catch-up identity only for interval schedules", () => {
+    expect(getResearchStartupCatchupJobId(new Date("2026-08-28T11:32:50.000Z"), "*/15 * * * *")).toBe("research-startup-20260828T113000000Z");
+    expect(getResearchStartupCatchupJobId(new Date("2026-08-28T11:32:50.000Z"), RESEARCH_PREPARATION_CRON)).toBeUndefined();
   });
 
   it("marks an overdue tick degraded after the bounded grace period", () => {
@@ -101,7 +106,10 @@ describe("research schedule boundary", () => {
       await scheduler.start();
       current = new Date("2026-08-23T01:18:01.000Z");
       await vi.advanceTimersByTimeAsync(60_000);
-      expect(sent).toEqual([{ name: RESEARCH_PREPARATION_QUEUE, id: "research-recovery-20260823T011500000Z" }]);
+      expect(sent).toEqual([
+        { name: RESEARCH_PREPARATION_QUEUE, id: "research-startup-20260823T010000000Z" },
+        { name: RESEARCH_PREPARATION_QUEUE, id: "research-recovery-20260823T011500000Z" },
+      ]);
       expect(onStale).not.toHaveBeenCalled();
       await scheduler.stop();
     } finally {

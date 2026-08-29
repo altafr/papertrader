@@ -168,6 +168,22 @@ export function getNextResearchRunAt(now: Date, cron: string): string | undefine
   return next.toISOString();
 }
 
+/**
+ * Return a bounded, deterministic identity for a startup catch-up job.
+ * Catch-up is only used for interval schedules (the continuous crypto path),
+ * never for the daily stock preparation schedule.
+ */
+export function getResearchStartupCatchupJobId(now: Date, cron: string): string | undefined {
+  const intervalMatch = /^\*\/(\d+) \* \* \* \*$/.exec(cron);
+  if (!intervalMatch) return undefined;
+  const intervalMinutes = Number(intervalMatch[1]);
+  if (!Number.isSafeInteger(intervalMinutes) || intervalMinutes < 1 || intervalMinutes > 60 || !Number.isFinite(now.getTime())) return undefined;
+  const bucket = new Date(now);
+  bucket.setUTCSeconds(0, 0);
+  bucket.setUTCMinutes(Math.floor(bucket.getUTCMinutes() / intervalMinutes) * intervalMinutes);
+  return `research-startup-${bucket.toISOString().replace(/[^0-9A-Za-z]/g, "").slice(0, 32)}`;
+}
+
 let schedulerHealth: ResearchSchedulerHealth = { enabled: false, handlerEnabled: false, status: "disabled" };
 
 export function getResearchSchedulerHealth(): ResearchSchedulerHealth {
@@ -237,6 +253,13 @@ export function createResearchScheduler(input: {
             throw error;
           }
         });
+        const startupCatchupId = getResearchStartupCatchupJobId(now(), input.config.cron);
+        if (startupCatchupId) {
+          // Use the same durable queue and an idempotency key scoped to the
+          // current interval. A restart therefore cannot create a burst of
+          // duplicate crypto research cycles.
+          await client.send(RESEARCH_PREPARATION_QUEUE, { kind: "research_preparation", version: 1 }, { id: startupCatchupId });
+        }
         const nextRunAt = getNextResearchRunAt(now(), input.config.cron);
         schedulerHealth = { enabled: true, handlerEnabled: input.config.handlerEnabled, ...(nextRunAt ? { nextRunAt } : {}), status: "scheduled" };
         watchdogTimer = setInterval(watchdog, 60_000);

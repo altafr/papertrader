@@ -8,6 +8,13 @@
 - **Current goal:** Continue durable paper trading, promote one reviewed local batch when provider limits clear, verify authenticated portfolio/P&L rendering and exports, and accumulate the 30-day evidence gate without loosening risk controls.
 - **Last updated:** 2026-08-29.
 
+### Phase 6.393 — Interval scheduler startup catch-up (2026-08-29)
+
+- [x] Add an idempotent startup catch-up enqueue for interval (crypto) schedules, scoped to the current UTC interval.
+- [x] Keep daily stock preparation cron-only and route catch-up through the existing durable queue, validation, reconciliation, risk, and kill-switch gates.
+- [x] Add scheduler regression coverage; local targeted tests pass.
+- [ ] Promote the reviewed batch and verify a recovered hosted crypto cycle; deployment remains intentionally deferred by the current no-deploy instruction.
+
 ### Phase 6.373 — Local safety-batch verification (2026-08-29)
 
 - [x] Verify complete exit-plan coverage, actionable unmanaged-position reasons, and deterministic entry pausing as one local batch.
