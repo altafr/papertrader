@@ -10,6 +10,8 @@ describe("paper autopilot runtime readiness", () => {
     expect(assessRuntimeReconciliation("2026-08-21T22:00:00.000Z", now).status).toBe("fresh");
     expect(assessRuntimeReconciliation("2026-08-21T00:00:00.000Z", now).status).toBe("delayed");
     expect(assessRuntimeReconciliation("2026-08-20T00:00:00.000Z", now).status).toBe("stale");
+    expect(assessRuntimeReconciliation("2026-08-23T00:06:00.000Z", now)).toEqual({ status: "unavailable" });
+    expect(assessRuntimeReconciliation("2026-08-23T00:04:59.000Z", now).status).toBe("fresh");
   });
 
   it("does not turn disabled configuration into a ready runtime", () => {

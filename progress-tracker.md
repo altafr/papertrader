@@ -6395,3 +6395,10 @@
 - This keeps `ready` reserved for an actually enabled paper execution path while preserving diagnostic `disabled`/`dry_run` states.
 - Added regression coverage; focused tests, workspace typechecks, lint, and diff hygiene pass.
 - **Next smallest unit:** deploy the accumulated Worker/API changes only after explicit operator authorization, then run hosted and authenticated dashboard verification.
+
+### Phase 6.411 reconciliation clock-skew guard
+
+- Reconciliation readiness now fails closed for snapshots more than five minutes in the future relative to the Worker clock.
+- Clock-skewed evidence is classified as unavailable rather than being treated as fresh, preventing autonomous decisions from relying on incoherent timestamps.
+- Added boundary regression coverage; focused tests, workspace typechecks, lint, and diff hygiene pass.
+- **Next smallest unit:** deploy the accumulated Worker/API changes only after explicit operator authorization, then verify hosted readiness and authenticated portfolio state.

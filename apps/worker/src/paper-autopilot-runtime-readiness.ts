@@ -2,6 +2,8 @@ import type { PaperAutopilotReadiness, PaperAutopilotReadinessStatus } from "./p
 
 export type RuntimeReconciliationStatus = "delayed" | "fresh" | "stale" | "unavailable";
 
+const MAX_ALLOWED_FUTURE_SKEW_MS = 5 * 60 * 1_000;
+
 export interface PaperAutopilotRuntimeReadiness {
   readonly blockedReasons: readonly string[];
   readonly configuration: PaperAutopilotReadiness;
@@ -17,6 +19,7 @@ export function assessRuntimeReconciliation(capturedAt: Date | string | undefine
   if (!capturedAt) return { status: "unavailable" };
   const captured = capturedAt instanceof Date ? capturedAt : new Date(capturedAt);
   if (Number.isNaN(captured.getTime())) return { status: "unavailable" };
+  if (captured.getTime() > now.getTime() + MAX_ALLOWED_FUTURE_SKEW_MS) return { status: "unavailable" };
   const ageSeconds = Math.max(0, Math.floor((now.getTime() - captured.getTime()) / 1000));
   const status: RuntimeReconciliationStatus = ageSeconds > 172_800 ? "stale" : ageSeconds > 93_600 ? "delayed" : "fresh";
   return { ageSeconds, capturedAt: captured.toISOString(), status };
