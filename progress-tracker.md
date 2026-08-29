@@ -6551,6 +6551,13 @@
 - API health still omits `release` because Railway did not provide a commit identifier for the local-source deployment; no fabricated value was introduced.
 - **Next smallest unit:** use a commit-backed Railway deployment (or explicitly managed release identifier), then rerun dual-service release-pinned verification.
 
+### Phase 6.538 — Worker rollout fail-closed verification
+
+- Matching Worker deployment reached Railway `SUCCESS` from the verified local source.
+- Worker health reports `degraded` with two unmanaged positions and no completed research run; market stream freshness and position-management liveness remain active.
+- Hosted verifier fails closed on `worker`, `position_management`, `research_schedule`, `health_timestamps`, and `next_runs`; no new order was authorized by verification.
+- **Next smallest unit:** remediate the two exit-plan records and capture a successful research cycle, then rerun hosted verification and release pinning.
+
 ### Phase 6.532 — Railway rollout initializing
 
 - Railway status transitioned both Worker and recovery-worker latest deployments from `QUEUED` to `INITIALIZING`.

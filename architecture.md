@@ -64,6 +64,8 @@ Railway subsequently completed both Worker deployments successfully. The credent
 
 The API was subsequently deployed successfully from the local verified source, and the unpinned hosted verifier still passes all gates. Railway did not inject a commit SHA for that local-source deployment, so API health continues to omit `release`; dual-service pinning must wait for a commit-backed deployment or an explicitly managed release identifier.
 
+The matching Worker local-source deployment subsequently reached `SUCCESS`. Its health response correctly remains `degraded` while two positions lack complete exit-plan provenance and no research run has completed; the market stream is fresh and position-management liveness is active. Hosted verification fails closed on those conditions rather than authorizing new entries.
+
 Research scheduler startup now performs up to three bounded retries with a 30-second delay for transient queue/database startup failures. Exhaustion leaves the health endpoint degraded and does not submit orders or bypass any readiness gate.
 
 Each startup retry and final exhaustion also emits a bounded structured Worker log event (`research_scheduler_start_retry` / `research_scheduler_start_failed`) without error text, credentials, or broker payloads. This gives operators an auditable recovery signal without leaking provider details.
