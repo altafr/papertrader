@@ -135,6 +135,13 @@
 - [x] Verify 374 tests, workspace typechecks, and lint.
 - [ ] Promote the reviewed web batch and verify the chart against persisted performance snapshots.
 
+### Phase 6.391 — Decimal-safe research-bar validation (2026-08-29)
+
+- [x] Replace floating-point OHLC/volume validation in the Alpaca research source with decimal-safe comparisons.
+- [x] Preserve positive-value, ordering, timestamp, duplicate, and unrequested-symbol fail-closed checks.
+- [x] Add large-value overflow-boundary coverage and verify 375 tests, workspace typechecks, and lint.
+- [ ] Promote the reviewed Worker batch and verify accepted finalized bars through hosted telemetry.
+
 ### Phase 6.356 — Live runtime incident checkpoint (2026-08-29)
 
 - [x] Confirm the live API remains healthy and the Worker is connected to Alpaca paper mode with a fresh crypto stream, active position management, and order submission approval present.

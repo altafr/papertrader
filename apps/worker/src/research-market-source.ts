@@ -1,11 +1,18 @@
+import * as DecimalModule from "decimal.js";
+
 import type { PaperMarketDataReader, MarketAssetClass, MarketBarTimeframe } from "@momentum/alpaca";
 import type { ResearchAgentInput, StrategyAssetClass } from "@momentum/domain";
 
+interface BarDecimal { greaterThan(value: BarDecimal | string): boolean; isNegative(): boolean; isZero(): boolean; lessThan(value: BarDecimal | string): boolean; }
+interface BarDecimalConstructor { new (value: string): BarDecimal; }
+const BarDecimal = (DecimalModule as unknown as { readonly default: BarDecimalConstructor }).default;
+
 const allowedTimeframes: readonly MarketBarTimeframe[] = ["1Day", "1Hour", "1Min", "1Month", "1Week", "5Min", "15Min"];
 
-function positiveNumber(value: string, label: string): number {
-  const parsed = Number(value);
-  if (!Number.isFinite(parsed) || parsed <= 0) throw new Error(`${label} must be a positive number.`);
+function positiveDecimal(value: string, label: string): BarDecimal {
+  let parsed: BarDecimal;
+  try { parsed = new BarDecimal(value); } catch { throw new Error(`${label} must be a positive number.`); }
+  if (parsed.isNegative() || parsed.isZero()) throw new Error(`${label} must be a positive number.`);
   return parsed;
 }
 
@@ -26,12 +33,14 @@ export function validateResearchBars(input: {
     if (previous !== undefined && timestamp === previous) throw new Error("Research source returned duplicate bars.");
     if (previous !== undefined && timestamp < previous) throw new Error("Research source returned out-of-order bars.");
     latestBySymbol.set(bar.symbol, timestamp);
-    const open = positiveNumber(bar.open, "open");
-    const high = positiveNumber(bar.high, "high");
-    const low = positiveNumber(bar.low, "low");
-    const close = positiveNumber(bar.close, "close");
-    positiveNumber(bar.volume, "volume");
-    if (high < Math.max(open, close) || low > Math.min(open, close) || high < low) throw new Error("Research source returned inconsistent OHLC values.");
+    const open = positiveDecimal(bar.open, "open");
+    const high = positiveDecimal(bar.high, "high");
+    const low = positiveDecimal(bar.low, "low");
+    const close = positiveDecimal(bar.close, "close");
+    positiveDecimal(bar.volume, "volume");
+    const maxBody = open.greaterThan(close) ? open : close;
+    const minBody = open.lessThan(close) ? open : close;
+    if (high.lessThan(maxBody) || low.greaterThan(minBody) || high.lessThan(low)) throw new Error("Research source returned inconsistent OHLC values.");
   }
 }
 

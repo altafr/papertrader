@@ -29,4 +29,11 @@ describe("Alpaca research input source", () => {
     expect(() => validateResearchBars({ bars: [{ ...bar, high: "90" }, { ...bar, timestamp: "2026-08-23T01:30:00.000Z" }], now, symbols: ["AAA"] })).toThrow("inconsistent");
     expect(() => validateResearchBars({ bars: [bar, { ...bar }], now, symbols: ["AAA"] })).toThrow("duplicate");
   });
+
+  it("accepts large decimal market values without binary-number overflow", () => {
+    const large = "999999999999999999999999999999";
+    const high = "1000000000000000000000000000000";
+    const low = "999999999999999999999999999998";
+    expect(() => validateResearchBars({ bars: [{ ...bar, open: large, high, low, close: large, volume: large }, { ...bar, open: large, high, low, close: large, volume: large, timestamp: "2026-08-23T01:30:00.000Z" }], now: new Date("2026-08-23T02:00:00.000Z"), symbols: ["AAA"] })).not.toThrow();
+  });
 });
