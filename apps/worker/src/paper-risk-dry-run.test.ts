@@ -17,6 +17,13 @@ describe("paper risk dry run", () => {
     expect(result.approval.assessment.estimatedLossPercent).toBe("4.99000000");
   });
 
+  it("calculates prices without binary floating-point drift", () => {
+    const result = buildRiskCandidate({ ...candidate, marketSnapshot: { ...candidate.marketSnapshot, close: "0.29" } }, new Date("2026-08-26T00:00:00.000Z"));
+    expect(result.proposedEntryPrice).toBe("0.29000000");
+    expect(result.plannedStopPrice).toBe("0.27552900");
+    expect(result.plannedExitPrice).toBe("0.30160000");
+  });
+
   it("keeps a stale or killed candidate rejected", () => {
     const result = assessResearchCandidateRisk({ candidate, currentAt: "2026-08-26T00:00:00.000Z", equity: "100000", quantity: "1", state: { ...state, accountFresh: false, killSwitchActive: true } });
     expect(result.approval.status).toBe("rejected");

@@ -99,6 +99,9 @@ importers:
       '@momentum/notifications':
         specifier: workspace:*
         version: link:../../packages/notifications
+      decimal.js:
+        specifier: ^10.6.0
+        version: 10.6.0
       pg-boss:
         specifier: 12.27.0
         version: 12.27.0

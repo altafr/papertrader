@@ -79,6 +79,13 @@
 - [x] Preserve deterministic risk approval, idempotency, and paper-only execution boundaries; paper-autopilot tests, typecheck, and lint pass.
 - [ ] Promote the reviewed batch and verify a time-stop-bearing position through hosted reconciliation.
 
+### Phase 6.383 — Decimal-safe risk candidate pricing (2026-08-29)
+
+- [x] Replace JavaScript `Number` arithmetic with decimal-safe calculations for candidate entry, stop, and target prices.
+- [x] Add fractional-price coverage to protect the 5% stop boundary from binary floating-point drift.
+- [x] Declare the Worker’s direct `decimal.js` dependency and verify the lockfile policy, 373 tests, workspace typecheck, and lint.
+- [ ] Promote the reviewed batch and verify persisted broker-facing prices through hosted telemetry.
+
 ### Phase 6.356 — Live runtime incident checkpoint (2026-08-29)
 
 - [x] Confirm the live API remains healthy and the Worker is connected to Alpaca paper mode with a fresh crypto stream, active position management, and order submission approval present.

@@ -1,4 +1,17 @@
+import * as DecimalModule from "decimal.js";
+
 import { approvePaperTradeIntent, classifyPaperBaseline, createImmutablePaperSignal, createImmutablePaperTradeIntent, type PaperTradeApproval, type PaperRiskState, type ResearchWatchlistCandidate } from "@momentum/domain";
+
+interface DecimalValue {
+  greaterThan(value: DecimalValue | string): boolean;
+  isNegative(): boolean;
+  isZero(): boolean;
+  times(value: DecimalValue | string): DecimalValue;
+  toDecimalPlaces(decimalPlaces: number): DecimalValue;
+  toFixed(decimalPlaces?: number): string;
+}
+interface DecimalConstructor { new (value: string): DecimalValue; }
+const Decimal = (DecimalModule as unknown as { readonly default: DecimalConstructor }).default;
 
 export function isPaperBaselineVerified(equity: string | number | undefined, baseline = 100_000, tolerance = 1): boolean {
   return classifyPaperBaseline(equity, String(baseline), String(tolerance)) === "within_tolerance";
@@ -7,19 +20,20 @@ export function isPaperBaselineVerified(equity: string | number | undefined, bas
 export type RiskCandidate = ResearchWatchlistCandidate & { readonly expiresAt: string; readonly plannedExitPrice: string; readonly plannedStopPrice: string; readonly proposedEntryPrice: string; readonly rationale: string; readonly score: string; readonly signalTime: string; readonly side: "long"; readonly strategyKey: string; readonly strategyVersion: string; readonly timeStopAt?: string };
 
 export function buildRiskCandidate(input: ResearchWatchlistCandidate, now = new Date()): RiskCandidate {
-  const close = Number(input.marketSnapshot?.close ?? "NaN");
-  if (!Number.isFinite(close) || close <= 0) throw new Error("Research candidate must include a positive point-in-time close.");
+  let close: DecimalValue;
+  try { close = new Decimal(input.marketSnapshot?.close ?? ""); } catch { throw new Error("Research candidate must include a positive point-in-time close."); }
+  if (close.isNegative() || close.isZero()) throw new Error("Research candidate must include a positive point-in-time close.");
   const signalTime = input.dataAsOf;
   if (Number.isNaN(Date.parse(signalTime)) || Date.parse(signalTime) > now.getTime()) throw new Error("Research candidate data timestamp is invalid or from the future.");
   return {
     ...input,
     expiresAt: new Date(Date.parse(signalTime) + 86_400_000).toISOString(),
-    plannedExitPrice: (close * 1.04).toFixed(8),
+    plannedExitPrice: close.times("1.04").toDecimalPlaces(8).toFixed(8),
     // Keep the planned stop strictly inside the 5% maximum. Using 95% and
     // then rounding can produce a tiny over-limit distance for some prices,
     // causing every generated research candidate to fail closed.
-    plannedStopPrice: (close * 0.9501).toFixed(8),
-    proposedEntryPrice: close.toFixed(8),
+    plannedStopPrice: close.times("0.9501").toDecimalPlaces(8).toFixed(8),
+    proposedEntryPrice: close.toDecimalPlaces(8).toFixed(8),
     rationale: "Research candidate passed to the deterministic paper-risk engine for a non-submitting dry run.",
     score: input.momentumReturn,
     signalTime,
