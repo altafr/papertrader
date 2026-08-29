@@ -93,6 +93,13 @@
 - [x] API typecheck and lint pass.
 - [ ] Publish the export revision and verify a downloaded authenticated CSV after provider limits clear.
 
+### Phase 6.368 — Shared exit-plan contract (2026-08-29)
+
+- [x] Add a shared domain predicate for complete exit-plan provenance and require it in Worker position management.
+- [x] Cover target-based and time-stop-based plans plus missing/blank required fields.
+- [x] Full suite passes: 89 test files / 370 tests; domain build, workspace typecheck, and lint pass.
+- [ ] Batch this and the queued dashboard/API revisions into one intentional Railway/Vercel promotion.
+
 ### Phase 6.355 — Repeatable stale-stream incident audit (2026-08-29)
 
 - [x] Replace the permanent stale-stream dedupe key with a bounded UTC-hour episode key.
