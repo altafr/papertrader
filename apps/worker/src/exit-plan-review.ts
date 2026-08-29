@@ -16,6 +16,8 @@ export interface ExitPlanReviewPlan {
   readonly strategyVersion?: string | null;
   readonly symbol: string;
   readonly timeStopAt?: Date | null;
+  readonly updatedAt?: Date | null;
+  readonly createdAt?: Date | null;
 }
 
 export interface ExitPlanReviewRow {
@@ -31,8 +33,17 @@ export function buildExitPlanReviewReport(
   plans: readonly ExitPlanReviewPlan[],
 ): readonly ExitPlanReviewRow[] {
   const latest = new Map<string, ExitPlanReviewPlan>();
-  for (const plan of plans) latest.set(`${plan.assetClass}:${plan.symbol}`, plan);
-  return positions.map((position) => {
+  for (const plan of plans) {
+    const key = `${plan.assetClass}:${plan.symbol}`;
+    const current = latest.get(key);
+    const planTime = plan.updatedAt?.getTime() ?? plan.createdAt?.getTime() ?? 0;
+    const currentTime = current?.updatedAt?.getTime() ?? current?.createdAt?.getTime() ?? 0;
+    if (!current || planTime > currentTime || (planTime === currentTime && plan.intentId > current.intentId)) latest.set(key, plan);
+  }
+  return [...positions]
+    .sort((left, right) => `${left.assetClass}:${left.symbol}`.localeCompare(`${right.assetClass}:${right.symbol}`))
+    .slice(0, 100)
+    .map((position) => {
     const plan = latest.get(`${position.assetClass}:${position.symbol}`);
     const missingFields = getExitPlanMissingFields(plan ? {
       ...(plan.alpacaOrderId == null ? {} : { alpacaOrderId: plan.alpacaOrderId }),
@@ -43,6 +54,6 @@ export function buildExitPlanReviewReport(
       ...(plan.strategyVersion == null ? {} : { strategyVersion: plan.strategyVersion }),
       ...(plan.timeStopAt == null ? {} : { timeStopAt: plan.timeStopAt }),
     } : {});
-    return { assetClass: position.assetClass, missingFields, status: missingFields.length === 0 ? "managed" : "review_required", symbol: position.symbol };
-  });
+      return { assetClass: position.assetClass, missingFields, status: missingFields.length === 0 ? "managed" : "review_required", symbol: position.symbol };
+    });
 }

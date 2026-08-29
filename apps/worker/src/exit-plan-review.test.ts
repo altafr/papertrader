@@ -11,4 +11,14 @@ describe("exit plan review", () => {
       { assetClass: "us_equity", missingFields: [], status: "managed", symbol: "AAPL" },
     ]);
   });
+
+  it("selects the newest plan and sorts the bounded report deterministically", () => {
+    expect(buildExitPlanReviewReport(
+      [{ assetClass: "us_equity", symbol: "MSFT" }, { assetClass: "us_equity", symbol: "AAPL" }],
+      [
+        { assetClass: "us_equity", symbol: "AAPL", intentId: "old", entryPrice: "100", plannedStopPrice: "95", plannedTargetPrice: "110", strategyKey: "m", strategyVersion: "1.0.0", alpacaOrderId: "o", createdAt: new Date("2026-01-01") },
+        { assetClass: "us_equity", symbol: "AAPL", intentId: "new", entryPrice: "100", plannedStopPrice: "95", plannedTargetPrice: "110", strategyKey: "m", strategyVersion: "1.0.0", alpacaOrderId: "o", updatedAt: new Date("2026-01-02") },
+      ],
+    ).map((row) => row.symbol)).toEqual(["AAPL", "MSFT"]);
+  });
 });

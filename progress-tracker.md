@@ -36,6 +36,13 @@
 - [x] Add report coverage tests and verify 90 test files / 379 tests, workspace typechecks, and lint.
 - [ ] Run the report against hosted PostgreSQL after deployment and backfill only operator-reviewed values.
 
+### Phase 6.400 — Deterministic remediation report ordering (2026-08-29)
+
+- [x] Select the newest matching exit plan using persisted update/create timestamps and a deterministic intent-id tie-breaker.
+- [x] Sort report rows by asset class/symbol and cap output at 100 positions.
+- [x] Add regression coverage and verify the Worker typecheck, lint, and focused tests.
+- [ ] Verify stable output against hosted PostgreSQL after deployment.
+
 ### Phase 6.393 — Interval scheduler startup catch-up (2026-08-29)
 
 - [x] Add an idempotent startup catch-up enqueue for interval (crypto) schedules, scoped to the current UTC interval.

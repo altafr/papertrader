@@ -50,6 +50,8 @@ The end-of-session Telegram digest includes that same unmanaged-position count, 
 
 The guarded `exit-plan-review` command provides a read-only, bounded remediation report for the latest account snapshot. It lists each position as managed or review-required with the exact missing plan fields; it never infers prices or mutates PostgreSQL/broker state.
 
+The report sorts positions by asset class/symbol, selects the newest persisted plan by update/create timestamp with a deterministic tie-breaker, and caps output at 100 positions. Repeated reviews therefore produce stable, bounded operator evidence.
+
 The stream supervisor derives its gap-recovery interval from the configured bar timeframe (including 5-minute and 15-minute crypto bars), rather than treating every non-1-minute stream as hourly. A one-minute watchdog emits one deduplicated critical alert when a connected stream becomes stale and clears the episode after fresh messages resume; its durable key is time-bucketed so a later outage remains auditable after the cooldown. It never submits or changes an order.
 
 The public Vercel heartbeat safely renders that bounded stream-freshness classification when available; it continues to omit account, position, order, credential, and broker-payload values.
