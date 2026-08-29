@@ -6594,6 +6594,13 @@
 - No broker order was submitted by this cycle; the fail-closed entry pause is working as designed.
 - **Next smallest unit:** remediate the two operator-reviewed exit plans, then verify an approved paper decision can pass risk and reconcile without bypassing safeguards.
 
+### Phase 6.544 — Hosted exit-plan review report (2026-08-29)
+
+- Read-only Worker report confirms `AAPL` is managed; `BTCUSD` and `PFD` are `review_required`.
+- Both review-required positions are missing the broker-linked order ID, entry price, protective stop, strategy key/version, and target or time-stop provenance. No values were inferred or written.
+- Hosted verifier now fails only the aggregate Worker health and position-management gates caused by these two records; research scheduler and risk-cycle telemetry pass.
+- **Next smallest unit:** obtain operator-reviewed provenance for `BTCUSD` and `PFD`, apply the guarded backfill, and verify managed-position coverage.
+
 ### Phase 6.532 — Railway rollout initializing
 
 - Railway status transitioned both Worker and recovery-worker latest deployments from `QUEUED` to `INITIALIZING`.
