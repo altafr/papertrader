@@ -6465,6 +6465,13 @@
 - Added recovery and exhaustion regression coverage; focused scheduler tests, workspace typechecks, lint, and diff hygiene pass.
 - **Next smallest unit:** deploy the Worker revision and verify the scheduler recovers or fails visibly under the hosted infrastructure conditions.
 
+### Phase 6.524 — Dual-service hosted release pin
+
+- Extended the hosted runtime contract so an optional expected release must match both API and Worker health responses.
+- Added regression coverage for matching and mismatched API releases; no deployment or broker action was performed.
+- Focused verifier tests, workspace typechecks, lint, and diff hygiene pass.
+- **Next smallest unit:** after rollout, set `PAPERTRADER_EXPECTED_RELEASE` to the deployed commit SHA and verify both services match.
+
 ### Phase 6.521 — Hosted verifier gate isolation
 
 - Credential-free `pnpm verify:hosted` reproduced failed gates `worker`, `research_schedule`, and `next_runs`.

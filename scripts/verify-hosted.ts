@@ -16,6 +16,7 @@ export function getFailedRuntimeGates(runtime: ReturnType<typeof evaluatePaperRu
     ["research_schedule", runtime.researchSchedule === "scheduled"],
     ["durable_scheduler", runtime.durableScheduler === "scheduled"],
     ["release_match", runtime.releaseMatches],
+    ["api_release_match", runtime.apiReleaseMatches],
     ["kill_switch", runtime.killSwitchInactive],
     ["health_timestamps", runtime.healthTimestampsValid],
     ["next_runs", runtime.nextRunsFuture],

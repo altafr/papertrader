@@ -64,6 +64,7 @@ export function evaluatePaperRuntime(worker: HealthObject, api: HealthObject, ex
     && (durableScheduler as HealthObject).status === "scheduled"
     && typeof (durableScheduler as HealthObject).nextRunAt === "string";
   const releaseMatches = expectedRelease === undefined || worker.release === expectedRelease;
+  const apiReleaseMatches = expectedRelease === undefined || api.release === expectedRelease;
   const researchObject = researchSchedule as HealthObject | undefined;
   const riskTelemetryPresent = researchObject?.lastRiskCycleStatus !== undefined || researchObject?.lastRiskDecisionCount !== undefined || researchObject?.lastRiskApprovedCount !== undefined;
   const riskTelemetryValid = !riskTelemetryPresent || (
@@ -95,11 +96,12 @@ export function evaluatePaperRuntime(worker: HealthObject, api: HealthObject, ex
     durableScheduler: durableScheduled ? "scheduled" : "not_scheduled",
     release: typeof worker.release === "string" ? worker.release : "not_reported",
     releaseMatches,
+    apiReleaseMatches,
     killSwitchInactive: worker.globalKillSwitchActive === false,
     healthTimestampsValid,
     nextRunsFuture,
     riskTelemetryValid,
     workerHeartbeatValid,
   } as const;
-  return { ...result, verified: result.api === "healthy" && result.worker === "healthy" && result.alpaca === "configured" && result.database === "configured" && result.paperMode && result.orderSubmissionEnabled && result.orderSubmissionApprovalPresent && streamConnected && marketStreamFreshnessValid && positionsReady && positionsUnblocked && researchScheduled && durableScheduled && releaseMatches && result.killSwitchInactive && result.healthTimestampsValid && result.nextRunsFuture && result.riskTelemetryValid && result.workerHeartbeatValid };
+  return { ...result, verified: result.api === "healthy" && result.worker === "healthy" && result.alpaca === "configured" && result.database === "configured" && result.paperMode && result.orderSubmissionEnabled && result.orderSubmissionApprovalPresent && streamConnected && marketStreamFreshnessValid && positionsReady && positionsUnblocked && researchScheduled && durableScheduled && releaseMatches && apiReleaseMatches && result.killSwitchInactive && result.healthTimestampsValid && result.nextRunsFuture && result.riskTelemetryValid && result.workerHeartbeatValid };
 }

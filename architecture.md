@@ -88,6 +88,8 @@ The hosted paper-runtime verifier also fails closed when the Worker explicitly r
 
 The verifier also validates optional Worker heartbeat telemetry when present: scheduler run/catch-up timestamps and statuses, bounded risk-cycle counts, unmanaged-position counts, and stream freshness metadata. Invalid shapes, timestamps, enum values, or out-of-range counters fail closed without requiring older releases to emit newer fields.
 
+When `PAPERTRADER_EXPECTED_RELEASE` is supplied, hosted verification now pins both the API and Worker health responses to that release identifier. This prevents a partial rollout from being reported as fully verified while preserving optional compatibility when no pin is configured.
+
 Runtime readiness additionally fails closed when Paper Autopilot is configured but order submission remains in dry-run mode. A `ready` runtime therefore represents an enabled paper execution path, not merely valid configuration; disabled and dry-run states remain distinguishable for diagnostics.
 
 Reconciliation readiness also rejects account snapshots dated more than five minutes in the future relative to the Worker clock. Such clock-skewed evidence is classified as unavailable and blocks autonomous execution until a fresh, coherent snapshot is captured.

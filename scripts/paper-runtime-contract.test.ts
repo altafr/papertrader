@@ -33,6 +33,12 @@ describe("paper runtime contract", () => {
     expect(evaluatePaperRuntime({ ...healthyWorker, asOf: "not-a-date" }, { status: "healthy" }).verified).toBe(false);
   });
 
+  it("pins both API and Worker releases when an expected release is supplied", () => {
+    const pinned = { ...healthyWorker, release: "release-1" };
+    expect(evaluatePaperRuntime(pinned, { status: "healthy", release: "release-1" }, "release-1")).toMatchObject({ apiReleaseMatches: true, releaseMatches: true, verified: true });
+    expect(evaluatePaperRuntime(pinned, { status: "healthy", release: "older" }, "release-1")).toMatchObject({ apiReleaseMatches: false, verified: false });
+  });
+
   it("validates risk-cycle telemetry when the scheduler has reported it", () => {
     const withTelemetry = { ...healthyWorker, researchSchedule: { ...healthyWorker.researchSchedule, lastRiskApprovedCount: 1, lastRiskCycleAt: "2026-08-28T14:44:10.000Z", lastRiskCycleStatus: "completed", lastRiskDecisionCount: 2 } };
     expect(evaluatePaperRuntime(withTelemetry, { status: "healthy" })).toMatchObject({ riskTelemetryValid: true, verified: true });

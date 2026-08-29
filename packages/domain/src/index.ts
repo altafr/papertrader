@@ -14,6 +14,7 @@ export type HealthState = "degraded" | "healthy" | "paused" | "stopped";
 
 export interface ServiceHealth {
   readonly asOf: string;
+  readonly release?: string;
   readonly service: "api";
   readonly status: HealthState;
 }
