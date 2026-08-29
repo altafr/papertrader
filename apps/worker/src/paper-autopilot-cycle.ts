@@ -103,6 +103,7 @@ export async function runPaperAutopilotRiskCycle(input: {
       entryPrice: riskCandidate.proposedEntryPrice,
       plannedStopPrice: riskCandidate.plannedStopPrice,
       plannedTargetPrice: riskCandidate.plannedExitPrice,
+      ...(riskCandidate.timeStopAt ? { timeStopAt: new Date(riskCandidate.timeStopAt) } : {}),
       quantity,
       riskDecision: { approvalStatus: approval.status, estimatedLoss: approval.assessment.estimatedLoss, estimatedLossPercent: approval.assessment.estimatedLossPercent, policyVersion: approval.policyVersion, reasons: approval.assessment.reasons },
       status: approval.status === "approved" ? "risk_dry_run_approved" : "risk_dry_run_rejected",
@@ -114,7 +115,7 @@ export async function runPaperAutopilotRiskCycle(input: {
     await repository.recordSubmission(persisted);
     let executionStatus: PaperAutopilotRiskCycleResult["executionStatus"] = "not_submitted";
     if (approval.status === "approved" && input.executeApproved) {
-      await input.executeApproved({ approval: { approvalId: approval.approvalId, intentId, riskDecision: { approvalStatus: approval.status, estimatedLoss: approval.assessment.estimatedLoss, estimatedLossPercent: approval.assessment.estimatedLossPercent, policyVersion: approval.policyVersion, reasons: approval.assessment.reasons }, status: "approved" }, assetClass: riskCandidate.assetClass, clientOrderId: `${intentId}-paper`, ...(riskCandidate.marketSnapshot ? { marketSnapshot: riskCandidate.marketSnapshot as unknown as Readonly<Record<string, string | null>> } : {}), quantity, entryPrice: riskCandidate.proposedEntryPrice, plannedStopPrice: riskCandidate.plannedStopPrice, plannedTargetPrice: riskCandidate.plannedExitPrice, strategyKey: riskCandidate.strategyKey, strategyVersion: riskCandidate.strategyVersion, side: "buy", symbol: riskCandidate.symbol, timeInForce: "day", type: "market" });
+      await input.executeApproved({ approval: { approvalId: approval.approvalId, intentId, riskDecision: { approvalStatus: approval.status, estimatedLoss: approval.assessment.estimatedLoss, estimatedLossPercent: approval.assessment.estimatedLossPercent, policyVersion: approval.policyVersion, reasons: approval.assessment.reasons }, status: "approved" }, assetClass: riskCandidate.assetClass, clientOrderId: `${intentId}-paper`, ...(riskCandidate.marketSnapshot ? { marketSnapshot: riskCandidate.marketSnapshot as unknown as Readonly<Record<string, string | null>> } : {}), quantity, entryPrice: riskCandidate.proposedEntryPrice, plannedStopPrice: riskCandidate.plannedStopPrice, plannedTargetPrice: riskCandidate.plannedExitPrice, ...(riskCandidate.timeStopAt ? { timeStopAt: riskCandidate.timeStopAt } : {}), strategyKey: riskCandidate.strategyKey, strategyVersion: riskCandidate.strategyVersion, side: "buy", symbol: riskCandidate.symbol, timeInForce: "day", type: "market" });
       executionStatus = "reconciled";
       executionSubmitted = true;
     }

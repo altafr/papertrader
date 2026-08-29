@@ -72,6 +72,13 @@
 - [x] Preserve fail-closed rendering and verify domain build, workspace typecheck, and lint.
 - [ ] Verify the bounded field contract against the promoted authenticated dashboard.
 
+### Phase 6.382 — Scheduled time-stop propagation (2026-08-29)
+
+- [x] Persist the candidate time stop in scheduled risk-cycle submissions.
+- [x] Pass the same time stop through the approved paper-order execution request so position management can enforce it after reconciliation.
+- [x] Preserve deterministic risk approval, idempotency, and paper-only execution boundaries; paper-autopilot tests, typecheck, and lint pass.
+- [ ] Promote the reviewed batch and verify a time-stop-bearing position through hosted reconciliation.
+
 ### Phase 6.356 — Live runtime incident checkpoint (2026-08-29)
 
 - [x] Confirm the live API remains healthy and the Worker is connected to Alpaca paper mode with a fresh crypto stream, active position management, and order submission approval present.
