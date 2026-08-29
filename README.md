@@ -83,6 +83,8 @@ For a manual operator check, inject the token from the approved secret store wit
 
 The workflow always runs the credential-free `pnpm verify:operator-auth-boundary` check, which confirms the hosted operator JSON and CSV routes reject unauthenticated requests with `401`.
 
+Before enabling or troubleshooting autonomous paper execution, run the guarded Worker readiness check remotely with `PAPER_AUTOPILOT_RUNTIME_READINESS=true pnpm --filter @momentum/worker paper-autopilot-runtime-readiness`. It combines configuration, enabled paper order submission, and the latest PostgreSQL reconciliation snapshot. A future-dated or stale snapshot fails closed; `ready` means the execution path is enabled, while `dry_run`, `blocked`, and `disabled` remain diagnostic states. The command prints bounded status only and never submits an order.
+
 The server must run daily preparation, health, reconciliation, and evaluation independently of an open browser. Paper Autopilot does not require per-order human confirmation, but every order still requires deterministic risk approval. The initial paper baseline is `USD 100,000` (Alpaca's current default); estimated loss at the planned stop is limited to `5%` of invested notional, with a maximum 5% adverse stop distance.
 
 Railway PostgreSQL is the selected system of record. Railway also hosts the authenticated API, PostgreSQL-backed durable jobs, and persistent Alpaca market/trading WebSocket worker. Vercel hosts only the dashboard and contains no Alpaca credentials or direct order authority.

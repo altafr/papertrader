@@ -6402,3 +6402,9 @@
 - Clock-skewed evidence is classified as unavailable rather than being treated as fresh, preventing autonomous decisions from relying on incoherent timestamps.
 - Added boundary regression coverage; focused tests, workspace typechecks, lint, and diff hygiene pass.
 - **Next smallest unit:** deploy the accumulated Worker/API changes only after explicit operator authorization, then verify hosted readiness and authenticated portfolio state.
+
+### Phase 6.412 runtime-readiness operator runbook
+
+- Documented the guarded runtime-readiness command and its bounded output states in the operator README.
+- Clarified that `ready` requires enabled paper order submission plus fresh, coherent reconciliation; future-dated snapshots fail closed and no command path submits orders.
+- **Next smallest unit:** deploy the accumulated Worker/API changes only after explicit operator authorization, then run this readiness check and the hosted verifier against the deployed release.
