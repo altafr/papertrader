@@ -65,6 +65,13 @@
 - [x] Full suite passes: 88 test files / 368 tests, all workspace typechecks, and lint with zero warnings.
 - [ ] Deploy the invariant and verify the live positions view after Railway provider recovery.
 
+### Phase 6.364 — Exit-plan visibility in positions (2026-08-29)
+
+- [x] Render each position’s explicit time stop alongside protective stop and profit target.
+- [x] Explain that incomplete plans are excluded from automatic exits to preserve portfolio-level, risk-adjusted optimization.
+- [x] Web typecheck, production build, and lint pass.
+- [ ] Publish and verify the updated positions table after provider deployment limits clear.
+
 ### Phase 6.355 — Repeatable stale-stream incident audit (2026-08-29)
 
 - [x] Replace the permanent stale-stream dedupe key with a bounded UTC-hour episode key.
