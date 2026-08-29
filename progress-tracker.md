@@ -57,6 +57,13 @@
 - [x] Add regression coverage and verify the web typecheck, lint, and focused dashboard tests.
 - [ ] Verify the rendered status against hosted Worker degradation/recovery after deployment.
 
+### Phase 6.403 — Worker degradation alert visibility (2026-08-29)
+
+- [x] Add a critical dashboard alert when the bounded Worker heartbeat is degraded or unavailable.
+- [x] Keep the alert informational/read-only; it cannot change risk, execution, or scheduler state.
+- [x] Verify the full workspace tests, typechecks, lint, and diff hygiene.
+- [ ] Verify the alert against hosted Worker degradation/recovery after deployment.
+
 ### Phase 6.393 — Interval scheduler startup catch-up (2026-08-29)
 
 - [x] Add an idempotent startup catch-up enqueue for interval (crypto) schedules, scoped to the current UTC interval.

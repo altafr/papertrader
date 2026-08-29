@@ -56,6 +56,8 @@ The review command also emits a static field-to-input map for the guarded backfi
 
 The dashboard’s primary system badge combines account-snapshot freshness with the bounded Worker heartbeat. A degraded or unavailable Worker cannot be masked by a fresh database snapshot.
 
+The dashboard Alerts panel also emits a critical Worker-runtime review item for the same condition, keeping the failure visible in both summary and detailed health views.
+
 The stream supervisor derives its gap-recovery interval from the configured bar timeframe (including 5-minute and 15-minute crypto bars), rather than treating every non-1-minute stream as hourly. A one-minute watchdog emits one deduplicated critical alert when a connected stream becomes stale and clears the episode after fresh messages resume; its durable key is time-bucketed so a later outage remains auditable after the cooldown. It never submits or changes an order.
 
 The public Vercel heartbeat safely renders that bounded stream-freshness classification when available; it continues to omit account, position, order, credential, and broker-payload values.
