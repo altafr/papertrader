@@ -6472,6 +6472,12 @@
 - Focused verifier tests, workspace typechecks, lint, and diff hygiene pass.
 - **Next smallest unit:** after rollout, set `PAPERTRADER_EXPECTED_RELEASE` to the deployed commit SHA and verify both services match.
 
+### Phase 6.525 — Railway queue recurrence checkpoint
+
+- A subsequent read-only Railway status check found no change: Worker and recovery-worker latest deployments remain `QUEUED`/stopped with `Deployment queued due to upstream GCP issues`.
+- API and PostgreSQL remain `SUCCESS`; no broker, database, variable, or deployment mutation was performed.
+- **Next smallest unit:** retry the authorized rollout only after Railway clears the provider queue, then verify both services against the expected release pin.
+
 ### Phase 6.521 — Hosted verifier gate isolation
 
 - Credential-free `pnpm verify:hosted` reproduced failed gates `worker`, `research_schedule`, and `next_runs`.

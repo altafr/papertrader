@@ -56,6 +56,8 @@ Read-only Railway inspection on 2026-08-29 found the latest Worker and recovery-
 
 A subsequent read-only health probe reported the active Worker as `degraded`: Paper Autopilot remained selected, the market stream was connected/fresh, and position management was ready, but the research scheduler was degraded with no recorded run or catch-up telemetry. This must be treated as an operational stop for new research-driven entries until the deployed release is healthy; no order or retry was triggered by the probe.
 
+The follow-up Railway status check showed no queue recovery: the latest Worker and recovery-worker deployments remain queued/stopped for the same upstream GCP issue. Repeated provider state is tracked as an external rollout blocker; local changes remain safe to deploy once the provider recovers.
+
 Research scheduler startup now performs up to three bounded retries with a 30-second delay for transient queue/database startup failures. Exhaustion leaves the health endpoint degraded and does not submit orders or bypass any readiness gate.
 
 The credential-free hosted verifier reproduced the same condition with failed gates `worker`, `research_schedule`, and `next_runs`. The API remained reachable and the public dashboard returned HTTP 200. Since the verifier performs only health/public-surface GETs, this check cannot submit orders or mutate database state.
