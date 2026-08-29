@@ -6499,6 +6499,13 @@
 - Added callback regression coverage; scheduler tests, workspace typechecks, lint, and diff hygiene pass.
 - **Next smallest unit:** deploy the Worker revision and verify retry/exhaustion events are visible without sensitive payloads.
 
+### Phase 6.529 — Scheduler startup exhaustion alert
+
+- Added a redacted critical Telegram alert when bounded research-scheduler startup retries are exhausted.
+- The alert explicitly states that no new paper decision was authorized; delivery remains best-effort and cannot alter scheduler/risk state.
+- Added alert-contract coverage; focused Worker tests, workspace typechecks, lint, and diff hygiene pass.
+- **Next smallest unit:** deploy the Worker revision and verify the exhaustion event appears once in the Telegram outbox during an induced startup failure.
+
 ### Phase 6.521 — Hosted verifier gate isolation
 
 - Credential-free `pnpm verify:hosted` reproduced failed gates `worker`, `research_schedule`, and `next_runs`.

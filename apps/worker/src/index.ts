@@ -14,7 +14,7 @@ import { createDurableScheduler, getDurableSchedulerConfig, setDurableSchedulerH
 import { assertDurableScheduleRunMigrationReady, assertDurableSchedulerMigrationReady, readDurableScheduleRunMigrationState, readDurableSchedulerMigrationState } from "./durable-scheduler-migration-guard.js";
 import { reconcilePaperAccount } from "./reconcile.js";
 import { getResearchScheduleReadiness, startWithBoundedRetry } from "./research-scheduler.js";
-import { createResearchSchedulerFromEnvironment, isMarketCloseSummaryEnabled } from "./research-scheduler-runtime.js";
+import { buildResearchSchedulerStartFailureAlert, createResearchSchedulerFromEnvironment, isMarketCloseSummaryEnabled } from "./research-scheduler-runtime.js";
 import { reconcileBeforeSchedulerStart } from "./startup-recovery.js";
 import { createPositionManagementSchedulerFromEnvironment } from "./position-management-runtime.js";
 import { createRuntimeAlertNotifier } from "./telegram-events.js";
@@ -42,9 +42,10 @@ getPaperOperatingMode();
 if (getResearchScheduleReadiness().status === "blocked" && process.env.RESEARCH_SCHEDULER_ENABLED === "true") {
   throw new Error("RESEARCH_SCHEDULER_ENABLED=true requires paper database, broker, credentials, and handler gates.");
 }
+let runtimeAlertNotifier = createRuntimeAlertNotifier(process.env);
 const researchScheduler = createResearchSchedulerFromEnvironment();
 if (researchScheduler) void startWithBoundedRetry({
-  onExhausted: () => { console.error(JSON.stringify({ event: "research_scheduler_start_failed", status: "degraded" })); },
+  onExhausted: () => { console.error(JSON.stringify({ event: "research_scheduler_start_failed", status: "degraded" })); void runtimeAlertNotifier.notify(buildResearchSchedulerStartFailureAlert()); },
   onRetry: (attempt) => { console.warn(JSON.stringify({ attempt, event: "research_scheduler_start_retry" })); },
   start: () => researchScheduler.start(),
 }).catch(() => { /* health endpoint reports degraded state after bounded recovery */ });
@@ -57,7 +58,7 @@ if (positionManagementScheduler) void positionManagementScheduler.start();
 const shadowConfiguration = getShadowEvaluationConfig();
 const durableConfiguration = getDurableSchedulerConfig();
 const telegramNotificationConfig = getTelegramNotificationConfig();
-let runtimeAlertNotifier = createRuntimeAlertNotifier(process.env);
+runtimeAlertNotifier = createRuntimeAlertNotifier(process.env);
 if (telegramNotificationConfig.enabled && process.env.DATABASE_URL?.trim()) {
   const alertDatabase = createDatabase(process.env.DATABASE_URL);
   runtimeAlertNotifier = createRuntimeAlertNotifier(process.env, createTelegramAlertRepository(alertDatabase.db));

@@ -1,9 +1,13 @@
 import { describe, expect, it } from "vitest";
 import type { ResearchWatchlistCandidate } from "@momentum/domain";
 
-import { buildPaperRiskCycleFailureAlert, buildPaperRiskCycleLog, buildResearchCycleLog, createResearchSchedulerFromEnvironment, dedupeResearchCandidates, isMarketCloseSummaryEnabled, isUsMarketCloseSummaryWindow } from "./research-scheduler-runtime.js";
+import { buildPaperRiskCycleFailureAlert, buildPaperRiskCycleLog, buildResearchCycleLog, buildResearchSchedulerStartFailureAlert, createResearchSchedulerFromEnvironment, dedupeResearchCandidates, isMarketCloseSummaryEnabled, isUsMarketCloseSummaryWindow } from "./research-scheduler-runtime.js";
 
 describe("research scheduler startup composition", () => {
+  it("builds a redacted startup-failure alert", () => {
+    expect(buildResearchSchedulerStartFailureAlert()).toEqual({ code: "research_scheduler_start_failed", dedupeKey: "research_scheduler_start_failed", message: "Research scheduler startup retries were exhausted; no new paper decision was authorized.", severity: "critical" });
+  });
+
   it("does not construct external clients when the schedule is disabled", () => {
     expect(createResearchSchedulerFromEnvironment({})).toBeUndefined();
   });
