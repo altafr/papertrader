@@ -1,5 +1,14 @@
 import { getExitPlanMissingFields, type ExitPlanMissingField } from "@momentum/domain";
 
+export const EXIT_PLAN_BACKFILL_INPUTS: Readonly<Record<ExitPlanMissingField, string>> = {
+  alpacaOrderId: "Existing broker-linked submission is required; no CLI value is accepted.",
+  entryPrice: "EXIT_PLAN_ENTRY_PRICE",
+  plannedStopPrice: "EXIT_PLAN_STOP_PRICE",
+  strategyKey: "EXIT_PLAN_STRATEGY_KEY",
+  strategyVersion: "EXIT_PLAN_STRATEGY_VERSION",
+  plannedTargetPriceOrTimeStop: "EXIT_PLAN_TARGET_PRICE or EXIT_PLAN_TIME_STOP_AT",
+};
+
 export interface ExitPlanReviewPosition {
   readonly assetClass: string;
   readonly symbol: string;

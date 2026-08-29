@@ -1,7 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { buildExitPlanReviewReport } from "./exit-plan-review.js";
+import { buildExitPlanReviewReport, EXIT_PLAN_BACKFILL_INPUTS } from "./exit-plan-review.js";
 
 describe("exit plan review", () => {
+  it("publishes non-secret backfill input guidance", () => {
+    expect(EXIT_PLAN_BACKFILL_INPUTS).toMatchObject({ entryPrice: "EXIT_PLAN_ENTRY_PRICE", plannedTargetPriceOrTimeStop: "EXIT_PLAN_TARGET_PRICE or EXIT_PLAN_TIME_STOP_AT" });
+  });
+
   it("marks complete plans as managed and reports exact missing fields", () => {
     expect(buildExitPlanReviewReport(
       [{ assetClass: "crypto", symbol: "BTC/USD" }, { assetClass: "us_equity", symbol: "AAPL" }],

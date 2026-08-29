@@ -43,6 +43,13 @@
 - [x] Add regression coverage and verify the Worker typecheck, lint, and focused tests.
 - [ ] Verify stable output against hosted PostgreSQL after deployment.
 
+### Phase 6.401 — Exit-plan backfill guidance (2026-08-29)
+
+- [x] Add a bounded, non-secret map from missing exit-plan fields to guarded backfill inputs.
+- [x] Explicitly identify broker-linked order provenance as requiring an existing broker-bound submission rather than a fabricated CLI value.
+- [x] Verify 381 tests, workspace typechecks, lint, and diff hygiene.
+- [ ] Use the guidance against the hosted review report after deployment and operator review.
+
 ### Phase 6.393 — Interval scheduler startup catch-up (2026-08-29)
 
 - [x] Add an idempotent startup catch-up enqueue for interval (crypto) schedules, scoped to the current UTC interval.
