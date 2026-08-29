@@ -52,6 +52,7 @@
     "paper-order-preflight": "tsx src/paper-order-preflight-command.ts",
     "position-management-once": "tsx src/position-management-once-command.ts",
     "exit-plan-backfill": "tsx src/exit-plan-backfill-command.ts",
+    "exit-plan-review": "tsx src/exit-plan-review-command.ts",
     "shadow-evaluate": "tsx src/shadow-evaluation-command.ts",
     "start": "node dist/index.js",
     "typecheck": "tsc --noEmit"

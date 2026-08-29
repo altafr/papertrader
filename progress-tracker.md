@@ -29,6 +29,13 @@
 - [x] Add coverage tests and verify 378 tests, workspace typechecks, lint, and diff hygiene.
 - [ ] Verify the count in a hosted end-of-session digest after deployment.
 
+### Phase 6.399 — Read-only exit-plan remediation report (2026-08-29)
+
+- [x] Add guarded `pnpm --filter @momentum/worker exit-plan-review` tooling for the latest persisted paper snapshot.
+- [x] Report managed/review-required status and exact missing exit-plan fields without inferring values or writing state.
+- [x] Add report coverage tests and verify 90 test files / 379 tests, workspace typechecks, and lint.
+- [ ] Run the report against hosted PostgreSQL after deployment and backfill only operator-reviewed values.
+
 ### Phase 6.393 — Interval scheduler startup catch-up (2026-08-29)
 
 - [x] Add an idempotent startup catch-up enqueue for interval (crypto) schedules, scoped to the current UTC interval.
