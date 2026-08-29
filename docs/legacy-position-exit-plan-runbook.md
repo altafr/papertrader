@@ -18,13 +18,13 @@ For the current AAPL position, the stored point-in-time entry snapshot is `314.3
 
 ## Apply an explicitly approved plan
 
-For a legacy position with no persisted submission row, first select an exact filled Alpaca order from the broker review report and use the guarded adoption command below. It requires the selected order's filled quantity to equal the current open position quantity, validates the order against the live paper account, and writes provenance only; it never submits or cancels an order.
+For a legacy position with no persisted submission row, first select one or more exact filled Alpaca orders from the broker review report and use the guarded adoption command below. For aggregated positions, provide all fills; their quantities must sum exactly to the current open position quantity. Each selected order is persisted separately, preserving broker provenance. The command validates the orders against the live paper account and writes provenance only; it never submits or cancels an order.
 
 ```sh
 EXIT_PLAN_ADOPT=true \
 EXIT_PLAN_ASSET_CLASS='us_equity' \
 EXIT_PLAN_SYMBOL='PFD' \
-EXIT_PLAN_ALPACA_ORDER_ID='<reviewed filled order id>' \
+EXIT_PLAN_ALPACA_ORDER_IDS='<reviewed filled order id>[,<second reviewed fill id>...]' \
 EXIT_PLAN_ENTRY_PRICE='<reviewed entry price>' \
 EXIT_PLAN_STOP_PRICE='<operator-approved stop>' \
 EXIT_PLAN_TARGET_PRICE='<operator-approved target>' \

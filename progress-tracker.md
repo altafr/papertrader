@@ -6652,6 +6652,14 @@
 - No adoption was executed because the required operator-reviewed stop/target and strategy values were not supplied; current Worker health remains fail-closed with two unmanaged positions.
 - **Next smallest unit:** run the command for each position using reviewed values, then verify the pinned hosted contract and position-management readiness.
 
+### Phase 6.552 — Aggregate legacy-fill adoption (2026-08-29)
+
+- Live paper-account review showed `BTCUSD` is an aggregate `0.01695750` position composed of multiple `0.001` fills, so single-order adoption would be incorrect.
+- Extended the guarded adoption path to accept 1–100 unique reviewed Alpaca order IDs, require their exact decimal quantity sum to equal the open position, and persist one complete provenance row per fill.
+- Preserved strict paper mode, operator-provided risk/strategy fields, duplicate checks, and no-broker-mutation behavior.
+- Added aggregate-fill regression coverage and updated the runbook.
+- **Next smallest unit:** run aggregate adoption for `BTCUSD` and single-order adoption for `PFD` after operator review.
+
 ### Phase 6.532 — Railway rollout initializing
 
 - Railway status transitioned both Worker and recovery-worker latest deployments from `QUEUED` to `INITIALIZING`.
