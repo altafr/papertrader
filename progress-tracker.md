@@ -92,6 +92,13 @@
 - [x] Verify 386 tests, workspace typechecks, lint, and diff hygiene.
 - [ ] Confirm the guard against hosted position-management telemetry after deployment.
 
+### Phase 6.408 — Heartbeat timestamp contract regression guard (2026-08-29)
+
+- [x] Add regression coverage that malformed heartbeat timestamps are omitted rather than propagated to operator surfaces.
+- [x] Preserve canonical UTC normalization for valid schedule, cycle, catch-up, and stream timestamps.
+- [x] Verify 385 tests, workspace typechecks, lint, and diff hygiene.
+- [ ] Verify malformed/valid heartbeat behavior against the hosted endpoint after deployment.
+
 ### Phase 6.405 — Exit-plan remediation runbook (2026-08-29)
 
 - [x] Document the guarded read-only `exit-plan-review` command and its no-write/no-broker guarantees.
