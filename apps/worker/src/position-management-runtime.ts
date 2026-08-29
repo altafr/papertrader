@@ -81,8 +81,8 @@ export function buildPositionManagementLog(input: { readonly managed: number; re
 }
 
 /** Bounded, credential-free decision record for each managed position. */
-export function buildPositionExitDecisionLog(input: { readonly reason?: string; readonly shouldExit: boolean; readonly submitted?: boolean; readonly symbol: string }) {
-  return { event: "position_exit_decision", reason: input.reason ?? null, shouldExit: input.shouldExit, submitted: input.submitted ?? false, symbol: input.symbol } as const;
+export function buildPositionExitDecisionLog(input: { readonly currentPrice?: string; readonly entryPrice?: string; readonly plannedStopPrice?: string; readonly plannedTargetPrice?: string; readonly reason?: string; readonly shouldExit: boolean; readonly strategyKey?: string; readonly strategyVersion?: string; readonly submitted?: boolean; readonly symbol: string; readonly timeStopAt?: string }) {
+  return { event: "position_exit_decision", ...(input.currentPrice ? { currentPrice: input.currentPrice } : {}), ...(input.entryPrice ? { entryPrice: input.entryPrice } : {}), ...(input.plannedStopPrice ? { plannedStopPrice: input.plannedStopPrice } : {}), ...(input.plannedTargetPrice ? { plannedTargetPrice: input.plannedTargetPrice } : {}), reason: input.reason ?? null, shouldExit: input.shouldExit, ...(input.strategyKey ? { strategyKey: input.strategyKey } : {}), ...(input.strategyVersion ? { strategyVersion: input.strategyVersion } : {}), submitted: input.submitted ?? false, symbol: input.symbol, ...(input.timeStopAt ? { timeStopAt: input.timeStopAt } : {}) } as const;
 }
 
 /** Bounded Telegram explanation for an exit decision using the stored plan. */
@@ -212,9 +212,9 @@ export async function runPositionManagementCycle(environment: NodeJS.ProcessEnv 
     };
     const result = await runPaperPositionManagementOnce({ activeExitIntentIds, now: new Date().toISOString(), positions: managed, submitter: exitSubmitter });
     for (const decision of result.decisions) {
-      console.log(JSON.stringify(buildPositionExitDecisionLog({ ...decision, submitted: result.submissions.some((submission) => submission.symbol === decision.symbol) })));
-      if (!decision.shouldExit || !decision.reason) continue;
       const source = managed.find((position) => position.symbol === decision.symbol);
+      console.log(JSON.stringify(buildPositionExitDecisionLog({ ...decision, currentPrice: decision.exitPrice, ...(source ? { entryPrice: source.entryPrice, plannedStopPrice: source.plannedStopPrice, ...(source.plannedTargetPrice ? { plannedTargetPrice: source.plannedTargetPrice } : {}), strategyKey: source.strategyKey, strategyVersion: source.strategyVersion, ...(source.timeStopAt ? { timeStopAt: source.timeStopAt } : {}) } : {}), submitted: result.submissions.some((submission) => submission.symbol === decision.symbol) })));
+      if (!decision.shouldExit || !decision.reason) continue;
       const intentId = source?.intentId ?? decision.symbol;
       await notifier.notify({ code: "position_exit_decision", dedupeKey: getPositionExitDecisionDedupeKey(intentId, decision.reason), message: source ? buildPositionExitDecisionMessage({ currentPrice: decision.exitPrice, entryPrice: source.entryPrice, plannedStopPrice: source.plannedStopPrice, ...(source.plannedTargetPrice ? { plannedTargetPrice: source.plannedTargetPrice } : {}), ...(source.timeStopAt ? { timeStopAt: source.timeStopAt } : {}), reason: decision.reason, strategyKey: source.strategyKey, strategyVersion: source.strategyVersion, symbol: decision.symbol }) : `${decision.symbol} exit decision: ${decision.reason} at mark ${decision.exitPrice}. This was triggered by the stored deterministic exit plan.`, severity: decision.reason === "stop_loss" ? "critical" : "info" });
     }

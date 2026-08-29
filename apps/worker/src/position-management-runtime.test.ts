@@ -74,6 +74,7 @@ describe("position pass observability", () => {
   it("builds a bounded decision record with an explicit no-exit reason", () => {
     expect(buildPositionExitDecisionLog({ shouldExit: false, symbol: "AAPL" })).toEqual({ event: "position_exit_decision", reason: null, shouldExit: false, submitted: false, symbol: "AAPL" });
     expect(buildPositionExitDecisionLog({ reason: "stop_loss", shouldExit: true, submitted: true, symbol: "BTC/USD" })).toEqual({ event: "position_exit_decision", reason: "stop_loss", shouldExit: true, submitted: true, symbol: "BTC/USD" });
+    expect(buildPositionExitDecisionLog({ currentPrice: "95", entryPrice: "100", plannedStopPrice: "95", reason: "stop_loss", shouldExit: true, strategyKey: "momentum", strategyVersion: "1.0.0", symbol: "AAPL", timeStopAt: "2026-08-30T00:00:00.000Z" })).toMatchObject({ currentPrice: "95", entryPrice: "100", plannedStopPrice: "95", strategyKey: "momentum", strategyVersion: "1.0.0", timeStopAt: "2026-08-30T00:00:00.000Z" });
   });
 
   it("explains an exit with the stored deterministic plan", () => {

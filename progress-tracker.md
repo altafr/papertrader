@@ -51,6 +51,13 @@
 - [x] Preserve the active release, database, credentials, and deployment state; no rebuild or deploy was triggered.
 - [ ] Verify a completed research/risk cycle at the next scheduled boundary.
 
+### Phase 6.379 — Structured exit-decision provenance (2026-08-29)
+
+- [x] Extend the server-side exit-decision JSON log with executable mark, entry, stop, target/time-stop, strategy/version, and submission state when available.
+- [x] Keep the record bounded and credential-free; no execution or risk decision behavior changed.
+- [x] Add regression coverage and verify position-management tests, workspace typecheck, and lint.
+- [ ] Confirm the enriched record through hosted Worker telemetry after the reviewed batch is promoted.
+
 ### Phase 6.356 — Live runtime incident checkpoint (2026-08-29)
 
 - [x] Confirm the live API remains healthy and the Worker is connected to Alpaca paper mode with a fresh crypto stream, active position management, and order submission approval present.
