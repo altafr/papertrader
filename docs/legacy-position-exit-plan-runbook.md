@@ -2,6 +2,16 @@
 
 Use this only for a paper position opened before exit-plan metadata was introduced.
 
+## Produce the current review report
+
+Before changing anything, run the read-only report on the Worker:
+
+```sh
+EXIT_PLAN_REVIEW=true node /app/apps/worker/dist/exit-plan-review-command.js
+```
+
+It prints bounded JSON for the latest persisted snapshot, including each position's `managed`/`review_required` state, exact missing fields, and the non-secret backfill input names. It does not contact Alpaca, write PostgreSQL, or submit an order. Only continue to the backfill step for a position with a reviewed broker-linked submission and operator-approved values.
+
 ## Review the proposed plan
 
 For the current AAPL position, the stored point-in-time entry snapshot is `314.39`. The documented research-watchlist defaults are a stop 5% below entry (`298.67`) and a target 4% above entry (`326.97`). These are proposed values, not an automatic instruction.

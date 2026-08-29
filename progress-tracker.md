@@ -71,6 +71,13 @@
 - [x] Verify the full workspace tests, typechecks, lint, and diff hygiene.
 - [ ] Verify hosted alert rendering after deployment and exit-plan remediation.
 
+### Phase 6.405 — Exit-plan remediation runbook (2026-08-29)
+
+- [x] Document the guarded read-only `exit-plan-review` command and its no-write/no-broker guarantees.
+- [x] Link the report workflow from the README and legacy-position runbook before any backfill mutation.
+- [x] Preserve operator review, broker-linkage, paper-only, and deterministic validation gates.
+- [ ] Execute the report against hosted PostgreSQL after deployment and apply only explicitly reviewed plans.
+
 ### Phase 6.393 — Interval scheduler startup catch-up (2026-08-29)
 
 - [x] Add an idempotent startup catch-up enqueue for interval (crypto) schedules, scoped to the current UTC interval.
