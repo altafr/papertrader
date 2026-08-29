@@ -6506,6 +6506,13 @@
 - Added alert-contract coverage; focused Worker tests, workspace typechecks, lint, and diff hygiene pass.
 - **Next smallest unit:** deploy the Worker revision and verify the exhaustion event appears once in the Telegram outbox during an induced startup failure.
 
+### Phase 6.530 — Scheduler incident deduplication window
+
+- Changed scheduler-start exhaustion alerts from a permanent key to a bounded UTC-day incident key.
+- Repeated restarts remain deduplicated, while independent failures on later days generate a fresh critical alert.
+- Added deterministic alert-contract coverage; Worker tests, workspace typechecks, lint, and diff hygiene pass.
+- **Next smallest unit:** deploy and verify one alert per outage day in the Telegram outbox.
+
 ### Phase 6.521 — Hosted verifier gate isolation
 
 - Credential-free `pnpm verify:hosted` reproduced failed gates `worker`, `research_schedule`, and `next_runs`.

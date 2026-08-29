@@ -45,7 +45,7 @@ if (getResearchScheduleReadiness().status === "blocked" && process.env.RESEARCH_
 let runtimeAlertNotifier = createRuntimeAlertNotifier(process.env);
 const researchScheduler = createResearchSchedulerFromEnvironment();
 if (researchScheduler) void startWithBoundedRetry({
-  onExhausted: () => { console.error(JSON.stringify({ event: "research_scheduler_start_failed", status: "degraded" })); void runtimeAlertNotifier.notify(buildResearchSchedulerStartFailureAlert()); },
+  onExhausted: () => { const occurredAt = new Date().toISOString(); console.error(JSON.stringify({ event: "research_scheduler_start_failed", status: "degraded" })); void runtimeAlertNotifier.notify({ ...buildResearchSchedulerStartFailureAlert(occurredAt), occurredAt }); },
   onRetry: (attempt) => { console.warn(JSON.stringify({ attempt, event: "research_scheduler_start_retry" })); },
   start: () => researchScheduler.start(),
 }).catch(() => { /* health endpoint reports degraded state after bounded recovery */ });

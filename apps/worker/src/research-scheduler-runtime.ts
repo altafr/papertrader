@@ -35,8 +35,9 @@ export function buildPaperRiskCycleFailureAlert(input: { readonly agentType: str
   return { code: "paper_risk_cycle_failed", dedupeKey: `paper_risk_cycle_failed:${input.runId}`, message: `Paper risk cycle failed closed after ${input.agentType} research run ${input.runId}; no additional order decision was authorized.`, severity: "critical" as const };
 }
 
-export function buildResearchSchedulerStartFailureAlert() {
-  return { code: "research_scheduler_start_failed", dedupeKey: "research_scheduler_start_failed", message: "Research scheduler startup retries were exhausted; no new paper decision was authorized.", severity: "critical" as const };
+export function buildResearchSchedulerStartFailureAlert(occurredAt = new Date().toISOString()) {
+  const day = Number.isFinite(Date.parse(occurredAt)) ? new Date(occurredAt).toISOString().slice(0, 10) : "unknown";
+  return { code: "research_scheduler_start_failed", dedupeKey: `research_scheduler_start_failed:${day}`, message: "Research scheduler startup retries were exhausted; no new paper decision was authorized.", severity: "critical" as const };
 }
 
 /** Structured, credential-free log record for hosted cycle observability. */

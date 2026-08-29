@@ -64,6 +64,8 @@ Each startup retry and final exhaustion also emits a bounded structured Worker l
 
 When startup retries are exhausted, the Worker also emits one deduplicated critical Telegram event stating that no new paper decision was authorized. Notification delivery remains best-effort and cannot change the fail-closed scheduler state.
 
+The exhaustion event uses a UTC-day incident key, preventing repeated restart attempts from flooding Telegram while allowing a distinct outage on a later day to be reported again.
+
 The credential-free hosted verifier reproduced the same condition with failed gates `worker`, `research_schedule`, and `next_runs`. The API remained reachable and the public dashboard returned HTTP 200. Since the verifier performs only health/public-surface GETs, this check cannot submit orders or mutate database state.
 
 The guarded `exit-plan-review` command provides a read-only, bounded remediation report for the latest account snapshot. It lists each position as managed or review-required with the exact missing plan fields; it never infers prices or mutates PostgreSQL/broker state.
