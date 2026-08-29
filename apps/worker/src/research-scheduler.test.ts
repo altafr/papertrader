@@ -1,7 +1,12 @@
 import { describe, expect, it, vi } from "vitest";
-import { assessResearchSchedulerLiveness, createResearchScheduler, enqueueResearchPreparation, getNextResearchRunAt, getResearchPreparationJobId, getResearchScheduleConfig, getResearchScheduleReadiness, getResearchSchedulerHealth, getResearchStartupCatchupJobId, isResearchPreparationJob, provisionResearchQueues, runResearchPreparationJob, setResearchRiskCycleHealth, startWithBoundedRetry, RESEARCH_PREPARATION_CRON, RESEARCH_PREPARATION_DEAD_LETTER_QUEUE, RESEARCH_PREPARATION_QUEUE } from "./research-scheduler.js";
+import { assessResearchSchedulerLiveness, createResearchScheduler, enqueueResearchPreparation, getNextResearchRunAt, getResearchPreparationJobId, getResearchScheduleConfig, getResearchScheduleReadiness, getResearchSchedulerErrorMetadata, getResearchSchedulerHealth, getResearchStartupCatchupJobId, isResearchPreparationJob, provisionResearchQueues, runResearchPreparationJob, setResearchRiskCycleHealth, startWithBoundedRetry, RESEARCH_PREPARATION_CRON, RESEARCH_PREPARATION_DEAD_LETTER_QUEUE, RESEARCH_PREPARATION_QUEUE } from "./research-scheduler.js";
 
 describe("research schedule boundary", () => {
+  it("keeps scheduler error telemetry bounded and non-secret", () => {
+    expect(getResearchSchedulerErrorMetadata({ code: "ENOTFOUND", name: "Error", message: "postgres://secret" })).toEqual({ errorCode: "ENOTFOUND", errorName: "Error" });
+    expect(getResearchSchedulerErrorMetadata({ code: "bad code", name: "Error" })).toEqual({ errorName: "Error" });
+    expect(getResearchSchedulerErrorMetadata(new Error("secret"))).toEqual({ errorName: "Error" });
+  });
   it("recovers transient scheduler startup failures with bounded retries", async () => {
     let attempts = 0;
     const retries: number[] = [];

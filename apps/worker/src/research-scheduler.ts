@@ -90,6 +90,16 @@ export interface ResearchSchedulerHealth {
   readonly status: ResearchSchedulerRuntimeStatus;
 }
 
+/** Return only bounded, non-secret identifiers from a scheduler error. */
+export function getResearchSchedulerErrorMetadata(error: unknown): { readonly errorCode?: string; readonly errorName?: string } {
+  if (!error || typeof error !== "object") return {};
+  const candidate = error as { readonly code?: unknown; readonly name?: unknown };
+  const bounded = (value: unknown): string | undefined => typeof value === "string" && value.length > 0 && value.length <= 64 && /^[A-Za-z0-9_.:-]+$/.test(value) ? value : undefined;
+  const errorCode = bounded(candidate.code);
+  const errorName = bounded(candidate.name);
+  return { ...(errorCode ? { errorCode } : {}), ...(errorName ? { errorName } : {}) };
+}
+
 /** Mark a scheduled tick degraded only after a bounded two-minute grace period. */
 export function assessResearchSchedulerLiveness(health: ResearchSchedulerHealth, now = new Date(), graceSeconds = 120): ResearchSchedulerHealth {
   if (health.status !== "scheduled" || !health.nextRunAt) return health;

@@ -6565,6 +6565,13 @@
 - This narrows the current startup failure to the active Worker/pg-boss scheduler composition rather than a database outage or missing queue migration. No queue, broker, or portfolio state was mutated.
 - **Next smallest unit:** capture a bounded, non-secret scheduler startup error classification in Worker telemetry, then correct the active Worker scheduler composition and verify a fresh completed cycle.
 
+### Phase 6.540 — Bounded scheduler startup diagnostics (2026-08-29)
+
+- Added bounded `errorCode`/`errorName` metadata to research-scheduler retry and exhaustion logs; provider messages, URLs, credentials, and broker payloads remain excluded.
+- Added regression coverage for safe identifiers and rejected unbounded values.
+- Worker scheduler tests (16), Worker typecheck, and workspace lint pass.
+- **Next smallest unit:** deploy this diagnostic revision only after authorization, use the resulting code classification to correct the scheduler composition, and verify a fresh completed research → risk cycle.
+
 ### Phase 6.532 — Railway rollout initializing
 
 - Railway status transitioned both Worker and recovery-worker latest deployments from `QUEUED` to `INITIALIZING`.

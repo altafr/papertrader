@@ -13,7 +13,7 @@ import { createAlpacaShadowBarSource, createShadowEvaluationScheduler, runShadow
 import { createDurableScheduler, getDurableSchedulerConfig, setDurableSchedulerHealth, validateDurableSchedulerAuditActivation } from "./durable-scheduler.js";
 import { assertDurableScheduleRunMigrationReady, assertDurableSchedulerMigrationReady, readDurableScheduleRunMigrationState, readDurableSchedulerMigrationState } from "./durable-scheduler-migration-guard.js";
 import { reconcilePaperAccount } from "./reconcile.js";
-import { getResearchScheduleReadiness, startWithBoundedRetry } from "./research-scheduler.js";
+import { getResearchScheduleReadiness, getResearchSchedulerErrorMetadata, startWithBoundedRetry } from "./research-scheduler.js";
 import { buildResearchSchedulerStartFailureAlert, createResearchSchedulerFromEnvironment, isMarketCloseSummaryEnabled } from "./research-scheduler-runtime.js";
 import { reconcileBeforeSchedulerStart } from "./startup-recovery.js";
 import { createPositionManagementSchedulerFromEnvironment } from "./position-management-runtime.js";
@@ -45,8 +45,8 @@ if (getResearchScheduleReadiness().status === "blocked" && process.env.RESEARCH_
 let runtimeAlertNotifier = createRuntimeAlertNotifier(process.env);
 const researchScheduler = createResearchSchedulerFromEnvironment();
 if (researchScheduler) void startWithBoundedRetry({
-  onExhausted: () => { const occurredAt = new Date().toISOString(); console.error(JSON.stringify({ event: "research_scheduler_start_failed", status: "degraded" })); void runtimeAlertNotifier.notify({ ...buildResearchSchedulerStartFailureAlert(occurredAt), occurredAt }); },
-  onRetry: (attempt) => { console.warn(JSON.stringify({ attempt, event: "research_scheduler_start_retry" })); },
+  onExhausted: (error) => { const occurredAt = new Date().toISOString(); console.error(JSON.stringify({ ...getResearchSchedulerErrorMetadata(error), event: "research_scheduler_start_failed", status: "degraded" })); void runtimeAlertNotifier.notify({ ...buildResearchSchedulerStartFailureAlert(occurredAt), occurredAt }); },
+  onRetry: (attempt, error) => { console.warn(JSON.stringify({ ...getResearchSchedulerErrorMetadata(error), attempt, event: "research_scheduler_start_retry" })); },
   start: () => researchScheduler.start(),
 }).catch(() => { /* health endpoint reports degraded state after bounded recovery */ });
 const marketCloseSummaryEnabled = isMarketCloseSummaryEnabled();
