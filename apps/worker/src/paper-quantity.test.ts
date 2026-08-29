@@ -15,4 +15,8 @@ describe("paper quantity resolution", () => {
     expect(() => getPaperAutopilotQuantity("us_equity", { PAPER_AUTOPILOT_STOCK_QUANTITY: "1e2" })).toThrow("positive");
     expect(() => getPaperAutopilotQuantity("us_equity", {}, "1e2")).toThrow("positive");
   });
+
+  it("accepts large decimal quantities without binary-number overflow", () => {
+    expect(getPaperAutopilotQuantity("crypto", {}, "999999999999999999999999.00000001")).toBe("999999999999999999999999.00000001");
+  });
 });

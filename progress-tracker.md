@@ -86,6 +86,13 @@
 - [x] Declare the Worker’s direct `decimal.js` dependency and verify the lockfile policy, 373 tests, workspace typecheck, and lint.
 - [ ] Promote the reviewed batch and verify persisted broker-facing prices through hosted telemetry.
 
+### Phase 6.384 — Decimal-safe quantity validation (2026-08-29)
+
+- [x] Replace floating-point quantity validation with decimal-safe parsing before paper orders are constructed.
+- [x] Preserve strict positive-decimal syntax and add large-quantity overflow regression coverage.
+- [x] Verify 374 tests, all workspace typechecks, and lint.
+- [ ] Promote the reviewed batch and verify broker-facing quantity persistence through hosted telemetry.
+
 ### Phase 6.356 — Live runtime incident checkpoint (2026-08-29)
 
 - [x] Confirm the live API remains healthy and the Worker is connected to Alpaca paper mode with a fresh crypto stream, active position management, and order submission approval present.
