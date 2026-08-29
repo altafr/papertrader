@@ -6519,6 +6519,13 @@
 - Focused Worker tests, workspace typechecks, lint, and diff hygiene pass.
 - **Next smallest unit:** deploy and verify one alert per outage day in the Telegram outbox.
 
+### Phase 6.532 — Railway rollout initializing
+
+- Railway status transitioned both Worker and recovery-worker latest deployments from `QUEUED` to `INITIALIZING`.
+- Neither deployment has reached `SUCCESS`; the public Worker health endpoint still reports the older degraded release.
+- No deployment retry, variable change, database mutation, or broker action was performed.
+- **Next smallest unit:** observe until `SUCCESS`, then run the dual-service release-pinned hosted verifier and confirm scheduler recovery.
+
 ### Phase 6.521 — Hosted verifier gate isolation
 
 - Credential-free `pnpm verify:hosted` reproduced failed gates `worker`, `research_schedule`, and `next_runs`.

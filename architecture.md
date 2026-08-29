@@ -58,6 +58,8 @@ A subsequent read-only health probe reported the active Worker as `degraded`: Pa
 
 The follow-up Railway status check showed no queue recovery: the latest Worker and recovery-worker deployments remain queued/stopped for the same upstream GCP issue. Repeated provider state is tracked as an external rollout blocker; local changes remain safe to deploy once the provider recovers.
 
+The latest read-only check shows both Worker services have transitioned to `INITIALIZING`, but neither has reached `SUCCESS` and the public Worker health endpoint still reports the older degraded runtime. This is an in-progress rollout state, not a readiness signal.
+
 Research scheduler startup now performs up to three bounded retries with a 30-second delay for transient queue/database startup failures. Exhaustion leaves the health endpoint degraded and does not submit orders or bypass any readiness gate.
 
 Each startup retry and final exhaustion also emits a bounded structured Worker log event (`research_scheduler_start_retry` / `research_scheduler_start_failed`) without error text, credentials, or broker payloads. This gives operators an auditable recovery signal without leaking provider details.
