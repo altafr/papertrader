@@ -6572,6 +6572,14 @@
 - Worker scheduler tests (16), Worker typecheck, and workspace lint pass.
 - **Next smallest unit:** deploy this diagnostic revision only after authorization, use the resulting code classification to correct the scheduler composition, and verify a fresh completed research → risk cycle.
 
+### Phase 6.541 — pg-boss UUID boundary correction (2026-08-29)
+
+- Root cause identified from deployed non-secret telemetry: PostgreSQL `22P02` was caused by readable research catch-up/recovery keys being passed directly as pg-boss job IDs, which must be UUIDs.
+- Added a deterministic UUIDv5-shaped mapping for manual, startup catch-up, and stale-recovery sends while retaining readable logical keys in bounded health/audit metadata.
+- Added regression coverage for UUID format/stability and updated enqueue/recovery assertions.
+- Research scheduler tests (17), Worker typecheck, workspace lint, and production build pass.
+- **Next smallest unit:** deploy the UUID boundary correction and verify the Worker records a scheduled research run and completed paper risk cycle.
+
 ### Phase 6.532 — Railway rollout initializing
 
 - Railway status transitioned both Worker and recovery-worker latest deployments from `QUEUED` to `INITIALIZING`.

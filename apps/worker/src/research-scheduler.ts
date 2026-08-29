@@ -1,3 +1,5 @@
+import { createHash } from "node:crypto";
+
 export const RESEARCH_PREPARATION_QUEUE = "momentum.research-preparation";
 export const RESEARCH_PREPARATION_DEAD_LETTER_QUEUE = "momentum.research-preparation.dead-letter";
 export const RESEARCH_PREPARATION_CRON = "30 0 * * *";
@@ -159,9 +161,15 @@ export function getResearchPreparationJobId(now = new Date()): string {
   return `manual-research-preparation-${now.toISOString().slice(0, 10)}`;
 }
 
+/** pg-boss job IDs are UUIDs; retain a readable logical key but send a stable UUID. */
+export function getResearchPgBossJobId(logicalId: string): string {
+  const digest = createHash("sha256").update(`momentum-research:${logicalId}`).digest("hex").slice(0, 32);
+  return `${digest.slice(0, 8)}-${digest.slice(8, 12)}-5${digest.slice(13, 16)}-${(parseInt(digest[16]!, 16) & 0x3 | 0x8).toString(16)}${digest.slice(17, 20)}-${digest.slice(20)}`;
+}
+
 export async function enqueueResearchPreparation(sender: ResearchQueueSender, now = new Date()): Promise<{ readonly jobId: string; readonly queued: boolean }> {
   const jobId = getResearchPreparationJobId(now);
-  const sentId = await sender.send(RESEARCH_PREPARATION_QUEUE, { kind: "research_preparation", version: 1 }, { id: jobId });
+  const sentId = await sender.send(RESEARCH_PREPARATION_QUEUE, { kind: "research_preparation", version: 1 }, { id: getResearchPgBossJobId(jobId) });
   return { jobId, queued: sentId !== null };
 }
 
@@ -260,7 +268,7 @@ export function createResearchScheduler(input: {
     const recoveryId = `research-recovery-${(health.nextRunAt ?? now().toISOString()).replace(/[^0-9A-Za-z]/g, "").slice(0, 32)}`;
     void (async () => {
       try {
-        const queued = await client?.send(RESEARCH_PREPARATION_QUEUE, { kind: "research_preparation", version: 1 }, { id: recoveryId });
+        const queued = await client?.send(RESEARCH_PREPARATION_QUEUE, { kind: "research_preparation", version: 1 }, { id: getResearchPgBossJobId(recoveryId) });
         if (queued) return;
       } catch {
         // Preserve the degraded state and emit the incident below.
@@ -302,7 +310,7 @@ export function createResearchScheduler(input: {
           // Use the same durable queue and an idempotency key scoped to the
           // current interval. A restart therefore cannot create a burst of
           // duplicate crypto research cycles.
-          const queued = await client.send(RESEARCH_PREPARATION_QUEUE, { kind: "research_preparation", version: 1 }, { id: startupCatchupId });
+          const queued = await client.send(RESEARCH_PREPARATION_QUEUE, { kind: "research_preparation", version: 1 }, { id: getResearchPgBossJobId(startupCatchupId) });
           schedulerHealth = { ...schedulerHealth, lastCatchupAt: now().toISOString(), lastCatchupJobId: startupCatchupId, lastCatchupStatus: queued ? "queued" : "rejected" };
         }
         watchdogTimer = setInterval(watchdog, 60_000);

@@ -1,11 +1,17 @@
 import { describe, expect, it, vi } from "vitest";
-import { assessResearchSchedulerLiveness, createResearchScheduler, enqueueResearchPreparation, getNextResearchRunAt, getResearchPreparationJobId, getResearchScheduleConfig, getResearchScheduleReadiness, getResearchSchedulerErrorMetadata, getResearchSchedulerHealth, getResearchStartupCatchupJobId, isResearchPreparationJob, provisionResearchQueues, runResearchPreparationJob, setResearchRiskCycleHealth, startWithBoundedRetry, RESEARCH_PREPARATION_CRON, RESEARCH_PREPARATION_DEAD_LETTER_QUEUE, RESEARCH_PREPARATION_QUEUE } from "./research-scheduler.js";
+import { assessResearchSchedulerLiveness, createResearchScheduler, enqueueResearchPreparation, getNextResearchRunAt, getResearchPgBossJobId, getResearchPreparationJobId, getResearchScheduleConfig, getResearchScheduleReadiness, getResearchSchedulerErrorMetadata, getResearchSchedulerHealth, getResearchStartupCatchupJobId, isResearchPreparationJob, provisionResearchQueues, runResearchPreparationJob, setResearchRiskCycleHealth, startWithBoundedRetry, RESEARCH_PREPARATION_CRON, RESEARCH_PREPARATION_DEAD_LETTER_QUEUE, RESEARCH_PREPARATION_QUEUE } from "./research-scheduler.js";
 
 describe("research schedule boundary", () => {
   it("keeps scheduler error telemetry bounded and non-secret", () => {
     expect(getResearchSchedulerErrorMetadata({ code: "ENOTFOUND", name: "Error", message: "postgres://secret" })).toEqual({ errorCode: "ENOTFOUND", errorName: "Error" });
     expect(getResearchSchedulerErrorMetadata({ code: "bad code", name: "Error" })).toEqual({ errorName: "Error" });
     expect(getResearchSchedulerErrorMetadata(new Error("secret"))).toEqual({ errorName: "Error" });
+  });
+
+  it("maps readable research keys to stable UUID job ids", () => {
+    const first = getResearchPgBossJobId("research-startup-20260828T113000000Z");
+    expect(first).toBe(getResearchPgBossJobId("research-startup-20260828T113000000Z"));
+    expect(first).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-5[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/);
   });
   it("recovers transient scheduler startup failures with bounded retries", async () => {
     let attempts = 0;
@@ -75,7 +81,7 @@ describe("research schedule boundary", () => {
     const sent: Array<{ readonly name: string; readonly data: object | null | undefined; readonly id?: string }> = [];
     const result = await enqueueResearchPreparation({ send: async (name, data, options) => { sent.push({ name, data, ...(options?.id ? { id: options.id } : {}) }); return options?.id ?? null; } }, new Date("2026-08-23T01:00:00Z"));
     expect(result).toEqual({ jobId: "manual-research-preparation-2026-08-23", queued: true });
-    expect(sent[0]).toMatchObject({ name: RESEARCH_PREPARATION_QUEUE, id: result.jobId, data: { kind: "research_preparation", version: 1 } });
+    expect(sent[0]).toMatchObject({ name: RESEARCH_PREPARATION_QUEUE, id: getResearchPgBossJobId(result.jobId), data: { kind: "research_preparation", version: 1 } });
     expect(isResearchPreparationJob(sent[0]?.data)).toBe(true);
     await expect(runResearchPreparationJob({ job: sent[0]?.data, run: async () => {} })).resolves.toBeUndefined();
     await expect(runResearchPreparationJob({ job: { kind: "research_preparation", version: 2 }, run: async () => {} })).rejects.toThrow("Invalid research preparation job");
@@ -129,8 +135,8 @@ describe("research schedule boundary", () => {
       current = new Date("2026-08-23T01:18:01.000Z");
       await vi.advanceTimersByTimeAsync(60_000);
       expect(sent).toEqual([
-        { name: RESEARCH_PREPARATION_QUEUE, id: "research-startup-20260823T010000000Z" },
-        { name: RESEARCH_PREPARATION_QUEUE, id: "research-recovery-20260823T011500000Z" },
+        { name: RESEARCH_PREPARATION_QUEUE, id: getResearchPgBossJobId("research-startup-20260823T010000000Z") },
+        { name: RESEARCH_PREPARATION_QUEUE, id: getResearchPgBossJobId("research-recovery-20260823T011500000Z") },
       ]);
       expect(onStale).not.toHaveBeenCalled();
       await scheduler.stop();
