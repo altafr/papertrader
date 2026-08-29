@@ -15,6 +15,13 @@
 - [x] Add scheduler regression coverage; local targeted tests pass.
 - [ ] Promote the reviewed batch and verify a recovered hosted crypto cycle; deployment remains intentionally deferred by the current no-deploy instruction.
 
+### Phase 6.394 — Authenticated Worker heartbeat visibility (2026-08-29)
+
+- [x] Surface the bounded public Worker heartbeat in the authenticated dashboard: Worker status, market-stream freshness, and next research run.
+- [x] Keep account, credentials, broker payloads, and controls out of the heartbeat projection; unavailable heartbeat data renders explicitly.
+- [x] Verify the web typecheck, lint, focused dashboard/public-health tests, and diff hygiene.
+- [ ] Verify the rendered authenticated dashboard against the hosted Worker after the next authorized deployment.
+
 ### Phase 6.373 — Local safety-batch verification (2026-08-29)
 
 - [x] Verify complete exit-plan coverage, actionable unmanaged-position reasons, and deterministic entry pausing as one local batch.

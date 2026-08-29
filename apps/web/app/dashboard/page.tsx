@@ -5,6 +5,7 @@ import * as DecimalModule from "decimal.js";
 
 import { auditPageCount, buildDashboardHistoryParams, formatAuditDateRange, formatUtc, getFreshnessLabel, getFreshnessState, getPositionExitDisplayState, parseAgentRuns, parseOperatorOverview, parseOperationsHealth, parsePaperPerformance, type AgentRunSummary, type OperationsHealth, type OperatorOverview, type PaperPerformance } from "./dashboard-state";
 import { DashboardRefresh } from "./dashboard-refresh";
+import { parsePublicHealth, type PublicHealth } from "../public-health";
 
 type ReadModel = {
   activities: Array<Record<string, unknown>>;
@@ -68,6 +69,18 @@ async function loadReadModel(getToken: () => Promise<string | null>) {
       : ({ kind: "unavailable", message: "Persisted account data failed validation." } as const);
   } catch {
     return { kind: "unavailable", message: "The authenticated API could not be reached." } as const;
+  }
+}
+
+async function loadWorkerHealth(): Promise<PublicHealth | undefined> {
+  const healthUrl = process.env.NEXT_PUBLIC_WORKER_HEALTH_URL;
+  if (!healthUrl) return undefined;
+  try {
+    const response = await fetch(healthUrl, { cache: "no-store" });
+    if (!response.ok) return undefined;
+    return parsePublicHealth(await response.json());
+  } catch {
+    return undefined;
   }
 }
 
@@ -411,6 +424,7 @@ export default async function DashboardPage({ searchParams }: { readonly searchP
   const historyTo = Array.isArray(requestedParams?.to) ? requestedParams?.to[0] : requestedParams?.to;
   const historyQuery = new URLSearchParams({ limit: "100", page: String(safeHistoryPage), ...(historyFrom ? { from: historyFrom } : {}), ...(historyTo ? { to: historyTo } : {}) }).toString();
   const result = await loadReadModel(getToken);
+  const workerHealth = await loadWorkerHealth();
   const operationsHealth = await loadOperationsHealth(getToken);
   const agentRuns = await loadAgentRuns(getToken);
   const paperPerformance = await loadPaperPerformance(getToken, performanceRange);
@@ -453,7 +467,8 @@ export default async function DashboardPage({ searchParams }: { readonly searchP
           <div className="health-summary" aria-label="Service health summary">
             <span className="label">System state</span>
             <StatusBadge state={result.kind === "ready" ? freshness : "degraded"} />
-            <span className="health-detail">Market stream: server-side · see Worker health</span>
+            <span className="health-detail">Market stream: {workerHealth?.marketStream?.freshness ?? "not reported"}</span>
+            <span className="health-detail">Worker: {workerHealth?.status ?? "unavailable"}{workerHealth?.researchSchedule?.nextRunAt ? ` · next research ${formatUtc(workerHealth.researchSchedule.nextRunAt)}` : ""}</span>
           </div>
         </div>
       </section>

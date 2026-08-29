@@ -54,6 +54,7 @@ Always visible and contains:
 - System health: Healthy, Degraded, Paused, or Stopped.
 - Alpaca account/market-stream/trade-stream status.
 - Data freshness and last reconciliation time.
+- Worker heartbeat status, market-stream freshness, and next research run when the bounded public Worker health endpoint is configured.
 - Market state for US equities plus crypto 24/7 indicator.
 - Global Pause/Emergency Stop control.
 - Daily server-runtime status, including last successful daily preparation and next scheduled run.

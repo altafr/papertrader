@@ -70,6 +70,8 @@ Hosted verification retries API and Worker health up to four times with a short 
 
 The public heartbeat also renders the server-reported next research run in UTC, with invalid or missing timestamps shown as unavailable rather than guessed.
 
+The authenticated dashboard also reads that same bounded Worker heartbeat server-side and surfaces Worker status, market-stream freshness, and next research time beside persisted account freshness. This is observational only; it never grants the browser broker, queue, or order authority.
+
 It also shows the last market-stream message timestamp as bounded UTC metadata, allowing operators to distinguish a fresh connection from a recently active data feed without exposing payloads.
 
 ### Separately gated order handoff (Phase 6.213)
