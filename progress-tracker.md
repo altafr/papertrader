@@ -2,8 +2,8 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.378 — Hosted Worker scheduler recovery.
-- **Status:** The hosted Worker and API are healthy and continue paper trading with deterministic entry/exit safeguards, durable reconciliation, Telegram alerting, lifecycle-stable PostgreSQL-backed risk evidence, and a read-only portfolio status command. A Worker restart restored the missed research tick without a rebuild or deploy; the latest exit-plan coverage and alert changes remain local until one reviewed promotion. Vercel production publication remains limited by the free-plan daily deployment quota, while authenticated dashboard verification and the 30-day paper-forward evidence window remain ongoing.
+- **Phase:** Phase 6.392 — Hosted research watchdog checkpoint.
+- **Status:** The hosted Worker and API continue paper trading with deterministic entry/exit safeguards, durable reconciliation, Telegram alerting, lifecycle-stable PostgreSQL-backed risk evidence, and a read-only portfolio status command. Position management and the crypto stream remain healthy, but the existing deployed Worker missed the 01:00 UTC crypto research tick and correctly degraded; the local self-recovery and safety batches remain intentionally un-deployed. Vercel production publication remains limited by the free-plan daily deployment quota, while authenticated dashboard verification and the 30-day paper-forward evidence window remain ongoing.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading, promote one reviewed local batch when provider limits clear, verify authenticated portfolio/P&L rendering and exports, and accumulate the 30-day evidence gate without loosening risk controls.
 - **Last updated:** 2026-08-29.
@@ -141,6 +141,13 @@
 - [x] Preserve positive-value, ordering, timestamp, duplicate, and unrequested-symbol fail-closed checks.
 - [x] Add large-value overflow-boundary coverage and verify 375 tests, workspace typechecks, and lint.
 - [ ] Promote the reviewed Worker batch and verify accepted finalized bars through hosted telemetry.
+
+### Phase 6.392 — Hosted research watchdog checkpoint (2026-08-29)
+
+- [x] Inspect hosted Worker logs after the 01:00 UTC boundary and confirm position management continues with fresh crypto stream data.
+- [x] Confirm the deployed release missed its crypto research tick and entered the documented degraded state; no unguarded order path was observed.
+- [x] Preserve the user-requested no-deploy policy; no rebuild, deployment, database, or credential change was made.
+- [ ] Promote the reviewed local self-recovery batch when deployment is authorized, then verify a completed crypto research/risk cycle.
 
 ### Phase 6.356 — Live runtime incident checkpoint (2026-08-29)
 
