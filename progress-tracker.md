@@ -6388,3 +6388,10 @@
 - Malformed timestamps, enum values, counters, or telemetry objects now fail closed; fields remain optional for compatibility with older hosted releases.
 - Added regression coverage for valid, malformed, and unsafe heartbeat payloads. Focused verifier tests pass.
 - **Next smallest unit:** run the full repository quality suite, then deploy only when the operator authorizes a hosted rollout.
+
+### Phase 6.410 runtime readiness execution-state guard
+
+- Runtime readiness now blocks when Paper Autopilot configuration is otherwise valid but order submission is still dry-run.
+- This keeps `ready` reserved for an actually enabled paper execution path while preserving diagnostic `disabled`/`dry_run` states.
+- Added regression coverage; focused tests, workspace typechecks, lint, and diff hygiene pass.
+- **Next smallest unit:** deploy the accumulated Worker/API changes only after explicit operator authorization, then run hosted and authenticated dashboard verification.

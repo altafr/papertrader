@@ -24,7 +24,8 @@ export function assessRuntimeReconciliation(capturedAt: Date | string | undefine
 
 export function combinePaperAutopilotRuntimeReadiness(configuration: PaperAutopilotReadiness, reconciliation: PaperAutopilotRuntimeReadiness["reconciliation"]): PaperAutopilotRuntimeReadiness {
   const freshnessReasons = reconciliation.status === "fresh" ? [] : [`reconciliation_${reconciliation.status}`];
-  const blockedReasons = [...configuration.blockedReasons, ...freshnessReasons];
+  const executionReasons = configuration.status === "ready" && configuration.executionStatus !== "enabled" ? ["paper_order_submission_disabled"] : [];
+  const blockedReasons = [...configuration.blockedReasons, ...executionReasons, ...freshnessReasons];
   const status: PaperAutopilotReadinessStatus = configuration.status === "disabled" ? "disabled" : blockedReasons.length === 0 ? "ready" : "blocked";
   return { blockedReasons: status === "disabled" ? [] : blockedReasons, configuration, reconciliation, status };
 }

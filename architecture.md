@@ -76,6 +76,8 @@ The hosted paper-runtime verifier also fails closed when the Worker explicitly r
 
 The verifier also validates optional Worker heartbeat telemetry when present: scheduler run/catch-up timestamps and statuses, bounded risk-cycle counts, unmanaged-position counts, and stream freshness metadata. Invalid shapes, timestamps, enum values, or out-of-range counters fail closed without requiring older releases to emit newer fields.
 
+Runtime readiness additionally fails closed when Paper Autopilot is configured but order submission remains in dry-run mode. A `ready` runtime therefore represents an enabled paper execution path, not merely valid configuration; disabled and dry-run states remain distinguishable for diagnostics.
+
 The research scheduler also has a bounded self-recovery path: after a missed scheduled tick, it may enqueue one idempotent preparation job through the same durable `pg-boss` queue. The Worker remains degraded until that job completes, and recovery cannot bypass research validation, reconciliation, deterministic risk checks, paper-mode enforcement, or the kill switch.
 
 For interval schedules, scheduler startup also enqueues one idempotent catch-up job for the current UTC interval. This closes the restart-to-next-cron gap for continuous crypto research while using the normal durable queue and all existing validation/risk gates. Daily stock preparation remains driven only by its scheduled daily cron.
