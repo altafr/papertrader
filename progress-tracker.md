@@ -6558,6 +6558,13 @@
 - Hosted verifier fails closed on `worker`, `position_management`, `research_schedule`, `health_timestamps`, and `next_runs`; no new order was authorized by verification.
 - **Next smallest unit:** remediate the two exit-plan records and capture a successful research cycle, then rerun hosted verification and release pinning.
 
+### Phase 6.539 — Research queue connectivity checkpoint (2026-08-29)
+
+- Read-only Railway SSH verification confirmed the Worker can connect to PostgreSQL (`select 1` succeeded); no credentials or connection strings were printed.
+- PostgreSQL contains both research queues and the `*/15 * * * *` UTC research schedule; the research queue has 83 completed and 4 failed historical jobs.
+- This narrows the current startup failure to the active Worker/pg-boss scheduler composition rather than a database outage or missing queue migration. No queue, broker, or portfolio state was mutated.
+- **Next smallest unit:** capture a bounded, non-secret scheduler startup error classification in Worker telemetry, then correct the active Worker scheduler composition and verify a fresh completed cycle.
+
 ### Phase 6.532 — Railway rollout initializing
 
 - Railway status transitioned both Worker and recovery-worker latest deployments from `QUEUED` to `INITIALIZING`.
