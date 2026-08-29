@@ -42,6 +42,10 @@ export function getExpectedBarIntervalMs(timeframe: MarketBarTimeframe): number 
   return intervals[timeframe];
 }
 
+export function getMarketStreamStaleDedupeKey(assetClass: "crypto" | "us_equity", occurredAt = new Date()): string {
+  return `market_stream_stale:${assetClass}:${occurredAt.toISOString().slice(0, 13)}`;
+}
+
 export function getMarketStreamHealth(now = new Date()) {
   const freshnessMetadata = marketStreamHealth.status === "connected" ? { freshnessMaxAgeSeconds: Math.round(marketStreamMaxMessageAgeMs / 1_000) } : {};
   if (!marketStreamHealth.lastMessageAt) return { ...marketStreamHealth, ...freshnessMetadata, ...(marketStreamHealth.status === "connected" ? { freshness: "unknown" as const } : {}) };
@@ -104,13 +108,15 @@ export function startPaperMarketStream(environment = process.env) {
     }
     if (freshness !== "stale" || staleAlertSent) return;
     staleAlertSent = true;
+    const occurredAt = new Date();
     void notifier.notify({
       code: "market_stream_stale",
       cooldownKey: `market_stream_stale:${configuration.assetClass}`,
       cooldownMs: 86_400_000,
-      dedupeKey: `market_stream_stale:${configuration.assetClass}`,
+      dedupeKey: getMarketStreamStaleDedupeKey(configuration.assetClass, occurredAt),
       message: `Market stream is stale for ${configuration.assetClass}; no new decisions should rely on stale data until supervised recovery restores freshness.`,
       severity: "critical",
+      occurredAt: occurredAt.toISOString(),
     });
   }, 60_000);
   staleWatchdog.unref();

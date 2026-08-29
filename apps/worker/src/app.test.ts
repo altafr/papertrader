@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { deriveWorkerHealthStatus, getWorkerHealth } from "./app.js";
-import { classifyMarketStreamFreshness, getExpectedBarIntervalMs } from "./market-stream-runner.js";
+import { classifyMarketStreamFreshness, getExpectedBarIntervalMs, getMarketStreamStaleDedupeKey } from "./market-stream-runner.js";
 
 describe("market stream freshness", () => {
   it("classifies missing, fresh, and stale message timestamps", () => {
@@ -16,6 +16,10 @@ describe("market stream freshness", () => {
     expect(getExpectedBarIntervalMs("5Min")).toBe(5 * 60_000);
     expect(getExpectedBarIntervalMs("15Min")).toBe(15 * 60_000);
     expect(getExpectedBarIntervalMs("1Hour")).toBe(60 * 60_000);
+  });
+
+  it("uses a time-bucketed stale alert key so later outages remain auditable", () => {
+    expect(getMarketStreamStaleDedupeKey("crypto", new Date("2026-08-29T12:34:56.000Z"))).toBe("market_stream_stale:crypto:2026-08-29T12");
   });
 });
 
