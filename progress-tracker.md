@@ -6601,6 +6601,13 @@
 - Hosted verifier now fails only the aggregate Worker health and position-management gates caused by these two records; research scheduler and risk-cycle telemetry pass.
 - **Next smallest unit:** obtain operator-reviewed provenance for `BTCUSD` and `PFD`, apply the guarded backfill, and verify managed-position coverage.
 
+### Phase 6.545 — Explicit dual-service release identity (2026-08-29)
+
+- API and Worker health now accept a bounded operator-managed `PAPERTRADER_RELEASE` fallback when Railway does not inject a commit SHA.
+- API/Worker regression coverage confirms explicit release precedence and safe formatting; existing Railway/CI metadata remains supported.
+- Updated rollout guidance to pin the same release identifier on both services and in hosted verification.
+- **Next smallest unit:** set one identical non-secret release identifier on API and Worker, redeploy if required, and rerun the release-pinned hosted verifier.
+
 ### Phase 6.532 — Railway rollout initializing
 
 - Railway status transitioned both Worker and recovery-worker latest deployments from `QUEUED` to `INITIALIZING`.

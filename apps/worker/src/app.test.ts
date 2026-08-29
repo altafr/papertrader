@@ -67,6 +67,10 @@ describe("worker health", () => {
     expect(getWorkerHealth(new Date("2026-08-21T00:00:00.000Z"), { RAILWAY_GIT_COMMIT_SHA: "abc123" }).release).toBe("abc123");
   });
 
+  it("accepts a bounded explicitly managed release identity", () => {
+    expect(getWorkerHealth(new Date("2026-08-21T00:00:00.000Z"), { PAPERTRADER_RELEASE: "managed-release" }).release).toBe("managed-release");
+  });
+
   it("reports configuration presence separately from broker connection enablement", () => {
     const health = getWorkerHealth(new Date("2026-08-21T00:00:00.000Z"), {
       ALPACA_API_KEY: "paper-key",

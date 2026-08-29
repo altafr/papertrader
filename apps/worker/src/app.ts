@@ -33,7 +33,8 @@ export function getWorkerHealth(now = new Date(), environment: NodeJS.ProcessEnv
   const telegram = getTelegramNotificationReadiness(environment);
   const telegramTest = getTelegramAlertTestReadiness(environment);
   const marketStream = getMarketStreamHealth(now);
-  const release = environment.RAILWAY_GIT_COMMIT_SHA?.trim() || environment.GIT_COMMIT_SHA?.trim();
+  const candidate = environment.PAPERTRADER_RELEASE?.trim() || environment.RAILWAY_GIT_COMMIT_SHA?.trim() || environment.GIT_COMMIT_SHA?.trim();
+  const release = candidate && /^[0-9A-Za-z._-]{1,64}$/.test(candidate) ? candidate : undefined;
   return {
     alpaca: paperCredentialsConfigured ? "configured" : "not_configured",
     asOf: now.toISOString(),
