@@ -134,12 +134,7 @@ function value(row: Record<string, unknown>, key: string) {
   return typeof result === "string" || typeof result === "number" ? String(result) : "—";
 }
 
-function numericValue(row: Record<string, unknown>, key: string): number | undefined {
-  const parsed = Number(row[key]);
-  return Number.isFinite(parsed) ? parsed : undefined;
-}
-
-interface DisplayDecimal { div(value: DisplayDecimal | string): DisplayDecimal; isNegative(): boolean; isZero(): boolean; times(value: DisplayDecimal | string): DisplayDecimal; toDecimalPlaces(places: number): DisplayDecimal; toFixed(places?: number): string; }
+interface DisplayDecimal { div(value: DisplayDecimal | string): DisplayDecimal; isNegative(): boolean; isZero(): boolean; plus(value: DisplayDecimal | string): DisplayDecimal; times(value: DisplayDecimal | string): DisplayDecimal; toDecimalPlaces(places: number): DisplayDecimal; toFixed(places?: number): string; }
 interface DisplayDecimalConstructor { new (value: string): DisplayDecimal; }
 const DisplayDecimal = (DecimalModule as unknown as { readonly default: DisplayDecimalConstructor }).default;
 
@@ -165,6 +160,18 @@ function positionReturnPercent(row: Record<string, unknown>): string | undefined
 
 function isNegativeDecimal(valueToCheck: string): boolean {
   try { return new DisplayDecimal(valueToCheck).isNegative(); } catch { return false; }
+}
+
+function sumDecimalColumn(rows: readonly Record<string, unknown>[], key: string): string | undefined {
+  let total = new DisplayDecimal("0");
+  let found = false;
+  for (const row of rows) {
+    const valueToAdd = decimalValue(row, key);
+    if (!valueToAdd) continue;
+    total = total.plus(valueToAdd);
+    found = true;
+  }
+  return found ? total.toDecimalPlaces(2).toFixed(2) : undefined;
 }
 
 function positionAge(row: Record<string, unknown>): string {
@@ -416,12 +423,12 @@ export default async function DashboardPage({ searchParams }: { readonly searchP
   const totalAuditPages = operatorOverview?.history?.totals ? auditPageCount(operatorOverview.history.totals, operatorOverview.history.limit) : undefined;
   const freshness = result.kind === "ready" ? getFreshnessState(result.model.freshness.ageSeconds) : "stale";
   const freshnessLabel = getFreshnessLabel(freshness);
-  const portfolioMarketValue = result.kind === "ready" ? result.model.positions.reduce((sum, position) => sum + (numericValue(position, "marketValue") ?? 0), 0) : undefined;
-  const portfolioUnrealizedPl = result.kind === "ready" ? result.model.positions.reduce((sum, position) => sum + (numericValue(position, "unrealizedPl") ?? 0), 0) : undefined;
-  const equity = result.kind === "ready" ? numericValue(result.model.snapshot, "equity") : undefined;
-  const lastEquity = result.kind === "ready" ? numericValue(result.model.snapshot, "lastEquity") : undefined;
-  const dayPnl = equity !== undefined && lastEquity !== undefined ? equity - lastEquity : undefined;
-  const grossExposurePercent = equity && portfolioMarketValue !== undefined ? (portfolioMarketValue / equity) * 100 : undefined;
+  const portfolioMarketValue = result.kind === "ready" ? sumDecimalColumn(result.model.positions, "marketValue") : undefined;
+  const portfolioUnrealizedPl = result.kind === "ready" ? sumDecimalColumn(result.model.positions, "unrealizedPl") : undefined;
+  const equity = result.kind === "ready" ? decimalValue(result.model.snapshot, "equity") : undefined;
+  const lastEquity = result.kind === "ready" ? decimalValue(result.model.snapshot, "lastEquity") : undefined;
+  const dayPnl = equity && lastEquity ? equity.plus(lastEquity.times("-1")).toDecimalPlaces(2).toFixed(2) : undefined;
+  const grossExposurePercent = equity && portfolioMarketValue && !equity.isZero() ? new DisplayDecimal(portfolioMarketValue).div(equity).times("100").toDecimalPlaces(2).toFixed(2) : undefined;
   const unmanagedKeys = new Set(result.kind === "ready" ? result.model.unmanagedPositions.map((position) => `${position.assetClass}:${position.symbol}`) : []);
   const today = new Date();
   const toDate = today.toISOString().slice(0, 10);
@@ -511,9 +518,9 @@ export default async function DashboardPage({ searchParams }: { readonly searchP
               <div><dt>Cash</dt><dd>{value(result.model.snapshot, "cash")}</dd></div>
               <div><dt>Buying power</dt><dd>{value(result.model.snapshot, "buyingPower")}</dd></div>
               <div><dt>Account status</dt><dd>{value(result.model.snapshot, "status")}</dd></div>
-              <div><dt>Day P/L</dt><dd className={dayPnl !== undefined && dayPnl < 0 ? "negative-value" : ""}>{dayPnl === undefined ? "Not reported" : dayPnl.toFixed(2)}</dd></div>
-              <div><dt>Unrealized P/L</dt><dd className={portfolioUnrealizedPl !== undefined && portfolioUnrealizedPl < 0 ? "negative-value" : ""}>{portfolioUnrealizedPl === undefined ? "Not reported" : portfolioUnrealizedPl.toFixed(2)}</dd></div>
-              <div><dt>Gross exposure</dt><dd>{grossExposurePercent === undefined ? "Not reported" : `${grossExposurePercent.toFixed(2)}%`}</dd></div>
+              <div><dt>Day P/L</dt><dd className={dayPnl !== undefined && isNegativeDecimal(dayPnl) ? "negative-value" : ""}>{dayPnl === undefined ? "Not reported" : dayPnl}</dd></div>
+              <div><dt>Unrealized P/L</dt><dd className={portfolioUnrealizedPl !== undefined && isNegativeDecimal(portfolioUnrealizedPl) ? "negative-value" : ""}>{portfolioUnrealizedPl === undefined ? "Not reported" : portfolioUnrealizedPl}</dd></div>
+              <div><dt>Gross exposure</dt><dd>{grossExposurePercent === undefined ? "Not reported" : `${grossExposurePercent}%`}</dd></div>
             </dl>
             <p className="provenance">Source: persisted Alpaca paper reconciliation · captured {formatUtc(result.model.freshness.capturedAt)}</p>
           </article>

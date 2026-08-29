@@ -114,6 +114,13 @@
 - [x] Add overflow-boundary coverage and verify 374 tests, workspace typecheck, and lint.
 - [ ] Promote the reviewed Worker batch and verify fresh-mark exit handling through hosted telemetry.
 
+### Phase 6.388 — Decimal-safe dashboard portfolio aggregates (2026-08-29)
+
+- [x] Replace browser-side floating-point aggregation for market value, unrealized P/L, day P/L, and gross exposure with decimal-safe arithmetic.
+- [x] Preserve unavailable states, negative-value styling, and displayed precision.
+- [x] Verify 374 tests, workspace typechecks, lint, and diff hygiene.
+- [ ] Promote the reviewed web batch and verify aggregate values against persisted account snapshots.
+
 ### Phase 6.356 — Live runtime incident checkpoint (2026-08-29)
 
 - [x] Confirm the live API remains healthy and the Worker is connected to Alpaca paper mode with a fresh crypto stream, active position management, and order submission approval present.
