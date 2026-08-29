@@ -121,6 +121,12 @@
 - [x] Add regression coverage and verify 89 test files / 371 tests, domain build, workspace typecheck, and lint.
 - [ ] Batch this Worker change with the queued release and verify new-entry rejection/plan coverage through hosted telemetry.
 
+### Phase 6.372 — Unmanaged-position reason contract coverage (2026-08-29)
+
+- [x] Add API contract coverage proving missing exit-plan fields are preserved in the authenticated read model.
+- [x] Full suite remains green: 89 test files / 371 tests; workspace typecheck and lint pass.
+- [ ] Batch the accumulated local changes into one intentional deployment and verify the authenticated position audit.
+
 ### Phase 6.355 — Repeatable stale-stream incident audit (2026-08-29)
 
 - [x] Replace the permanent stale-stream dedupe key with a bounded UTC-hour episode key.
