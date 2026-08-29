@@ -54,6 +54,7 @@ Always visible and contains:
 - System health: Healthy, Degraded, Paused, or Stopped.
 - The primary dashboard health badge is degraded whenever the server Worker heartbeat is not healthy, even if the persisted account snapshot is fresh.
 - The Alerts panel repeats that Worker degradation/unavailability as a critical review item so it cannot be missed from the status bar.
+- The Alerts panel also repeats any review-required open positions and their fail-closed exit-management status.
 - Alpaca account/market-stream/trade-stream status.
 - Data freshness and last reconciliation time.
 - Worker heartbeat status, market-stream freshness, and next research run when the bounded public Worker health endpoint is configured.

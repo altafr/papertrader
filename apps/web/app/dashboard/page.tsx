@@ -387,10 +387,11 @@ function PaperPerformanceCard({ historyFrom, historyTo, performance }: { readonl
 
 type AlertItem = { readonly detail: string; readonly severity: "critical" | "info" | "warning"; readonly title: string };
 
-function buildHealthAlerts(health: OperationsHealth | undefined, freshness: "delayed" | "fresh" | "stale", performance: PaperPerformance | undefined, workerHealth: PublicHealth | undefined): readonly AlertItem[] {
+function buildHealthAlerts(health: OperationsHealth | undefined, freshness: "delayed" | "fresh" | "stale", performance: PaperPerformance | undefined, workerHealth: PublicHealth | undefined, unmanagedCount: number): readonly AlertItem[] {
   const alerts: AlertItem[] = [];
   if (!health) return [{ detail: "The authenticated operations-health contract could not be read.", severity: "critical", title: "Operations health unavailable" }];
   if (!workerHealth || workerHealth.status !== "healthy") alerts.push({ detail: workerHealth ? `Worker status is ${workerHealth.status}; new decisions remain subject to server-side fail-closed gates.` : "The public Worker heartbeat is unavailable; runtime health cannot be confirmed.", severity: "critical", title: "Worker runtime requires review" });
+  if (unmanagedCount > 0) alerts.push({ detail: `${unmanagedCount} open position(s) lack complete exit-plan provenance and will not receive automatic exits until reviewed.`, severity: "critical", title: "Positions require exit-plan review" });
   if (health.runtime.globalKillSwitchActive) alerts.push({ detail: "New proposals and submissions should remain stopped until the operator completes the safe-resume checklist.", severity: "critical", title: "Global kill switch is active" });
   if (freshness === "stale") alerts.push({ detail: "The latest reconciled account snapshot is outside the trusted freshness window.", severity: "critical", title: "Account data is stale" });
   else if (freshness === "delayed") alerts.push({ detail: "The latest reconciled account snapshot is delayed; review freshness before relying on values.", severity: "warning", title: "Account data is delayed" });
@@ -401,8 +402,8 @@ function buildHealthAlerts(health: OperationsHealth | undefined, freshness: "del
   return alerts;
 }
 
-function AlertsCard({ health, freshness, performance, workerHealth }: { readonly health: OperationsHealth | undefined; readonly freshness: "delayed" | "fresh" | "stale"; readonly performance: PaperPerformance | undefined; readonly workerHealth: PublicHealth | undefined }) {
-  const alerts = buildHealthAlerts(health, freshness, performance, workerHealth);
+function AlertsCard({ health, freshness, performance, workerHealth, unmanagedCount }: { readonly health: OperationsHealth | undefined; readonly freshness: "delayed" | "fresh" | "stale"; readonly performance: PaperPerformance | undefined; readonly workerHealth: PublicHealth | undefined; readonly unmanagedCount: number }) {
+  const alerts = buildHealthAlerts(health, freshness, performance, workerHealth, unmanagedCount);
   return <article className="card full-width" id="alerts"><div className="card-heading"><div><p className="label">Alerts</p><h2>{alerts.length === 0 ? "No active health alerts" : `${alerts.length} health alert${alerts.length === 1 ? "" : "s"}`}</h2></div><span className={`state-badge ${alerts.some((alert) => alert.severity === "critical") ? "degraded" : alerts.some((alert) => alert.severity === "warning") ? "delayed" : "fresh"}`}>{alerts.some((alert) => alert.severity === "critical") ? "Review now" : alerts.length === 0 ? "Healthy" : "Review"}</span></div><div className="alert-list">{alerts.length === 0 ? <p className="empty-state">No active alert is derived from the current persisted health contracts.</p> : alerts.map((alert) => <div className={`alert-row ${alert.severity}`} key={alert.title}><strong>{alert.title}</strong><span>{alert.detail}</span></div>)}</div><p className="provenance">These are current-state health notices, not a replacement for the immutable audit log. They do not change risk or order behavior.</p></article>;
 }
 
@@ -575,7 +576,7 @@ export default async function DashboardPage({ searchParams }: { readonly searchP
 
           <OperatorAuditCards historyQuery={historyQuery} overview={operatorOverview} />
 
-          <AlertsCard health={operationsHealth} freshness={freshness} performance={paperPerformance} workerHealth={workerHealth} />
+          <AlertsCard health={operationsHealth} freshness={freshness} performance={paperPerformance} workerHealth={workerHealth} unmanagedCount={unmanagedKeys.size} />
 
           <article className="card">
             <p className="label">Recent account activity</p><h2>{result.model.activities.length} events</h2>

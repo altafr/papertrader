@@ -64,6 +64,13 @@
 - [x] Verify the full workspace tests, typechecks, lint, and diff hygiene.
 - [ ] Verify the alert against hosted Worker degradation/recovery after deployment.
 
+### Phase 6.404 — Central unmanaged-position alert (2026-08-29)
+
+- [x] Repeat review-required position count in the dashboard Alerts panel.
+- [x] Keep the alert critical and explicitly state that automatic exits remain disabled until complete plan provenance exists.
+- [x] Verify the full workspace tests, typechecks, lint, and diff hygiene.
+- [ ] Verify hosted alert rendering after deployment and exit-plan remediation.
+
 ### Phase 6.393 — Interval scheduler startup catch-up (2026-08-29)
 
 - [x] Add an idempotent startup catch-up enqueue for interval (crypto) schedules, scoped to the current UTC interval.
