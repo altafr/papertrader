@@ -11,7 +11,7 @@ export async function verifyOperatorAuthBoundary(fetcher: typeof fetch, targetBa
   return { csvStatus: csvResponse.status, overviewStatus: overviewResponse.status };
 }
 
-export const REQUIRED_ACCOUNT_CSV_COLUMNS = ["exitPlanStatus", "strategyKey", "strategyVersion", "plannedStopPrice", "plannedTargetPrice", "positionOpenedAt"] as const;
+export const REQUIRED_ACCOUNT_CSV_COLUMNS = ["exitPlanStatus", "exitPlanMissingFields", "strategyKey", "strategyVersion", "plannedStopPrice", "plannedTargetPrice", "positionOpenedAt"] as const;
 
 export function validateAccountCsvHeader(header: string): { readonly columns: readonly string[] } {
   const columns = header.replace(/^\uFEFF/, "").split(",").map((column) => column.trim().replace(/^"|"$/g, ""));

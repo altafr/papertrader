@@ -600,15 +600,15 @@ async function readReadModelCsv(request: IncomingMessage) {
     readonly positions: readonly Record<string, unknown>[];
     readonly snapshot: Record<string, unknown>;
     readonly freshness: Record<string, unknown>;
-    readonly unmanagedPositions?: readonly { readonly assetClass: string; readonly symbol: string }[];
+    readonly unmanagedPositions?: readonly { readonly assetClass: string; readonly symbol: string; readonly missingFields?: readonly string[] }[];
   };
-  const unmanaged = new Set((result.body.unmanagedPositions ?? []).map((position) => `${position.assetClass}:${position.symbol}`));
-  const header = ["recordType", "recordId", "symbol", "assetClass", "side", "type", "status", "quantity", "filledQuantity", "averageEntryPrice", "marketValue", "pnl", "price", "capturedAt", "submittedAt", "updatedAt", "exitPlanStatus", "strategyKey", "strategyVersion", "plannedStopPrice", "plannedTargetPrice", "timeStopAt", "positionOpenedAt"];
+  const unmanagedByKey = new Map((result.body.unmanagedPositions ?? []).map((position) => [`${position.assetClass}:${position.symbol}`, position.missingFields?.join("|") ?? ""]));
+  const header = ["recordType", "recordId", "symbol", "assetClass", "side", "type", "status", "quantity", "filledQuantity", "averageEntryPrice", "marketValue", "pnl", "price", "capturedAt", "submittedAt", "updatedAt", "exitPlanStatus", "exitPlanMissingFields", "strategyKey", "strategyVersion", "plannedStopPrice", "plannedTargetPrice", "timeStopAt", "positionOpenedAt"];
   const rows = [
-    ["account_snapshot", model.snapshot.accountSnapshotId, "", "", "", "", model.snapshot.status, "", "", "", "", "", "", model.freshness.capturedAt, "", "", "", "", "", "", "", ""],
-    ...model.positions.map((position) => ["position", position.symbol, position.symbol, position.assetClass, "", "", "open", position.quantity, "", position.averageEntryPrice, position.marketValue, position.unrealizedPl, "", model.freshness.capturedAt, "", "", unmanaged.has(`${position.assetClass}:${position.symbol}`) ? "review_required" : "active", position.strategyKey ?? "", position.strategyVersion ?? "", position.plannedStopPrice ?? "", position.plannedTargetPrice ?? "", position.timeStopAt ?? "", position.positionOpenedAt ?? ""]),
-    ...model.orders.map((order) => ["order", order.alpacaOrderId, order.symbol, order.assetClass, order.side, order.type, order.status, order.quantity, order.filledQuantity, "", "", "", "", "", order.submittedAt, order.updatedAt, "", "", "", "", "", "", ""]),
-    ...model.activities.map((activity) => ["activity", activity.activityId, activity.symbol, "", "", activity.activityType, "", activity.quantity, "", "", "", "", activity.price, activity.transactionTime, "", "", "", "", "", "", "", "", ""]),
+    ["account_snapshot", model.snapshot.accountSnapshotId, "", "", "", "", model.snapshot.status, "", "", "", "", "", "", model.freshness.capturedAt, "", "", "", "", "", "", "", "", ""],
+    ...model.positions.map((position) => ["position", position.symbol, position.symbol, position.assetClass, "", "", "open", position.quantity, "", position.averageEntryPrice, position.marketValue, position.unrealizedPl, "", model.freshness.capturedAt, "", "", unmanagedByKey.has(`${position.assetClass}:${position.symbol}`) ? "review_required" : "active", unmanagedByKey.get(`${position.assetClass}:${position.symbol}`) ?? "", position.strategyKey ?? "", position.strategyVersion ?? "", position.plannedStopPrice ?? "", position.plannedTargetPrice ?? "", position.timeStopAt ?? "", position.positionOpenedAt ?? ""]),
+    ...model.orders.map((order) => ["order", order.alpacaOrderId, order.symbol, order.assetClass, order.side, order.type, order.status, order.quantity, order.filledQuantity, "", "", "", "", "", order.submittedAt, order.updatedAt, "", "", "", "", "", "", "", ""]),
+    ...model.activities.map((activity) => ["activity", activity.activityId, activity.symbol, "", "", activity.activityType, "", activity.quantity, "", "", "", "", activity.price, activity.transactionTime, "", "", "", "", "", "", "", "", "", ""]),
   ];
   return { body: `${[header, ...rows].map((row) => row.map(csvCell).join(",")).join("\n")}\n`, status: 200, contentType: "text/csv; charset=utf-8" } as const;
 }

@@ -58,6 +58,13 @@
 - [x] Add regression coverage and verify position-management tests, workspace typecheck, and lint.
 - [ ] Confirm the enriched record through hosted Worker telemetry after the reviewed batch is promoted.
 
+### Phase 6.380 — CSV exit-plan remediation provenance (2026-08-29)
+
+- [x] Add `exitPlanMissingFields` to the authenticated account CSV for review-required positions.
+- [x] Keep the export aligned with dashboard/API missing-field reasons and preserve CSV injection protection.
+- [x] Update the authenticated CSV contract verifier and regression fixtures; tests, typecheck, and lint pass.
+- [ ] Verify the expanded CSV header and remediation values through the hosted authenticated endpoint after promotion.
+
 ### Phase 6.356 — Live runtime incident checkpoint (2026-08-29)
 
 - [x] Confirm the live API remains healthy and the Worker is connected to Alpaca paper mode with a fresh crypto stream, active position management, and order submission approval present.

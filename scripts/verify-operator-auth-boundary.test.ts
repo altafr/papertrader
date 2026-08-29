@@ -15,9 +15,9 @@ describe("verifyOperatorAuthBoundary", () => {
   });
 
   it("validates the authenticated account CSV provenance contract", async () => {
-    const fetcher = vi.fn<typeof fetch>(async () => new Response('"recordType","exitPlanStatus","strategyKey","strategyVersion","plannedStopPrice","plannedTargetPrice","positionOpenedAt"\n', { status: 200 }));
+    const fetcher = vi.fn<typeof fetch>(async () => new Response('"recordType","exitPlanStatus","exitPlanMissingFields","strategyKey","strategyVersion","plannedStopPrice","plannedTargetPrice","positionOpenedAt"\n', { status: 200 }));
     await expect(verifyAuthenticatedAccountCsv(fetcher, "https://example.test/", "operator-token")).resolves.toMatchObject({ status: 200 });
-    expect(validateAccountCsvHeader('"recordType","exitPlanStatus","strategyKey","strategyVersion","plannedStopPrice","plannedTargetPrice","positionOpenedAt"').columns).toHaveLength(7);
+    expect(validateAccountCsvHeader('"recordType","exitPlanStatus","exitPlanMissingFields","strategyKey","strategyVersion","plannedStopPrice","plannedTargetPrice","positionOpenedAt"').columns).toHaveLength(8);
   });
 
   it("rejects an authenticated CSV that omits provenance columns", async () => {
