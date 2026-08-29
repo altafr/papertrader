@@ -6513,6 +6513,12 @@
 - Added deterministic alert-contract coverage; Worker tests, workspace typechecks, lint, and diff hygiene pass.
 - **Next smallest unit:** deploy and verify one alert per outage day in the Telegram outbox.
 
+### Phase 6.531 — Scheduler incident-window regression
+
+- Added explicit same-day and next-day dedupe-key regression coverage for scheduler startup exhaustion alerts.
+- Focused Worker tests, workspace typechecks, lint, and diff hygiene pass.
+- **Next smallest unit:** deploy and verify one alert per outage day in the Telegram outbox.
+
 ### Phase 6.521 — Hosted verifier gate isolation
 
 - Credential-free `pnpm verify:hosted` reproduced failed gates `worker`, `research_schedule`, and `next_runs`.
