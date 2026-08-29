@@ -50,6 +50,13 @@
 - [x] Verify 381 tests, workspace typechecks, lint, and diff hygiene.
 - [ ] Use the guidance against the hosted review report after deployment and operator review.
 
+### Phase 6.402 — Worker-aware dashboard system state (2026-08-29)
+
+- [x] Derive the primary dashboard status from both persisted account freshness and Worker heartbeat health.
+- [x] Show `degraded` when the Worker is degraded/unavailable, preventing a fresh snapshot from masking runtime failure.
+- [x] Add regression coverage and verify the web typecheck, lint, and focused dashboard tests.
+- [ ] Verify the rendered status against hosted Worker degradation/recovery after deployment.
+
 ### Phase 6.393 — Interval scheduler startup catch-up (2026-08-29)
 
 - [x] Add an idempotent startup catch-up enqueue for interval (crypto) schedules, scoped to the current UTC interval.

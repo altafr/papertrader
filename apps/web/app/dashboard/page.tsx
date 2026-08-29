@@ -3,7 +3,7 @@ import { auth } from "@clerk/nextjs/server";
 import { EXIT_PLAN_MISSING_FIELDS } from "@momentum/domain";
 import * as DecimalModule from "decimal.js";
 
-import { auditPageCount, buildDashboardHistoryParams, formatAuditDateRange, formatUtc, getFreshnessLabel, getFreshnessState, getPositionExitDisplayState, parseAgentRuns, parseOperatorOverview, parseOperationsHealth, parsePaperPerformance, type AgentRunSummary, type OperationsHealth, type OperatorOverview, type PaperPerformance } from "./dashboard-state";
+import { auditPageCount, buildDashboardHistoryParams, formatAuditDateRange, formatUtc, getDashboardSystemState, getFreshnessLabel, getFreshnessState, getPositionExitDisplayState, parseAgentRuns, parseOperatorOverview, parseOperationsHealth, parsePaperPerformance, type AgentRunSummary, type OperationsHealth, type OperatorOverview, type PaperPerformance } from "./dashboard-state";
 import { DashboardRefresh } from "./dashboard-refresh";
 import { parsePublicHealth, type PublicHealth } from "../public-health";
 
@@ -431,6 +431,7 @@ export default async function DashboardPage({ searchParams }: { readonly searchP
   const operatorOverview = await loadOperatorOverview(getToken, `?${historyQuery}`);
   const totalAuditPages = operatorOverview?.history?.totals ? auditPageCount(operatorOverview.history.totals, operatorOverview.history.limit) : undefined;
   const freshness = result.kind === "ready" ? getFreshnessState(result.model.freshness.ageSeconds) : "stale";
+  const systemState = getDashboardSystemState(freshness, workerHealth?.status);
   const freshnessLabel = getFreshnessLabel(freshness);
   const portfolioMarketValue = result.kind === "ready" ? sumDecimalColumn(result.model.positions, "marketValue") : undefined;
   const portfolioUnrealizedPl = result.kind === "ready" ? sumDecimalColumn(result.model.positions, "unrealizedPl") : undefined;
@@ -466,7 +467,7 @@ export default async function DashboardPage({ searchParams }: { readonly searchP
           </div>
           <div className="health-summary" aria-label="Service health summary">
             <span className="label">System state</span>
-            <StatusBadge state={result.kind === "ready" ? freshness : "degraded"} />
+            <StatusBadge state={systemState} />
             <span className="health-detail">Market stream: {workerHealth?.marketStream?.freshness ?? "not reported"}</span>
             <span className="health-detail">Worker: {workerHealth?.status ?? "unavailable"}{workerHealth?.positionManagement?.unmanagedCount ? ` · ${workerHealth.positionManagement.unmanagedCount} position(s) need exit plans` : ""}{workerHealth?.researchSchedule?.nextRunAt ? ` · next research ${formatUtc(workerHealth.researchSchedule.nextRunAt)}` : ""}{workerHealth?.researchSchedule?.lastCatchupStatus ? ` · catch-up ${workerHealth.researchSchedule.lastCatchupStatus}` : ""}</span>
             <span className="health-detail">Risk cycle: {workerHealth?.researchSchedule?.lastRiskCycleStatus ?? "not reported"}{workerHealth?.researchSchedule?.lastRiskDecisionCount !== undefined ? ` · ${workerHealth.researchSchedule.lastRiskDecisionCount} decisions` : ""}{workerHealth?.researchSchedule?.lastRiskCycleAt ? ` · ${formatUtc(workerHealth.researchSchedule.lastRiskCycleAt)}` : ""}</span>

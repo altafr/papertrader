@@ -1,8 +1,14 @@
 import { describe, expect, it } from "vitest";
 
-import { auditPageCount, buildDashboardHistoryParams, formatAuditDateRange, formatUtc, getFreshnessLabel, getFreshnessState, getPositionExitDisplayState, parseAgentRuns, parseOperatorOverview, parseOperationsHealth } from "./dashboard-state";
+import { auditPageCount, buildDashboardHistoryParams, formatAuditDateRange, formatUtc, getDashboardSystemState, getFreshnessLabel, getFreshnessState, getPositionExitDisplayState, parseAgentRuns, parseOperatorOverview, parseOperationsHealth } from "./dashboard-state";
 
 describe("dashboard state", () => {
+  it("degrades the primary status when the Worker heartbeat is not healthy", () => {
+    expect(getDashboardSystemState("fresh", "healthy")).toBe("fresh");
+    expect(getDashboardSystemState("fresh", "degraded")).toBe("degraded");
+    expect(getDashboardSystemState("stale", undefined)).toBe("degraded");
+  });
+
   it("classifies persisted data by freshness", () => {
     expect(getFreshnessState(30)).toBe("fresh");
     expect(getFreshnessState(600)).toBe("delayed");

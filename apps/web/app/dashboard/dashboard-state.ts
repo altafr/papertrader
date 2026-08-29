@@ -71,6 +71,11 @@ export function auditPageCount(totals: { readonly agents: number; readonly filte
 
 export type PositionExitDisplayState = "exit_in_flight" | "monitoring" | "review_required";
 
+/** Combine persisted account freshness with the server heartbeat for the primary status badge. */
+export function getDashboardSystemState(accountFreshness: FreshnessState, workerStatus: string | undefined): "degraded" | FreshnessState {
+  return workerStatus === "healthy" ? accountFreshness : "degraded";
+}
+
 /** Derive a truthful position-management label from the bounded read models. */
 export function getPositionExitDisplayState(input: { readonly assetClass: string; readonly symbol: string }, unmanagedPositions: readonly { readonly assetClass: string; readonly symbol: string }[], activeExitPositions: readonly { readonly assetClass: string; readonly symbol: string }[]): PositionExitDisplayState {
   if (unmanagedPositions.some((position) => position.assetClass === input.assetClass && position.symbol === input.symbol)) return "review_required";
