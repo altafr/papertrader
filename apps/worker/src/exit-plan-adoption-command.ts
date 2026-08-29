@@ -28,6 +28,10 @@ validateExitPlanValues({ entryPrice, plannedStopPrice, ...(plannedTargetPrice ? 
 
 const state = await createPaperAccountReader({ apiKey: process.env.ALPACA_API_KEY ?? "", secretKey: process.env.ALPACA_SECRET_KEY ?? "" }).readAccountState();
 const selected = selectLegacyPositionBrokerOrders(state, { alpacaOrderIds, assetClass, symbol });
+if (process.env.EXIT_PLAN_ADOPT_DRY_RUN === "true") {
+  console.log(JSON.stringify({ alpacaOrderIds, entryPrice, plannedStopPrice, ...(plannedTargetPrice ? { plannedTargetPrice } : {}), ...(timeStopAt ? { timeStopAt } : {}), positionQuantity: selected.position.quantity, reference, status: "legacy_position_adoption_preflight_valid", strategyKey, strategyVersion, symbol: selected.position.symbol }));
+  process.exit(0);
+}
 const { db, pool } = createDatabase();
 try {
   const repository = createPaperOrderRepository(db);

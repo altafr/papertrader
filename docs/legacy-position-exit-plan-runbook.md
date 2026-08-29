@@ -34,6 +34,8 @@ EXIT_PLAN_REFERENCE='PFD-EXIT-PLAN-REVIEW-001' \
 node /app/apps/worker/dist/exit-plan-adoption-command.js
 ```
 
+Add `EXIT_PLAN_ADOPT_DRY_RUN=true` to the same command to validate all inputs and broker matches without opening PostgreSQL or writing provenance.
+
 Use `EXIT_PLAN_TIME_STOP_AT` instead of `EXIT_PLAN_TARGET_PRICE` only when an explicit time stop is the reviewed plan.
 
 Run the guarded command on the Railway Worker only after reviewing the values:

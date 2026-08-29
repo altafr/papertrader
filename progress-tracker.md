@@ -6701,6 +6701,12 @@
 - No adoption or broker mutation was performed; the remaining gate is still operator-approved exit-plan values and strategy provenance.
 - **Next smallest unit:** run guarded adoption with the reviewed order IDs and risk/strategy values, then verify the position-management gate.
 
+### Phase 6.559 — Legacy adoption preflight mode (2026-08-29)
+
+- Added `EXIT_PLAN_ADOPT_DRY_RUN=true` to validate broker order selection, quantity coverage, exit-plan constraints, strategy fields, and references without opening PostgreSQL or writing state.
+- Documented the preflight in the legacy-position runbook; actual adoption remains an explicit separate invocation.
+- **Next smallest unit:** run preflight with the operator-reviewed values, inspect its bounded output, then perform the one-time adoption only after confirmation.
+
 ### Phase 6.532 — Railway rollout initializing
 
 - Railway status transitioned both Worker and recovery-worker latest deployments from `QUEUED` to `INITIALIZING`.
