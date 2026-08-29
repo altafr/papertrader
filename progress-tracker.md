@@ -6673,6 +6673,13 @@
 - Increased the per-position candidate bound to 100 while retaining bounded output and deterministic filtering; no broker or database behavior changed.
 - **Next smallest unit:** deploy and rerun the broker review to obtain the complete BTC fill candidate set.
 
+### Phase 6.555 — Complete hosted broker candidate set (2026-08-29)
+
+- Deployed candidate-cap correction and reran the read-only broker report.
+- The report now exposes 17 BTC/USD filled-buy candidates (enough to cover the `BTCUSD` position quantity `0.0169575`) and one PFD filled-buy candidate (position quantity `2903`).
+- No broker or database mutation occurred; candidates remain operator-review inputs only.
+- **Next smallest unit:** select the exact 17 BTC fills and the PFD fill, then provide reviewed exit-plan values for guarded adoption.
+
 ### Phase 6.532 — Railway rollout initializing
 
 - Railway status transitioned both Worker and recovery-worker latest deployments from `QUEUED` to `INITIALIZING`.
