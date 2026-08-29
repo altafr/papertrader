@@ -1,6 +1,7 @@
 import { UserButton } from "@clerk/nextjs";
 import { auth } from "@clerk/nextjs/server";
 import { EXIT_PLAN_MISSING_FIELDS } from "@momentum/domain";
+import * as DecimalModule from "decimal.js";
 
 import { auditPageCount, buildDashboardHistoryParams, formatAuditDateRange, formatUtc, getFreshnessLabel, getFreshnessState, getPositionExitDisplayState, parseAgentRuns, parseOperatorOverview, parseOperationsHealth, parsePaperPerformance, type AgentRunSummary, type OperationsHealth, type OperatorOverview, type PaperPerformance } from "./dashboard-state";
 import { DashboardRefresh } from "./dashboard-refresh";
@@ -138,16 +139,32 @@ function numericValue(row: Record<string, unknown>, key: string): number | undef
   return Number.isFinite(parsed) ? parsed : undefined;
 }
 
-function positionNotional(row: Record<string, unknown>): number | undefined {
-  const quantity = numericValue(row, "quantity");
-  const entry = numericValue(row, "averageEntryPrice");
-  return quantity !== undefined && entry !== undefined ? quantity * entry : undefined;
+interface DisplayDecimal { div(value: DisplayDecimal | string): DisplayDecimal; isNegative(): boolean; isZero(): boolean; times(value: DisplayDecimal | string): DisplayDecimal; toDecimalPlaces(places: number): DisplayDecimal; toFixed(places?: number): string; }
+interface DisplayDecimalConstructor { new (value: string): DisplayDecimal; }
+const DisplayDecimal = (DecimalModule as unknown as { readonly default: DisplayDecimalConstructor }).default;
+
+function decimalValue(row: Record<string, unknown>, key: string): DisplayDecimal | undefined {
+  const raw = row[key];
+  if (typeof raw !== "string" && typeof raw !== "number") return undefined;
+  try { return new DisplayDecimal(String(raw)); } catch { return undefined; }
 }
 
-function positionReturnPercent(row: Record<string, unknown>): number | undefined {
-  const notional = positionNotional(row);
-  const unrealized = numericValue(row, "unrealizedPl");
-  return notional && unrealized !== undefined ? (unrealized / notional) * 100 : undefined;
+function positionNotional(row: Record<string, unknown>): string | undefined {
+  const quantity = decimalValue(row, "quantity");
+  const entry = decimalValue(row, "averageEntryPrice");
+  return quantity && entry ? quantity.times(entry).toDecimalPlaces(2).toFixed(2) : undefined;
+}
+
+function positionReturnPercent(row: Record<string, unknown>): string | undefined {
+  const quantity = decimalValue(row, "quantity");
+  const entry = decimalValue(row, "averageEntryPrice");
+  const unrealized = decimalValue(row, "unrealizedPl");
+  const notional = quantity && entry ? quantity.times(entry) : undefined;
+  return notional && unrealized && !notional.isZero() ? unrealized.div(notional).times("100").toDecimalPlaces(2).toFixed(2) : undefined;
+}
+
+function isNegativeDecimal(valueToCheck: string): boolean {
+  try { return new DisplayDecimal(valueToCheck).isNegative(); } catch { return false; }
 }
 
 function positionAge(row: Record<string, unknown>): string {
@@ -514,7 +531,7 @@ export default async function DashboardPage({ searchParams }: { readonly searchP
             {unmanagedKeys.size > 0 && <div className="audit-unavailable" role="alert"><strong>{unmanagedKeys.size} position(s) require review.</strong><span>{result.model.unmanagedPositions.map((position) => `${position.symbol}${position.missingFields?.length ? ` (missing: ${position.missingFields.join(", ")})` : ""}`).join(", ")} do not have a complete portfolio-aligned exit plan (protective stop plus target or time stop). They are fail-closed and will not receive automatic exits.</span></div>}
             {result.model.positions.length === 0 ? <p className="empty-state">No open positions in the latest reconciled snapshot.</p> : (
               <div className="responsive-table"><table><thead><tr><th>Symbol</th><th>Class</th><th>Quantity</th><th>Avg entry</th><th>Invested notional</th><th>Market value</th><th>Unrealized P/L</th><th>Return</th><th>Strategy</th><th>Stop</th><th>Target</th><th>Time stop</th><th>Age</th><th>Exit state</th></tr></thead><tbody>
-                {result.model.positions.map((position) => { const notional = positionNotional(position); const returnPercent = positionReturnPercent(position); const assetClass = value(position, "assetClass"); const symbol = value(position, "symbol"); const exitState = getPositionExitDisplayState({ assetClass, symbol }, result.model.unmanagedPositions, result.model.activeExitPositions); const exitLabel = exitState === "review_required" ? "Review required" : exitState === "exit_in_flight" ? "Exit in flight" : "Monitoring"; return <tr key={`${symbol}-${value(position, "accountSnapshotId")}`}><th scope="row">{symbol}</th><td>{assetClass}</td><td>{value(position, "quantity")}</td><td>{value(position, "averageEntryPrice")}</td><td>{notional === undefined ? "Not reported" : notional.toFixed(2)}</td><td>{value(position, "marketValue")}</td><td className={numericValue(position, "unrealizedPl") !== undefined && (numericValue(position, "unrealizedPl") ?? 0) < 0 ? "negative-value" : ""}>{value(position, "unrealizedPl")}</td><td className={returnPercent !== undefined && returnPercent < 0 ? "negative-value" : ""}>{returnPercent === undefined ? "Not reported" : `${returnPercent.toFixed(2)}%`}</td><td>{value(position, "strategyKey")}{value(position, "strategyVersion") !== "—" ? ` ${value(position, "strategyVersion")}` : ""}</td><td>{value(position, "plannedStopPrice")}</td><td>{value(position, "plannedTargetPrice")}</td><td>{value(position, "timeStopAt") === "—" ? "Not specified" : formatUtc(value(position, "timeStopAt"))}</td><td>{positionAge(position)}</td><td>{exitLabel}</td></tr>; })}
+                {result.model.positions.map((position) => { const notional = positionNotional(position); const returnPercent = positionReturnPercent(position); const assetClass = value(position, "assetClass"); const symbol = value(position, "symbol"); const exitState = getPositionExitDisplayState({ assetClass, symbol }, result.model.unmanagedPositions, result.model.activeExitPositions); const exitLabel = exitState === "review_required" ? "Review required" : exitState === "exit_in_flight" ? "Exit in flight" : "Monitoring"; return <tr key={`${symbol}-${value(position, "accountSnapshotId")}`}><th scope="row">{symbol}</th><td>{assetClass}</td><td>{value(position, "quantity")}</td><td>{value(position, "averageEntryPrice")}</td><td>{notional === undefined ? "Not reported" : notional}</td><td>{value(position, "marketValue")}</td><td className={isNegativeDecimal(value(position, "unrealizedPl")) ? "negative-value" : ""}>{value(position, "unrealizedPl")}</td><td className={returnPercent !== undefined && isNegativeDecimal(returnPercent) ? "negative-value" : ""}>{returnPercent === undefined ? "Not reported" : `${returnPercent}%`}</td><td>{value(position, "strategyKey")}{value(position, "strategyVersion") !== "—" ? ` ${value(position, "strategyVersion")}` : ""}</td><td>{value(position, "plannedStopPrice")}</td><td>{value(position, "plannedTargetPrice")}</td><td>{value(position, "timeStopAt") === "—" ? "Not specified" : formatUtc(value(position, "timeStopAt"))}</td><td>{positionAge(position)}</td><td>{exitLabel}</td></tr>; })}
               </tbody></table></div>
             )}
           </article>

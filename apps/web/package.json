@@ -11,6 +11,7 @@
   "dependencies": {
     "@clerk/nextjs": "^7.8.0",
     "@momentum/domain": "workspace:*",
+    "decimal.js": "^10.6.0",
     "next": "16.3.2",
     "react": "19.2.8",
     "react-dom": "19.2.8"
