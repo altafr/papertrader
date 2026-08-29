@@ -32,6 +32,7 @@ describe("position market-data grouping", () => {
     const now = new Date("2026-08-29T00:05:00.000Z");
     expect(getFreshPositionMark({ symbol: "BTC/USD", latestTrade: { price: "100", timestamp: "2026-08-28T23:59:00.000Z" } }, now)).toBeUndefined();
     expect(getFreshPositionMark({ symbol: "BTC/USD", latestTrade: { price: "100", timestamp: "2026-08-29T00:04:30.000Z" } }, now)).toBe("100");
+    expect(getFreshPositionMark({ symbol: "BTC/USD", latestTrade: { price: "999999999999999999999999999999", timestamp: "2026-08-29T00:04:30.000Z" } }, now)).toBe("999999999999999999999999999999");
     expect(getFreshPositionMark({ symbol: "BTC/USD", latestQuote: { askPrice: "101", bidPrice: "99", timestamp: "2026-08-29T00:04:30.000Z" } }, now)).toBe("99");
   });
 });

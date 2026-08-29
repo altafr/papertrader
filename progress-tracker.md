@@ -107,6 +107,13 @@
 - [x] Declare the web package’s direct decimal dependency and verify 374 tests, web typecheck, and lint.
 - [ ] Promote the reviewed web batch and verify authenticated position metrics against persisted account values.
 
+### Phase 6.387 — Decimal-safe position mark validation (2026-08-29)
+
+- [x] Replace floating-point price validation in position management with decimal-safe parsing before stop/target evaluation.
+- [x] Preserve fresh timestamp, positive-mark, bid-preference, and fail-closed behavior.
+- [x] Add overflow-boundary coverage and verify 374 tests, workspace typecheck, and lint.
+- [ ] Promote the reviewed Worker batch and verify fresh-mark exit handling through hosted telemetry.
+
 ### Phase 6.356 — Live runtime incident checkpoint (2026-08-29)
 
 - [x] Confirm the live API remains healthy and the Worker is connected to Alpaca paper mode with a fresh crypto stream, active position management, and order submission approval present.

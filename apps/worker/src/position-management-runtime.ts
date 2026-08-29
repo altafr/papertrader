@@ -1,3 +1,5 @@
+import * as DecimalModule from "decimal.js";
+
 import { createPaperAccountReader, createPaperMarketDataReader, createPaperExitOrderSubmitter, type PaperMarketSnapshot } from "@momentum/alpaca";
 import { isGlobalKillSwitchActive } from "@momentum/config";
 import { isCompleteExitPlan } from "@momentum/domain";
@@ -10,6 +12,9 @@ import { createRuntimeAlertNotifier } from "./telegram-events.js";
 
 const POSITION_DETECTED_COOLDOWN_MS = 86_400_000;
 const POSITION_MARK_MAX_AGE_MS = 5 * 60_000;
+interface MarkDecimal { isNegative(): boolean; isZero(): boolean; }
+interface MarkDecimalConstructor { new (value: string): MarkDecimal; }
+const MarkDecimal = (DecimalModule as unknown as { readonly default: MarkDecimalConstructor }).default;
 
 export interface PositionManagementRuntimeHealth {
   readonly enabled: boolean;
@@ -60,10 +65,11 @@ export function getFreshPositionMark(snapshot: PaperMarketSnapshot, now = new Da
     snapshot.minuteBar ? { price: snapshot.minuteBar.close, timestamp: snapshot.minuteBar.timestamp } : undefined,
   ].filter((candidate): candidate is { price: string; timestamp: string } => Boolean(candidate));
   for (const candidate of candidates) {
-    const price = Number(candidate.price);
+    let price: MarkDecimal | undefined;
+    try { price = new MarkDecimal(candidate.price); } catch { price = undefined; }
     const timestamp = Date.parse(candidate.timestamp);
     const age = now.getTime() - timestamp;
-    if (Number.isFinite(price) && price > 0 && Number.isFinite(timestamp) && age >= 0 && age <= maxAgeMs) return candidate.price;
+    if (price && !price.isNegative() && !price.isZero() && Number.isFinite(timestamp) && age >= 0 && age <= maxAgeMs) return candidate.price;
   }
   return undefined;
 }
