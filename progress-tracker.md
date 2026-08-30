@@ -6707,6 +6707,13 @@
 - Documented the preflight in the legacy-position runbook; actual adoption remains an explicit separate invocation.
 - **Next smallest unit:** run preflight with the operator-reviewed values, inspect its bounded output, then perform the one-time adoption only after confirmation.
 
+### Phase 6.560 — Hosted adoption preflight deployment (2026-08-30)
+
+- Worker deployment `3a2ae06e-4440-462b-85dc-b901cb34e8ad` reached `SUCCESS` with the guarded adoption preflight.
+- Live Worker health remains scheduled and fresh for research, with two unmanaged positions still fail-closed.
+- No preflight/adoption was executed because operator-reviewed plan values were not supplied; no broker or database mutation occurred.
+- **Next smallest unit:** run the preflight with reviewed values, then execute the explicit adoption and rerun the pinned hosted verifier.
+
 ### Phase 6.532 — Railway rollout initializing
 
 - Railway status transitioned both Worker and recovery-worker latest deployments from `QUEUED` to `INITIALIZING`.
