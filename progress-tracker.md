@@ -6824,3 +6824,10 @@
 - API health is independently reachable and reports healthy with the same managed release identifier.
 - The overall Worker status remains degraded solely because two legacy positions are unmanaged; no new failure condition or stale-data breach is present.
 - **Next smallest unit:** continue paper-forward operation and complete the explicit operator remediation gates when values are available.
+
+### Phase 6.575 — Cross-surface observability verification (2026-08-30)
+
+- Worker health endpoint returned HTTP 200 with Paper Autopilot, fresh crypto stream, scheduled research, and the known two-position degradation.
+- API health endpoint returned HTTP 200 and the expected managed release identifier.
+- Vercel dashboard shell returned HTTP 200 and remains reachable independently of the Worker process.
+- **Next smallest unit:** continue the server-side paper loop and complete reviewed exit-plan/Telegram gates.
