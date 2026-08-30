@@ -6748,3 +6748,10 @@
 - Hosted health confirms paper-autopilot mode, broker connectivity, paper order submission enabled, fresh market stream, active research schedule, and position-management readiness.
 - The only degraded condition is two unmanaged legacy positions (BTCUSD and PFD) awaiting operator-supplied exit-plan values; no adoption was executed automatically.
 - **Next smallest unit:** supply and review BTCUSD/PFD entry, stop, target or time-stop, strategy key/version, and bounded reference; run preflight, then execute guarded atomic adoption.
+
+### Phase 6.564 — Full contract and regression verification (2026-08-30)
+
+- Local workspace verification passed: 94 test files / 407 tests, database build, Worker typecheck, lint, and workspace build.
+- Credential-free hosted verification still fails only `worker` and `position_management`, matching the live unmanaged-position count of two; no code or scheduler failure was found.
+- The worker continues to report Paper Autopilot, fresh market data, active research, and paper order submission behind deterministic gates.
+- **Next smallest unit:** complete operator-reviewed BTCUSD/PFD exit-plan preflight and guarded atomic adoption, then rerun hosted verification.
