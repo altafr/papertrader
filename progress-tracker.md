@@ -6714,6 +6714,13 @@
 - No preflight/adoption was executed because operator-reviewed plan values were not supplied; no broker or database mutation occurred.
 - **Next smallest unit:** run the preflight with reviewed values, then execute the explicit adoption and rerun the pinned hosted verifier.
 
+### Phase 6.561 — Overnight runtime and preflight verification (2026-08-30)
+
+- The live Worker continued scheduled research/risk cycles overnight; latest health reports the scheduler `scheduled`, fresh market data, and completed risk telemetry.
+- The broker review remains stable: BTC coverage is `complete_with_net_adjustment`, while PFD and AAPL are complete.
+- The preflight deployment is available; no adoption or order action was triggered without reviewed values.
+- **Next smallest unit:** run the preflight/adoption with operator-approved plans and verify the final two hosted gates.
+
 ### Phase 6.532 — Railway rollout initializing
 
 - Railway status transitioned both Worker and recovery-worker latest deployments from `QUEUED` to `INITIALIZING`.
