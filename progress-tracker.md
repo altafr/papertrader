@@ -6762,3 +6762,10 @@
 - Confirmed BTCUSD position quantity `0.0169575` is covered by 17 filled BTC/USD buys totaling `0.017` within the documented crypto dust tolerance.
 - Confirmed PFD quantity `2903` is covered exactly by one filled buy; AAPL remains fully covered as well.
 - **Next smallest unit:** operator selects/reviews the broker-linked fills and supplies exit-plan values; the guarded preflight can then validate them before atomic provenance adoption.
+
+### Phase 6.566 — Hosted Telegram readiness check (2026-08-30)
+
+- Ran the guarded no-send Telegram readiness command against Railway.
+- Confirmed bot token/chat configuration is present and format-valid without exposing either secret.
+- Delivery remains unverified only because `TELEGRAM_ALERT_TEST_APPROVAL_REFERENCE` is not set; no message was sent.
+- **Next smallest unit:** set a bounded operator approval reference, run the guarded Telegram test, and confirm the persisted outbox event is delivered.
