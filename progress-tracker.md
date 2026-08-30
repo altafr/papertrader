@@ -6837,3 +6837,9 @@
 - A health request briefly observed initialization-shaped telemetry immediately before the recurring position-management pass; Railway logs confirm the Worker process remained running and continued its one-minute loop.
 - The subsequent live health contract shows the expected scheduled research, completed risk cycle, connected/fresh stream, and durable scheduler; the transient response did not represent a restart or broker failure.
 - **Next smallest unit:** keep monitoring through the scheduled cycles and complete the explicit operator remediation gates.
+
+### Phase 6.577 — Deployment-instance continuity check (2026-08-30)
+
+- Confirmed the active Railway deployment remains `SUCCESS`; no replacement deployment or crash loop is present.
+- A subsequent health read restored the in-memory scheduler telemetry, showing the completed risk cycle, next run, fresh stream, and continuing one-minute position-management pass.
+- **Next smallest unit:** continue the paper-forward window; no runtime repair is required.
