@@ -6796,3 +6796,10 @@
 - The reconciled account model is current as of `2026-08-30T07:57:20Z`: equity `99409.08`, cash `64058.89`, with AAPL, BTCUSD, and PFD positions present.
 - P/L and quantities are being read from the server-side persisted model; no broker order or database mutation occurred.
 - **Next smallest unit:** complete reviewed exit-plan adoption and re-run the hosted contract verifier.
+
+### Phase 6.571 — Scheduled crypto cycle recovery verification (2026-08-30)
+
+- Observed the scheduled `08:00 UTC` crypto cycle complete successfully after the transient initialization health read.
+- Worker logs show one `BTC/USD` research candidate entering the deterministic risk cycle; it was rejected and not submitted because the two legacy positions remain unmanaged.
+- Health now reports the completed risk cycle, next run at `08:15 UTC`, connected/fresh market stream, and scheduled durable scheduler.
+- **Next smallest unit:** complete operator-reviewed exit-plan adoption; the recurring runtime is otherwise functioning continuously and fail-closed.
