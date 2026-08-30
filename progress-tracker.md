@@ -6776,3 +6776,10 @@
 - The two unmanaged positions are repeatedly detected and remain fail-closed; this is expected safety behavior, not a scheduler crash.
 - Live health confirms the crypto stream is connected/fresh, research is scheduled for the next interval, and the durable daily scheduler is scheduled.
 - **Next smallest unit:** finish operator exit-plan and Telegram verification gates before treating the runtime as fully unattended.
+
+### Phase 6.568 — Railway operator handoff acceleration (2026-08-30)
+
+- Added copy-ready Railway CLI examples for the guarded exit-plan adoption preflight and execution.
+- Documented ephemeral server-secret usage, review-before-write sequencing, and the no-broker-mutation guarantee.
+- No risk thresholds, strategy values, broker state, or database records changed.
+- **Next smallest unit:** run the documented preflight with operator-reviewed values for BTCUSD and PFD.

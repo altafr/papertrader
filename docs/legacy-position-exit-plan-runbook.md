@@ -36,6 +36,21 @@ node /app/apps/worker/dist/exit-plan-adoption-command.js
 
 Add `EXIT_PLAN_ADOPT_DRY_RUN=true` to the same command to validate all inputs and broker matches without opening PostgreSQL or writing provenance.
 
+From a workstation linked to the production Railway project, the same guarded commands can be run with the Worker environment's server-side secrets pulled ephemerally (the values are never printed):
+
+```sh
+railway run --project '<project-id>' --environment '<environment-id>' --service '<worker-service-id>' --no-local -- \
+  env EXIT_PLAN_ADOPT=true EXIT_PLAN_ADOPT_DRY_RUN=true \
+  EXIT_PLAN_ASSET_CLASS='...' EXIT_PLAN_SYMBOL='...' \
+  EXIT_PLAN_ALPACA_ORDER_IDS='...' EXIT_PLAN_ENTRY_PRICE='...' \
+  EXIT_PLAN_STOP_PRICE='...' EXIT_PLAN_TARGET_PRICE='...' \
+  EXIT_PLAN_STRATEGY_KEY='...' EXIT_PLAN_STRATEGY_VERSION='...' \
+  EXIT_PLAN_REFERENCE='...' \
+  pnpm --filter @momentum/worker exit-plan-adopt
+```
+
+After reviewing the successful preflight JSON, remove `EXIT_PLAN_ADOPT_DRY_RUN=true` and run the identical command once. The command writes provenance only; it does not submit, cancel, or replace a broker order. Keep the Railway identifiers and all plan values operator-reviewed, and never paste secret environment values into a shell history or chat.
+
 Use `EXIT_PLAN_TIME_STOP_AT` instead of `EXIT_PLAN_TARGET_PRICE` only when an explicit time stop is the reviewed plan.
 
 Run the guarded command on the Railway Worker only after reviewing the values:
