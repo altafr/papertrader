@@ -6803,3 +6803,10 @@
 - Worker logs show one `BTC/USD` research candidate entering the deterministic risk cycle; it was rejected and not submitted because the two legacy positions remain unmanaged.
 - Health now reports the completed risk cycle, next run at `08:15 UTC`, connected/fresh market stream, and scheduled durable scheduler.
 - **Next smallest unit:** complete operator-reviewed exit-plan adoption; the recurring runtime is otherwise functioning continuously and fail-closed.
+
+### Phase 6.572 — Hosted paper-forward evidence baseline (2026-08-30)
+
+- Ran the paper-performance report inside Railway against the persisted account model.
+- Current evidence: 100 snapshots across 1 calendar day, final equity `99408.13`, total P/L `-1.04`, maximum drawdown `0.00336983%`.
+- The stability gate correctly remains blocked until the required 30 consecutive calendar days are accumulated; this is an evidence-period requirement, not an execution failure.
+- **Next smallest unit:** continue durable paper-forward collection while completing the two legacy exit plans and Telegram verification.
