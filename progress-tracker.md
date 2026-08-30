@@ -6755,3 +6755,10 @@
 - Credential-free hosted verification still fails only `worker` and `position_management`, matching the live unmanaged-position count of two; no code or scheduler failure was found.
 - The worker continues to report Paper Autopilot, fresh market data, active research, and paper order submission behind deterministic gates.
 - **Next smallest unit:** complete operator-reviewed BTCUSD/PFD exit-plan preflight and guarded atomic adoption, then rerun hosted verification.
+
+### Phase 6.565 — Hosted broker provenance refresh (2026-08-30)
+
+- Ran the guarded read-only broker review against the Railway environment; no database or Alpaca order mutation occurred.
+- Confirmed BTCUSD position quantity `0.0169575` is covered by 17 filled BTC/USD buys totaling `0.017` within the documented crypto dust tolerance.
+- Confirmed PFD quantity `2903` is covered exactly by one filled buy; AAPL remains fully covered as well.
+- **Next smallest unit:** operator selects/reviews the broker-linked fills and supplies exit-plan values; the guarded preflight can then validate them before atomic provenance adoption.
