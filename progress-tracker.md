@@ -6850,3 +6850,10 @@
 - Preserved all existing readiness gates and runtime behavior; this is diagnostic output only.
 - Added regression coverage; focused verifier tests (14), lint, and workspace build pass.
 - **Next smallest unit:** use the clearer failure output after reviewed exit-plan adoption to confirm the final gates.
+
+### Phase 6.579 — Full regression after verifier diagnostics (2026-08-30)
+
+- Full workspace verification passed: 94 test files / 408 tests, database build, Worker typecheck, lint, and production build.
+- Working tree is clean and the verifier diagnostics revision is ready for the next normal deployment cycle.
+- No broker order, database record, risk threshold, or runtime configuration changed.
+- **Next smallest unit:** deploy the verifier revision with the next authorized Railway/Vercel rollout, then use its cause-level output during final remediation.
