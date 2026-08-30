@@ -6769,3 +6769,10 @@
 - Confirmed bot token/chat configuration is present and format-valid without exposing either secret.
 - Delivery remains unverified only because `TELEGRAM_ALERT_TEST_APPROVAL_REFERENCE` is not set; no message was sent.
 - **Next smallest unit:** set a bounded operator approval reference, run the guarded Telegram test, and confirm the persisted outbox event is delivered.
+
+### Phase 6.567 — Continuous runtime evidence (2026-08-30)
+
+- Railway logs show recurring position-management passes at approximately 60-second intervals with three broker positions observed and zero automatic exit submissions.
+- The two unmanaged positions are repeatedly detected and remain fail-closed; this is expected safety behavior, not a scheduler crash.
+- Live health confirms the crypto stream is connected/fresh, research is scheduled for the next interval, and the durable daily scheduler is scheduled.
+- **Next smallest unit:** finish operator exit-plan and Telegram verification gates before treating the runtime as fully unattended.
