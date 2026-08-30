@@ -6810,3 +6810,10 @@
 - Current evidence: 100 snapshots across 1 calendar day, final equity `99408.13`, total P/L `-1.04`, maximum drawdown `0.00336983%`.
 - The stability gate correctly remains blocked until the required 30 consecutive calendar days are accumulated; this is an evidence-period requirement, not an execution failure.
 - **Next smallest unit:** continue durable paper-forward collection while completing the two legacy exit plans and Telegram verification.
+
+### Phase 6.573 — Paper-forward collection continuity check (2026-08-30)
+
+- Re-read the hosted performance report and Worker health from Railway without changing runtime state.
+- The persisted evidence remains internally consistent: 100 snapshots, one calendar day, total P/L `-1.04`, and maximum drawdown `0.00336983%`.
+- The next scheduled crypto run is `08:15 UTC`; market stream is connected/fresh and position management continues with two unmanaged positions fail-closed.
+- **Next smallest unit:** let the 30-day evidence window accumulate; use the guarded adoption and Telegram test once operator references/values are supplied.
