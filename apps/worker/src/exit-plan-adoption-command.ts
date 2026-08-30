@@ -37,10 +37,6 @@ try {
   const repository = createPaperOrderRepository(db);
   const recent = await repository.listRecent(500);
   if (selected.orders.some((order) => recent.some((row) => row.assetClass === assetClass && row.symbol === selected.position.symbol || row.alpacaOrderId === order.alpacaOrderId))) throw new Error("A persisted submission already exists for this position or Alpaca order.");
-  for (const order of selected.orders) {
-    const intentId = `legacy-adoption:${assetClass}:${selected.position.symbol}:${order.alpacaOrderId}`;
-    const clientOrderId = `legacy-adoption-${assetClass}-${selected.position.symbol.replaceAll("/", "")}-${order.alpacaOrderId.slice(0, 8)}`;
-    await repository.recordSubmission({ approvalId: reference, alpacaOrderId: order.alpacaOrderId, assetClass, clientOrderId, entryPrice, exitPlanReference: reference, filledQuantity: order.filledQuantity!, intentId, quantity: order.filledQuantity!, plannedStopPrice, ...(plannedTargetPrice ? { plannedTargetPrice } : {}), status: "filled", ...(order.submittedAt ? { submittedAt: new Date(order.submittedAt) } : {}), symbol: selected.position.symbol, strategyKey, strategyVersion, ...(timeStopAt ? { timeStopAt: new Date(timeStopAt) } : {}) });
-  }
+  await repository.recordSubmissionsAtomically(selected.orders.map((order) => ({ approvalId: reference, alpacaOrderId: order.alpacaOrderId, assetClass, clientOrderId: `legacy-adoption-${assetClass}-${selected.position.symbol.replaceAll("/", "")}-${order.alpacaOrderId.slice(0, 8)}`, entryPrice, exitPlanReference: reference, filledQuantity: order.filledQuantity!, intentId: `legacy-adoption:${assetClass}:${selected.position.symbol}:${order.alpacaOrderId}`, quantity: order.filledQuantity!, plannedStopPrice, ...(plannedTargetPrice ? { plannedTargetPrice } : {}), status: "filled", ...(order.submittedAt ? { submittedAt: new Date(order.submittedAt) } : {}), symbol: selected.position.symbol, strategyKey, strategyVersion, ...(timeStopAt ? { timeStopAt: new Date(timeStopAt) } : {}) })));
   console.log(JSON.stringify({ alpacaOrderIds, reference, status: "legacy_position_adopted", symbol: selected.position.symbol }));
 } finally { await pool.end(); }

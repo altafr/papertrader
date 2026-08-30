@@ -577,6 +577,30 @@ export function createPaperOrderRepository(db: Database) {
       });
     },
 
+    async recordSubmissionsAtomically(submissions: readonly PersistedPaperOrderSubmission[]) {
+      if (submissions.length === 0) throw new Error("At least one paper order submission is required.");
+      return db.transaction(async (transaction) => transaction.insert(paperOrderSubmissions).values(submissions.map((submission) => ({
+        approvalId: submission.approvalId,
+        assetClass: submission.assetClass,
+        clientOrderId: submission.clientOrderId,
+        intentId: submission.intentId,
+        quantity: submission.quantity,
+        status: submission.status,
+        symbol: submission.symbol,
+        ...(submission.entryPrice ? { entryPrice: submission.entryPrice } : {}),
+        ...(submission.exitPlanReference ? { exitPlanReference: submission.exitPlanReference } : {}),
+        ...(submission.plannedStopPrice ? { plannedStopPrice: submission.plannedStopPrice } : {}),
+        ...(submission.plannedTargetPrice ? { plannedTargetPrice: submission.plannedTargetPrice } : {}),
+        ...(submission.strategyKey ? { strategyKey: submission.strategyKey } : {}),
+        ...(submission.strategyVersion ? { strategyVersion: submission.strategyVersion } : {}),
+        ...(submission.timeStopAt ? { timeStopAt: submission.timeStopAt } : {}),
+        ...(submission.alpacaOrderId ? { alpacaOrderId: submission.alpacaOrderId } : {}),
+        ...(submission.filledQuantity ? { filledQuantity: submission.filledQuantity } : {}),
+        ...(submission.submittedAt ? { submittedAt: submission.submittedAt } : {}),
+        ...(submission.updatedAt ? { updatedAt: submission.updatedAt } : {}),
+      }))).returning());
+    },
+
     async reconcile(input: { readonly alpacaOrderId: string; readonly filledQuantity?: string; readonly status: string; readonly submittedAt?: Date; readonly intentId: string; readonly updatedAt?: Date }) {
       return db.transaction(async (transaction) => {
         const [existing] = await transaction.select().from(paperOrderSubmissions).where(eq(paperOrderSubmissions.intentId, input.intentId)).limit(1);

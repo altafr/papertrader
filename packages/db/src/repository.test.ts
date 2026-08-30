@@ -125,6 +125,20 @@ describe("paper order submission repository", () => {
     await expect(repository.reconcile({ alpacaOrderId: "alpaca-1", intentId: "intent-1", status: "filled" })).resolves.toMatchObject({ status: "filled" });
     await expect(repository.recordSubmission({ ...second, status: "risk_dry_run_rejected", approvalId: "approval-3" })).resolves.toMatchObject({ status: "filled", approvalId: "approval-2" });
   });
+
+  it("writes aggregate legacy provenance submissions in one transaction", async () => {
+    let stored: PersistedPaperOrderSubmission[] = [];
+    const transaction = {
+      insert: () => ({ values: (value: PersistedPaperOrderSubmission[]) => ({ returning: async () => { stored = value; return value; } }) }),
+    };
+    const database = { transaction: async <T>(callback: (value: never) => Promise<T>) => callback(transaction as never) } as unknown as Database;
+    const submissions: PersistedPaperOrderSubmission[] = [
+      { alpacaOrderId: "order-1", approvalId: "review-1", assetClass: "crypto", clientOrderId: "legacy-1", entryPrice: "100", exitPlanReference: "review-1", filledQuantity: "0.001", intentId: "legacy-1", plannedStopPrice: "95", plannedTargetPrice: "104", quantity: "0.001", status: "filled", strategyKey: "momentum", strategyVersion: "1.0.0", symbol: "BTC/USD" },
+      { alpacaOrderId: "order-2", approvalId: "review-1", assetClass: "crypto", clientOrderId: "legacy-2", entryPrice: "100", exitPlanReference: "review-1", filledQuantity: "0.001", intentId: "legacy-2", plannedStopPrice: "95", plannedTargetPrice: "104", quantity: "0.001", status: "filled", strategyKey: "momentum", strategyVersion: "1.0.0", symbol: "BTC/USD" },
+    ];
+    await expect(createPaperOrderRepository(database).recordSubmissionsAtomically(submissions)).resolves.toHaveLength(2);
+    expect(stored).toEqual(submissions);
+  });
 });
 
 describe("account reconciliation ledger sync", () => {

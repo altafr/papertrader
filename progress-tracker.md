@@ -6721,6 +6721,13 @@
 - The preflight deployment is available; no adoption or order action was triggered without reviewed values.
 - **Next smallest unit:** run the preflight/adoption with operator-approved plans and verify the final two hosted gates.
 
+### Phase 6.562 — Atomic aggregate provenance adoption (2026-08-30)
+
+- Added an atomic repository write for multi-fill legacy adoption; all selected broker fills commit together or none are persisted.
+- Updated the guarded adoption command to use the atomic path, preventing partial provenance for aggregated crypto positions.
+- Existing duplicate checks, exact quantity/tolerance validation, paper-only mode, and no-broker-mutation behavior remain unchanged.
+- **Next smallest unit:** add repository transaction regression coverage, then deploy the atomic adoption revision.
+
 ### Phase 6.532 — Railway rollout initializing
 
 - Railway status transitioned both Worker and recovery-worker latest deployments from `QUEUED` to `INITIALIZING`.
