@@ -6817,3 +6817,10 @@
 - The persisted evidence remains internally consistent: 100 snapshots, one calendar day, total P/L `-1.04`, and maximum drawdown `0.00336983%`.
 - The next scheduled crypto run is `08:15 UTC`; market stream is connected/fresh and position management continues with two unmanaged positions fail-closed.
 - **Next smallest unit:** let the 30-day evidence window accumulate; use the guarded adoption and Telegram test once operator references/values are supplied.
+
+### Phase 6.574 — Autonomous health boundary check (2026-08-30)
+
+- Worker health confirms the next crypto interval is scheduled for `08:15 UTC`, with the last risk cycle completed and the market stream fresh.
+- API health is independently reachable and reports healthy with the same managed release identifier.
+- The overall Worker status remains degraded solely because two legacy positions are unmanaged; no new failure condition or stale-data breach is present.
+- **Next smallest unit:** continue paper-forward operation and complete the explicit operator remediation gates when values are available.
