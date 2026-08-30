@@ -6789,3 +6789,10 @@
 - Synchronized `architecture.md` with the deployed Phase 6.568 runtime and its two explicit readiness gates.
 - No runtime behavior, risk policy, broker state, or credentials changed.
 - **Next smallest unit:** execute the guarded preflight after operator review.
+
+### Phase 6.570 — Hosted portfolio reconciliation verification (2026-08-30)
+
+- Ran the paper portfolio status command inside the Railway Worker over SSH so the internal PostgreSQL hostname resolved correctly.
+- The reconciled account model is current as of `2026-08-30T07:57:20Z`: equity `99409.08`, cash `64058.89`, with AAPL, BTCUSD, and PFD positions present.
+- P/L and quantities are being read from the server-side persisted model; no broker order or database mutation occurred.
+- **Next smallest unit:** complete reviewed exit-plan adoption and re-run the hosted contract verifier.
