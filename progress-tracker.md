@@ -6831,3 +6831,9 @@
 - API health endpoint returned HTTP 200 and the expected managed release identifier.
 - Vercel dashboard shell returned HTTP 200 and remains reachable independently of the Worker process.
 - **Next smallest unit:** continue the server-side paper loop and complete reviewed exit-plan/Telegram gates.
+
+### Phase 6.576 — Worker health sampling boundary (2026-08-30)
+
+- A health request briefly observed initialization-shaped telemetry immediately before the recurring position-management pass; Railway logs confirm the Worker process remained running and continued its one-minute loop.
+- The subsequent live health contract shows the expected scheduled research, completed risk cycle, connected/fresh stream, and durable scheduler; the transient response did not represent a restart or broker failure.
+- **Next smallest unit:** keep monitoring through the scheduled cycles and complete the explicit operator remediation gates.
