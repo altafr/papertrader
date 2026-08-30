@@ -23,7 +23,10 @@ export function getFailedRuntimeGates(runtime: ReturnType<typeof evaluatePaperRu
     ["risk_telemetry", runtime.riskTelemetryValid],
     ["worker_heartbeat", runtime.workerHeartbeatValid],
   ] as const;
-  return checks.filter(([, passed]) => !passed).map(([name]) => name);
+  const failed = checks.filter(([, passed]) => !passed).map(([name]) => name);
+  return runtime.unmanagedPositionCount !== undefined && runtime.unmanagedPositionCount > 0
+    ? [...failed, "unmanaged_positions"]
+    : failed;
 }
 
 export async function verifyHosted(fetcher: typeof fetch, workerUrl: string, apiUrl: string, webUrl: string, expectedRelease?: string) {

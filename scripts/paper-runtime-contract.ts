@@ -81,6 +81,10 @@ export function evaluatePaperRuntime(worker: HealthObject, api: HealthObject, ex
     && researchObject.lastRiskApprovedCount <= researchObject.lastRiskDecisionCount
   );
   const workerHeartbeatValid = validateWorkerHeartbeat(worker);
+  const unmanagedPositionCount = typeof positionManagement === "object" && positionManagement !== null && !Array.isArray(positionManagement)
+    && boundedCount((positionManagement as HealthObject).unmanagedCount)
+    ? (positionManagement as HealthObject).unmanagedCount as number
+    : undefined;
   const result = {
     api: api.status === "healthy" ? "healthy" : "degraded",
     worker: worker.status === "healthy" ? "healthy" : "degraded",
@@ -92,6 +96,7 @@ export function evaluatePaperRuntime(worker: HealthObject, api: HealthObject, ex
     marketStream: streamConnected ? "connected" : "not_connected",
     marketStreamFreshnessValid,
     positionManagement: positionsReady ? "ready" : "not_ready",
+    ...(unmanagedPositionCount === undefined ? {} : { unmanagedPositionCount }),
     researchSchedule: researchScheduled ? "scheduled" : "not_scheduled",
     durableScheduler: durableScheduled ? "scheduled" : "not_scheduled",
     release: typeof worker.release === "string" ? worker.release : "not_reported",

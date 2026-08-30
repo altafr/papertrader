@@ -12,6 +12,12 @@ describe("hosted verifier", () => {
     expect(getFailedRuntimeGates(runtime)).toContain("worker");
   });
 
+  it("identifies unmanaged positions as a bounded cause", () => {
+    const runtime = evaluatePaperRuntime({ ...worker, status: "degraded", positionManagement: { status: "degraded", unmanagedCount: 2 } }, { status: "healthy" });
+    expect(getFailedRuntimeGates(runtime)).toContain("unmanaged_positions");
+    expect(runtime).toMatchObject({ unmanagedPositionCount: 2 });
+  });
+
   it("verifies runtime and public surface together", async () => {
     const fetcher = vi.fn<typeof fetch>()
       .mockResolvedValueOnce(new Response(JSON.stringify(worker), { status: 200 }))

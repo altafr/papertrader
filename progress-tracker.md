@@ -6843,3 +6843,10 @@
 - Confirmed the active Railway deployment remains `SUCCESS`; no replacement deployment or crash loop is present.
 - A subsequent health read restored the in-memory scheduler telemetry, showing the completed risk cycle, next run, fresh stream, and continuing one-minute position-management pass.
 - **Next smallest unit:** continue the paper-forward window; no runtime repair is required.
+
+### Phase 6.578 — Verifier cause-level diagnostics (2026-08-30)
+
+- Extended the credential-free hosted verifier to report a bounded `unmanaged_positions` cause when the Worker exposes a non-zero unmanaged count.
+- Preserved all existing readiness gates and runtime behavior; this is diagnostic output only.
+- Added regression coverage; focused verifier tests (14), lint, and workspace build pass.
+- **Next smallest unit:** use the clearer failure output after reviewed exit-plan adoption to confirm the final gates.
