@@ -2,11 +2,11 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.536 — Dual-service release pin mismatch identified.
-- **Status:** The hosted Worker and API are healthy enough for the unpinned runtime contract, with Paper Autopilot, fresh market data, ready position management, scheduled research, and valid telemetry. The active Worker release is newer than the API health surface, so the dual-service release pin remains blocked until the API release-identity build is deployed. Authenticated dashboard verification, exit-plan remediation, Telegram outbox confirmation, and the 30-day paper-forward evidence window remain ongoing.
+- **Phase:** Phase 6.563 — Hosted atomic adoption verification.
+- **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, fresh market data, scheduled research, and position-management execution. The hosted contract is intentionally degraded only because BTCUSD and PFD are unmanaged legacy positions; Telegram delivery remains unverified until its guarded test is run. Authenticated dashboard verification, exit-plan remediation, Telegram outbox confirmation, and the 30-day paper-forward evidence window remain ongoing.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading, promote one reviewed local batch when provider limits clear, verify authenticated portfolio/P&L rendering and exports, and accumulate the 30-day evidence gate without loosening risk controls. Deploy the current local heartbeat/dashboard changes only after explicit operator authorization.
-- **Last updated:** 2026-08-29.
+- **Last updated:** 2026-08-30.
 
 ### Phase 6.396 — End-to-end Worker cycle telemetry (2026-08-29)
 
