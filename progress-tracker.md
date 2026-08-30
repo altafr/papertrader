@@ -6857,3 +6857,10 @@
 - Working tree is clean and the verifier diagnostics revision is ready for the next normal deployment cycle.
 - No broker order, database record, risk threshold, or runtime configuration changed.
 - **Next smallest unit:** deploy the verifier revision with the next authorized Railway/Vercel rollout, then use its cause-level output during final remediation.
+
+### Phase 6.580 — Hosted verifier cause confirmation (2026-08-30)
+
+- Ran the hosted verifier against the live public surfaces; it now reports `worker,position_management,unmanaged_positions`, making the actual blocker explicit.
+- Railway logs independently confirm continuous one-minute position-management passes and the expected fail-closed behavior for BTCUSD/PFD.
+- A brief initialization-shaped health sample was rechecked and did not correspond to a deployment failure or crash loop.
+- **Next smallest unit:** run the guarded legacy adoption preflight once reviewed values are provided.
