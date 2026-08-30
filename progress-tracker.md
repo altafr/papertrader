@@ -6741,3 +6741,10 @@
 - API health remained reachable and the public dashboard returned HTTP 200; no additional surface failure was observed.
 - The verifier uses only bounded health/public GET requests, so no broker order, database mutation, or deployment retry occurred.
 - **Next smallest unit:** restore the Worker release through the Railway infrastructure queue, then rerun the verifier and confirm scheduler/risk telemetry before considering autonomous entries ready.
+
+### Phase 6.563 — Hosted atomic adoption verification (2026-08-30)
+
+- Railway Worker deployment `de958adc-9a62-4242-bc98-dd6bb2cfad34` completed successfully with the atomic adoption path.
+- Hosted health confirms paper-autopilot mode, broker connectivity, paper order submission enabled, fresh market stream, active research schedule, and position-management readiness.
+- The only degraded condition is two unmanaged legacy positions (BTCUSD and PFD) awaiting operator-supplied exit-plan values; no adoption was executed automatically.
+- **Next smallest unit:** supply and review BTCUSD/PFD entry, stop, target or time-stop, strategy key/version, and bounded reference; run preflight, then execute guarded atomic adoption.
