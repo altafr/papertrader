@@ -6783,3 +6783,9 @@
 - Documented ephemeral server-secret usage, review-before-write sequencing, and the no-broker-mutation guarantee.
 - No risk thresholds, strategy values, broker state, or database records changed.
 - **Next smallest unit:** run the documented preflight with operator-reviewed values for BTCUSD and PFD.
+
+### Phase 6.569 — Architecture status synchronization (2026-08-30)
+
+- Synchronized `architecture.md` with the deployed Phase 6.568 runtime and its two explicit readiness gates.
+- No runtime behavior, risk policy, broker state, or credentials changed.
+- **Next smallest unit:** execute the guarded preflight after operator review.

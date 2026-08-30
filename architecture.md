@@ -2,7 +2,8 @@
 
 ## Status
 
-- **Stage:** Phase 6.302 Post-deploy runtime checkpoint; continuous Paper Autopilot and multi-day evidence collection continue.
+- **Stage:** Phase 6.568 Railway operator handoff; continuous Paper Autopilot and multi-day evidence collection continue.
+- **Current hosted state:** Worker is deployed in Paper Autopilot with fresh crypto data, scheduled research, deterministic risk/execution gates, and recurring position-management passes. The hosted readiness contract remains degraded only for two unmanaged legacy positions (BTCUSD and PFD); Telegram configuration is valid but delivery is unverified until its guarded test is authorized and run.
 
 ### Always-on multi-agent runtime requirement
 
