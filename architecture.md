@@ -2,8 +2,8 @@
 
 ## Status
 
-- **Stage:** Phase 6.591 two-decimal operator display; continuous Paper Autopilot and multi-day evidence collection continue.
-- **Current hosted state:** Worker is deployed in Paper Autopilot with fresh crypto data, scheduled research, deterministic risk/execution gates, two-percent minimum sizing, equity bracket entries, ratcheting position stops, and the read-only Telegram operations assistant enabled with polling. Worker health exposes assistant readiness without secrets. The hosted readiness contract remains degraded only for two unmanaged legacy positions (BTCUSD and PFD); crypto entries are held until synthetic bracket protection is available.
+- **Stage:** Phase 6.595 Git-backed Railway redeploy correction; continuous Paper Autopilot and multi-day evidence collection continue.
+- **Current hosted state:** Worker is deployed in Paper Autopilot with fresh crypto data, scheduled research, deterministic risk/execution gates, two-percent minimum sizing, equity bracket entries, ratcheting position stops, restart-safe synthetic crypto protection explicitly enabled, and the read-only Telegram operations assistant enabled with polling. Worker health exposes assistant readiness without secrets. The hosted readiness contract remains degraded only for two unmanaged legacy positions (BTCUSD and PFD), which still pause new entries.
 
 Operator-facing financial, quantity, risk, and indicator values are formatted to two decimal places on the dashboard and Telegram assistant; stored and broker precision remains unchanged.
 

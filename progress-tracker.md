@@ -6963,3 +6963,10 @@
 - The synthetic bracket uses persisted stop/target provenance and the restart-safe deterministic position manager; equity entries continue using broker-native brackets.
 - Added coverage proving crypto is rejected by default and allowed only with the explicit protection gate.
 - **Next smallest unit:** deploy and verify the gate, then enable it deliberately on Railway after confirming the position manager remains healthy.
+
+### Phase 6.595 — Correct Git-backed Railway redeploy (2026-08-31)
+
+- Pushed the verified branch through `d545e10` so Railway's Git-backed redeploy no longer falls back to the older branch revision.
+- Railway deployment `ec4638fc-b4df-4aa8-bfc2-0d82e2146773` succeeded with `CRYPTO_SYNTHETIC_BRACKET_ENABLED=true` and the read-only Telegram assistant restored.
+- Live health confirms Paper Autopilot, scheduled research, fresh market data, and the known two-position unmanaged gate; no order mutation occurred.
+- **Next smallest unit:** complete reviewed BTCUSD/PFD exit-plan adoption, then verify a real crypto synthetic-protection cycle.
