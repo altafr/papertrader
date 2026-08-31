@@ -6970,3 +6970,10 @@
 - Railway deployment `ec4638fc-b4df-4aa8-bfc2-0d82e2146773` succeeded with `CRYPTO_SYNTHETIC_BRACKET_ENABLED=true` and the read-only Telegram assistant restored.
 - Live health confirms Paper Autopilot, scheduled research, fresh market data, and the known two-position unmanaged gate; no order mutation occurred.
 - **Next smallest unit:** complete reviewed BTCUSD/PFD exit-plan adoption, then verify a real crypto synthetic-protection cycle.
+
+### Phase 6.596 — Source-of-truth synchronization (2026-08-31)
+
+- Pushed the complete verified branch through `0c82a99` to `origin/phase-6-10-operator-health`, keeping Railway's Git-backed source aligned with the local implementation.
+- Vercel project deployment listing is reachable and the production dashboard returns HTTP 200.
+- No credentials, broker orders, or database records were exposed or changed by this synchronization.
+- **Next smallest unit:** complete the operator-supplied exit-plan gate for BTCUSD/PFD; this is the remaining runtime blocker to new entries.
