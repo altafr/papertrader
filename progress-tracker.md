@@ -2,11 +2,11 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.563 — Hosted atomic adoption verification.
-- **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, fresh market data, scheduled research, and position-management execution. The hosted contract is intentionally degraded only because BTCUSD and PFD are unmanaged legacy positions; Telegram delivery remains unverified until its guarded test is run. Authenticated dashboard verification, exit-plan remediation, Telegram outbox confirmation, and the 30-day paper-forward evidence window remain ongoing.
+- **Phase:** Phase 6.635 — Mini App portfolio P/L metrics.
+- **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, fresh crypto data, scheduled research, and position-management execution. The hosted contract is intentionally degraded only because BTCUSD and PFD are unmanaged legacy positions. The signed Telegram Mini App is deployed on Vercel with aggregate P/L cards, but API activation remains fail-closed until its four Telegram variables are configured.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading, promote one reviewed local batch when provider limits clear, verify authenticated portfolio/P&L rendering and exports, and accumulate the 30-day evidence gate without loosening risk controls. Deploy the current local heartbeat/dashboard changes only after explicit operator authorization.
-- **Last updated:** 2026-08-30.
+- **Last updated:** 2026-08-31.
 
 ### Phase 6.618 — Injectable Firecrawl provider boundary (2026-08-31)
 
