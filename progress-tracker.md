@@ -46,6 +46,13 @@
 - Verified 10 focused API/Worker tests, workspace typechecks, and diff hygiene; no external state was changed.
 - **Next smallest unit:** configure `TELEGRAM_MINI_APP_ENABLED`, `TELEGRAM_MINI_APP_USER_ID`, `TELEGRAM_MINI_APP_ORIGIN`, and `TELEGRAM_MINI_APP_URL`, then deploy and verify in Telegram.
 
+### Phase 6.623 — Vercel Mini App deployment (2026-08-31)
+
+- Deployed the Vercel frontend revision containing `/telegram`; production now returns HTTP 200 and renders the Mini App shell.
+- Deployment URL: `https://papertrader-web.vercel.app/telegram`.
+- Railway API/Worker were not changed; the Mini App remains fail-closed until its four server/frontend variables are configured and the API/Worker revisions are deployed.
+- **Next smallest unit:** configure the Mini App variables and run the signed Telegram `/dashboard` smoke test.
+
 ### Phase 6.396 — End-to-end Worker cycle telemetry (2026-08-29)
 
 - [x] Expose the latest research run, risk-cycle status/counts, and startup catch-up result through the bounded Worker heartbeat.
