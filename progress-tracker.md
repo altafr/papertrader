@@ -6899,3 +6899,10 @@
 - Railway deployment `a7c4fec7-9fbe-4cf5-9355-037b9b276939` completed successfully; Paper Autopilot and market-data health remained active.
 - The assistant remains read-only and cannot place, cancel, replace, or modify orders.
 - **Next smallest unit:** send an authorized Telegram help/query message and verify the bounded response, then surface the same live account view in the dashboard.
+
+### Phase 6.586 — Telegram assistant runtime verification (2026-08-31)
+
+- Added a redacted startup log for the assistant; Worker tests and typecheck passed.
+- Deployed Worker release `d1d7af3e-a066-4b2e-b25b-f22530d1fd9a` successfully.
+- Railway logs confirm `telegram_ops_assistant_started`, `enabled=true`, `mode=read_only`, and 20-second polling; Worker health remains active in Paper Autopilot.
+- **Next smallest unit:** verify one authorized Telegram query end-to-end, then improve the dashboard’s compact live view if needed.
