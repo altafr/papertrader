@@ -7084,6 +7084,13 @@
 - Focused public-health tests and Web typecheck pass.
 - **Next smallest unit:** verify the production Vercel dashboard displays the configured status, then complete the operator Telegram query and legacy exit-plan gate.
 
+### Phase 6.614 — Frontend and Worker hosted verification (2026-08-31)
+
+- Production Vercel root responds HTTP 200 after the dashboard heartbeat revision.
+- Live Worker health confirms Telegram assistant/read-only mode, Firecrawl configured, and fresh crypto data.
+- Worker remains degraded only because BTCUSD/PFD are unmanaged legacy positions; no order or account mutation occurred.
+- **Next smallest unit:** verify the authenticated `/dashboard` view and process one operator Telegram research question.
+
 ### Phase 6.599 — Hosted research routing deployment (2026-08-31)
 
 - Railway Worker deployment `1198028a-a9e2-47bd-a117-c936a5c36290` reached `SUCCESS` from commit `5f3c872`.
