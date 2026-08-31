@@ -6936,3 +6936,10 @@
 - Live health confirms Paper Autopilot, read-only Telegram assistant readiness, scheduled research, and fresh crypto data after rollout.
 - Existing BTCUSD/PFD unmanaged-position protection remains active; no broker orders were created or modified by this policy deployment.
 - **Next smallest unit:** implement and test the crypto synthetic bracket adapter before allowing new crypto entries.
+
+### Phase 6.591 — Two-decimal operator display formatting (2026-08-31)
+
+- Dashboard financial, quantity, risk, and indicator values now render to two decimal places; persisted/API precision remains unchanged.
+- Telegram portfolio responses use the same two-decimal display convention.
+- Worker assistant tests, typecheck, and production Web build passed.
+- **Next smallest unit:** deploy the display revision to Worker/Vercel and verify the live dashboard response.
