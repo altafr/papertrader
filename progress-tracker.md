@@ -7103,6 +7103,12 @@
 - Added classifier coverage while preserving local handling for portfolio, order, risk, health, and scheduler questions.
 - **Next smallest unit:** deploy and verify the macro route, then complete the operator Telegram smoke test and legacy exit-plan gate.
 
+### Phase 6.617 — Hosted macro-agent routing (2026-08-31)
+
+- Worker deployment `cc17cc7a-c0d9-469c-bbb0-e59b088ebe5a` reached `SUCCESS` from commit `efd1d5b`.
+- Live health confirms Telegram read-only readiness, Firecrawl configuration, and fresh crypto data after rollout.
+- **Next smallest unit:** operator sends a macro question (for example, Fed/rates) and a company question to verify distinct agent routing; then complete BTCUSD/PFD plan adoption.
+
 ### Phase 6.599 — Hosted research routing deployment (2026-08-31)
 
 - Railway Worker deployment `1198028a-a9e2-47bd-a117-c936a5c36290` reached `SUCCESS` from commit `5f3c872`.
