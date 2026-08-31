@@ -68,6 +68,12 @@
 - No broker orders, database records, or persistent Mini App variables were changed.
 - **Next smallest unit:** configure the operator user ID and Mini App variables, then execute the signed Telegram smoke test.
 
+### Phase 6.626 — Mini App live refresh (2026-08-31)
+
+- Added automatic 60-second refresh and a manual Refresh action to the Telegram Mini App portfolio/alerts view.
+- Refresh uses the existing signed read-only API request and exposes no order or risk controls.
+- **Next smallest unit:** deploy the refresh revision with the Mini App variables and verify both tabs from Telegram.
+
 ### Phase 6.396 — End-to-end Worker cycle telemetry (2026-08-29)
 
 - [x] Expose the latest research run, risk-cycle status/counts, and startup catch-up result through the bounded Worker heartbeat.
