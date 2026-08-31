@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { buildTelegramOpsAssistantReply, getTelegramResearchAgentType, isResearchQuestion } from "./telegram-ops-assistant.js";
+import { buildTelegramOpsAssistantReply, fetchFirecrawlSources, getTelegramResearchAgentType, isResearchQuestion } from "./telegram-ops-assistant.js";
 
 const data = {
   getHealth: () => ({ status: "degraded", operatingMode: "paper_autopilot", marketStream: { status: "connected", freshness: "fresh" }, researchSchedule: { status: "scheduled", nextRunAt: "2026-08-31T01:15:00Z", lastRiskCycleStatus: "completed" }, positionManagement: { status: "degraded", unmanagedCount: 2 }, durableScheduler: { status: "scheduled", nextRunAt: "2026-09-01T00:00:00Z" } }),
@@ -42,5 +42,20 @@ describe("Telegram operations assistant", () => {
     });
     expect(reply).toContain("Research agent queued");
     expect(reply).toContain("AAPL earnings");
+  });
+
+  it("bounds Firecrawl references and keeps the API key only in the Authorization header", async () => {
+    let request: RequestInit | undefined;
+    const result = await fetchFirecrawlSources("What happened with AAPL earnings?", "server-only-secret", async (_url, init) => {
+      request = init;
+      return new Response(JSON.stringify({ data: [{ title: "A", url: "https://example.com/a", description: "context" }, { title: "B", url: "https://example.com/b", description: "context" }, { title: "C", url: "https://example.com/c", description: "context" }, { title: "D", url: "https://example.com/d", description: "ignored" }] }), { status: 200 });
+    });
+    expect(result).toEqual({ sources: [{ title: "A", url: "https://example.com/a", description: "context" }, { title: "B", url: "https://example.com/b", description: "context" }, { title: "C", url: "https://example.com/c", description: "context" }] });
+    expect(request?.headers).toMatchObject({ Authorization: "Bearer server-only-secret" });
+    expect(JSON.stringify(result)).not.toContain("server-only-secret");
+  });
+
+  it("fails closed when Firecrawl returns a provider error", async () => {
+    await expect(fetchFirecrawlSources("AAPL news", "server-only-secret", async () => new Response("unavailable", { status: 503 }))).resolves.toEqual({ error: "unavailable" });
   });
 });

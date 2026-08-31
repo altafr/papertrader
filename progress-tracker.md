@@ -16,6 +16,13 @@
 - No broker, database, Telegram, or Railway state was changed.
 - **Next smallest unit:** run one operator-originated Telegram company or macro question to verify the deployed research response and persisted agent-run artifact; then obtain reviewed BTCUSD/PFD exit-plan values before enabling new entries.
 
+### Phase 6.619 — Firecrawl bounded-provider tests (2026-08-31)
+
+- Extracted the Firecrawl search call into a bounded provider helper that returns at most three sanitized references and never includes the API key in its result.
+- Added regression coverage for the server-only Authorization header, result truncation, and provider failure fail-closed behavior.
+- Verified 7 focused Telegram tests, Worker typecheck, and diff hygiene; no external state was changed.
+- **Next smallest unit:** push/deploy this observability-only Worker revision when deployment is authorized, then verify one real Telegram research question and its stored artifact.
+
 ### Phase 6.396 — End-to-end Worker cycle telemetry (2026-08-29)
 
 - [x] Expose the latest research run, risk-cycle status/counts, and startup catch-up result through the bounded Worker heartbeat.

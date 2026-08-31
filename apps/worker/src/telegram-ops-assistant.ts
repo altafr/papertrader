@@ -6,6 +6,7 @@ type AssistantHealth = { readonly status?: string; readonly operatingMode?: stri
 type AssistantModel = { readonly snapshot?: { readonly capturedAt: Date; readonly cash: string; readonly equity: string; readonly buyingPower: string; readonly lastEquity?: string | null }; readonly positions: readonly { readonly symbol: string; readonly assetClass: string; readonly quantity: string; readonly marketValue: string; readonly unrealizedPl: string }[]; readonly orders: readonly { readonly symbol: string; readonly status: string; readonly side: string; readonly filledQuantity?: string | null; readonly updatedAt?: Date | null }[] } | undefined;
 type AssistantRun = { readonly agentType: string; readonly status: string; readonly runId: string; readonly createdAt: Date; readonly artifactRationale?: string | null };
 type AssistantSubmission = { readonly symbol: string; readonly status: string; readonly assetClass: string; readonly quantity: string; readonly filledQuantity?: string | null; readonly riskDecision?: { readonly approvalStatus?: string; readonly reasons?: readonly string[] } | null; readonly updatedAt?: Date | null };
+export type FirecrawlSource = { readonly title: string; readonly url: string; readonly description: string };
 
 export interface TelegramOpsAssistantData {
   readonly getHealth: () => AssistantHealth;
@@ -26,6 +27,19 @@ const display = (value: string | number | null | undefined): string => {
 };
 const utc = (value: Date | string | undefined): string => value ? new Date(value).toISOString() : "unknown";
 const limit = (value: string, max = 3900): string => value.length <= max ? value : `${value.slice(0, max - 16)}… [truncated]`;
+
+/** Fetches only bounded, advisory Firecrawl references; never returns provider credentials. */
+export async function fetchFirecrawlSources(question: string, apiKey: string, fetcher: typeof fetch = fetch): Promise<{ readonly sources: readonly FirecrawlSource[] } | { readonly error: "unavailable" | "failed" }> {
+  try {
+    const response = await fetcher("https://api.firecrawl.dev/v1/search", { body: JSON.stringify({ limit: 3, query: question.slice(0, 300) }), headers: { Authorization: `Bearer ${apiKey}`, "content-type": "application/json" }, method: "POST", signal: AbortSignal.timeout(8_000) });
+    if (!response.ok) return { error: "unavailable" };
+    const body = await response.json() as { readonly data?: readonly { readonly title?: unknown; readonly url?: unknown; readonly description?: unknown }[] };
+    const sources = (body.data ?? []).slice(0, 3).map((item) => ({ title: typeof item.title === "string" ? item.title.slice(0, 160) : "source", url: typeof item.url === "string" ? item.url.slice(0, 500) : "", description: typeof item.description === "string" ? item.description.slice(0, 240) : "" }));
+    return { sources };
+  } catch {
+    return { error: "failed" };
+  }
+}
 export function isResearchQuestion(question: string): boolean {
   if (/\b(portfolio|position|p&l|p\/l|trade|order|risk|health|infra|scheduler|log|status|alert|telegram)\b/i.test(question)) return false;
   return /\b(company|companies|earnings|revenue|fundamentals|news|headline|analyst|sector|industry|fed|federal reserve|interest rate|rates|inflation|cpi|gdp|jobs report|unemployment|yield curve|macro|why is .*moving|what happened to)\b/i.test(question)
@@ -139,13 +153,12 @@ export function createTelegramOpsAssistantData(environment: NodeJS.ProcessEnv, h
       return `Research agent failed closed (${runId}). Web lookup is not configured; add FIRECRAWL_API_KEY on Railway to include current company/news sources.`;
     }
     try {
-      const response = await fetcher("https://api.firecrawl.dev/v1/search", { body: JSON.stringify({ limit: 3, query: question.slice(0, 300) }), headers: { Authorization: `Bearer ${firecrawlKey}`, "content-type": "application/json" }, method: "POST", signal: AbortSignal.timeout(8_000) });
-      if (!response.ok) {
+      const lookup = await fetchFirecrawlSources(question, firecrawlKey, fetcher);
+      if ("error" in lookup) {
         await runs.fail(runId, new Date(), "web_search_unavailable");
-        return `Research agent failed closed (${runId}). Web lookup is currently unavailable.`;
+        return `Research agent failed closed (${runId}). Web lookup is currently ${lookup.error === "unavailable" ? "unavailable" : "failed"}.`;
       }
-      const body = await response.json() as { readonly data?: readonly { readonly title?: unknown; readonly url?: unknown; readonly description?: unknown }[] };
-      const bounded = (body.data ?? []).slice(0, 3).map((item) => ({ title: typeof item.title === "string" ? item.title.slice(0, 160) : "source", url: typeof item.url === "string" ? item.url.slice(0, 500) : "", description: typeof item.description === "string" ? item.description.slice(0, 240) : "" }));
+      const bounded = lookup.sources;
       const evidenceRefs = bounded.map((item) => item.url).filter(Boolean);
       await runs.succeed(runId, new Date(), { artifactConfidence: "untrusted_reference", artifactEvidenceRefs: evidenceRefs, artifactPayload: { question: question.slice(0, 500), sources: bounded }, artifactRationale: "Bounded web references supplied for operator research; this artifact is advisory and cannot approve or submit an order.", artifactSchemaVersion: "telegram-web-research@1", artifactType: "telegram_web_research" });
       const sources = bounded.map((item) => `${item.title} — ${item.url || "url unavailable"}${item.description ? `: ${item.description}` : ""}`).join("\n");
