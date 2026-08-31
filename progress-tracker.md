@@ -81,6 +81,12 @@
 - The API service has no Telegram variables yet, so its Mini App endpoint correctly returns `telegram_mini_app_disabled` and exposes no data.
 - **Next smallest unit:** add the same bot token plus `TELEGRAM_MINI_APP_ENABLED`, `TELEGRAM_MINI_APP_USER_ID`, and `TELEGRAM_MINI_APP_ORIGIN` to the Railway API service, then run the signed `/dashboard` smoke test.
 
+### Phase 6.628 — Mini App response bounds (2026-08-31)
+
+- Bounded the Mini App projection to 100 positions, 100 orders, 50 alerts, and 1,000 characters per alert message.
+- Bounded alert identifiers/status fields before returning them to Telegram; read-only broker/database boundaries are unchanged.
+- **Next smallest unit:** deploy the API hardening revision and complete the signed Mini App smoke test after API variables are configured.
+
 ### Phase 6.396 — End-to-end Worker cycle telemetry (2026-08-29)
 
 - [x] Expose the latest research run, risk-cycle status/counts, and startup catch-up result through the bounded Worker heartbeat.
