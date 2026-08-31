@@ -2,7 +2,7 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.639 — Mini App refresh concurrency safety.
+- **Phase:** Phase 6.640 — Mini App frontend rollout.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, fresh crypto data, scheduled research, and position-management execution. The hosted contract is intentionally degraded only because BTCUSD and PFD are unmanaged legacy positions. The signed Telegram Mini App is deployed on Vercel with aggregate P/L cards, but API activation remains fail-closed until its four Telegram variables are configured.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading, promote one reviewed local batch when provider limits clear, verify authenticated portfolio/P&L rendering and exports, and accumulate the 30-day evidence gate without loosening risk controls. Deploy the current local heartbeat/dashboard changes only after explicit operator authorization.
@@ -157,6 +157,13 @@
 - Added abortable refresh requests and unmount guards to prevent overlapping 60-second/manual requests from overwriting newer data.
 - Aborted requests no longer surface false connectivity errors; no trading or backend behavior changed.
 - **Next smallest unit:** configure the API Telegram variables and verify the signed Mini App response in Telegram.
+
+### Phase 6.640 — Mini App frontend rollout (2026-08-31)
+
+- Published the verified frontend revision to the Vercel production project.
+- Confirmed `https://papertrader-web.vercel.app/telegram` returns HTTP 200 and serves the Mini App shell.
+- The API remains intentionally fail-closed until its Telegram variables are configured; no broker or database state changed.
+- **Next smallest unit:** configure the four Railway API Telegram variables and run the signed Telegram `/dashboard` smoke test.
 
 ### Phase 6.396 — End-to-end Worker cycle telemetry (2026-08-29)
 
