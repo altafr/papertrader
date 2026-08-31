@@ -121,7 +121,7 @@ export function createTelegramOpsAssistant(environment: NodeJS.ProcessEnv, data:
   };
 }
 
-export function createTelegramOpsAssistantData(environment: NodeJS.ProcessEnv, health: () => AssistantHealth): { readonly data: TelegramOpsAssistantData; readonly close: () => Promise<void> } {
+export function createTelegramOpsAssistantData(environment: NodeJS.ProcessEnv, health: () => AssistantHealth, fetcher: typeof fetch = fetch): { readonly data: TelegramOpsAssistantData; readonly close: () => Promise<void> } {
   if (!environment.DATABASE_URL?.trim()) throw new Error("TELEGRAM_ASSISTANT_ENABLED=true requires DATABASE_URL.");
   const { db, pool } = createDatabase(environment.DATABASE_URL);
   const account = createAccountStateRepository(db);
@@ -139,7 +139,7 @@ export function createTelegramOpsAssistantData(environment: NodeJS.ProcessEnv, h
       return `Research agent failed closed (${runId}). Web lookup is not configured; add FIRECRAWL_API_KEY on Railway to include current company/news sources.`;
     }
     try {
-      const response = await fetch("https://api.firecrawl.dev/v1/search", { body: JSON.stringify({ limit: 3, query: question.slice(0, 300) }), headers: { Authorization: `Bearer ${firecrawlKey}`, "content-type": "application/json" }, method: "POST", signal: AbortSignal.timeout(8_000) });
+      const response = await fetcher("https://api.firecrawl.dev/v1/search", { body: JSON.stringify({ limit: 3, query: question.slice(0, 300) }), headers: { Authorization: `Bearer ${firecrawlKey}`, "content-type": "application/json" }, method: "POST", signal: AbortSignal.timeout(8_000) });
       if (!response.ok) {
         await runs.fail(runId, new Date(), "web_search_unavailable");
         return `Research agent failed closed (${runId}). Web lookup is currently unavailable.`;

@@ -8,6 +8,14 @@
 - **Current goal:** Continue durable paper trading, promote one reviewed local batch when provider limits clear, verify authenticated portfolio/P&L rendering and exports, and accumulate the 30-day evidence gate without loosening risk controls. Deploy the current local heartbeat/dashboard changes only after explicit operator authorization.
 - **Last updated:** 2026-08-30.
 
+### Phase 6.618 — Injectable Firecrawl provider boundary (2026-08-31)
+
+- The Telegram research data factory now accepts the same injectable HTTP client used by the Telegram transport, so Firecrawl success, timeout, and provider-failure paths can be exercised deterministically without contacting external services.
+- Production behavior is unchanged: the Worker still calls Firecrawl server-side with the Railway-only `FIRECRAWL_API_KEY`; the browser and order lifecycle receive no provider access.
+- Focused Telegram assistant tests (5/5), Worker typecheck, and diff hygiene pass.
+- No broker, database, Telegram, or Railway state was changed.
+- **Next smallest unit:** run one operator-originated Telegram company or macro question to verify the deployed research response and persisted agent-run artifact; then obtain reviewed BTCUSD/PFD exit-plan values before enabling new entries.
+
 ### Phase 6.396 — End-to-end Worker cycle telemetry (2026-08-29)
 
 - [x] Expose the latest research run, risk-cycle status/counts, and startup catch-up result through the bounded Worker heartbeat.
