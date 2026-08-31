@@ -6913,3 +6913,10 @@
 - Focused tests, domain build, and Worker typecheck passed.
 - Railway deployment `4242ee23-94ae-4928-a05b-2bd289e83fe2` succeeded; live health reports `telegramAssistant.status=ready` and `enabled=true`.
 - **Next smallest unit:** verify one authorized Telegram query end-to-end; the known degraded state remains limited to the two unmanaged positions.
+
+### Phase 6.588 — Cross-surface trading view reachability (2026-08-31)
+
+- Confirmed the deployed Vercel dashboard returns HTTP 200.
+- Confirmed the deployed Railway API health endpoint returns HTTP 200 and reports the expected healthy API service.
+- The authenticated dashboard remains the protected source for portfolio data; no account data was exposed or mutated during this check.
+- **Next smallest unit:** verify an authorized Telegram query and compare its read-only portfolio response with the protected dashboard snapshot.
