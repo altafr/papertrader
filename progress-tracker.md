@@ -6929,3 +6929,10 @@
 - Crypto entries remain fail-closed because Alpaca's Trading API supports simple crypto orders rather than bracket order classes; a synthetic bracket adapter is the next crypto-specific implementation.
 - Focused risk, position-management, Alpaca order, sizing, build, and typecheck verification passes.
 - **Next smallest unit:** deploy the policy revision, then verify bracket payloads in paper mode and implement the crypto synthetic bracket adapter.
+
+### Phase 6.590 — Hosted minimum-allocation policy verification (2026-08-31)
+
+- Worker deployment `99dcfb8d-8dda-4600-a3e4-19c9ca8c6587` completed successfully.
+- Live health confirms Paper Autopilot, read-only Telegram assistant readiness, scheduled research, and fresh crypto data after rollout.
+- Existing BTCUSD/PFD unmanaged-position protection remains active; no broker orders were created or modified by this policy deployment.
+- **Next smallest unit:** implement and test the crypto synthetic bracket adapter before allowing new crypto entries.
