@@ -6992,6 +6992,13 @@
 - Research runs now persist explicit `queued → running → succeeded/failed` lifecycle transitions and bounded web evidence; missing/provider failure is recorded as a failed-closed run.
 - **Next smallest unit:** deploy the synchronized Worker and verify one authorized Telegram research query plus its persisted completed/failed run.
 
+### Phase 6.600 — Hosted Telegram research lifecycle (2026-08-31)
+
+- Worker deployment `997605ea-b848-4b4f-8b8d-15f21070a709` reached `SUCCESS` from commit `24338ab`.
+- Live health confirms Telegram assistant readiness, Paper Autopilot mode, fresh crypto stream, and position-management supervision. The runtime remains degraded only because BTCUSD/PFD lack complete legacy exit plans.
+- Firecrawl is intentionally not configured until its secret is added by the operator in Railway; no credential was printed, committed, or changed.
+- **Next smallest unit:** operator sends an authorized research question; verify the Telegram response and corresponding agent-run status in the dashboard/audit view.
+
 ### Phase 6.599 — Hosted research routing deployment (2026-08-31)
 
 - Railway Worker deployment `1198028a-a9e2-47bd-a117-c936a5c36290` reached `SUCCESS` from commit `5f3c872`.
