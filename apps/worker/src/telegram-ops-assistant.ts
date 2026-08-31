@@ -15,6 +15,13 @@ export interface TelegramOpsAssistantData {
 }
 
 const scalar = (value: unknown, fallback = "unknown"): string => typeof value === "string" || typeof value === "number" || typeof value === "boolean" ? String(value) : fallback;
+const display = (value: string | number | null | undefined): string => {
+  if (value === null || value === undefined) return "unknown";
+  const raw = String(value);
+  if (!/^-?(?:\d+\.?\d*|\.\d+)$/.test(raw)) return raw;
+  const parsed = Number(raw);
+  return Number.isFinite(parsed) ? parsed.toFixed(2) : raw;
+};
 const utc = (value: Date | string | undefined): string => value ? new Date(value).toISOString() : "unknown";
 const limit = (value: string, max = 3900): string => value.length <= max ? value : `${value.slice(0, max - 16)}… [truncated]`;
 
@@ -37,8 +44,8 @@ export async function buildTelegramOpsAssistantReply(question: string, data: Tel
   const model = await data.getModel();
   if (normalized.includes("position") || normalized.includes("portfolio") || normalized.includes("p&l") || normalized.includes("pnl") || normalized.includes("equity") || normalized.includes("cash")) {
     if (!model?.snapshot) return "No reconciled paper portfolio snapshot is available.";
-    const positions = model.positions.length === 0 ? "none" : model.positions.map((position) => `${position.symbol} ${position.quantity} · value ${position.marketValue} · unrealized P/L ${position.unrealizedPl}`).join("; ");
-    return limit(`Paper portfolio as of ${utc(model.snapshot.capturedAt)}\nEquity: ${model.snapshot.equity}\nCash: ${model.snapshot.cash}\nBuying power: ${model.snapshot.buyingPower}\nPositions: ${positions}`);
+    const positions = model.positions.length === 0 ? "none" : model.positions.map((position) => `${position.symbol} ${display(position.quantity)} · value ${display(position.marketValue)} · unrealized P/L ${display(position.unrealizedPl)}`).join("; ");
+    return limit(`Paper portfolio as of ${utc(model.snapshot.capturedAt)}\nEquity: ${display(model.snapshot.equity)}\nCash: ${display(model.snapshot.cash)}\nBuying power: ${display(model.snapshot.buyingPower)}\nPositions: ${positions}`);
   }
   if (normalized.includes("trade") || normalized.includes("order") || normalized.includes("decision") || normalized.includes("why") || normalized.includes("agent")) {
     const [submissions, runs] = await Promise.all([data.getSubmissions(), data.getRuns()]);

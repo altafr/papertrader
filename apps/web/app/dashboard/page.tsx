@@ -142,14 +142,20 @@ async function loadOperatorOverview(getToken: () => Promise<string | null>, hist
   }
 }
 
-function value(row: Record<string, unknown>, key: string) {
-  const result = row[key];
-  return typeof result === "string" || typeof result === "number" ? String(result) : "—";
-}
-
 interface DisplayDecimal { div(value: DisplayDecimal | string): DisplayDecimal; greaterThan(value: DisplayDecimal | string): boolean; isNegative(): boolean; isZero(): boolean; lessThan(value: DisplayDecimal | string): boolean; minus(value: DisplayDecimal | string): DisplayDecimal; plus(value: DisplayDecimal | string): DisplayDecimal; times(value: DisplayDecimal | string): DisplayDecimal; toDecimalPlaces(places: number): DisplayDecimal; toFixed(places?: number): string; }
 interface DisplayDecimalConstructor { new (value: string): DisplayDecimal; }
 const DisplayDecimal = (DecimalModule as unknown as { readonly default: DisplayDecimalConstructor }).default;
+
+const TWO_DECIMAL_KEYS = new Set(["buyingPower", "cash", "equity", "averageEntryPrice", "marketValue", "plannedStopPrice", "plannedTargetPrice", "quantity", "filledQuantity", "unrealizedPl", "estimatedLoss", "estimatedLossPercent", "close", "ema20", "ema50", "rsi14", "atr14", "relativeVolume20", "volume", "attempts"]);
+function formatOperatorValue(key: string, raw: string): string {
+  if (!TWO_DECIMAL_KEYS.has(key)) return raw;
+  try { return new DisplayDecimal(raw).toDecimalPlaces(2).toFixed(2); } catch { return raw; }
+}
+
+function value(row: Record<string, unknown>, key: string) {
+  const result = row[key];
+  return typeof result === "string" || typeof result === "number" ? formatOperatorValue(key, String(result)) : "—";
+}
 
 function decimalValue(row: Record<string, unknown>, key: string): DisplayDecimal | undefined {
   const raw = row[key];
