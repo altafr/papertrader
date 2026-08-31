@@ -15,13 +15,20 @@ describe("paper signals and deterministic risk", () => {
   it("locks the initial paper baseline at Alpaca's USD 100,000 default", () => {
     expect(PAPER_INITIAL_EQUITY_BASELINE).toBe("100000");
     expect(DEFAULT_PAPER_RISK_POLICY.initialEquityBaseline).toBe(PAPER_INITIAL_EQUITY_BASELINE);
+    expect(DEFAULT_PAPER_RISK_POLICY.minPositionPercent).toBe("2");
+  });
+
+  it("rejects a trade below the two-percent portfolio minimum", () => {
+    const result = assessPaperRisk({ estimatedFees: "0", estimatedSlippage: "0", equity: "1000", quantity: "0.01", signal, state });
+    expect(result.passes).toBe(false);
+    expect(result.reasons).toContain("Proposed position is below the minimum 2% of portfolio investment.");
   });
 
   it("freezes a signal and passes a bounded low-risk proposal", () => {
     expect(Object.isFrozen(signal)).toBe(true);
-    const result = assessPaperRisk({ estimatedFees: "0.01", estimatedSlippage: "0.01", equity: "1000", quantity: "0.02", signal, state });
+    const result = assessPaperRisk({ estimatedFees: "0.01", estimatedSlippage: "0.01", equity: "1000", quantity: "0.2", signal, state });
     expect(result.passes).toBe(true);
-    expect(result.estimatedLoss).toBe("0.04000000");
+    expect(result.estimatedLoss).toBe("0.22000000");
   });
 
   it("rejects stale state, kill switch, risk, and exposure violations", () => {

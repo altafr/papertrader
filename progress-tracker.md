@@ -6920,3 +6920,12 @@
 - Confirmed the deployed Railway API health endpoint returns HTTP 200 and reports the expected healthy API service.
 - The authenticated dashboard remains the protected source for portfolio data; no account data was exposed or mutated during this check.
 - **Next smallest unit:** verify an authorized Telegram query and compare its read-only portfolio response with the protected dashboard snapshot.
+
+### Phase 6.589 — Minimum allocation, bracket entry, and ratcheting stop policy (2026-08-31)
+
+- Added deterministic minimum invested notional of 2% of current equity for new trades, with precision-aware default sizing and rejection of undersized overrides.
+- Added Alpaca equity bracket-order payloads containing both stop-loss and take-profit legs.
+- Added a deterministic favorable-move stop ratchet at 5% below the current mark; the stop never moves downward.
+- Crypto entries remain fail-closed because Alpaca's Trading API supports simple crypto orders rather than bracket order classes; a synthetic bracket adapter is the next crypto-specific implementation.
+- Focused risk, position-management, Alpaca order, sizing, build, and typecheck verification passes.
+- **Next smallest unit:** deploy the policy revision, then verify bracket payloads in paper mode and implement the crypto synthetic bracket adapter.

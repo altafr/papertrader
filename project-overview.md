@@ -148,6 +148,7 @@ These are conservative engineering defaults for validation, not recommendations.
 - Initial paper-account equity baseline: `USD 100,000`, matching Alpaca's current default paper-account balance. Autopilot remains paused if the configured starting baseline has not been verified against the Alpaca paper account.
 - Long-only; no leverage or short selling.
 - Maximum planned loss at the stop per trade: `5%` of the position's invested notional, inclusive of estimated fees and slippage.
+- Minimum invested notional for every new trade: `2%` of current portfolio equity; deterministic sizing rounds up to the supported asset precision and rejects undersized overrides.
 - Maximum adverse entry-to-stop distance: `5%` for long positions; the position must be exited at or before this threshold.
 - Maximum single stock position: `5%` of equity.
 - Maximum single crypto position: `3%` of equity.
@@ -160,6 +161,7 @@ These are conservative engineering defaults for validation, not recommendations.
 - Reject an entry when market data, account data, or position state is stale beyond its configured threshold.
 - Reject orders that exceed configured spread, estimated slippage, or liquidity limits.
 - Exit behavior must be specified before entry; an intent without a valid exit plan is rejected. A valid plan includes the bounded protective stop and either a portfolio-aligned profit target or explicit time stop.
+- Equity entries use Alpaca bracket orders containing both the protective stop and profit target. Alpaca's Trading API supports only simple orders for crypto, so crypto entries remain rejected until a synthetic bracket adapter can provide equivalent protection. Favorable open positions use a deterministic ratcheting stop at 5% below the current mark, never lowering the stored protection.
 
 The 5% invested-notional rule aligns position sizing and the maximum adverse stop distance. Gaps, liquidity failures, and execution slippage mean no system can guarantee the final realized loss.
 

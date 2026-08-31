@@ -42,6 +42,8 @@ export interface PaperRiskState {
 
 export interface PaperRiskPolicy {
   readonly initialEquityBaseline: DecimalString;
+  /** Minimum invested notional for every new trade as a percentage of equity. */
+  readonly minPositionPercent: DecimalString;
   readonly maxCryptoPositionPercent: DecimalString;
   readonly maxGrossExposurePercent: DecimalString;
   readonly maxOpenPositions: number;
@@ -71,6 +73,7 @@ export function classifyPaperBaseline(equity: string | number | undefined, basel
 
 export const DEFAULT_PAPER_RISK_POLICY: PaperRiskPolicy = {
   initialEquityBaseline: PAPER_INITIAL_EQUITY_BASELINE,
+  minPositionPercent: "2",
   maxCryptoPositionPercent: "3",
   maxGrossExposurePercent: "50",
   maxOpenPositions: 10,
@@ -132,8 +135,12 @@ export function assessPaperRisk(input: {
   if ((input.state.unmanagedPositions?.length ?? 0) > 0) reasons.push("Existing positions lack complete exit plans; new entries are paused until portfolio coverage is restored.");
   if (input.state.submittedEntriesLast24Hours >= policy.maxSubmittedEntriesLast24Hours) reasons.push("Rolling 24-hour entry limit has been reached.");
   if (input.state.openPositions.length >= policy.maxOpenPositions) reasons.push("Maximum open-position limit has been reached.");
+  if (candidate.assetClass === "crypto") reasons.push("Alpaca crypto entries require a bracket-capable adapter; entry rejected until synthetic bracket protection is enabled.");
   if (!risk.passes) reasons.push("Estimated planned-stop loss exceeds 5% of invested notional.");
   const notional = entry.times(quantity);
+  if (notional.lessThan(equity.times(policy.minPositionPercent).div("100"))) {
+    reasons.push(`Proposed position is below the minimum ${policy.minPositionPercent}% of portfolio investment.`);
+  }
   const maxPositionPercent = candidate.assetClass === "crypto" ? policy.maxCryptoPositionPercent : policy.maxStockPositionPercent;
   if (notional.greaterThan(equity.times(maxPositionPercent).div("100"))) {
     reasons.push("Proposed position exceeds the asset-class position cap.");

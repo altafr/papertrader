@@ -11,6 +11,10 @@ The target architecture is a continuously running server-side system. Railway's 
 
 The research cadence is asset-aware: crypto preparation may run every 15 minutes for 24/7 markets, while stock preparation is admitted only during 09:30–11:30 ET and 14:00–16:00 ET on regular weekdays. A scheduler tick outside those stock windows skips stock work but never skips crypto monitoring or deterministic safety checks.
 
+### Portfolio sizing and bracket protection (Phase 6.589)
+
+Each new paper intent must invest at least 2% of current equity, while remaining below the asset-class and gross-exposure caps. Default quantities are derived from the point-in-time entry price; explicit overrides that are too small are rejected by deterministic risk code. US-equity entries are submitted as Alpaca bracket orders with both stop-loss and take-profit legs. Alpaca crypto order classes are simple-only, so crypto entries are held until an equivalent synthetic bracket adapter is implemented. Position monitoring ratchets a long stop to 5% below a favorable current mark and never moves protection downward.
+
 ### Scheduled candidate-to-risk boundary (Phase 6.210)
 
 The research preparation worker now passes validated watchlist candidates to a paper-risk cycle whenever Paper Autopilot is the resolved operating mode. The cycle uses the latest persisted account read model, applies freshness, baseline, exposure, loss, and kill-switch checks, and persists each decision with point-in-time market evidence. This phase intentionally stops before broker submission; the order executor remains a separately gated boundary so a recommendation cannot place an order by itself.

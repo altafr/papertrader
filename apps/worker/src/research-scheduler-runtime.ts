@@ -11,7 +11,7 @@ import { createRuntimeAlertNotifier } from "./telegram-events.js";
 import { runPaperAutopilotRiskCycle } from "./paper-autopilot-cycle.js";
 import { executePaperAutopilotOrder } from "./paper-execution.js";
 import { reconcilePaperAccount } from "./reconcile.js";
-import { getPaperAutopilotQuantity } from "./paper-quantity.js";
+import { getPaperAutopilotQuantityForCandidate } from "./paper-quantity.js";
 import { countUnmanagedPositions, formatDailyPortfolioSummary } from "./daily-summary.js";
 import { getDailyNotificationDedupeKey } from "./notification-dedupe.js";
 
@@ -129,7 +129,7 @@ export function createResearchSchedulerFromEnvironment(environment: NodeJS.Proce
             await executePaperAutopilotOrder({ autopilot: { enabled: true, mode: "paper_autopilot" }, order, notify: notifier.notify, persistence: orderRepository, submitter: createPaperOrderSubmitter({ apiKey, brokerConnectionEnabled: true, secretKey }) });
           } : undefined;
           const approvalReference = results.find((result) => result.status === "succeeded")?.runId;
-          const riskResults = await runPaperAutopilotRiskCycle({ ...(approvalReference ? { approvalReference } : {}), candidates, db, environment, quantityForCandidate: (candidate) => getPaperAutopilotQuantity(candidate.assetClass, environment), ...(executeApproved ? { executeApproved } : {}), notify: notifier.notify });
+          const riskResults = await runPaperAutopilotRiskCycle({ ...(approvalReference ? { approvalReference } : {}), candidates, db, environment, quantityForCandidate: (candidate, equity) => getPaperAutopilotQuantityForCandidate(candidate, equity, environment), ...(executeApproved ? { executeApproved } : {}), notify: notifier.notify });
           setResearchRiskCycleHealth({ approved: riskResults.filter((result) => result.approvalStatus === "approved").length, decisions: riskResults.length, status: "completed" });
           console.log(JSON.stringify(buildPaperRiskCycleLog({ decisions: riskResults, researchRunIds: results.map((result) => result.runId) })));
         } catch {

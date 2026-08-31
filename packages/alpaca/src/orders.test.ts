@@ -28,6 +28,16 @@ describe("paper order submitter", () => {
     expect(calls).toBe(1);
   });
 
+  it("submits equity entries as Alpaca bracket orders", async () => {
+    let body = "";
+    const submitter = createPaperOrderSubmitter({ apiKey: "key", brokerConnectionEnabled: true, secretKey: "secret", fetchImpl: async (_url, init) => {
+      if (init?.method === "POST") body = String(init.body ?? "");
+      return body ? response(201, order) : response(404, {});
+    } });
+    await submitter.submit({ ...request, entryPrice: "100.00", plannedStopPrice: "95.00", plannedTargetPrice: "104.00" });
+    expect(JSON.parse(body)).toMatchObject({ order_class: "bracket", take_profit: { limit_price: "104.00" }, stop_loss: { stop_price: "95.00" } });
+  });
+
   it("normalizes crypto market orders to Alpaca-supported gtc time in force", async () => {
     let body = "";
     const submitter = createPaperOrderSubmitter({ apiKey: "key", brokerConnectionEnabled: true, secretKey: "secret", fetchImpl: async (_url, init) => {
