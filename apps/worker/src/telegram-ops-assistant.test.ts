@@ -65,6 +65,10 @@ describe("Telegram operations assistant", () => {
     expect(buildTelegramMiniAppReplyMarkup({ TELEGRAM_MINI_APP_URL: "https://papertrader-web.vercel.app/telegram" }, true)).toEqual({ inline_keyboard: [[{ text: "Open portfolio & alerts", web_app: { url: "https://papertrader-web.vercel.app/telegram" } }]] });
   });
 
+  it("gives /dashboard an explicit read-only launch instruction", async () => {
+    await expect(buildTelegramOpsAssistantReply("/dashboard", data)).resolves.toContain("Portfolio & Alerts Mini App");
+  });
+
   it("provides the operator Telegram user ID without exposing credentials", () => {
     expect(getTelegramUserIdReply(12345)).toContain("TELEGRAM_MINI_APP_USER_ID");
     expect(getTelegramUserIdReply("not-a-number")).toBeUndefined();

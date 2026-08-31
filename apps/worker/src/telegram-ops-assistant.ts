@@ -56,6 +56,7 @@ export async function buildTelegramOpsAssistantReply(question: string, data: Tel
   if (normalized === "/help" || normalized === "help" || normalized.includes("what can you")) {
     return "I can answer read-only questions about portfolio/P&L, open positions, recent trades and decisions, agent runs, scheduler health, market-data freshness, Telegram delivery, and company, crypto, or macro research via the research agents. Send /dashboard to open the portfolio and alerts Mini App, or /myid to get your numeric Telegram user ID for setup. I cannot place, cancel, or modify orders.";
   }
+  if (isMiniAppRequest(question)) return "Open the read-only Portfolio & Alerts Mini App using the button below.";
   if (isResearchQuestion(question)) {
     if (!data.askResearch) return "The research route is not available in this deployment. Trading and risk controls are unaffected.";
     try {
