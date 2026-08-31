@@ -7091,6 +7091,12 @@
 - Worker remains degraded only because BTCUSD/PFD are unmanaged legacy positions; no order or account mutation occurred.
 - **Next smallest unit:** verify the authenticated `/dashboard` view and process one operator Telegram research question.
 
+### Phase 6.615 — Post-dashboard full regression (2026-08-31)
+
+- Full test suite remains green: 95 files / 419 tests.
+- The dashboard heartbeat addition preserves credential-free parsing and does not alter broker or order boundaries.
+- **Next smallest unit:** verify one authenticated dashboard session and one operator Telegram research request, then proceed with reviewed BTCUSD/PFD exit-plan adoption.
+
 ### Phase 6.599 — Hosted research routing deployment (2026-08-31)
 
 - Railway Worker deployment `1198028a-a9e2-47bd-a117-c936a5c36290` reached `SUCCESS` from commit `5f3c872`.
