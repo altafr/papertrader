@@ -7044,6 +7044,13 @@
 - This confirms no additional infrastructure or configuration blocker is hidden behind the legacy-plan gate.
 - **Next smallest unit:** operator approval and guarded dry-run adoption for the two legacy plans.
 
+### Phase 6.608 — Weighted fill evidence and Firecrawl secret check (2026-08-31)
+
+- Broker review now calculates a weighted-average fill price from broker-reported fill quantities/prices, with regression coverage and no state mutation.
+- Railway Worker deployment `28311435-8235-49d2-af42-755ce6deaebb` reached `SUCCESS` from commit `a701125`.
+- A name-only Railway variable check found no `FIRECRAWL_API_KEY` on either the Worker or API service. No secret value was printed or changed; the key must be added specifically to the Worker service variables for Telegram web research.
+- **Next smallest unit:** add the key to Railway Worker variables, then send one authorized Telegram research question to verify a completed Firecrawl-backed run.
+
 ### Phase 6.599 — Hosted research routing deployment (2026-08-31)
 
 - Railway Worker deployment `1198028a-a9e2-47bd-a117-c936a5c36290` reached `SUCCESS` from commit `5f3c872`.
