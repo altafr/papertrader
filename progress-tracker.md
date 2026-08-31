@@ -7005,6 +7005,12 @@
 - Focused Telegram tests and Worker typecheck passed.
 - **Next smallest unit:** deploy this reliability revision, then verify the operator query path and continue the legacy exit-plan remediation gate.
 
+### Phase 6.602 — Hosted bounded web lookup (2026-08-31)
+
+- Worker deployment `a14cfed5-c2ba-4094-80fa-35f58f485004` reached `SUCCESS` from commit `116ba67`.
+- Live health confirms Telegram assistant readiness and fresh market data; the expected degraded status remains limited to two unmanaged legacy positions.
+- **Next smallest unit:** operator sends one authorized Telegram research question; then remediate BTCUSD/PFD exit-plan provenance using the guarded review/backfill workflow.
+
 ### Phase 6.599 — Hosted research routing deployment (2026-08-31)
 
 - Railway Worker deployment `1198028a-a9e2-47bd-a117-c936a5c36290` reached `SUCCESS` from commit `5f3c872`.
