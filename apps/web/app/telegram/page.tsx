@@ -41,25 +41,35 @@ export default function TelegramMiniAppPage() {
   const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
+    let active = true;
+    let inFlight: AbortController | undefined;
     const load = async () => {
+      if (!active) return;
       const webApp = window.Telegram?.WebApp;
       webApp?.ready();
       webApp?.expand();
       const initData = webApp?.initData;
       const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
-      if (!initData || !apiBaseUrl) { setError("Open this page from the Telegram assistant. The signed Telegram session is missing."); return; }
+      if (!initData || !apiBaseUrl) { if (active) setError("Open this page from the Telegram assistant. The signed Telegram session is missing."); return; }
+      inFlight?.abort();
+      const controller = new AbortController();
+      inFlight = controller;
       setRefreshing(true);
       try {
-        const response = await fetch(`${apiBaseUrl}/v1/telegram-mini-app`, { headers: { "x-telegram-init-data": initData } });
+        const response = await fetch(`${apiBaseUrl}/v1/telegram-mini-app`, { headers: { "x-telegram-init-data": initData }, signal: controller.signal });
         const body: unknown = await response.json();
+        if (!active || controller.signal.aborted) return;
         if (!response.ok || !isMiniAppData(body)) { setError(getMiniAppErrorMessage(response.status, isRecord(body) ? body.error : undefined)); return; }
         setData(body); setError("");
-      } catch { setError("Could not reach the paper portfolio service."); }
-      finally { setRefreshing(false); }
+      } catch (error) {
+        if (active && !(error instanceof DOMException && error.name === "AbortError")) setError("Could not reach the paper portfolio service.");
+      } finally {
+        if (active && inFlight === controller) { inFlight = undefined; setRefreshing(false); }
+      }
     };
     void load();
     const timer = window.setInterval(() => void load(), 60_000);
-    return () => window.clearInterval(timer);
+    return () => { active = false; inFlight?.abort(); window.clearInterval(timer); };
   }, [refreshKey]);
 
   const snapshot = data?.portfolio.snapshot ?? {};

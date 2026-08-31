@@ -2,7 +2,7 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.638 — Mini App response validation.
+- **Phase:** Phase 6.639 — Mini App refresh concurrency safety.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, fresh crypto data, scheduled research, and position-management execution. The hosted contract is intentionally degraded only because BTCUSD and PFD are unmanaged legacy positions. The signed Telegram Mini App is deployed on Vercel with aggregate P/L cards, but API activation remains fail-closed until its four Telegram variables are configured.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading, promote one reviewed local batch when provider limits clear, verify authenticated portfolio/P&L rendering and exports, and accumulate the 30-day evidence gate without loosening risk controls. Deploy the current local heartbeat/dashboard changes only after explicit operator authorization.
@@ -151,6 +151,12 @@
 - Added a runtime response guard for the signed Mini App payload, including portfolio arrays, snapshot, metrics, and alert fields.
 - Malformed or partial API responses now fail closed before any value is rendered; added regression coverage.
 - **Next smallest unit:** configure the API Telegram variables and verify a valid signed payload end to end.
+
+### Phase 6.639 — Mini App refresh concurrency safety (2026-08-31)
+
+- Added abortable refresh requests and unmount guards to prevent overlapping 60-second/manual requests from overwriting newer data.
+- Aborted requests no longer surface false connectivity errors; no trading or backend behavior changed.
+- **Next smallest unit:** configure the API Telegram variables and verify the signed Mini App response in Telegram.
 
 ### Phase 6.396 — End-to-end Worker cycle telemetry (2026-08-29)
 
