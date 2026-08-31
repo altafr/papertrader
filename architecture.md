@@ -21,6 +21,10 @@ The Worker emits redacted operational events for approved recommendation outputs
 
 The continuous crypto scheduler also checks the New York 16:00 weekday close hour (with daylight-saving-aware timezone conversion) and emits the summary from the freshly reconciled account model. When continuous research is enabled, this close-hour path is authoritative and the durable UTC daily summary is suppressed; deployments without continuous research retain the daily fallback. The paths use separate durable dedupe scopes, preventing an earlier fallback delivery from suppressing the close-hour delivery while still limiting each path to one notification per day.
 
+### Telegram operations assistant (Phase 6.581)
+
+The Worker can run an optional read-only operations assistant using the same Telegram bot and chat as alerts. It uses long polling, accepts messages only from the configured `TELEGRAM_CHAT_ID`, and reads the latest PostgreSQL account model, persisted paper decisions, agent runs, and sanitized Worker health. It answers bounded operational questions and explicitly cannot submit, cancel, replace, or otherwise modify orders. `TELEGRAM_ASSISTANT_ENABLED` defaults to disabled; enabling it is independent of Paper Autopilot and does not alter risk or execution gates.
+
 ### Authoritative unmanaged-position read model (Phase 6.404)
 
 The authenticated API derives `unmanagedPositions` from the latest persisted account snapshot and paper-order exit-plan metadata (`entry_price`, `planned_stop_price`, `strategy_key`, and `strategy_version`). This calculation is independent of paginated audit history, so a position cannot appear managed merely because its plan fell outside the current history window. The dashboard uses this bounded asset-class/symbol list to label positions `Review required`; the Worker independently enforces the same fail-closed boundary and does not submit automatic exits for positions without a stored plan.

@@ -20,6 +20,7 @@ import { createPositionManagementSchedulerFromEnvironment } from "./position-man
 import { createRuntimeAlertNotifier } from "./telegram-events.js";
 import { getDailyNotificationDedupeKey } from "./notification-dedupe.js";
 import { countUnmanagedPositions, formatDailyPortfolioSummary } from "./daily-summary.js";
+import { createTelegramOpsAssistant, createTelegramOpsAssistantData } from "./telegram-ops-assistant.js";
 
 const streamEnabled = process.env.MARKET_STREAM_ENABLED;
 if (streamEnabled !== undefined && streamEnabled !== "true" && streamEnabled !== "false") {
@@ -70,6 +71,11 @@ if (telegramNotificationConfig.enabled && process.env.DATABASE_URL?.trim()) {
   };
   void retryPersistedAlerts();
   setInterval(() => { void retryPersistedAlerts(); }, 60_000).unref();
+}
+if (process.env.TELEGRAM_ASSISTANT_ENABLED === "true") {
+  const assistantDatabase = createTelegramOpsAssistantData(process.env, () => getWorkerHealth());
+  const assistant = createTelegramOpsAssistant(process.env, assistantDatabase.data);
+  void assistant.start().catch(() => { /* assistant failures never affect trading loops */ });
 }
 if (shadowConfiguration.enabled) {
   if (process.env.BROKER_CONNECTION_ENABLED !== "true") throw new Error("SHADOW_EVALUATION_ENABLED=true requires BROKER_CONNECTION_ENABLED=true.");

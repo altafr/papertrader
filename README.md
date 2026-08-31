@@ -75,6 +75,10 @@ The health endpoints expose redacted operational state only. They do not expose 
 
 The current hosted runtime is Paper Autopilot with continuous crypto research, deterministic risk approval, idempotent paper execution, reconciliation, and position management enabled. Positions without stored exit-plan metadata are surfaced as `Review required` and remain fail-closed; they are never silently treated as managed. The dashboard and account CSV expose this status after Clerk authentication.
 
+### Telegram operations assistant
+
+The Worker includes an optional read-only Telegram operations assistant. Set `TELEGRAM_ASSISTANT_ENABLED=true` only on the Railway Worker (with the existing Telegram alert configuration); it listens on the same configured chat and answers portfolio, positions, trades, risk decisions, agent runs, scheduler, and infrastructure-health questions from PostgreSQL read models and sanitized Worker health. It is chat-authorized to `TELEGRAM_CHAT_ID`, uses long polling, and cannot place, cancel, or modify orders. Keep it disabled until the operator wants to activate the assistant.
+
 For legacy positions, use the read-only exit-plan review first: `EXIT_PLAN_REVIEW=true pnpm --filter @momentum/worker exit-plan-review`. It reports exact missing fields and safe backfill input names; see [`docs/legacy-position-exit-plan-runbook.md`](docs/legacy-position-exit-plan-runbook.md) before applying any operator-approved plan.
 
 After a hosted close window, operators can verify the persisted summary delivery with the guarded Worker command `MARKET_CLOSE_SUMMARY_VERIFY=true pnpm --filter @momentum/worker market-close-summary-verify` (run remotely; it prints only status and timestamps).

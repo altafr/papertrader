@@ -6864,3 +6864,17 @@
 - Railway logs independently confirm continuous one-minute position-management passes and the expected fail-closed behavior for BTCUSD/PFD.
 - A brief initialization-shaped health sample was rechecked and did not correspond to a deployment failure or crash loop.
 - **Next smallest unit:** run the guarded legacy adoption preflight once reviewed values are provided.
+
+### Phase 6.581 — Overnight paper-autopilot continuity (2026-08-31)
+
+- Hosted Worker remained active across the UTC day boundary; health reports completed risk cycles, the next 15-minute run, fresh crypto data, and the durable daily scheduler's `00:00 UTC` run.
+- Paper-performance evidence advanced to 2 consecutive calendar days with 100 bounded snapshots, final equity `99398.02`, total P/L `-3.82`, and maximum drawdown `0.01119698%`.
+- The 30-day stability gate remains correctly blocked by duration only; the two unmanaged positions still prevent new entries and automatic exits.
+- **Next smallest unit:** continue evidence collection and execute reviewed BTCUSD/PFD adoption plus Telegram verification when operator inputs are supplied.
+
+### Phase 6.582 — Read-only Telegram operations assistant (2026-08-31)
+
+- Added an optional Railway Worker assistant that listens on the existing Telegram channel and answers bounded portfolio, position, trade, risk, scheduler, agent, and infrastructure questions.
+- Enforced chat-ID authorization, server-side secret use, read-only PostgreSQL/health access, bounded responses, and an explicit no-order-authority contract.
+- Added unit coverage for portfolio, infrastructure, decision-reason, help, and read-only responses; the assistant remains disabled until `TELEGRAM_ASSISTANT_ENABLED=true` is deliberately set.
+- **Next smallest unit:** deploy the assistant code, then enable the flag only after confirming the existing Telegram bot is not configured for webhook delivery.
