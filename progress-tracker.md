@@ -7065,6 +7065,12 @@
 - Focused Worker health tests and typechecks pass.
 - **Next smallest unit:** add `FIRECRAWL_API_KEY` specifically to the Railway Worker, confirm health reports `configured`, then send an authorized research query.
 
+### Phase 6.611 — Current hosted-state reconciliation (2026-08-31)
+
+- The later Phase 6.610 verification supersedes the earlier 6.608 name-only check: Firecrawl is now configured on the Worker and returned HTTP 200 from a bounded smoke test.
+- Architecture status is synchronized to Phase 6.610; historical entries remain preserved for audit chronology.
+- **Next smallest unit:** verify one operator Telegram question end to end, then complete reviewed exit-plan adoption for BTCUSD/PFD.
+
 ### Phase 6.599 — Hosted research routing deployment (2026-08-31)
 
 - Railway Worker deployment `1198028a-a9e2-47bd-a117-c936a5c36290` reached `SUCCESS` from commit `5f3c872`.
