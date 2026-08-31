@@ -6999,6 +6999,12 @@
 - Firecrawl is intentionally not configured until its secret is added by the operator in Railway; no credential was printed, committed, or changed.
 - **Next smallest unit:** operator sends an authorized research question; verify the Telegram response and corresponding agent-run status in the dashboard/audit view.
 
+### Phase 6.601 — Bounded Telegram web lookup (2026-08-31)
+
+- Firecrawl requests from the Telegram research route now have an 8-second server-side timeout; timeout/error transitions the agent run to failed-closed and cannot stall trading or polling.
+- Focused Telegram tests and Worker typecheck passed.
+- **Next smallest unit:** deploy this reliability revision, then verify the operator query path and continue the legacy exit-plan remediation gate.
+
 ### Phase 6.599 — Hosted research routing deployment (2026-08-31)
 
 - Railway Worker deployment `1198028a-a9e2-47bd-a117-c936a5c36290` reached `SUCCESS` from commit `5f3c872`.

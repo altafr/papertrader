@@ -136,7 +136,7 @@ export function createTelegramOpsAssistantData(environment: NodeJS.ProcessEnv, h
       return `Research agent failed closed (${runId}). Web lookup is not configured; add FIRECRAWL_API_KEY on Railway to include current company/news sources.`;
     }
     try {
-      const response = await fetch("https://api.firecrawl.dev/v1/search", { body: JSON.stringify({ limit: 3, query: question.slice(0, 300) }), headers: { Authorization: `Bearer ${firecrawlKey}`, "content-type": "application/json" }, method: "POST" });
+      const response = await fetch("https://api.firecrawl.dev/v1/search", { body: JSON.stringify({ limit: 3, query: question.slice(0, 300) }), headers: { Authorization: `Bearer ${firecrawlKey}`, "content-type": "application/json" }, method: "POST", signal: AbortSignal.timeout(8_000) });
       if (!response.ok) {
         await runs.fail(runId, new Date(), "web_search_unavailable");
         return `Research agent failed closed (${runId}). Web lookup is currently unavailable.`;
