@@ -2,7 +2,7 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.648 — Mini App configuration hardening rollout.
+- **Phase:** Phase 6.649 — Release-pinned hosted verification.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, fresh crypto data, scheduled research, and position-management execution. The hosted contract is intentionally degraded only because BTCUSD and PFD are unmanaged legacy positions. The signed Telegram Mini App is deployed on Vercel with aggregate P/L cards, but API activation remains fail-closed until its four Telegram variables are configured.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading, promote one reviewed local batch when provider limits clear, verify authenticated portfolio/P&L rendering and exports, and accumulate the 30-day evidence gate without loosening risk controls. Deploy the current local heartbeat/dashboard changes only after explicit operator authorization.
@@ -217,6 +217,13 @@
 - Hosted verification: health reports Mini App enabled/configured; unauthenticated endpoint returns HTTP 401; signed request returns HTTP 200 with portfolio and aggregate P/L fields.
 - No broker or database state changed.
 - **Next smallest unit:** send `/dashboard` in Telegram and tap **Open portfolio & alerts**.
+
+### Phase 6.649 — Release-pinned hosted verification (2026-08-31)
+
+- Set the same non-secret release identifier on API and Worker and explicitly redeployed the API.
+- Both health endpoints now report release `c5aad46`; Mini App API readiness remains enabled/configured.
+- The pinned hosted verifier now fails only `worker`, `position_management`, and `unmanaged_positions`, corresponding to the two known legacy positions; no new failure was introduced.
+- **Next smallest unit:** send `/dashboard` in Telegram and complete operator-reviewed BTCUSD/PFD exit-plan remediation.
 
 ### Phase 6.396 — End-to-end Worker cycle telemetry (2026-08-29)
 
