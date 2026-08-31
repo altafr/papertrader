@@ -59,6 +59,7 @@ Always visible and contains:
 - Alpaca account/market-stream/trade-stream status.
 - Data freshness and last reconciliation time.
 - Worker heartbeat status, market-stream freshness, and next research run when the bounded public Worker health endpoint is configured.
+- Telegram research provider readiness (`configured`/`not reported`) from the bounded Worker heartbeat; never expose the provider key.
 - Market state for US equities plus crypto 24/7 indicator.
 - Global Pause/Emergency Stop control.
 - Daily server-runtime status, including last successful daily preparation and next scheduled run.

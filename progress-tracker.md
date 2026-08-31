@@ -7077,6 +7077,13 @@
 - No Telegram research question has yet appeared in the Worker logs during the audit window, so the operator-message leg remains unverified; no synthetic message was sent and no trade state was touched.
 - **Next smallest unit:** send one authorized Telegram company question, then verify the persisted research artifact and response.
 
+### Phase 6.613 — Dashboard web-research readiness (2026-08-31)
+
+- The authenticated dashboard now parses and displays the bounded Worker `Telegram research: configured/not reported` status.
+- No credentials or web payloads are exposed in the browser; the dashboard remains observational only.
+- Focused public-health tests and Web typecheck pass.
+- **Next smallest unit:** verify the production Vercel dashboard displays the configured status, then complete the operator Telegram query and legacy exit-plan gate.
+
 ### Phase 6.599 — Hosted research routing deployment (2026-08-31)
 
 - Railway Worker deployment `1198028a-a9e2-47bd-a117-c936a5c36290` reached `SUCCESS` from commit `5f3c872`.

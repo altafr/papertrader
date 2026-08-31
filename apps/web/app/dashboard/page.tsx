@@ -490,6 +490,7 @@ export default async function DashboardPage({ searchParams }: { readonly searchP
             <StatusBadge state={systemState} />
             <span className="health-detail">Market stream: {workerHealth?.marketStream?.freshness ?? "not reported"}</span>
             <span className="health-detail">Worker: {workerHealth?.status ?? "unavailable"}{workerHealth?.positionManagement?.unmanagedCount ? ` · ${workerHealth.positionManagement.unmanagedCount} position(s) need exit plans` : ""}{workerHealth?.researchSchedule?.nextRunAt ? ` · next research ${formatUtc(workerHealth.researchSchedule.nextRunAt)}` : ""}{workerHealth?.researchSchedule?.lastCatchupStatus ? ` · catch-up ${workerHealth.researchSchedule.lastCatchupStatus}` : ""}</span>
+            <span className="health-detail">Telegram research: {workerHealth?.telegramAssistant?.webResearch?.status ?? "not reported"}</span>
             <span className="health-detail">Risk cycle: {workerHealth?.researchSchedule?.lastRiskCycleStatus ?? "not reported"}{workerHealth?.researchSchedule?.lastRiskDecisionCount !== undefined ? ` · ${workerHealth.researchSchedule.lastRiskDecisionCount} decisions` : ""}{workerHealth?.researchSchedule?.lastRiskCycleAt ? ` · ${formatUtc(workerHealth.researchSchedule.lastRiskCycleAt)}` : ""}</span>
             <span className="health-detail">Minimal supervision: {supervision.status === "ready" ? "ready" : `blocked · ${supervision.blockedReasons.join(", ")}`}</span>
           </div>
