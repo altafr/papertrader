@@ -7071,6 +7071,12 @@
 - Architecture status is synchronized to Phase 6.610; historical entries remain preserved for audit chronology.
 - **Next smallest unit:** verify one operator Telegram question end to end, then complete reviewed exit-plan adoption for BTCUSD/PFD.
 
+### Phase 6.612 — Telegram runtime audit (2026-08-31)
+
+- Railway logs confirm the Worker starts the Telegram assistant in read-only mode with Firecrawl configured and continues position-management passes without submissions.
+- No Telegram research question has yet appeared in the Worker logs during the audit window, so the operator-message leg remains unverified; no synthetic message was sent and no trade state was touched.
+- **Next smallest unit:** send one authorized Telegram company question, then verify the persisted research artifact and response.
+
 ### Phase 6.599 — Hosted research routing deployment (2026-08-31)
 
 - Railway Worker deployment `1198028a-a9e2-47bd-a117-c936a5c36290` reached `SUCCESS` from commit `5f3c872`.
