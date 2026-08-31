@@ -6949,3 +6949,10 @@
 - Worker deployment `b3c1bd66-5673-4d03-9da0-c76c0a7d42b8` completed successfully with the two-decimal Telegram response formatter.
 - Paper Autopilot and read-only assistant safeguards remain unchanged; no broker order mutation occurred.
 - **Next smallest unit:** confirm the connected Vercel deployment reflects the dashboard formatter, then continue crypto synthetic bracket work.
+
+### Phase 6.593 — Full regression after policy changes (2026-08-31)
+
+- Full workspace tests passed: 95 test files / 417 tests.
+- Lint and all workspace builds passed, including the production dashboard, API, Worker, Alpaca adapter, and domain packages.
+- The new 2% minimum allocation, equity bracket payload, and ratcheting-stop logic are covered by focused tests; no live broker state was changed.
+- **Next smallest unit:** implement restart-safe crypto synthetic bracket protection before lifting the crypto entry block.
