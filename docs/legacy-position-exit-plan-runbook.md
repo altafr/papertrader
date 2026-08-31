@@ -10,7 +10,7 @@ Before changing anything, run the read-only report on the Worker:
 PATH=/mise/installs/node/22.23.2/bin:$PATH EXIT_PLAN_REVIEW=true node /app/apps/worker/dist/exit-plan-review-command.js
 ```
 
-It prints bounded JSON for the latest persisted snapshot, including each position's `managed`/`review_required` state, exact missing fields, and the non-secret backfill input names. It does not contact Alpaca, write PostgreSQL, or submit an order. Only continue to the backfill step for a position with a reviewed broker-linked submission and operator-approved values.
+It prints bounded JSON for the latest persisted snapshot, including each position's `managed`/`review_required` state, exact missing fields, and the non-secret backfill input names. The broker review also reports filled quantity and broker-reported average fill price for each candidate order, so entry values can be reviewed against broker evidence. It does not contact Alpaca, write PostgreSQL, or submit an order. Only continue to the backfill step for a position with a reviewed broker-linked submission and operator-approved values.
 
 ## Review the proposed plan
 

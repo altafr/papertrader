@@ -7024,6 +7024,12 @@
 - Corrected the Railway SSH runbook to include the deployed Node 22 runtime path, allowing the review/adoption commands to run reliably from the service shell.
 - **Next smallest unit:** operator reviews the exact filled Alpaca order IDs and plan values, then executes the guarded dry-run adoption for BTCUSD and PFD.
 
+### Phase 6.605 — Broker fill-price provenance (2026-08-31)
+
+- Extended the server-side Alpaca order adapter and read-only broker review to expose broker-reported average fill prices alongside filled quantities and IDs.
+- Added regression coverage; no order or account state was modified.
+- **Next smallest unit:** use the enriched broker review to select reviewed BTCUSD/PFD entry prices, then run guarded dry-run adoption.
+
 ### Phase 6.599 — Hosted research routing deployment (2026-08-31)
 
 - Railway Worker deployment `1198028a-a9e2-47bd-a117-c936a5c36290` reached `SUCCESS` from commit `5f3c872`.

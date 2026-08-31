@@ -37,6 +37,7 @@ const orderPayloadSchema = z.array(
     type: z.string().min(1),
     qty: nullableDecimalValue,
     filled_qty: nullableDecimalValue,
+    filled_avg_price: nullableDecimalValue,
     status: z.string().min(1),
     submitted_at: z.string().datetime().nullable().optional(),
     updated_at: z.string().datetime().nullable().optional(),
@@ -117,6 +118,7 @@ export interface PaperOrder {
   readonly assetClass: string;
   readonly clientOrderId?: string;
   readonly filledQuantity?: string;
+  readonly filledAveragePrice?: string;
   readonly quantity?: string;
   readonly side: string;
   readonly status: string;
@@ -280,6 +282,9 @@ export function createPaperAccountReader(options: AlpacaAccountReaderOptions): A
           ...(order.client_order_id ? { clientOrderId: order.client_order_id } : {}),
           ...(order.filled_qty !== undefined && order.filled_qty !== null
             ? { filledQuantity: order.filled_qty }
+            : {}),
+          ...(order.filled_avg_price !== undefined && order.filled_avg_price !== null
+            ? { filledAveragePrice: order.filled_avg_price }
             : {}),
           ...(order.qty !== undefined && order.qty !== null ? { quantity: order.qty } : {}),
           side: order.side,

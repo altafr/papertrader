@@ -10,6 +10,7 @@ export interface ExitPlanBrokerCandidate {
   readonly alpacaOrderId: string;
   readonly assetClass: string;
   readonly filledQuantity?: string;
+  readonly filledAveragePrice?: string;
   readonly quantity?: string;
   readonly status: string;
   readonly submittedAt?: string;
@@ -35,6 +36,7 @@ const toCandidate = (order: PaperOrder): ExitPlanBrokerCandidate => ({
   alpacaOrderId: order.alpacaOrderId,
   assetClass: order.assetClass,
   ...(order.filledQuantity ? { filledQuantity: order.filledQuantity } : {}),
+  ...(order.filledAveragePrice ? { filledAveragePrice: order.filledAveragePrice } : {}),
   ...(order.quantity ? { quantity: order.quantity } : {}),
   status: order.status,
   ...(order.submittedAt ? { submittedAt: order.submittedAt } : {}),
