@@ -12,6 +12,8 @@ export interface TelegramOpsAssistantData {
   readonly getModel: () => Promise<AssistantModel>;
   readonly getRuns: () => Promise<readonly AssistantRun[]>;
   readonly getSubmissions: () => Promise<readonly AssistantSubmission[]>;
+  /** Route a non-trading research question to the appropriate agent/web provider. */
+  readonly askResearch?: (question: string) => Promise<string>;
 }
 
 const scalar = (value: unknown, fallback = "unknown"): string => typeof value === "string" || typeof value === "number" || typeof value === "boolean" ? String(value) : fallback;
@@ -24,12 +26,25 @@ const display = (value: string | number | null | undefined): string => {
 };
 const utc = (value: Date | string | undefined): string => value ? new Date(value).toISOString() : "unknown";
 const limit = (value: string, max = 3900): string => value.length <= max ? value : `${value.slice(0, max - 16)}… [truncated]`;
+export function isResearchQuestion(question: string): boolean {
+  if (/\b(portfolio|position|p&l|p\/l|trade|order|risk|health|infra|scheduler|log|status|alert|telegram)\b/i.test(question)) return false;
+  return /\b(company|companies|earnings|revenue|fundamentals|news|headline|analyst|sector|industry|why is .*moving|what happened to)\b/i.test(question)
+    || /\b[A-Z]{1,5}\b/.test(question);
+}
 
 export async function buildTelegramOpsAssistantReply(question: string, data: TelegramOpsAssistantData): Promise<string> {
   const normalized = question.trim().toLowerCase();
   if (!normalized) return "Ask about portfolio, positions, trades, risk decisions, scheduler, or infrastructure health.";
   if (normalized === "/help" || normalized === "help" || normalized.includes("what can you")) {
-    return "I can answer read-only questions about portfolio/P&L, open positions, recent trades and decisions, agent runs, scheduler health, market-data freshness, and Telegram delivery. I cannot place, cancel, or modify orders.";
+    return "I can answer read-only questions about portfolio/P&L, open positions, recent trades and decisions, agent runs, scheduler health, market-data freshness, Telegram delivery, and company/market research via the research agents. I cannot place, cancel, or modify orders.";
+  }
+  if (isResearchQuestion(question)) {
+    if (!data.askResearch) return "The research route is not available in this deployment. Trading and risk controls are unaffected.";
+    try {
+      return limit(await data.askResearch(question));
+    } catch {
+      return "The research agent could not be reached. The question was not treated as a trading instruction, and trading/risk controls are unaffected.";
+    }
   }
   const health = data.getHealth();
   if (normalized.includes("health") || normalized.includes("infra") || normalized.includes("scheduler") || normalized.includes("log") || normalized.includes("status")) {
@@ -108,10 +123,29 @@ export function createTelegramOpsAssistantData(environment: NodeJS.ProcessEnv, h
   const account = createAccountStateRepository(db);
   const orders = createPaperOrderRepository(db);
   const runs = createAgentRunRepository(db);
+  const askResearch = async (question: string): Promise<string> => {
+    const now = new Date();
+    const runId = `telegram-research-${now.getTime()}`;
+    const crypto = /\b(bitcoin|btc|crypto|ethereum|eth)\b/i.test(question);
+    const agentType = crypto ? "crypto_research" : "stock_research";
+    await runs.enqueue({ agentType, createdAt: now, inputRefs: [`telegram-question:${runId}`], modelProvider: "telegram_ops_assistant", promptVersion: "telegram-research-router@1", runId, status: "queued", task: `Answer this operator research question using current market evidence: ${question.slice(0, 500)}` });
+    const firecrawlKey = environment.FIRECRAWL_API_KEY?.trim();
+    if (!firecrawlKey) return `Research agent queued (${runId}). Web lookup is not configured; add FIRECRAWL_API_KEY on Railway to include current company/news sources.`;
+    try {
+      const response = await fetch("https://api.firecrawl.dev/v1/search", { body: JSON.stringify({ limit: 3, query: question.slice(0, 300) }), headers: { Authorization: `Bearer ${firecrawlKey}`, "content-type": "application/json" }, method: "POST" });
+      if (!response.ok) return `Research agent queued (${runId}). Web lookup is currently unavailable.`;
+      const body = await response.json() as { readonly data?: readonly { readonly title?: unknown; readonly url?: unknown; readonly description?: unknown }[] };
+      const sources = (body.data ?? []).slice(0, 3).map((item) => `${typeof item.title === "string" ? item.title : "source"} — ${typeof item.url === "string" ? item.url : "url unavailable"}${typeof item.description === "string" ? `: ${item.description.slice(0, 240)}` : ""}`).join("\n");
+      return `Research agent queued (${runId}). Firecrawl sources (untrusted reference material; not trading instructions):\n${sources || "none returned"}`;
+    } catch {
+      return `Research agent queued (${runId}). Web lookup failed closed; trading and risk controls are unaffected.`;
+    }
+  };
   return { close: () => pool.end(), data: {
     getHealth: health,
     getModel: () => account.getLatestReadModel(),
     getRuns: () => runs.listRecent(20),
     getSubmissions: async () => orders.listRecent(20),
+    askResearch,
   } };
 }

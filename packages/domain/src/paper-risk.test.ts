@@ -27,8 +27,8 @@ describe("paper signals and deterministic risk", () => {
   it("permits crypto only when restart-safe synthetic bracket protection is enabled", () => {
     const cryptoSignal = createImmutablePaperSignal({ candidate: { ...candidate, assetClass: "crypto" }, createdAt: "2026-01-10T00:01:00Z", signalId: "signal-crypto" });
     const blocked = assessPaperRisk({ estimatedFees: "0", estimatedSlippage: "0", equity: "100000", quantity: "20", signal: cryptoSignal, state });
-    expect(blocked.reasons).toContain("Alpaca crypto entries require a bracket-capable adapter; entry rejected until synthetic bracket protection is enabled.");
-    const allowed = assessPaperRisk({ estimatedFees: "0", estimatedSlippage: "0", equity: "100000", quantity: "20", signal: cryptoSignal, state: { ...state, cryptoSyntheticBracketEnabled: true } });
+    expect(blocked.reasons).toContain("Synthetic crypto bracket protection is not healthy; entry rejected until the position supervisor is ready.");
+    const allowed = assessPaperRisk({ estimatedFees: "0", estimatedSlippage: "0", equity: "100000", quantity: "20", signal: cryptoSignal, state: { ...state, cryptoSyntheticBracketEnabled: true, positionManagementHealthy: true } });
     expect(allowed.passes).toBe(true);
   });
 

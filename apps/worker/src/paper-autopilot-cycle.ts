@@ -83,6 +83,7 @@ export async function runPaperAutopilotRiskCycle(input: {
     openPositions: model.positions.map((position) => ({ assetClass: position.assetClass === "crypto" ? "crypto" as const : "us_equity" as const, marketValue: position.marketValue })),
     submittedEntriesLast24Hours: model.orders.filter((order) => order.side.toLowerCase() === "buy" && order.submittedAt && now.getTime() - order.submittedAt.getTime() <= 86_400_000).length,
     cryptoSyntheticBracketEnabled: (input.environment ?? process.env).CRYPTO_SYNTHETIC_BRACKET_ENABLED === "true" && (input.environment ?? process.env).POSITION_MANAGEMENT_SCHEDULER_ENABLED === "true",
+    positionManagementHealthy: (input.environment ?? process.env).POSITION_MANAGEMENT_SCHEDULER_ENABLED === "true",
     ...(unmanagedPositions.length > 0 ? { unmanagedPositions } : {}),
   };
   const results: PaperAutopilotRiskCycleResult[] = [];

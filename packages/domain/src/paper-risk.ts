@@ -38,6 +38,8 @@ export interface PaperRiskState {
   readonly submittedEntriesLast24Hours: number;
   /** Explicitly enabled only when restart-safe synthetic crypto protection is active. */
   readonly cryptoSyntheticBracketEnabled?: boolean;
+  /** Supervisor liveness gate for synthetic crypto exits. */
+  readonly positionManagementHealthy?: boolean;
   /** Symbols that cannot be automatically managed because their exit plan is incomplete. */
   readonly unmanagedPositions?: readonly string[];
 }
@@ -137,7 +139,7 @@ export function assessPaperRisk(input: {
   if ((input.state.unmanagedPositions?.length ?? 0) > 0) reasons.push("Existing positions lack complete exit plans; new entries are paused until portfolio coverage is restored.");
   if (input.state.submittedEntriesLast24Hours >= policy.maxSubmittedEntriesLast24Hours) reasons.push("Rolling 24-hour entry limit has been reached.");
   if (input.state.openPositions.length >= policy.maxOpenPositions) reasons.push("Maximum open-position limit has been reached.");
-  if (candidate.assetClass === "crypto" && input.state.cryptoSyntheticBracketEnabled !== true) reasons.push("Alpaca crypto entries require a bracket-capable adapter; entry rejected until synthetic bracket protection is enabled.");
+  if (candidate.assetClass === "crypto" && (input.state.cryptoSyntheticBracketEnabled !== true || input.state.positionManagementHealthy !== true)) reasons.push("Synthetic crypto bracket protection is not healthy; entry rejected until the position supervisor is ready.");
   if (!risk.passes) reasons.push("Estimated planned-stop loss exceeds 5% of invested notional.");
   const notional = entry.times(quantity);
   if (notional.lessThan(equity.times(policy.minPositionPercent).div("100"))) {

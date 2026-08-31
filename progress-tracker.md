@@ -6983,3 +6983,10 @@
 - Hosted exit-plan review confirms AAPL is managed; BTCUSD and PFD each lack all six required provenance/plan fields and remain review-required.
 - Read-only Alpaca order audit confirms 22 total orders, all filled buys, zero sells, and zero open orders; the sizing/bracket rollout created no unintended order.
 - **Next smallest unit:** operator supplies reviewed broker-linked exit-plan values for BTCUSD and PFD; then run guarded atomic adoption and recheck readiness.
+
+### Phase 6.598 — Telegram research-agent routing (2026-08-31)
+
+- Telegram company/ticker/news questions route to a persisted `stock_research` or `crypto_research` agent run; portfolio, risk, order, and infrastructure questions remain local read-only queries.
+- Optional server-side `FIRECRAWL_API_KEY` enables bounded web lookup (up to three sources). Sources are untrusted reference material, never trading instructions; missing/provider failure does not affect trading.
+- Added routing and failure tests while preserving the assistant’s inability to place, cancel, or modify orders.
+- **Next smallest unit:** deploy the synchronized Worker and verify one authorized Telegram research query plus its persisted queued run.
