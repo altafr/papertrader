@@ -7018,6 +7018,12 @@
 - The hosted Worker remains on Paper Autopilot with Telegram research lifecycle and timeout protection deployed; no broker mutation occurred during verification.
 - **Next smallest unit:** obtain operator-reviewed broker-linked exit-plan values for BTCUSD and PFD, apply the guarded adoption/backfill command, and re-run readiness verification.
 
+### Phase 6.604 — Live legacy-plan audit and runbook correction (2026-08-31)
+
+- Live read-only Worker audit confirms AAPL is managed; BTCUSD and PFD remain review-required with all six provenance/plan fields missing. No broker or database mutation occurred.
+- Corrected the Railway SSH runbook to include the deployed Node 22 runtime path, allowing the review/adoption commands to run reliably from the service shell.
+- **Next smallest unit:** operator reviews the exact filled Alpaca order IDs and plan values, then executes the guarded dry-run adoption for BTCUSD and PFD.
+
 ### Phase 6.599 — Hosted research routing deployment (2026-08-31)
 
 - Railway Worker deployment `1198028a-a9e2-47bd-a117-c936a5c36290` reached `SUCCESS` from commit `5f3c872`.

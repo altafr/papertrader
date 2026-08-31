@@ -7,7 +7,7 @@ Use this only for a paper position opened before exit-plan metadata was introduc
 Before changing anything, run the read-only report on the Worker:
 
 ```sh
-EXIT_PLAN_REVIEW=true node /app/apps/worker/dist/exit-plan-review-command.js
+PATH=/mise/installs/node/22.23.2/bin:$PATH EXIT_PLAN_REVIEW=true node /app/apps/worker/dist/exit-plan-review-command.js
 ```
 
 It prints bounded JSON for the latest persisted snapshot, including each position's `managed`/`review_required` state, exact missing fields, and the non-secret backfill input names. It does not contact Alpaca, write PostgreSQL, or submit an order. Only continue to the backfill step for a position with a reviewed broker-linked submission and operator-approved values.
@@ -31,7 +31,7 @@ EXIT_PLAN_TARGET_PRICE='<operator-approved target>' \
 EXIT_PLAN_STRATEGY_KEY='<reviewed strategy key>' \
 EXIT_PLAN_STRATEGY_VERSION='<reviewed strategy version>' \
 EXIT_PLAN_REFERENCE='PFD-EXIT-PLAN-REVIEW-001' \
-node /app/apps/worker/dist/exit-plan-adoption-command.js
+PATH=/mise/installs/node/22.23.2/bin:$PATH node /app/apps/worker/dist/exit-plan-adoption-command.js
 ```
 
 Add `EXIT_PLAN_ADOPT_DRY_RUN=true` to the same command to validate all inputs and broker matches without opening PostgreSQL or writing provenance.
@@ -64,7 +64,7 @@ EXIT_PLAN_TARGET_PRICE='326.97' \
 EXIT_PLAN_STRATEGY_KEY='research-watchlist' \
 EXIT_PLAN_STRATEGY_VERSION='1.0.0' \
 EXIT_PLAN_REFERENCE='AAPL-EXIT-PLAN-001' \
-node /app/apps/worker/dist/exit-plan-backfill-command.js
+PATH=/mise/installs/node/22.23.2/bin:$PATH node /app/apps/worker/dist/exit-plan-backfill-command.js
 ```
 
 The command updates metadata only. It does not submit or cancel an order. It refuses to overwrite an existing plan and requires a bounded non-secret reference. Afterward, run the guarded position-management command and inspect its deterministic decision before enabling a recurring schedule.
