@@ -128,6 +128,12 @@
 - No environment values were printed or changed.
 - **Next smallest unit:** add API-side Telegram Mini App variables, then verify `telegramMiniApp.enabled/configured` and the signed Portfolio/Alerts response.
 
+### Phase 6.635 — Mini App portfolio P/L metrics (2026-08-31)
+
+- Added decimal-safe aggregate unrealized P/L and day P/L to the signed Mini App portfolio projection.
+- Added Day P/L and Unrealized P/L cards to the Portfolio tab while preserving two-decimal display and read-only behavior.
+- **Next smallest unit:** deploy the API/frontend revision after configuration and verify aggregate values against the reconciled account model.
+
 ### Phase 6.396 — End-to-end Worker cycle telemetry (2026-08-29)
 
 - [x] Expose the latest research run, risk-cycle status/counts, and startup catch-up result through the bounded Worker heartbeat.

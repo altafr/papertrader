@@ -23,7 +23,7 @@ import {
   getServerPort,
   isGlobalKillSwitchActive,
 } from "@momentum/config";
-import { calculatePerformanceCurve, calculatePerformanceMetrics, classifyPaperBaseline, getExitPlanMissingFields, INITIAL_MOMENTUM_STRATEGIES, isDecimalAtMost, MAX_SINGLE_TRADE_RISK_PERCENT_OF_NOTIONAL, MAX_SINGLE_TRADE_STOP_LOSS_PERCENT, PAPER_INITIAL_EQUITY_BASELINE, type PaperBaselineStatus } from "@momentum/domain";
+import { addDecimalStrings, calculatePerformanceCurve, calculatePerformanceMetrics, classifyPaperBaseline, getExitPlanMissingFields, INITIAL_MOMENTUM_STRATEGIES, isDecimalAtMost, MAX_SINGLE_TRADE_RISK_PERCENT_OF_NOTIONAL, MAX_SINGLE_TRADE_STOP_LOSS_PERCENT, PAPER_INITIAL_EQUITY_BASELINE, subtractDecimalStrings, type PaperBaselineStatus } from "@momentum/domain";
 import { getTelegramAlertTestReadiness, getTelegramNotificationReadiness } from "@momentum/notifications";
 
 import { getApiHealth } from "./app.js";
@@ -239,7 +239,9 @@ async function readTelegramMiniApp(request: IncomingMessage) {
   if (!model) return { body: { error: "read_model_not_available" }, status: 404, origin } as const;
   const alerts = await telegramMiniAppPool.query<{ readonly event_id: string; readonly code: string; readonly severity: string; readonly message: string; readonly occurred_at: Date; readonly delivery_status: string }>("SELECT event_id, code, severity, message, occurred_at, delivery_status FROM telegram_alert_events ORDER BY occurred_at DESC LIMIT 50");
   const bounded = (value: string, max: number): string => value.slice(0, max);
-  return { body: { asOf: model.freshness.capturedAt, userId: auth.userId, portfolio: { snapshot: model.snapshot, positions: model.positions.slice(0, 100), orders: model.orders.slice(0, 100) }, alerts: alerts.rows.map((row) => ({ code: bounded(row.code, 128), deliveryStatus: bounded(row.delivery_status, 32), eventId: bounded(row.event_id, 128), message: bounded(row.message, 1_000), occurredAt: row.occurred_at, severity: bounded(row.severity, 16) })) }, status: 200, origin } as const;
+  const unrealizedPl = model.positions.reduce((total, position) => addDecimalStrings(total, position.unrealizedPl), "0");
+  const dayPnl = model.snapshot.lastEquity ? subtractDecimalStrings(model.snapshot.equity, model.snapshot.lastEquity) : undefined;
+  return { body: { asOf: model.freshness.capturedAt, userId: auth.userId, portfolio: { metrics: { unrealizedPl, ...(dayPnl ? { dayPnl } : {}) }, snapshot: model.snapshot, positions: model.positions.slice(0, 100), orders: model.orders.slice(0, 100) }, alerts: alerts.rows.map((row) => ({ code: bounded(row.code, 128), deliveryStatus: bounded(row.delivery_status, 32), eventId: bounded(row.event_id, 128), message: bounded(row.message, 1_000), occurredAt: row.occurred_at, severity: bounded(row.severity, 16) })) }, status: 200, origin } as const;
 }
 
 async function readEligibleAssets(request: IncomingMessage) {
