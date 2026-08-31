@@ -7011,6 +7011,13 @@
 - Live health confirms Telegram assistant readiness and fresh market data; the expected degraded status remains limited to two unmanaged legacy positions.
 - **Next smallest unit:** operator sends one authorized Telegram research question; then remediate BTCUSD/PFD exit-plan provenance using the guarded review/backfill workflow.
 
+### Phase 6.603 — Full release regression (2026-08-31)
+
+- Full workspace test suite passed: 95 files / 419 tests.
+- Lint, all workspace builds, production Next.js build, Worker build, and API build passed.
+- The hosted Worker remains on Paper Autopilot with Telegram research lifecycle and timeout protection deployed; no broker mutation occurred during verification.
+- **Next smallest unit:** obtain operator-reviewed broker-linked exit-plan values for BTCUSD and PFD, apply the guarded adoption/backfill command, and re-run readiness verification.
+
 ### Phase 6.599 — Hosted research routing deployment (2026-08-31)
 
 - Railway Worker deployment `1198028a-a9e2-47bd-a117-c936a5c36290` reached `SUCCESS` from commit `5f3c872`.
