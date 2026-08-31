@@ -7097,6 +7097,12 @@
 - The dashboard heartbeat addition preserves credential-free parsing and does not alter broker or order boundaries.
 - **Next smallest unit:** verify one authenticated dashboard session and one operator Telegram research request, then proceed with reviewed BTCUSD/PFD exit-plan adoption.
 
+### Phase 6.616 — Macro advisory Telegram routing (2026-08-31)
+
+- Telegram questions about the Fed, rates, inflation, GDP, jobs, and related macro conditions now route to the persisted `macro_advisory` agent type; crypto and stock routing remains asset-specific.
+- Added classifier coverage while preserving local handling for portfolio, order, risk, health, and scheduler questions.
+- **Next smallest unit:** deploy and verify the macro route, then complete the operator Telegram smoke test and legacy exit-plan gate.
+
 ### Phase 6.599 — Hosted research routing deployment (2026-08-31)
 
 - Railway Worker deployment `1198028a-a9e2-47bd-a117-c936a5c36290` reached `SUCCESS` from commit `5f3c872`.

@@ -102,7 +102,7 @@ When the continuous research cadence is enabled, crypto preparation runs every c
 
 When Telegram alerts are enabled, the server sends redacted, immediate notifications for important events: approved trade selections, paper entries and their risk/strategy context, detected managed positions, deterministic exits and their trigger reason, reconciliation or scheduler failures, and other order-lifecycle errors. Routine research selections are digest-deduplicated to at most once per UTC day per agent, and the portfolio summary includes positions and P/L at most once per UTC day. Rejected candidates and zero-result research remain available in the dashboard and immutable audit log without generating alert noise. Delivery is best-effort and independently monitored; a Telegram outage never changes an order decision or safety-gate result.
 
-The read-only Telegram operations assistant routes company, earnings, news, sector, and ticker questions to the appropriate persisted research agent. An explicitly configured server-side web provider (currently Firecrawl) may supply bounded reference evidence; this output is advisory only and cannot become a trade intent or bypass deterministic risk controls.
+The read-only Telegram operations assistant routes company, earnings, news, sector, ticker, and macroeconomic questions to the appropriate persisted stock, crypto, or macro advisory agent. An explicitly configured server-side web provider (currently Firecrawl) may supply bounded reference evidence; this output is advisory only and cannot become a trade intent or bypass deterministic risk controls.
 
 ## Strategy Plug-In Contract
 

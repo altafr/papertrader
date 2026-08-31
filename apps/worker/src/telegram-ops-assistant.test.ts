@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { buildTelegramOpsAssistantReply, isResearchQuestion } from "./telegram-ops-assistant.js";
+import { buildTelegramOpsAssistantReply, getTelegramResearchAgentType, isResearchQuestion } from "./telegram-ops-assistant.js";
 
 const data = {
   getHealth: () => ({ status: "degraded", operatingMode: "paper_autopilot", marketStream: { status: "connected", freshness: "fresh" }, researchSchedule: { status: "scheduled", nextRunAt: "2026-08-31T01:15:00Z", lastRiskCycleStatus: "completed" }, positionManagement: { status: "degraded", unmanagedCount: 2 }, durableScheduler: { status: "scheduled", nextRunAt: "2026-09-01T00:00:00Z" } }),
@@ -34,6 +34,8 @@ describe("Telegram operations assistant", () => {
   it("routes company questions to the research agent without order authority", async () => {
     expect(isResearchQuestion("What happened with AAPL earnings?")).toBe(true);
     expect(isResearchQuestion("show market health and scheduler status")).toBe(false);
+    expect(getTelegramResearchAgentType("What is the Fed doing with interest rates?")).toBe("macro_advisory");
+    expect(getTelegramResearchAgentType("What happened with BTC news?")).toBe("crypto_research");
     const reply = await buildTelegramOpsAssistantReply("What happened with AAPL earnings?", {
       ...data,
       askResearch: async (question) => `Research agent queued: ${question}`,

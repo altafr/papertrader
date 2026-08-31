@@ -28,15 +28,19 @@ const utc = (value: Date | string | undefined): string => value ? new Date(value
 const limit = (value: string, max = 3900): string => value.length <= max ? value : `${value.slice(0, max - 16)}… [truncated]`;
 export function isResearchQuestion(question: string): boolean {
   if (/\b(portfolio|position|p&l|p\/l|trade|order|risk|health|infra|scheduler|log|status|alert|telegram)\b/i.test(question)) return false;
-  return /\b(company|companies|earnings|revenue|fundamentals|news|headline|analyst|sector|industry|why is .*moving|what happened to)\b/i.test(question)
+  return /\b(company|companies|earnings|revenue|fundamentals|news|headline|analyst|sector|industry|fed|federal reserve|interest rate|rates|inflation|cpi|gdp|jobs report|unemployment|yield curve|macro|why is .*moving|what happened to)\b/i.test(question)
     || /\b[A-Z]{1,5}\b/.test(question);
+}
+export function getTelegramResearchAgentType(question: string): "crypto_research" | "macro_advisory" | "stock_research" {
+  if (/\b(fed|federal reserve|interest rate|rates|inflation|cpi|gdp|jobs report|unemployment|yield curve|macro)\b/i.test(question)) return "macro_advisory";
+  return /\b(bitcoin|btc|crypto|ethereum|eth)\b/i.test(question) ? "crypto_research" : "stock_research";
 }
 
 export async function buildTelegramOpsAssistantReply(question: string, data: TelegramOpsAssistantData): Promise<string> {
   const normalized = question.trim().toLowerCase();
   if (!normalized) return "Ask about portfolio, positions, trades, risk decisions, scheduler, or infrastructure health.";
   if (normalized === "/help" || normalized === "help" || normalized.includes("what can you")) {
-    return "I can answer read-only questions about portfolio/P&L, open positions, recent trades and decisions, agent runs, scheduler health, market-data freshness, Telegram delivery, and company/market research via the research agents. I cannot place, cancel, or modify orders.";
+    return "I can answer read-only questions about portfolio/P&L, open positions, recent trades and decisions, agent runs, scheduler health, market-data freshness, Telegram delivery, and company, crypto, or macro research via the research agents. I cannot place, cancel, or modify orders.";
   }
   if (isResearchQuestion(question)) {
     if (!data.askResearch) return "The research route is not available in this deployment. Trading and risk controls are unaffected.";
@@ -126,8 +130,7 @@ export function createTelegramOpsAssistantData(environment: NodeJS.ProcessEnv, h
   const askResearch = async (question: string): Promise<string> => {
     const now = new Date();
     const runId = `telegram-research-${now.getTime()}`;
-    const crypto = /\b(bitcoin|btc|crypto|ethereum|eth)\b/i.test(question);
-    const agentType = crypto ? "crypto_research" : "stock_research";
+    const agentType = getTelegramResearchAgentType(question);
     await runs.enqueue({ agentType, createdAt: now, inputRefs: [`telegram-question:${runId}`], modelProvider: "telegram_ops_assistant", promptVersion: "telegram-research-router@1", runId, status: "queued", task: `Answer this operator research question using current market evidence: ${question.slice(0, 500)}` });
     await runs.start(runId, new Date());
     const firecrawlKey = environment.FIRECRAWL_API_KEY?.trim();
