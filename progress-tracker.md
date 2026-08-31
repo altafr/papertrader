@@ -6956,3 +6956,10 @@
 - Lint and all workspace builds passed, including the production dashboard, API, Worker, Alpaca adapter, and domain packages.
 - The new 2% minimum allocation, equity bracket payload, and ratcheting-stop logic are covered by focused tests; no live broker state was changed.
 - **Next smallest unit:** implement restart-safe crypto synthetic bracket protection before lifting the crypto entry block.
+
+### Phase 6.594 — Restart-safe synthetic crypto bracket gate (2026-08-31)
+
+- Added an explicit `cryptoSyntheticBracketEnabled` risk-state gate; crypto entries are allowed only when the flag and position-management scheduler are both enabled.
+- The synthetic bracket uses persisted stop/target provenance and the restart-safe deterministic position manager; equity entries continue using broker-native brackets.
+- Added coverage proving crypto is rejected by default and allowed only with the explicit protection gate.
+- **Next smallest unit:** deploy and verify the gate, then enable it deliberately on Railway after confirming the position manager remains healthy.

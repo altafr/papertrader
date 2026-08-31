@@ -15,7 +15,7 @@ The research cadence is asset-aware: crypto preparation may run every 15 minutes
 
 ### Portfolio sizing and bracket protection (Phase 6.589)
 
-Each new paper intent must invest at least 2% of current equity, while remaining below the asset-class and gross-exposure caps. Default quantities are derived from the point-in-time entry price; explicit overrides that are too small are rejected by deterministic risk code. US-equity entries are submitted as Alpaca bracket orders with both stop-loss and take-profit legs. Alpaca crypto order classes are simple-only, so crypto entries are held until an equivalent synthetic bracket adapter is implemented. Position monitoring ratchets a long stop to 5% below a favorable current mark and never moves protection downward.
+Each new paper intent must invest at least 2% of current equity, while remaining below the asset-class and gross-exposure caps. Default quantities are derived from the point-in-time entry price; explicit overrides that are too small are rejected by deterministic risk code. US-equity entries are submitted as Alpaca bracket orders with both stop-loss and take-profit legs. Alpaca crypto order classes are simple-only, so crypto entries require `CRYPTO_SYNTHETIC_BRACKET_ENABLED=true` plus an active position manager; persisted exit plans are reloaded on restart and enforced by the Worker. Position monitoring ratchets a long stop to 5% below a favorable current mark and never moves protection downward.
 
 ### Scheduled candidate-to-risk boundary (Phase 6.210)
 
