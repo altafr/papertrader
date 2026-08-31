@@ -74,6 +74,13 @@
 - Refresh uses the existing signed read-only API request and exposes no order or risk controls.
 - **Next smallest unit:** deploy the refresh revision with the Mini App variables and verify both tabs from Telegram.
 
+### Phase 6.627 — Telegram configuration verification (2026-08-31)
+
+- Verified the Worker has the Telegram bot/chat, assistant, Firecrawl, and Mini App variable names configured; no values were printed.
+- Verified Vercel production serves the refreshed `/telegram` page with the Refresh control.
+- The API service has no Telegram variables yet, so its Mini App endpoint correctly returns `telegram_mini_app_disabled` and exposes no data.
+- **Next smallest unit:** add the same bot token plus `TELEGRAM_MINI_APP_ENABLED`, `TELEGRAM_MINI_APP_USER_ID`, and `TELEGRAM_MINI_APP_ORIGIN` to the Railway API service, then run the signed `/dashboard` smoke test.
+
 ### Phase 6.396 — End-to-end Worker cycle telemetry (2026-08-29)
 
 - [x] Expose the latest research run, risk-cycle status/counts, and startup catch-up result through the bounded Worker heartbeat.
