@@ -6878,3 +6878,10 @@
 - Enforced chat-ID authorization, server-side secret use, read-only PostgreSQL/health access, bounded responses, and an explicit no-order-authority contract.
 - Added unit coverage for portfolio, infrastructure, decision-reason, help, and read-only responses; the assistant remains disabled until `TELEGRAM_ASSISTANT_ENABLED=true` is deliberately set.
 - **Next smallest unit:** deploy the assistant code, then enable the flag only after confirming the existing Telegram bot is not configured for webhook delivery.
+
+### Phase 6.583 — Telegram assistant Railway deployment (2026-08-31)
+
+- Worker deployment `e674633f-e98e-458e-9c93-f5cd357dc6c8` completed successfully with the assistant code.
+- Hosted health/logs confirm Paper Autopilot, scheduled research, fresh market data, and position-management continuity after rollout.
+- The assistant remains disabled because `TELEGRAM_ASSISTANT_ENABLED` is not enabled; no Telegram polling or trading behavior changed.
+- **Next smallest unit:** confirm the bot uses polling rather than a webhook, then deliberately enable `TELEGRAM_ASSISTANT_ENABLED=true` if desired.
