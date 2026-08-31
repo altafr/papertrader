@@ -7037,6 +7037,13 @@
 - No exit plan was adopted and no broker/database state was changed. Operator approval of stop/target or time-stop values remains required.
 - **Next smallest unit:** operator selects the broker order IDs and approves the protective stop plus target/time stop; then run the guarded dry-run adoption.
 
+### Phase 6.607 — Autonomous readiness audit (2026-08-31)
+
+- Hosted `paper-autopilot-runtime-readiness` reports `ready`: paper mode, broker/database connectivity, baseline, scheduler, order-submission gate, risk policy, and fresh reconciliation all pass.
+- Worker health remains `degraded` only because the separate position-coverage gate reports two unmanaged legacy positions (BTCUSD/PFD); new entries remain fail-closed until their exit plans are adopted.
+- This confirms no additional infrastructure or configuration blocker is hidden behind the legacy-plan gate.
+- **Next smallest unit:** operator approval and guarded dry-run adoption for the two legacy plans.
+
 ### Phase 6.599 — Hosted research routing deployment (2026-08-31)
 
 - Railway Worker deployment `1198028a-a9e2-47bd-a117-c936a5c36290` reached `SUCCESS` from commit `5f3c872`.
