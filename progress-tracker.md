@@ -6990,3 +6990,10 @@
 - Optional server-side `FIRECRAWL_API_KEY` enables bounded web lookup (up to three sources). Sources are untrusted reference material, never trading instructions; missing/provider failure does not affect trading.
 - Added routing and failure tests while preserving the assistant’s inability to place, cancel, or modify orders.
 - **Next smallest unit:** deploy the synchronized Worker and verify one authorized Telegram research query plus its persisted queued run.
+
+### Phase 6.599 — Hosted research routing deployment (2026-08-31)
+
+- Railway Worker deployment `1198028a-a9e2-47bd-a117-c936a5c36290` reached `SUCCESS` from commit `5f3c872`.
+- Live health confirms Paper Autopilot, fresh crypto stream, position supervisor readiness, and Telegram assistant `enabled=true`, `mode=read_only`, `status=ready`, polling every 20 seconds.
+- Firecrawl remains optional and unset; no secret was added or exposed. The known degraded state remains limited to two unmanaged legacy positions, which continue to pause new entries.
+- **Next smallest unit:** send an authorized Telegram company question and confirm the queued research run in the dashboard/audit log; add `FIRECRAWL_API_KEY` only through Railway secret variables if current web sources are desired.
