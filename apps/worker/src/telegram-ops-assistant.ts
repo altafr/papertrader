@@ -95,6 +95,11 @@ export async function buildTelegramOpsAssistantReply(question: string, data: Tel
 interface TelegramUpdate { readonly update_id?: unknown; readonly message?: { readonly chat?: { readonly id?: unknown }; readonly text?: unknown } }
 interface TelegramResponse { readonly ok?: unknown; readonly result?: unknown }
 const isMiniAppRequest = (question: string): boolean => /^(?:\/)?(?:dashboard|portfolio dashboard)$/i.test(question.trim());
+export type TelegramMiniAppReplyMarkup = { readonly inline_keyboard: readonly (readonly { readonly text: string; readonly web_app: { readonly url: string } }[])[] };
+export function buildTelegramMiniAppReplyMarkup(environment: NodeJS.ProcessEnv, open: boolean): TelegramMiniAppReplyMarkup | undefined {
+  const url = environment.TELEGRAM_MINI_APP_URL?.trim();
+  return open && url && /^https:\/\//i.test(url) && url.length <= 2_000 ? { inline_keyboard: [[{ text: "Open portfolio & alerts", web_app: { url } }]] } : undefined;
+}
 
 export function createTelegramOpsAssistant(environment: NodeJS.ProcessEnv, data: TelegramOpsAssistantData, fetcher: typeof fetch = fetch) {
   const enabledRaw = environment.TELEGRAM_ASSISTANT_ENABLED ?? "false";
@@ -108,9 +113,8 @@ export function createTelegramOpsAssistant(environment: NodeJS.ProcessEnv, data:
   let offset = 0;
   let running = false;
   const api = `https://api.telegram.org/bot${config.botToken}`;
-  const miniAppUrl = environment.TELEGRAM_MINI_APP_URL?.trim();
   const send = async (chatId: string, text: string, openMiniApp = false) => {
-    const replyMarkup = openMiniApp && miniAppUrl && /^https:\/\//i.test(miniAppUrl) ? { inline_keyboard: [[{ text: "Open portfolio & alerts", web_app: { url: miniAppUrl } }]] } : undefined;
+    const replyMarkup = buildTelegramMiniAppReplyMarkup(environment, openMiniApp);
     await fetcher(`${api}/sendMessage`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ chat_id: chatId, disable_web_page_preview: true, text: limit(text), ...(replyMarkup ? { reply_markup: replyMarkup } : {}) }) });
   };
   const poll = async () => {

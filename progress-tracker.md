@@ -39,6 +39,13 @@
 - Added authentication regression tests; focused API/Worker tests and workspace typechecks pass. No broker or database state was changed.
 - **Next smallest unit:** configure the four Mini App variables, deploy API/Worker/Vercel, then open `/dashboard` in Telegram and verify both tabs against the authenticated read model.
 
+### Phase 6.622 — Mini App button safety boundary (2026-08-31)
+
+- Centralized `/dashboard` Web App button construction and restricted it to bounded HTTPS URLs.
+- Added regression coverage for absent, insecure, and valid Mini App URL configuration.
+- Verified 10 focused API/Worker tests, workspace typechecks, and diff hygiene; no external state was changed.
+- **Next smallest unit:** configure `TELEGRAM_MINI_APP_ENABLED`, `TELEGRAM_MINI_APP_USER_ID`, `TELEGRAM_MINI_APP_ORIGIN`, and `TELEGRAM_MINI_APP_URL`, then deploy and verify in Telegram.
+
 ### Phase 6.396 — End-to-end Worker cycle telemetry (2026-08-29)
 
 - [x] Expose the latest research run, risk-cycle status/counts, and startup catch-up result through the bounded Worker heartbeat.
