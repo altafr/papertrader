@@ -2,7 +2,7 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.642 — Telegram integration readiness.
+- **Phase:** Phase 6.643 — Telegram launch-path verification.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, fresh crypto data, scheduled research, and position-management execution. The hosted contract is intentionally degraded only because BTCUSD and PFD are unmanaged legacy positions. The signed Telegram Mini App is deployed on Vercel with aggregate P/L cards, but API activation remains fail-closed until its four Telegram variables are configured.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading, promote one reviewed local batch when provider limits clear, verify authenticated portfolio/P&L rendering and exports, and accumulate the 30-day evidence gate without loosening risk controls. Deploy the current local heartbeat/dashboard changes only after explicit operator authorization.
@@ -178,6 +178,12 @@
 - Verified Telegram webhook state is unset and pending updates are zero, consistent with the Worker’s long-polling transport.
 - The Mini App API is active and signed requests are working; Worker health remains degraded only for the two known unmanaged legacy positions.
 - **Next smallest unit:** send `/dashboard` in the connected Telegram chat and tap the resulting Mini App button.
+
+### Phase 6.643 — Telegram launch-path verification (2026-08-31)
+
+- Verified the deployed Worker has the Mini App enabled, an operator user ID configured, and a valid HTTPS production URL at `https://papertrader-web.vercel.app/telegram`.
+- This confirms the `/dashboard` reply can construct the production Web App button; the remaining check is an operator interaction in Telegram itself.
+- **Next smallest unit:** send `/dashboard` in Telegram and tap **Open portfolio & alerts**.
 
 ### Phase 6.396 — End-to-end Worker cycle telemetry (2026-08-29)
 
