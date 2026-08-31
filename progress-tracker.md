@@ -53,6 +53,13 @@
 - Railway API/Worker were not changed; the Mini App remains fail-closed until its four server/frontend variables are configured and the API/Worker revisions are deployed.
 - **Next smallest unit:** configure the Mini App variables and run the signed Telegram `/dashboard` smoke test.
 
+### Phase 6.624 — Telegram Mini App setup discovery (2026-08-31)
+
+- Added a read-only `/myid` assistant response that reports the authorized message sender's numeric Telegram user ID for Mini App allowlisting.
+- Invalid/non-numeric sender IDs produce no setup value; credentials are never returned.
+- Added regression coverage and verified the Worker/Telegram test boundary and docs synchronization.
+- **Next smallest unit:** configure the returned user ID and Mini App variables, deploy API/Worker, and run `/dashboard` from Telegram.
+
 ### Phase 6.396 — End-to-end Worker cycle telemetry (2026-08-29)
 
 - [x] Expose the latest research run, risk-cycle status/counts, and startup catch-up result through the bounded Worker heartbeat.

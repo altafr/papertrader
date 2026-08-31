@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { buildTelegramMiniAppReplyMarkup, buildTelegramOpsAssistantReply, fetchFirecrawlSources, getTelegramResearchAgentType, isResearchQuestion } from "./telegram-ops-assistant.js";
+import { buildTelegramMiniAppReplyMarkup, buildTelegramOpsAssistantReply, fetchFirecrawlSources, getTelegramResearchAgentType, getTelegramUserIdReply, isResearchQuestion } from "./telegram-ops-assistant.js";
 
 const data = {
   getHealth: () => ({ status: "degraded", operatingMode: "paper_autopilot", marketStream: { status: "connected", freshness: "fresh" }, researchSchedule: { status: "scheduled", nextRunAt: "2026-08-31T01:15:00Z", lastRiskCycleStatus: "completed" }, positionManagement: { status: "degraded", unmanagedCount: 2 }, durableScheduler: { status: "scheduled", nextRunAt: "2026-09-01T00:00:00Z" } }),
@@ -63,5 +63,10 @@ describe("Telegram operations assistant", () => {
     expect(buildTelegramMiniAppReplyMarkup({ TELEGRAM_MINI_APP_URL: "http://insecure.example" }, true)).toBeUndefined();
     expect(buildTelegramMiniAppReplyMarkup({}, true)).toBeUndefined();
     expect(buildTelegramMiniAppReplyMarkup({ TELEGRAM_MINI_APP_URL: "https://papertrader-web.vercel.app/telegram" }, true)).toEqual({ inline_keyboard: [[{ text: "Open portfolio & alerts", web_app: { url: "https://papertrader-web.vercel.app/telegram" } }]] });
+  });
+
+  it("provides the operator Telegram user ID without exposing credentials", () => {
+    expect(getTelegramUserIdReply(12345)).toContain("TELEGRAM_MINI_APP_USER_ID");
+    expect(getTelegramUserIdReply("not-a-number")).toBeUndefined();
   });
 });

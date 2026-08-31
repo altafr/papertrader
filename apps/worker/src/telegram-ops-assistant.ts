@@ -54,7 +54,7 @@ export async function buildTelegramOpsAssistantReply(question: string, data: Tel
   const normalized = question.trim().toLowerCase();
   if (!normalized) return "Ask about portfolio, positions, trades, risk decisions, scheduler, or infrastructure health.";
   if (normalized === "/help" || normalized === "help" || normalized.includes("what can you")) {
-    return "I can answer read-only questions about portfolio/P&L, open positions, recent trades and decisions, agent runs, scheduler health, market-data freshness, Telegram delivery, and company, crypto, or macro research via the research agents. Send /dashboard to open the portfolio and alerts Mini App. I cannot place, cancel, or modify orders.";
+    return "I can answer read-only questions about portfolio/P&L, open positions, recent trades and decisions, agent runs, scheduler health, market-data freshness, Telegram delivery, and company, crypto, or macro research via the research agents. Send /dashboard to open the portfolio and alerts Mini App, or /myid to get your numeric Telegram user ID for setup. I cannot place, cancel, or modify orders.";
   }
   if (isResearchQuestion(question)) {
     if (!data.askResearch) return "The research route is not available in this deployment. Trading and risk controls are unaffected.";
@@ -92,9 +92,12 @@ export async function buildTelegramOpsAssistantReply(question: string, data: Tel
   return "I did not recognize that question. Try /help, or ask about portfolio, positions, trades, risk decisions, scheduler, logs, or infrastructure health.";
 }
 
-interface TelegramUpdate { readonly update_id?: unknown; readonly message?: { readonly chat?: { readonly id?: unknown }; readonly text?: unknown } }
+interface TelegramUpdate { readonly update_id?: unknown; readonly message?: { readonly chat?: { readonly id?: unknown }; readonly from?: { readonly id?: unknown }; readonly text?: unknown } }
 interface TelegramResponse { readonly ok?: unknown; readonly result?: unknown }
 const isMiniAppRequest = (question: string): boolean => /^(?:\/)?(?:dashboard|portfolio dashboard)$/i.test(question.trim());
+export function getTelegramUserIdReply(userId: unknown): string | undefined {
+  return typeof userId === "number" && Number.isSafeInteger(userId) && userId > 0 ? `Your Telegram user ID is ${userId}. Use this value for TELEGRAM_MINI_APP_USER_ID; it is not a credential.` : undefined;
+}
 export type TelegramMiniAppReplyMarkup = { readonly inline_keyboard: readonly (readonly { readonly text: string; readonly web_app: { readonly url: string } }[])[] };
 export function buildTelegramMiniAppReplyMarkup(environment: NodeJS.ProcessEnv, open: boolean): TelegramMiniAppReplyMarkup | undefined {
   const url = environment.TELEGRAM_MINI_APP_URL?.trim();
@@ -127,7 +130,10 @@ export function createTelegramOpsAssistant(environment: NodeJS.ProcessEnv, data:
       const chatId = item.message?.chat?.id;
       const text = item.message?.text;
       if ((typeof chatId !== "number" && typeof chatId !== "string") || typeof text !== "string" || String(chatId) !== authorizedChatId) continue;
-      try { await send(String(chatId), await buildTelegramOpsAssistantReply(text, data), isMiniAppRequest(text)); } catch { await send(String(chatId), "The read-only assistant could not complete that query. Trading and risk controls are unaffected."); }
+      try {
+        const userIdReply = /^(?:\/)?myid$/i.test(text.trim()) ? getTelegramUserIdReply(item.message?.from?.id) : undefined;
+        await send(String(chatId), userIdReply ?? await buildTelegramOpsAssistantReply(text, data), !userIdReply && isMiniAppRequest(text));
+      } catch { await send(String(chatId), "The read-only assistant could not complete that query. Trading and risk controls are unaffected."); }
     }
   };
   return {
