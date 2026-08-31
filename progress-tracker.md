@@ -7051,6 +7051,13 @@
 - A name-only Railway variable check found no `FIRECRAWL_API_KEY` on either the Worker or API service. No secret value was printed or changed; the key must be added specifically to the Worker service variables for Telegram web research.
 - **Next smallest unit:** add the key to Railway Worker variables, then send one authorized Telegram research question to verify a completed Firecrawl-backed run.
 
+### Phase 6.610 — Firecrawl configuration and smoke verification (2026-08-31)
+
+- Railway Worker health now reports `webResearch.configured=true`, provider `firecrawl`, while Telegram remains enabled/read-only.
+- A bounded Firecrawl search executed from the Worker environment returned HTTP `200` with one result URL. Only status/count metadata was emitted; the API key was never printed or persisted in source.
+- The Worker remains Paper Autopilot; the expected degraded state is still limited to two unmanaged legacy positions.
+- **Next smallest unit:** send one authorized company question in Telegram and verify its completed research run in the dashboard; then address BTCUSD/PFD exit-plan adoption.
+
 ### Phase 6.609 — Web-research configuration health (2026-08-31)
 
 - Worker health now exposes only `provider=firecrawl` and `configured=true/false` under the Telegram assistant status; secret values are never returned.
