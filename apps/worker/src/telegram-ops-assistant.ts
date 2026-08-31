@@ -54,7 +54,7 @@ export async function buildTelegramOpsAssistantReply(question: string, data: Tel
   const normalized = question.trim().toLowerCase();
   if (!normalized) return "Ask about portfolio, positions, trades, risk decisions, scheduler, or infrastructure health.";
   if (normalized === "/help" || normalized === "help" || normalized.includes("what can you")) {
-    return "I can answer read-only questions about portfolio/P&L, open positions, recent trades and decisions, agent runs, scheduler health, market-data freshness, Telegram delivery, and company, crypto, or macro research via the research agents. I cannot place, cancel, or modify orders.";
+    return "I can answer read-only questions about portfolio/P&L, open positions, recent trades and decisions, agent runs, scheduler health, market-data freshness, Telegram delivery, and company, crypto, or macro research via the research agents. Send /dashboard to open the portfolio and alerts Mini App. I cannot place, cancel, or modify orders.";
   }
   if (isResearchQuestion(question)) {
     if (!data.askResearch) return "The research route is not available in this deployment. Trading and risk controls are unaffected.";
@@ -94,6 +94,7 @@ export async function buildTelegramOpsAssistantReply(question: string, data: Tel
 
 interface TelegramUpdate { readonly update_id?: unknown; readonly message?: { readonly chat?: { readonly id?: unknown }; readonly text?: unknown } }
 interface TelegramResponse { readonly ok?: unknown; readonly result?: unknown }
+const isMiniAppRequest = (question: string): boolean => /^(?:\/)?(?:dashboard|portfolio dashboard)$/i.test(question.trim());
 
 export function createTelegramOpsAssistant(environment: NodeJS.ProcessEnv, data: TelegramOpsAssistantData, fetcher: typeof fetch = fetch) {
   const enabledRaw = environment.TELEGRAM_ASSISTANT_ENABLED ?? "false";
@@ -107,8 +108,10 @@ export function createTelegramOpsAssistant(environment: NodeJS.ProcessEnv, data:
   let offset = 0;
   let running = false;
   const api = `https://api.telegram.org/bot${config.botToken}`;
-  const send = async (chatId: string, text: string) => {
-    await fetcher(`${api}/sendMessage`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ chat_id: chatId, disable_web_page_preview: true, text: limit(text) }) });
+  const miniAppUrl = environment.TELEGRAM_MINI_APP_URL?.trim();
+  const send = async (chatId: string, text: string, openMiniApp = false) => {
+    const replyMarkup = openMiniApp && miniAppUrl && /^https:\/\//i.test(miniAppUrl) ? { inline_keyboard: [[{ text: "Open portfolio & alerts", web_app: { url: miniAppUrl } }]] } : undefined;
+    await fetcher(`${api}/sendMessage`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ chat_id: chatId, disable_web_page_preview: true, text: limit(text), ...(replyMarkup ? { reply_markup: replyMarkup } : {}) }) });
   };
   const poll = async () => {
     const response = await fetcher(`${api}/getUpdates?timeout=${pollSeconds}&offset=${offset}&allowed_updates=%5B%22message%22%5D`, { headers: { accept: "application/json" } });
@@ -120,7 +123,7 @@ export function createTelegramOpsAssistant(environment: NodeJS.ProcessEnv, data:
       const chatId = item.message?.chat?.id;
       const text = item.message?.text;
       if ((typeof chatId !== "number" && typeof chatId !== "string") || typeof text !== "string" || String(chatId) !== authorizedChatId) continue;
-      try { await send(String(chatId), await buildTelegramOpsAssistantReply(text, data)); } catch { await send(String(chatId), "The read-only assistant could not complete that query. Trading and risk controls are unaffected."); }
+      try { await send(String(chatId), await buildTelegramOpsAssistantReply(text, data), isMiniAppRequest(text)); } catch { await send(String(chatId), "The read-only assistant could not complete that query. Trading and risk controls are unaffected."); }
     }
   };
   return {

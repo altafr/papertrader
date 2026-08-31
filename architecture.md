@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.620 full release regression; continuous Paper Autopilot and multi-day evidence collection continue.
+- **Stage:** Phase 6.621 Telegram Mini App portfolio/alerts slice; continuous Paper Autopilot and multi-day evidence collection continue.
 - **Current hosted state:** Worker is deployed in Paper Autopilot with fresh crypto data, scheduled research, deterministic risk/execution gates, two-percent minimum sizing, equity bracket entries, ratcheting position stops, restart-safe synthetic crypto protection explicitly enabled, and the read-only Telegram operations assistant enabled with polling. Worker health exposes assistant readiness without secrets. The hosted readiness contract remains degraded only for two unmanaged legacy positions (BTCUSD and PFD), which still pause new entries.
 
 Telegram research questions are routed into the durable agent-run ledger (`stock_research` for companies/equities, `crypto_research` for crypto, `macro_advisory` for rates/inflation/macro questions). Optional Firecrawl lookup is server-side only, bounded to three results, labelled untrusted reference material, and has no order authority; absent or failed lookup is fail-closed.
@@ -12,6 +12,10 @@ Operator-facing financial, quantity, risk, and indicator values are formatted to
 ### Always-on multi-agent runtime requirement
 
 The target architecture is a continuously running server-side system. Railway's persistent Worker owns the durable orchestration loop while specialist research, macro, strategy, risk-explanation, execution, reconciliation, position-management, and monitoring agents communicate through persisted, versioned artifacts. The dashboard is an observer/control surface and must not be required for operation. Portfolio-profit optimization is measured as risk-adjusted performance improvement inside the deterministic paper-risk policy; it never overrides freshness checks, exposure limits, exit plans, kill switches, or paper/live mode gates.
+
+### Telegram Mini App
+
+The Telegram assistant can open the Vercel `/telegram` Mini App with a compact Portfolio tab and Alerts tab. Telegram Web App `initData` is validated in the Railway API using the bot token and an explicit operator user-ID allowlist; invalid, expired, or non-operator sessions fail closed. The API returns only the latest reconciled paper read model and bounded Telegram alert history. The Mini App is read-only and has no order or risk-control authority.
 
 The research cadence is asset-aware: crypto preparation may run every 15 minutes for 24/7 markets, while stock preparation is admitted only during 09:30–11:30 ET and 14:00–16:00 ET on regular weekdays. A scheduler tick outside those stock windows skips stock work but never skips crypto monitoring or deterministic safety checks.
 

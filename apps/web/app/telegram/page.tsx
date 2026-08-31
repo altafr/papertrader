@@ -1,0 +1,53 @@
+"use client";
+
+import Script from "next/script";
+import { useEffect, useState } from "react";
+
+type MiniAppData = {
+  readonly asOf: string;
+  readonly portfolio: { readonly snapshot: Record<string, unknown>; readonly positions: readonly Record<string, unknown>[]; readonly orders: readonly Record<string, unknown>[] };
+  readonly alerts: readonly { readonly code: string; readonly deliveryStatus: string; readonly eventId: string; readonly message: string; readonly occurredAt: string; readonly severity: string }[];
+};
+
+declare global { interface Window { Telegram?: { WebApp?: { readonly initData?: string; ready: () => void; expand: () => void } } } }
+
+const money = (value: unknown): string => {
+  if (typeof value !== "string" && typeof value !== "number") return "—";
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed.toFixed(2) : "—";
+};
+
+export default function TelegramMiniAppPage() {
+  const [tab, setTab] = useState<"portfolio" | "alerts">("portfolio");
+  const [data, setData] = useState<MiniAppData>();
+  const [error, setError] = useState("Connecting to the paper portfolio…");
+
+  useEffect(() => {
+    const load = async () => {
+      const webApp = window.Telegram?.WebApp;
+      webApp?.ready();
+      webApp?.expand();
+      const initData = webApp?.initData;
+      const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+      if (!initData || !apiBaseUrl) { setError("Open this page from the Telegram assistant. The signed Telegram session is missing."); return; }
+      try {
+        const response = await fetch(`${apiBaseUrl}/v1/telegram-mini-app`, { headers: { "x-telegram-init-data": initData } });
+        const body = await response.json() as MiniAppData | { readonly error?: string };
+        if (!response.ok || !("portfolio" in body)) { setError("error" in body && body.error ? body.error : "The paper portfolio is unavailable."); return; }
+        setData(body); setError("");
+      } catch { setError("Could not reach the paper portfolio service."); }
+    };
+    void load();
+  }, []);
+
+  const snapshot = data?.portfolio.snapshot ?? {};
+  return <>
+    <Script src="https://telegram.org/js/telegram-web-app.js" strategy="beforeInteractive" />
+    <main className="telegram-mini-app">
+      <header><div><p className="eyebrow">MOMENTUM AUTOPILOT</p><h1>Paper trading</h1></div><span className="badge paper">PAPER</span></header>
+      <nav className="mini-tabs" aria-label="Mini App sections"><button className={tab === "portfolio" ? "active" : ""} onClick={() => setTab("portfolio")}>Portfolio</button><button className={tab === "alerts" ? "active" : ""} onClick={() => setTab("alerts")}>Alerts{data?.alerts.length ? ` (${data.alerts.length})` : ""}</button></nav>
+      {error ? <p className="mini-error">{error}</p> : tab === "portfolio" ? <section className="mini-section"><div className="mini-metrics"><div><span>Equity</span><strong>${money(snapshot.equity)}</strong></div><div><span>Cash</span><strong>${money(snapshot.cash)}</strong></div><div><span>Buying power</span><strong>${money(snapshot.buyingPower)}</strong></div></div><h2>Open positions</h2>{data?.portfolio.positions.length ? <div className="mini-list">{data.portfolio.positions.map((position) => <article key={String(position.symbol)}><div><strong>{String(position.symbol ?? "—")}</strong><small>{money(position.quantity)} units · value ${money(position.marketValue)}</small></div><span className={Number(position.unrealizedPl) < 0 ? "negative" : "positive"}>{money(position.unrealizedPl)}</span></article>)}</div> : <p className="mini-muted">No open positions.</p>}<p className="mini-foot">Updated {data?.asOf ? new Date(data.asOf).toLocaleString() : "—"}</p></section> : <section className="mini-section"><h2>Important alerts</h2>{data?.alerts.length ? <div className="mini-list">{data.alerts.map((alert) => <article key={alert.eventId}><div><strong className={alert.severity === "critical" ? "negative" : alert.severity === "warning" ? "warning" : ""}>{alert.code}</strong><small>{alert.message}</small><small>{new Date(alert.occurredAt).toLocaleString()} · {alert.deliveryStatus}</small></div></article>)}</div> : <p className="mini-muted">No alerts recorded.</p>}</section>}
+      <p className="mini-foot">Read-only view. Orders and risk controls remain server-managed.</p>
+    </main>
+  </>;
+}

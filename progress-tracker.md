@@ -30,6 +30,15 @@
 - No broker, database, Telegram, or hosted runtime state was changed during verification.
 - **Next smallest unit:** deploy the synchronized Worker revision when authorized, verify one real Telegram research question, and then resolve the BTCUSD/PFD legacy exit-plan gate with operator-reviewed values.
 
+### Phase 6.621 — Telegram Mini App portfolio and alerts (2026-08-31)
+
+- Added a signed Telegram Web App authentication helper with expiry, timing-safe hash verification, and explicit operator user-ID allowlisting.
+- Added a read-only Railway API projection for the latest reconciled paper portfolio and 50 recent Telegram alerts, with CORS restricted by `TELEGRAM_MINI_APP_ORIGIN`.
+- Added a compact dark Vercel `/telegram` page with Portfolio and Alerts tabs and two-decimal values; no order or risk controls are exposed.
+- `/dashboard` in the Telegram assistant now returns an `Open portfolio & alerts` Web App button when `TELEGRAM_MINI_APP_URL` is configured.
+- Added authentication regression tests; focused API/Worker tests and workspace typechecks pass. No broker or database state was changed.
+- **Next smallest unit:** configure the four Mini App variables, deploy API/Worker/Vercel, then open `/dashboard` in Telegram and verify both tabs against the authenticated read model.
+
 ### Phase 6.396 — End-to-end Worker cycle telemetry (2026-08-29)
 
 - [x] Expose the latest research run, risk-cycle status/counts, and startup catch-up result through the bounded Worker heartbeat.

@@ -105,6 +105,26 @@ main {
   white-space: nowrap;
 }
 
+.telegram-mini-app { max-width: 620px; margin: 0 auto; padding: 1rem; }
+.telegram-mini-app header { align-items: center; display: flex; justify-content: space-between; padding: .5rem 0 1rem; }
+.telegram-mini-app h1 { font-size: 1.35rem; margin: .15rem 0 0; }
+.telegram-mini-app h2 { font-size: 1rem; margin: 1.25rem 0 .7rem; }
+.mini-tabs { border-bottom: 1px solid var(--border); display: flex; gap: .25rem; }
+.mini-tabs button { background: transparent; border: 0; border-bottom: 2px solid transparent; color: var(--muted); cursor: pointer; font: inherit; padding: .7rem 1rem; }
+.mini-tabs button.active { border-bottom-color: var(--primary); color: var(--foreground); }
+.mini-section { padding-top: .5rem; }
+.mini-metrics { display: grid; gap: .5rem; grid-template-columns: repeat(3, 1fr); margin-top: .75rem; }
+.mini-metrics div { background: var(--card); border: 1px solid var(--border); border-radius: .55rem; padding: .7rem; }
+.mini-metrics span, .mini-list small { color: var(--muted); display: block; font-size: .72rem; }
+.mini-metrics strong { display: block; font-size: 1rem; margin-top: .25rem; }
+.mini-list { display: grid; gap: .45rem; }
+.mini-list article { align-items: center; background: var(--card); border: 1px solid var(--border); border-radius: .5rem; display: flex; justify-content: space-between; padding: .7rem; }
+.mini-list article strong { font-size: .85rem; }
+.mini-list article small { margin-top: .2rem; }
+.mini-muted, .mini-error, .mini-foot { color: var(--muted); font-size: .75rem; }
+.mini-error { background: rgb(241 109 118 / 10%); border: 1px solid rgb(241 109 118 / 35%); border-radius: .5rem; color: var(--negative); margin-top: 1rem; padding: .8rem; }
+.positive { color: var(--positive); } .negative { color: var(--negative); } .warning { color: var(--warning); }
+
 .live-heartbeat {
   border-color: rgb(54 199 140 / 35%);
 }

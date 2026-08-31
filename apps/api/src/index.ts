@@ -32,6 +32,7 @@ import { compareReconciliationAccounts } from "./reconciliation-status.js";
 import { approveDisabledToReplay, approveReplayToShadow, approveShadowToPaper } from "./lifecycle-command.js";
 import { toAgentRunDetail } from "./agent-run-detail.js";
 import { attachActiveExitPositions, attachPositionMetadata, attachUnmanagedPositions, type PositionMetadata } from "./read-model-contract.js";
+import { validateTelegramMiniAppInitData } from "./telegram-mini-app-auth.js";
 
 let readModelRepository: ReturnType<typeof createAccountStateRepository> | undefined;
 let readModelPool: ReturnType<typeof createDatabase>["pool"] | undefined;
@@ -39,6 +40,8 @@ let durableScheduleRunRepository: ReturnType<typeof createDurableScheduleRunRepo
 let agentRunRepository: ReturnType<typeof createAgentRunRepository> | undefined;
 let strategyLifecycleRepository: ReturnType<typeof createStrategyLifecycleRepository> | undefined;
 let shadowObservationRepository: ReturnType<typeof createShadowObservationRepository> | undefined;
+let telegramMiniAppRepository: ReturnType<typeof createAccountStateRepository> | undefined;
+let telegramMiniAppPool: ReturnType<typeof createDatabase>["pool"] | undefined;
 
 class InvalidMarketDataRequest extends Error {}
 
@@ -215,6 +218,27 @@ async function readPersistedModel(request: IncomingMessage) {
   // while retaining the top-level copy for the CSV/export boundary.
   const dashboardModel = attachActiveExitPositions(attachPositionMetadata(attachUnmanagedPositions(model, unmanagedPositions), positionMetadata), activeExitPositions);
   return { body: { model: dashboardModel, activeExitPositions, unmanagedPositions }, status: 200 } as const;
+}
+
+async function readTelegramMiniApp(request: IncomingMessage) {
+  const enabled = process.env.TELEGRAM_MINI_APP_ENABLED === "true";
+  const origin = process.env.TELEGRAM_MINI_APP_ORIGIN?.trim() || "*";
+  const initData = request.headers["x-telegram-init-data"];
+  const initDataValue = Array.isArray(initData) ? initData[0] : initData;
+  const auth = enabled
+    ? validateTelegramMiniAppInitData(initDataValue, process.env.TELEGRAM_BOT_TOKEN ?? "", process.env.TELEGRAM_MINI_APP_USER_ID ?? "")
+    : { error: "missing" as const };
+  if ("error" in auth) return { body: { error: enabled ? `telegram_mini_app_${auth.error}` : "telegram_mini_app_disabled" }, status: enabled ? (auth.error === "missing" || auth.error === "expired" ? 401 : 403) : 503, origin } as const;
+  if (!process.env.DATABASE_URL?.trim()) return { body: { error: "db_not_configured" }, status: 503, origin } as const;
+  if (!telegramMiniAppRepository || !telegramMiniAppPool) {
+    const { db, pool } = createDatabase();
+    telegramMiniAppRepository = createAccountStateRepository(db);
+    telegramMiniAppPool = pool;
+  }
+  const model = await telegramMiniAppRepository.getLatestReadModel();
+  if (!model) return { body: { error: "read_model_not_available" }, status: 404, origin } as const;
+  const alerts = await telegramMiniAppPool.query<{ readonly event_id: string; readonly code: string; readonly severity: string; readonly message: string; readonly occurred_at: Date; readonly delivery_status: string }>("SELECT event_id, code, severity, message, occurred_at, delivery_status FROM telegram_alert_events ORDER BY occurred_at DESC LIMIT 50");
+  return { body: { asOf: model.freshness.capturedAt, userId: auth.userId, portfolio: { snapshot: model.snapshot, positions: model.positions, orders: model.orders }, alerts: alerts.rows.map((row) => ({ code: row.code, deliveryStatus: row.delivery_status, eventId: row.event_id, message: row.message, occurredAt: row.occurred_at, severity: row.severity })) }, status: 200, origin } as const;
 }
 
 async function readEligibleAssets(request: IncomingMessage) {
@@ -741,6 +765,24 @@ const server = createServer((request, response) => {
       .catch(() => {
         response.writeHead(401, { "content-type": "application/json" });
         response.end(JSON.stringify({ error: "unauthorized" }));
+      });
+    return;
+  }
+
+  if ((request.method === "GET" || request.method === "OPTIONS") && request.url === "/v1/telegram-mini-app") {
+    if (request.method === "OPTIONS") {
+      response.writeHead(204, { "access-control-allow-headers": "x-telegram-init-data", "access-control-allow-methods": "GET, OPTIONS", "access-control-allow-origin": process.env.TELEGRAM_MINI_APP_ORIGIN?.trim() || "*", "access-control-max-age": "600" });
+      response.end();
+      return;
+    }
+    readTelegramMiniApp(request)
+      .then(({ body, status, origin }) => {
+        response.writeHead(status, { "access-control-allow-origin": origin, "content-type": "application/json", "vary": "Origin" });
+        response.end(JSON.stringify(body));
+      })
+      .catch(() => {
+        response.writeHead(503, { "access-control-allow-origin": process.env.TELEGRAM_MINI_APP_ORIGIN?.trim() || "*", "content-type": "application/json", "vary": "Origin" });
+        response.end(JSON.stringify({ error: "telegram_mini_app_unavailable" }));
       });
     return;
   }
