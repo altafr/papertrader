@@ -75,6 +75,7 @@ if (telegramNotificationConfig.enabled && process.env.DATABASE_URL?.trim()) {
 if (process.env.TELEGRAM_ASSISTANT_ENABLED === "true") {
   const assistantDatabase = createTelegramOpsAssistantData(process.env, () => getWorkerHealth());
   const assistant = createTelegramOpsAssistant(process.env, assistantDatabase.data);
+  console.log(JSON.stringify({ event: "telegram_ops_assistant_started", enabled: assistant.enabled, mode: "read_only", pollSeconds: Number(process.env.TELEGRAM_ASSISTANT_POLL_SECONDS ?? "20") }));
   void assistant.start().catch(() => { /* assistant failures never affect trading loops */ });
 }
 if (shadowConfiguration.enabled) {
