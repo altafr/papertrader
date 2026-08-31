@@ -2,7 +2,7 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.652 — Mini App recent-order rollout.
+- **Phase:** Phase 6.653 — Broker provenance review.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, fresh crypto data, scheduled research, and position-management execution. The hosted contract is intentionally degraded only because BTCUSD and PFD are unmanaged legacy positions. The signed Telegram Mini App is deployed on Vercel with aggregate P/L cards, but API activation remains fail-closed until its four Telegram variables are configured.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading, promote one reviewed local batch when provider limits clear, verify authenticated portfolio/P&L rendering and exports, and accumulate the 30-day evidence gate without loosening risk controls. Deploy the current local heartbeat/dashboard changes only after explicit operator authorization.
@@ -243,6 +243,13 @@
 - Published the recent-orders Portfolio view to Vercel production.
 - Confirmed `https://papertrader-web.vercel.app/telegram` returns HTTP 200 after deployment.
 - **Next smallest unit:** open `/dashboard` in Telegram and verify the signed Portfolio, recent orders, P/L, and Alerts view.
+
+### Phase 6.653 — Broker provenance review (2026-08-31)
+
+- Ran the read-only Alpaca paper broker review inside the Railway Worker container.
+- BTCUSD has 17 matching filled-buy candidates with `complete_with_net_adjustment` coverage; AAPL has 4 candidates with complete coverage; PFD has 1 candidate with complete coverage.
+- No order IDs, prices, credentials, writes, submissions, cancellations, or position changes were exposed or performed.
+- **Next smallest unit:** operator selects the exact BTCUSD/PFD broker fills and supplies reviewed protective stop, target/time-stop, strategy key/version, and bounded approval reference for guarded adoption.
 
 ### Phase 6.396 — End-to-end Worker cycle telemetry (2026-08-29)
 
