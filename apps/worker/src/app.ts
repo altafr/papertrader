@@ -56,6 +56,6 @@ export function getWorkerHealth(now = new Date(), environment: NodeJS.ProcessEnv
     status: deriveWorkerHealthStatus({ marketStreamFreshness: marketStream.freshness, positionManagementStatus, researchScheduleStatus: researchStatus, telegramEnabled: telegram.checks.enabled, telegramStatus: telegram.status }),
     telegramAlerts: { deliveryVerification: telegram.deliveryVerification, enabled: telegram.checks.enabled, riskDecisionAlerts: "approved_only", routineCooldownHours: 24, status: telegram.status },
     telegramAlertTest: { approvalReferencePresent: telegramTest.approvalReferencePresent, status: telegramTest.status },
-    telegramAssistant: { enabled: telegramAssistantEnabled, mode: "read_only", pollSeconds: Number.isSafeInteger(telegramAssistantPollSeconds) ? telegramAssistantPollSeconds : 20, status: telegramAssistantEnabled ? "ready" : "disabled" },
+    telegramAssistant: { enabled: telegramAssistantEnabled, mode: "read_only", pollSeconds: Number.isSafeInteger(telegramAssistantPollSeconds) ? telegramAssistantPollSeconds : 20, status: telegramAssistantEnabled ? "ready" : "disabled", webResearch: { configured: Boolean(environment.FIRECRAWL_API_KEY?.trim()), provider: "firecrawl", status: environment.FIRECRAWL_API_KEY?.trim() ? "configured" : "not_configured" } },
   };
 }

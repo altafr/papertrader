@@ -96,6 +96,11 @@ export interface WorkerHealth {
     readonly enabled: boolean;
     readonly mode: "read_only";
     readonly pollSeconds: number;
+    readonly webResearch: {
+      readonly configured: boolean;
+      readonly provider: "firecrawl";
+      readonly status: "configured" | "not_configured";
+    };
     readonly status: "disabled" | "ready";
   };
   readonly service: "worker";
