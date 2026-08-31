@@ -60,6 +60,14 @@
 - Added regression coverage and verified the Worker/Telegram test boundary and docs synchronization.
 - **Next smallest unit:** configure the returned user ID and Mini App variables, deploy API/Worker, and run `/dashboard` from Telegram.
 
+### Phase 6.625 — Hosted Mini App backend rollout (2026-08-31)
+
+- Worker and API source deployments completed from the current branch; the Worker rollout includes `/dashboard` button and `/myid` handling, and the API rollout includes the signed Mini App endpoint.
+- Hosted API verification returns the expected fail-closed `telegram_mini_app_disabled` response while Mini App variables are not configured; no unauthenticated portfolio data is exposed.
+- Worker health remains Paper Autopilot/read-only Telegram with Firecrawl configured; the known degraded state remains limited to the two unmanaged legacy positions.
+- No broker orders, database records, or persistent Mini App variables were changed.
+- **Next smallest unit:** configure the operator user ID and Mini App variables, then execute the signed Telegram smoke test.
+
 ### Phase 6.396 — End-to-end Worker cycle telemetry (2026-08-29)
 
 - [x] Expose the latest research run, risk-cycle status/counts, and startup catch-up result through the bounded Worker heartbeat.
