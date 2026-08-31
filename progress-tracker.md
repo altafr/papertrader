@@ -6977,3 +6977,9 @@
 - Vercel project deployment listing is reachable and the production dashboard returns HTTP 200.
 - No credentials, broker orders, or database records were exposed or changed by this synchronization.
 - **Next smallest unit:** complete the operator-supplied exit-plan gate for BTCUSD/PFD; this is the remaining runtime blocker to new entries.
+
+### Phase 6.597 — Final paper-readiness audit (2026-08-31)
+
+- Hosted exit-plan review confirms AAPL is managed; BTCUSD and PFD each lack all six required provenance/plan fields and remain review-required.
+- Read-only Alpaca order audit confirms 22 total orders, all filled buys, zero sells, and zero open orders; the sizing/bracket rollout created no unintended order.
+- **Next smallest unit:** operator supplies reviewed broker-linked exit-plan values for BTCUSD and PFD; then run guarded atomic adoption and recheck readiness.
