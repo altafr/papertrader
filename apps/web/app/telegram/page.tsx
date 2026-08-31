@@ -17,6 +17,13 @@ const money = (value: unknown): string => {
   return Number.isFinite(parsed) ? parsed.toFixed(2) : "—";
 };
 
+export const getMiniAppErrorMessage = (status: number, code: unknown): string => {
+  if (status === 503 || code === "telegram_mini_app_disabled") return "The Telegram Mini App is not enabled on the trading API yet. Add the API Telegram variables, then redeploy.";
+  if (status === 401 || code === "unauthorized") return "This Telegram account is not authorized for the paper portfolio.";
+  if (status === 404 || code === "read_model_not_available") return "The paper portfolio has not produced a reconciled snapshot yet.";
+  return typeof code === "string" && code.length > 0 ? `The paper portfolio is unavailable (${code}).` : "The paper portfolio is unavailable.";
+};
+
 export default function TelegramMiniAppPage() {
   const [tab, setTab] = useState<"portfolio" | "alerts">("portfolio");
   const [data, setData] = useState<MiniAppData>();
@@ -36,7 +43,7 @@ export default function TelegramMiniAppPage() {
       try {
         const response = await fetch(`${apiBaseUrl}/v1/telegram-mini-app`, { headers: { "x-telegram-init-data": initData } });
         const body = await response.json() as MiniAppData | { readonly error?: string };
-        if (!response.ok || !("portfolio" in body)) { setError("error" in body && body.error ? body.error : "The paper portfolio is unavailable."); return; }
+        if (!response.ok || !("portfolio" in body)) { setError(getMiniAppErrorMessage(response.status, "error" in body ? body.error : undefined)); return; }
         setData(body); setError("");
       } catch { setError("Could not reach the paper portfolio service."); }
       finally { setRefreshing(false); }

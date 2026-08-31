@@ -2,7 +2,7 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.636 — Mini App responsive metrics.
+- **Phase:** Phase 6.637 — Mini App activation diagnostics.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, fresh crypto data, scheduled research, and position-management execution. The hosted contract is intentionally degraded only because BTCUSD and PFD are unmanaged legacy positions. The signed Telegram Mini App is deployed on Vercel with aggregate P/L cards, but API activation remains fail-closed until its four Telegram variables are configured.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading, promote one reviewed local batch when provider limits clear, verify authenticated portfolio/P&L rendering and exports, and accumulate the 30-day evidence gate without loosening risk controls. Deploy the current local heartbeat/dashboard changes only after explicit operator authorization.
@@ -139,6 +139,12 @@
 - Added a narrow-screen breakpoint so the five Portfolio metrics remain readable inside Telegram's mobile Web App viewport.
 - Preserved the compact dark presentation and two-decimal, read-only behavior.
 - **Next smallest unit:** deploy the frontend revision when the API Mini App variables are configured, then verify the mobile layout and signed values in Telegram.
+
+### Phase 6.637 — Mini App activation diagnostics (2026-08-31)
+
+- Added actionable, secret-safe Mini App messages for disabled API configuration, unauthorized Telegram sessions, and an empty reconciled read model.
+- Added regression coverage for each activation state; no broker, database, Telegram, or environment state was changed.
+- **Next smallest unit:** configure the four API Telegram variables and use the diagnostic state to complete the signed Portfolio/Alerts smoke test.
 
 ### Phase 6.396 — End-to-end Worker cycle telemetry (2026-08-29)
 
