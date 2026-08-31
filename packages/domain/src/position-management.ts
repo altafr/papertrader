@@ -39,7 +39,6 @@ export interface PositionExitDecision {
 /** Ratchet a long stop upward by 5% below the current favorable mark. */
 export function calculateTrailingStopPrice(input: { readonly currentPrice: string; readonly entryPrice: string; readonly plannedStopPrice: string }): string {
   const current = new Decimal(input.currentPrice);
-  const entry = new Decimal(input.entryPrice);
   const planned = new Decimal(input.plannedStopPrice);
   const trailing = current.greaterThan(input.entryPrice) ? current.times("0.95") : planned;
   return (planned.greaterThan(trailing.toFixed(8)) ? planned : trailing).toDecimalPlaces(8).toFixed(8);

@@ -4,7 +4,7 @@ import { approvePaperTradeIntent, createImmutablePaperTradeIntent, createPaperTr
 import { crossSectionalMomentum } from "./strategies.js";
 
 const signal = createImmutablePaperSignal({ candidate: { assetClass: "us_equity", expiresAt: "2026-01-11T00:00:00Z", plannedExitPrice: "110", plannedStopPrice: "99", proposedEntryPrice: "100", rationale: "fixture", score: "1", signalTime: "2026-01-10T00:00:00Z", side: "long", strategyKey: crossSectionalMomentum.key, strategyVersion: crossSectionalMomentum.version, symbol: "AAA" }, createdAt: "2026-01-10T00:01:00Z", signalId: "signal-1" });
-const intent = createImmutablePaperTradeIntent({ createdAt: "2026-01-10T00:02:00Z", estimatedFees: "0.01", estimatedSlippage: "0.01", intentId: "intent-1", quantity: "0.02", signal });
+const intent = createImmutablePaperTradeIntent({ createdAt: "2026-01-10T00:02:00Z", estimatedFees: "0.01", estimatedSlippage: "0.01", intentId: "intent-1", quantity: "0.2", signal });
 const state = { accountBaselineVerified: true, accountFresh: true, dataFresh: true, killSwitchActive: false, openPositions: [], submittedEntriesLast24Hours: 0 };
 
 describe("immutable paper trade intents", () => {
