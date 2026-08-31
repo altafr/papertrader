@@ -3,7 +3,7 @@
 ## Status
 
 - **Stage:** Phase 6.583 Telegram assistant deployment; continuous Paper Autopilot and multi-day evidence collection continue.
-- **Current hosted state:** Worker is deployed in Paper Autopilot with fresh crypto data, scheduled research, deterministic risk/execution gates, recurring position-management passes, and the optional read-only Telegram operations assistant enabled with polling. The hosted readiness contract remains degraded only for two unmanaged legacy positions (BTCUSD and PFD); Telegram alert delivery is still unverified until its guarded test is authorized and run.
+- **Current hosted state:** Worker is deployed in Paper Autopilot with fresh crypto data, scheduled research, deterministic risk/execution gates, recurring position-management passes, and the read-only Telegram operations assistant enabled with polling. Worker health now exposes assistant readiness without secrets. The hosted readiness contract remains degraded only for two unmanaged legacy positions (BTCUSD and PFD); Telegram alert delivery is still unverified until its guarded test is authorized and run.
 
 ### Always-on multi-agent runtime requirement
 

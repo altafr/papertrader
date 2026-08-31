@@ -6906,3 +6906,10 @@
 - Deployed Worker release `d1d7af3e-a066-4b2e-b25b-f22530d1fd9a` successfully.
 - Railway logs confirm `telegram_ops_assistant_started`, `enabled=true`, `mode=read_only`, and 20-second polling; Worker health remains active in Paper Autopilot.
 - **Next smallest unit:** verify one authorized Telegram query end-to-end, then improve the dashboard’s compact live view if needed.
+
+### Phase 6.587 — Telegram assistant health surface (2026-08-31)
+
+- Added `telegramAssistant` to the Worker health contract with enabled, read-only mode, polling interval, and readiness status.
+- Focused tests, domain build, and Worker typecheck passed.
+- Railway deployment `4242ee23-94ae-4928-a05b-2bd289e83fe2` succeeded; live health reports `telegramAssistant.status=ready` and `enabled=true`.
+- **Next smallest unit:** verify one authorized Telegram query end-to-end; the known degraded state remains limited to the two unmanaged positions.
