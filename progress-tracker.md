@@ -7030,6 +7030,13 @@
 - Added regression coverage; no order or account state was modified.
 - **Next smallest unit:** use the enriched broker review to select reviewed BTCUSD/PFD entry prices, then run guarded dry-run adoption.
 
+### Phase 6.606 — Hosted broker fill-price review (2026-08-31)
+
+- Worker deployment `2bc58dc7-3b74-4378-81e2-cd54c739bfd9` reached `SUCCESS` from commit `9d929a1`.
+- Live read-only broker review now reports fill prices: PFD has one complete 2,903-share fill at `11.49`; BTCUSD has 17 fills of `0.001` each at broker-reported prices, totaling `0.017` against a reconciled `0.0169575` position (documented crypto dust adjustment).
+- No exit plan was adopted and no broker/database state was changed. Operator approval of stop/target or time-stop values remains required.
+- **Next smallest unit:** operator selects the broker order IDs and approves the protective stop plus target/time stop; then run the guarded dry-run adoption.
+
 ### Phase 6.599 — Hosted research routing deployment (2026-08-31)
 
 - Railway Worker deployment `1198028a-a9e2-47bd-a117-c936a5c36290` reached `SUCCESS` from commit `5f3c872`.
