@@ -222,13 +222,15 @@ async function readPersistedModel(request: IncomingMessage) {
 
 async function readTelegramMiniApp(request: IncomingMessage) {
   const enabled = process.env.TELEGRAM_MINI_APP_ENABLED === "true";
-  const origin = process.env.TELEGRAM_MINI_APP_ORIGIN?.trim() || "*";
+  const botToken = process.env.TELEGRAM_BOT_TOKEN?.trim();
+  const operatorUserId = process.env.TELEGRAM_MINI_APP_USER_ID?.trim();
+  const configuredOrigin = process.env.TELEGRAM_MINI_APP_ORIGIN?.trim();
+  const origin = configuredOrigin || "*";
+  if (!enabled || !botToken || !operatorUserId || !configuredOrigin) return { body: { error: "telegram_mini_app_disabled" }, status: 503, origin } as const;
   const initData = request.headers["x-telegram-init-data"];
   const initDataValue = Array.isArray(initData) ? initData[0] : initData;
-  const auth = enabled
-    ? validateTelegramMiniAppInitData(initDataValue, process.env.TELEGRAM_BOT_TOKEN ?? "", process.env.TELEGRAM_MINI_APP_USER_ID ?? "")
-    : { error: "missing" as const };
-  if ("error" in auth) return { body: { error: enabled ? `telegram_mini_app_${auth.error}` : "telegram_mini_app_disabled" }, status: enabled ? (auth.error === "missing" || auth.error === "expired" ? 401 : 403) : 503, origin } as const;
+  const auth = validateTelegramMiniAppInitData(initDataValue, botToken, operatorUserId);
+  if ("error" in auth) return { body: { error: `telegram_mini_app_${auth.error}` }, status: auth.error === "missing" || auth.error === "expired" ? 401 : 403, origin } as const;
   if (!process.env.DATABASE_URL?.trim()) return { body: { error: "db_not_configured" }, status: 503, origin } as const;
   if (!telegramMiniAppRepository || !telegramMiniAppPool) {
     const { db, pool } = createDatabase();

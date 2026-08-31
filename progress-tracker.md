@@ -2,7 +2,7 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.646 — Full regression and hosted readiness audit.
+- **Phase:** Phase 6.648 — Mini App configuration hardening rollout.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, fresh crypto data, scheduled research, and position-management execution. The hosted contract is intentionally degraded only because BTCUSD and PFD are unmanaged legacy positions. The signed Telegram Mini App is deployed on Vercel with aggregate P/L cards, but API activation remains fail-closed until its four Telegram variables are configured.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading, promote one reviewed local batch when provider limits clear, verify authenticated portfolio/P&L rendering and exports, and accumulate the 30-day evidence gate without loosening risk controls. Deploy the current local heartbeat/dashboard changes only after explicit operator authorization.
@@ -204,6 +204,19 @@
 - Hosted API reports healthy with the Telegram Mini App enabled/configured; Worker assistant is ready and market data is fresh.
 - Overall Worker health remains degraded only for the two known unmanaged legacy positions; no broker or database state changed.
 - **Next smallest unit:** send `/dashboard` in Telegram and tap **Open portfolio & alerts**, then complete operator-reviewed exit-plan remediation for BTCUSD and PFD.
+
+### Phase 6.647 — Mini App configuration boundary hardening (2026-08-31)
+
+- The API now requires the enable flag, bot token, operator user ID, and explicit origin before authenticating or serving Mini App data.
+- Enabled deployments no longer fall back to wildcard CORS; incomplete configuration fails closed with HTTP 503.
+- **Next smallest unit:** send `/dashboard` in Telegram and verify the signed Portfolio/Alerts view.
+
+### Phase 6.648 — Mini App configuration hardening rollout (2026-08-31)
+
+- Deployed the API configuration-boundary hardening revision to Railway.
+- Hosted verification: health reports Mini App enabled/configured; unauthenticated endpoint returns HTTP 401; signed request returns HTTP 200 with portfolio and aggregate P/L fields.
+- No broker or database state changed.
+- **Next smallest unit:** send `/dashboard` in Telegram and tap **Open portfolio & alerts**.
 
 ### Phase 6.396 — End-to-end Worker cycle telemetry (2026-08-29)
 
