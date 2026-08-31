@@ -59,6 +59,7 @@ describe("worker health", () => {
       service: "worker",
       telegramAlerts: { deliveryVerification: "unverified", enabled: false, riskDecisionAlerts: "approved_only", routineCooldownHours: 24, status: "disabled" },
       telegramAlertTest: { approvalReferencePresent: false, status: "blocked" },
+      telegramAssistant: { enabled: false, mode: "read_only", pollSeconds: 20, status: "disabled" },
       status: "healthy",
     });
   });

@@ -92,6 +92,12 @@ export interface WorkerHealth {
     readonly approvalReferencePresent: boolean;
     readonly status: "blocked" | "ready";
   };
+  readonly telegramAssistant: {
+    readonly enabled: boolean;
+    readonly mode: "read_only";
+    readonly pollSeconds: number;
+    readonly status: "disabled" | "ready";
+  };
   readonly service: "worker";
   readonly status: HealthState;
 }

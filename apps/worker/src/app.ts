@@ -32,6 +32,8 @@ export function getWorkerHealth(now = new Date(), environment: NodeJS.ProcessEnv
   const paperCredentialsConfigured = Boolean(environment.ALPACA_API_KEY?.trim() && environment.ALPACA_SECRET_KEY?.trim() && environment.ALPACA_PAPER_TRADE !== "false");
   const telegram = getTelegramNotificationReadiness(environment);
   const telegramTest = getTelegramAlertTestReadiness(environment);
+  const telegramAssistantEnabled = environment.TELEGRAM_ASSISTANT_ENABLED === "true";
+  const telegramAssistantPollSeconds = Number(environment.TELEGRAM_ASSISTANT_POLL_SECONDS ?? "20");
   const marketStream = getMarketStreamHealth(now);
   const candidate = environment.PAPERTRADER_RELEASE?.trim() || environment.RAILWAY_GIT_COMMIT_SHA?.trim() || environment.GIT_COMMIT_SHA?.trim();
   const release = candidate && /^[0-9A-Za-z._-]{1,64}$/.test(candidate) ? candidate : undefined;
@@ -54,5 +56,6 @@ export function getWorkerHealth(now = new Date(), environment: NodeJS.ProcessEnv
     status: deriveWorkerHealthStatus({ marketStreamFreshness: marketStream.freshness, positionManagementStatus, researchScheduleStatus: researchStatus, telegramEnabled: telegram.checks.enabled, telegramStatus: telegram.status }),
     telegramAlerts: { deliveryVerification: telegram.deliveryVerification, enabled: telegram.checks.enabled, riskDecisionAlerts: "approved_only", routineCooldownHours: 24, status: telegram.status },
     telegramAlertTest: { approvalReferencePresent: telegramTest.approvalReferencePresent, status: telegramTest.status },
+    telegramAssistant: { enabled: telegramAssistantEnabled, mode: "read_only", pollSeconds: Number.isSafeInteger(telegramAssistantPollSeconds) ? telegramAssistantPollSeconds : 20, status: telegramAssistantEnabled ? "ready" : "disabled" },
   };
 }
