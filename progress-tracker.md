@@ -87,6 +87,13 @@
 - Bounded alert identifiers/status fields before returning them to Telegram; read-only broker/database boundaries are unchanged.
 - **Next smallest unit:** deploy the API hardening revision and complete the signed Mini App smoke test after API variables are configured.
 
+### Phase 6.629 — Hosted Mini App API hardening rollout (2026-08-31)
+
+- Deployed the bounded Mini App API revision from the current checkout to Railway.
+- Hosted unauthenticated verification returns `telegram_mini_app_disabled`, confirming the endpoint remains fail-closed while API-side Mini App variables are absent.
+- No broker, database, or Telegram message state was changed.
+- **Next smallest unit:** configure API-side Mini App variables and execute the signed Telegram `/dashboard` smoke test.
+
 ### Phase 6.396 — End-to-end Worker cycle telemetry (2026-08-29)
 
 - [x] Expose the latest research run, risk-cycle status/counts, and startup catch-up result through the bounded Worker heartbeat.
