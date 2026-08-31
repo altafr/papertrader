@@ -2,7 +2,7 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.651 — Mini App recent-order view.
+- **Phase:** Phase 6.652 — Mini App recent-order rollout.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, fresh crypto data, scheduled research, and position-management execution. The hosted contract is intentionally degraded only because BTCUSD and PFD are unmanaged legacy positions. The signed Telegram Mini App is deployed on Vercel with aggregate P/L cards, but API activation remains fail-closed until its four Telegram variables are configured.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading, promote one reviewed local batch when provider limits clear, verify authenticated portfolio/P&L rendering and exports, and accumulate the 30-day evidence gate without loosening risk controls. Deploy the current local heartbeat/dashboard changes only after explicit operator authorization.
@@ -237,6 +237,12 @@
 - Added a bounded recent-orders list to the read-only Portfolio tab, including side, status, quantity, and update time.
 - The list uses the already bounded API projection and does not add order or risk controls.
 - **Next smallest unit:** deploy the frontend revision and verify positions, orders, P/L, and alerts from Telegram.
+
+### Phase 6.652 — Mini App recent-order rollout (2026-08-31)
+
+- Published the recent-orders Portfolio view to Vercel production.
+- Confirmed `https://papertrader-web.vercel.app/telegram` returns HTTP 200 after deployment.
+- **Next smallest unit:** open `/dashboard` in Telegram and verify the signed Portfolio, recent orders, P/L, and Alerts view.
 
 ### Phase 6.396 — End-to-end Worker cycle telemetry (2026-08-29)
 
