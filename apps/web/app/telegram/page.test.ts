@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { getMiniAppErrorMessage } from "./page";
+import { getMiniAppErrorMessage, isMiniAppData } from "./page";
 
 describe("Telegram Mini App error messages", () => {
   it("turns disabled backend state into an actionable setup message", () => {
@@ -13,5 +13,9 @@ describe("Telegram Mini App error messages", () => {
 
   it("handles an empty read model without implying a broker failure", () => {
     expect(getMiniAppErrorMessage(404, "read_model_not_available")).toContain("reconciled snapshot");
+  });
+
+  it("rejects malformed portfolio responses before rendering", () => {
+    expect(isMiniAppData({ portfolio: {}, alerts: [] })).toBe(false);
   });
 });

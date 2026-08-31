@@ -9,6 +9,15 @@ type MiniAppData = {
   readonly alerts: readonly { readonly code: string; readonly deliveryStatus: string; readonly eventId: string; readonly message: string; readonly occurredAt: string; readonly severity: string }[];
 };
 
+const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === "object" && value !== null;
+
+export const isMiniAppData = (value: unknown): value is MiniAppData => {
+  if (!isRecord(value) || typeof value.asOf !== "string" || !isRecord(value.portfolio) || !Array.isArray(value.portfolio.positions) || !Array.isArray(value.portfolio.orders) || !Array.isArray(value.alerts)) return false;
+  if (!isRecord(value.portfolio.snapshot)) return false;
+  if (value.portfolio.metrics !== undefined && !isRecord(value.portfolio.metrics)) return false;
+  return value.alerts.every((alert) => isRecord(alert) && typeof alert.code === "string" && typeof alert.deliveryStatus === "string" && typeof alert.eventId === "string" && typeof alert.message === "string" && typeof alert.occurredAt === "string" && typeof alert.severity === "string");
+};
+
 declare global { interface Window { Telegram?: { WebApp?: { readonly initData?: string; ready: () => void; expand: () => void } } } }
 
 const money = (value: unknown): string => {
@@ -42,8 +51,8 @@ export default function TelegramMiniAppPage() {
       setRefreshing(true);
       try {
         const response = await fetch(`${apiBaseUrl}/v1/telegram-mini-app`, { headers: { "x-telegram-init-data": initData } });
-        const body = await response.json() as MiniAppData | { readonly error?: string };
-        if (!response.ok || !("portfolio" in body)) { setError(getMiniAppErrorMessage(response.status, "error" in body ? body.error : undefined)); return; }
+        const body: unknown = await response.json();
+        if (!response.ok || !isMiniAppData(body)) { setError(getMiniAppErrorMessage(response.status, isRecord(body) ? body.error : undefined)); return; }
         setData(body); setError("");
       } catch { setError("Could not reach the paper portfolio service."); }
       finally { setRefreshing(false); }
