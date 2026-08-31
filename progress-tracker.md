@@ -94,6 +94,13 @@
 - No broker, database, or Telegram message state was changed.
 - **Next smallest unit:** configure API-side Mini App variables and execute the signed Telegram `/dashboard` smoke test.
 
+### Phase 6.630 — Latest Mini App activation audit (2026-08-31)
+
+- Rechecked Railway API variable names without reading values; no `TELEGRAM_*` variables are currently configured on the API service.
+- Rechecked the hosted endpoint; it continues to return `telegram_mini_app_disabled` as designed.
+- Worker Telegram/Firecrawl configuration remains present and healthy; no broker, database, or Telegram state was changed.
+- **Next smallest unit:** add the API-side bot token, Mini App enable flag, operator user ID, and origin, then verify the signed endpoint and both Telegram tabs.
+
 ### Phase 6.396 — End-to-end Worker cycle telemetry (2026-08-29)
 
 - [x] Expose the latest research run, risk-cycle status/counts, and startup catch-up result through the bounded Worker heartbeat.
