@@ -6943,3 +6943,9 @@
 - Telegram portfolio responses use the same two-decimal display convention.
 - Worker assistant tests, typecheck, and production Web build passed.
 - **Next smallest unit:** deploy the display revision to Worker/Vercel and verify the live dashboard response.
+
+### Phase 6.592 — Hosted display revision (2026-08-31)
+
+- Worker deployment `b3c1bd66-5673-4d03-9da0-c76c0a7d42b8` completed successfully with the two-decimal Telegram response formatter.
+- Paper Autopilot and read-only assistant safeguards remain unchanged; no broker order mutation occurred.
+- **Next smallest unit:** confirm the connected Vercel deployment reflects the dashboard formatter, then continue crypto synthetic bracket work.
