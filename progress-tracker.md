@@ -121,6 +121,13 @@
 - Linked the runbook from the README; no credentials or runtime state were changed.
 - **Next smallest unit:** complete the documented API variable configuration and execute the signed `/dashboard` smoke test.
 
+### Phase 6.634 — Frontend/API configuration boundary audit (2026-08-31)
+
+- Vercel production has `NEXT_PUBLIC_API_BASE_URL` configured (encrypted) alongside the existing Clerk variables.
+- Railway Worker has Telegram/Mini App variables; Railway API still has none, so signed Mini App activation remains intentionally blocked at the backend boundary.
+- No environment values were printed or changed.
+- **Next smallest unit:** add API-side Telegram Mini App variables, then verify `telegramMiniApp.enabled/configured` and the signed Portfolio/Alerts response.
+
 ### Phase 6.396 — End-to-end Worker cycle telemetry (2026-08-29)
 
 - [x] Expose the latest research run, risk-cycle status/counts, and startup catch-up result through the bounded Worker heartbeat.
