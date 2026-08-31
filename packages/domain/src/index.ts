@@ -17,6 +17,7 @@ export interface ServiceHealth {
   readonly release?: string;
   readonly service: "api";
   readonly status: HealthState;
+  readonly telegramMiniApp?: { readonly enabled: boolean; readonly configured: boolean };
 }
 
 export interface WorkerHealth {

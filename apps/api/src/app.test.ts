@@ -20,4 +20,13 @@ describe("API health release identity", () => {
     vi.stubEnv("GIT_COMMIT_SHA", "also invalid!");
     expect(getApiHealth()).not.toHaveProperty("release");
   });
+
+  it("reports only non-secret Mini App configuration state", () => {
+    vi.stubEnv("TELEGRAM_MINI_APP_ENABLED", "true");
+    vi.stubEnv("TELEGRAM_BOT_TOKEN", "server-only-token");
+    vi.stubEnv("TELEGRAM_MINI_APP_USER_ID", "12345");
+    vi.stubEnv("TELEGRAM_MINI_APP_ORIGIN", "https://papertrader-web.vercel.app");
+    expect(getApiHealth().telegramMiniApp).toEqual({ enabled: true, configured: true });
+    expect(JSON.stringify(getApiHealth())).not.toContain("server-only-token");
+  });
 });

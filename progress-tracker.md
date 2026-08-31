@@ -101,6 +101,13 @@
 - Worker Telegram/Firecrawl configuration remains present and healthy; no broker, database, or Telegram state was changed.
 - **Next smallest unit:** add the API-side bot token, Mini App enable flag, operator user ID, and origin, then verify the signed endpoint and both Telegram tabs.
 
+### Phase 6.631 — API Mini App readiness telemetry (2026-08-31)
+
+- API `/health` now reports only `{enabled, configured}` for the Telegram Mini App; bot tokens, user IDs, and origins are never returned.
+- Added regression coverage for configured state and secret non-disclosure.
+- Domain/API build and focused tests pass; no broker or database state was changed.
+- **Next smallest unit:** deploy this telemetry revision, then configure API-side Mini App variables and run the signed Telegram smoke test.
+
 ### Phase 6.396 — End-to-end Worker cycle telemetry (2026-08-29)
 
 - [x] Expose the latest research run, risk-cycle status/counts, and startup catch-up result through the bounded Worker heartbeat.
