@@ -115,6 +115,12 @@
 - The Mini App endpoint remains correctly fail-closed until API variables are added.
 - **Next smallest unit:** configure the API-side variables and perform signed endpoint verification from Telegram.
 
+### Phase 6.633 — Mini App activation runbook (2026-08-31)
+
+- Added a secret-safe operator runbook covering `/myid`, Railway API/Worker variables, health verification, fail-closed checks, and Telegram launch behavior.
+- Linked the runbook from the README; no credentials or runtime state were changed.
+- **Next smallest unit:** complete the documented API variable configuration and execute the signed `/dashboard` smoke test.
+
 ### Phase 6.396 — End-to-end Worker cycle telemetry (2026-08-29)
 
 - [x] Expose the latest research run, risk-cycle status/counts, and startup catch-up result through the bounded Worker heartbeat.
