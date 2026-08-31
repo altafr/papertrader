@@ -6885,3 +6885,17 @@
 - Hosted health/logs confirm Paper Autopilot, scheduled research, fresh market data, and position-management continuity after rollout.
 - The assistant remains disabled because `TELEGRAM_ASSISTANT_ENABLED` is not enabled; no Telegram polling or trading behavior changed.
 - **Next smallest unit:** confirm the bot uses polling rather than a webhook, then deliberately enable `TELEGRAM_ASSISTANT_ENABLED=true` if desired.
+
+### Phase 6.584 — Live trading view and order reconciliation (2026-08-31)
+
+- Refreshed the current paper account from the Railway Worker: equity `99397.62`, cash `64058.89`, and three open positions.
+- Refreshed Alpaca paper orders read-only: 22 total filled orders—17 BTC/USD, 4 AAPL, and 1 PFD—with no order mutation.
+- The assistant deployment and live account view remain independent of order authority; all automated trading safeguards remain active.
+- **Next smallest unit:** enable the assistant only after confirming polling/webhook exclusivity, then run a Telegram help query and verify a read-only response.
+
+### Phase 6.585 — Telegram assistant enabled after polling check (2026-08-31)
+
+- Confirmed the bot has no webhook configured (`hasWebhook=false`) and enabled `TELEGRAM_ASSISTANT_ENABLED=true` on the Railway Worker.
+- Railway deployment `a7c4fec7-9fbe-4cf5-9355-037b9b276939` completed successfully; Paper Autopilot and market-data health remained active.
+- The assistant remains read-only and cannot place, cancel, replace, or modify orders.
+- **Next smallest unit:** send an authorized Telegram help/query message and verify the bounded response, then surface the same live account view in the dashboard.
