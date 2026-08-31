@@ -6989,7 +6989,8 @@
 - Telegram company/ticker/news questions route to a persisted `stock_research` or `crypto_research` agent run; portfolio, risk, order, and infrastructure questions remain local read-only queries.
 - Optional server-side `FIRECRAWL_API_KEY` enables bounded web lookup (up to three sources). Sources are untrusted reference material, never trading instructions; missing/provider failure does not affect trading.
 - Added routing and failure tests while preserving the assistant’s inability to place, cancel, or modify orders.
-- **Next smallest unit:** deploy the synchronized Worker and verify one authorized Telegram research query plus its persisted queued run.
+- Research runs now persist explicit `queued → running → succeeded/failed` lifecycle transitions and bounded web evidence; missing/provider failure is recorded as a failed-closed run.
+- **Next smallest unit:** deploy the synchronized Worker and verify one authorized Telegram research query plus its persisted completed/failed run.
 
 ### Phase 6.599 — Hosted research routing deployment (2026-08-31)
 

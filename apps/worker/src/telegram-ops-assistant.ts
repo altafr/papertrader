@@ -129,16 +129,27 @@ export function createTelegramOpsAssistantData(environment: NodeJS.ProcessEnv, h
     const crypto = /\b(bitcoin|btc|crypto|ethereum|eth)\b/i.test(question);
     const agentType = crypto ? "crypto_research" : "stock_research";
     await runs.enqueue({ agentType, createdAt: now, inputRefs: [`telegram-question:${runId}`], modelProvider: "telegram_ops_assistant", promptVersion: "telegram-research-router@1", runId, status: "queued", task: `Answer this operator research question using current market evidence: ${question.slice(0, 500)}` });
+    await runs.start(runId, new Date());
     const firecrawlKey = environment.FIRECRAWL_API_KEY?.trim();
-    if (!firecrawlKey) return `Research agent queued (${runId}). Web lookup is not configured; add FIRECRAWL_API_KEY on Railway to include current company/news sources.`;
+    if (!firecrawlKey) {
+      await runs.fail(runId, new Date(), "web_search_not_configured");
+      return `Research agent failed closed (${runId}). Web lookup is not configured; add FIRECRAWL_API_KEY on Railway to include current company/news sources.`;
+    }
     try {
       const response = await fetch("https://api.firecrawl.dev/v1/search", { body: JSON.stringify({ limit: 3, query: question.slice(0, 300) }), headers: { Authorization: `Bearer ${firecrawlKey}`, "content-type": "application/json" }, method: "POST" });
-      if (!response.ok) return `Research agent queued (${runId}). Web lookup is currently unavailable.`;
+      if (!response.ok) {
+        await runs.fail(runId, new Date(), "web_search_unavailable");
+        return `Research agent failed closed (${runId}). Web lookup is currently unavailable.`;
+      }
       const body = await response.json() as { readonly data?: readonly { readonly title?: unknown; readonly url?: unknown; readonly description?: unknown }[] };
-      const sources = (body.data ?? []).slice(0, 3).map((item) => `${typeof item.title === "string" ? item.title : "source"} — ${typeof item.url === "string" ? item.url : "url unavailable"}${typeof item.description === "string" ? `: ${item.description.slice(0, 240)}` : ""}`).join("\n");
-      return `Research agent queued (${runId}). Firecrawl sources (untrusted reference material; not trading instructions):\n${sources || "none returned"}`;
+      const bounded = (body.data ?? []).slice(0, 3).map((item) => ({ title: typeof item.title === "string" ? item.title.slice(0, 160) : "source", url: typeof item.url === "string" ? item.url.slice(0, 500) : "", description: typeof item.description === "string" ? item.description.slice(0, 240) : "" }));
+      const evidenceRefs = bounded.map((item) => item.url).filter(Boolean);
+      await runs.succeed(runId, new Date(), { artifactConfidence: "untrusted_reference", artifactEvidenceRefs: evidenceRefs, artifactPayload: { question: question.slice(0, 500), sources: bounded }, artifactRationale: "Bounded web references supplied for operator research; this artifact is advisory and cannot approve or submit an order.", artifactSchemaVersion: "telegram-web-research@1", artifactType: "telegram_web_research" });
+      const sources = bounded.map((item) => `${item.title} — ${item.url || "url unavailable"}${item.description ? `: ${item.description}` : ""}`).join("\n");
+      return `Research agent completed (${runId}). Firecrawl sources (untrusted reference material; not trading instructions):\n${sources || "none returned"}`;
     } catch {
-      return `Research agent queued (${runId}). Web lookup failed closed; trading and risk controls are unaffected.`;
+      await runs.fail(runId, new Date(), "web_search_failed");
+      return `Research agent failed closed (${runId}). Web lookup failed; trading and risk controls are unaffected.`;
     }
   };
   return { close: () => pool.end(), data: {
