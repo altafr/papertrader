@@ -2,11 +2,17 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.774 — Full paper-autonomous readiness audit.
+- **Phase:** Phase 6.775 — 22:15 UTC scheduled cycle evidence.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, scheduled research, healthy position management, and complete exit-plan coverage for all three live paper positions. The signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit confirms complete position coverage and Telegram delivery from a persisted sent test.
 - **Last updated:** 2026-09-02.
+
+### Phase 6.775 — 22:15 UTC scheduled cycle evidence (2026-09-02)
+
+- The hosted Worker completed the scheduled `22:15 UTC` crypto cycle: `crypto_research` produced one BTC/USD candidate, deterministic risk approved it, and paper execution reconciled broker truth with quantity `0.02579908`, entry `77264.19600000`, and estimated stop loss `4.99%`.
+- The stable intent advanced to `intent:BTC_USD:2026-09-01T22:00:00Z`; no retry, duplicate-order, or quantity-mismatch failure appeared. Worker health remained healthy and the next run is scheduled for `22:30 UTC`.
+- **Next smallest unit:** continue unattended cycles and re-audit the evidence counter after the next UTC calendar boundary.
 
 ### Phase 6.774 — Full paper-autonomous readiness audit (2026-09-02)
 
