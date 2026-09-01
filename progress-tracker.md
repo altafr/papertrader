@@ -2,7 +2,7 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.707 — Hosted stability checkpoint.
+- **Phase:** Phase 6.708 — Release identity alignment.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, fresh crypto data, scheduled research, and position-management execution. All three live paper positions have complete exit-plan coverage; the signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit confirms complete position coverage and Telegram delivery from a persisted sent test.
@@ -50,6 +50,13 @@
 - The dashboard Paper performance card displays the remaining consecutive-day requirement alongside snapshots and P/L; parser compatibility remains fail-closed for malformed values.
 - API/web typechecks and tests passed; the API deployment completed successfully. No order or risk behavior changed.
 - **Next smallest unit:** continue unattended paper operation; monitor the dashboard or Worker readiness report for evidence progress.
+
+### Phase 6.708 — Release identity alignment (2026-09-02)
+
+- Corrected the stale `PAPERTRADER_RELEASE` observability variable on both Railway Worker and API services and allowed Railway to redeploy both services.
+- Both deployments reached `SUCCESS`; hosted verification now reports the current revision `ae13038` and `releaseMatches=true` / `apiReleaseMatches=true`.
+- Paper mode, fresh market data, scheduler gates, position coverage, and kill-switch checks remain valid.
+- **Next smallest unit:** continue unattended paper operation and monitor the evidence window.
 
 ### Phase 6.707 — Hosted stability checkpoint (2026-09-02)
 
