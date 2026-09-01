@@ -2,7 +2,7 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.673 — Read-only exit-plan proposal generation.
+- **Phase:** Phase 6.674 — Hosted read-only exit-plan proposal verification.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, fresh crypto data, scheduled research, and position-management execution. The hosted contract is intentionally degraded only because BTCUSD and PFD are unmanaged legacy positions. The signed Telegram Mini App is deployed on Vercel and the API reports it enabled/configured with portfolio, order, alert, P/L, freshness, and unmanaged-position projections.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading, promote one reviewed local batch when provider limits clear, verify authenticated portfolio/P&L rendering and exports, and accumulate the 30-day evidence gate without loosening risk controls. Deploy the current local heartbeat/dashboard changes only after explicit operator authorization.
@@ -42,6 +42,13 @@
 - Suggestions are marked `requiresOperatorApproval` and are never written to PostgreSQL, submitted to Alpaca, or treated as strategy provenance.
 - Added regression coverage; focused tests, typecheck, lint, and diff hygiene pass.
 - **Next smallest unit:** operator reviews the proposal, supplies strategy metadata and approval references, then run dry-run adoption for BTCUSD/PFD.
+
+### Phase 6.674 — Hosted read-only exit-plan proposal verification (2026-09-01)
+
+- Railway Worker deployment of commit `43d000b` succeeded.
+- The deployed broker review returns broker-linked proposals for BTCUSD and PFD, each explicitly marked `requiresOperatorApproval=true`; the review remains read-only and does not write plans or mutate orders.
+- Worker health continues to show Paper Autopilot, read-only Telegram/Firecrawl readiness, fresh crypto data, and only the two expected unmanaged positions.
+- **Next smallest unit:** operator confirms or edits the suggested stop/target, supplies strategy key/version and approval references, then run the guarded dry-run adoption.
 
 ### Phase 6.618 — Injectable Firecrawl provider boundary (2026-08-31)
 
