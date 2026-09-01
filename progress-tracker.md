@@ -2,7 +2,7 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.703 — Telegram delivery state alignment.
+- **Phase:** Phase 6.704 — Natural scheduled cycle verification.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, fresh crypto data, scheduled research, and position-management execution. All three live paper positions have complete exit-plan coverage; the signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit confirms complete position coverage and Telegram delivery from a persisted sent test.
@@ -50,6 +50,13 @@
 - The dashboard Paper performance card displays the remaining consecutive-day requirement alongside snapshots and P/L; parser compatibility remains fail-closed for malformed values.
 - API/web typechecks and tests passed; the API deployment completed successfully. No order or risk behavior changed.
 - **Next smallest unit:** continue unattended paper operation; monitor the dashboard or Worker readiness report for evidence progress.
+
+### Phase 6.704 — Natural scheduled cycle verification (2026-09-02)
+
+- Observed the Worker complete the natural 18:45 UTC research/risk cycle without manual triggering or deployment.
+- Hosted health recorded `lastRiskCycleStatus=completed`, one deterministic risk decision, zero approvals, and advanced the next run to 19:00 UTC; position management remained ready with zero unmanaged positions.
+- This verifies the continuous scheduler path is operating while preserving fail-closed selection behavior when no candidate is approved.
+- **Next smallest unit:** continue unattended cycles and accumulate the remaining paper-evidence days.
 
 ### Phase 6.703 — Telegram delivery state alignment (2026-09-02)
 
