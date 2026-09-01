@@ -2,7 +2,7 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.661 — Repeatable Mini App smoke verification.
+- **Phase:** Phase 6.662 — Production Mini App smoke verification.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, fresh crypto data, scheduled research, and position-management execution. The hosted contract is intentionally degraded only because BTCUSD and PFD are unmanaged legacy positions. The signed Telegram Mini App is deployed on Vercel and the API reports it enabled/configured with portfolio, order, alert, P/L, freshness, and unmanaged-position projections.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading, promote one reviewed local batch when provider limits clear, verify authenticated portfolio/P&L rendering and exports, and accumulate the 30-day evidence gate without loosening risk controls. Deploy the current local heartbeat/dashboard changes only after explicit operator authorization.
@@ -301,6 +301,13 @@
 - Added `verify:telegram-mini-app`, a server-side signed-request verifier that prints only response counts and metric keys, never credentials or portfolio values.
 - This makes post-deploy Mini App checks repeatable while preserving the read-only boundary.
 - **Next smallest unit:** run the verifier inside Railway after each API rollout, then complete the interactive Telegram launch check.
+
+### Phase 6.662 — Production Mini App smoke verification (2026-09-01)
+
+- Ran the new verifier using Railway-held Telegram secrets against the production API.
+- Verified HTTP 200 with 3 positions, 22 orders, 50 alerts, Day/Unrealized P/L metrics, and 2 unmanaged positions.
+- No credentials or portfolio values were printed; no broker/database state changed.
+- **Next smallest unit:** open `/dashboard` in Telegram and perform the final interactive launch check.
 
 ### Phase 6.396 — End-to-end Worker cycle telemetry (2026-08-29)
 
