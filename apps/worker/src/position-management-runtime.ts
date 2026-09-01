@@ -51,6 +51,13 @@ export function groupPositionSymbolsByAssetClass(positions: ReadonlyArray<{ read
   return [...groups.entries()].map(([assetClass, symbols]) => ({ assetClass, symbols }));
 }
 
+export function getUnavailablePositionSymbols(
+  positions: ReadonlyArray<{ readonly assetClass: string; readonly symbol: string }>,
+  marks: ReadonlyArray<{ readonly assetClass: string; readonly symbol: string; readonly fresh: boolean }>,
+): readonly string[] {
+  return positions.filter((position) => !marks.some((mark) => mark.assetClass === (position.assetClass === "crypto" ? "crypto" : "us_equity") && canonicalSymbol(mark.symbol) === canonicalSymbol(position.symbol) && mark.fresh)).map((position) => position.symbol).slice(0, 20);
+}
+
 export function getPositionDetectedDedupeKey(assetClass: string, symbol: string, intentId = "unknown"): string {
   return `position_detected:${assetClass === "crypto" ? "crypto" : "us_equity"}:${symbol}:${intentId}`;
 }
@@ -194,6 +201,12 @@ export async function runPositionManagementCycle(environment: NodeJS.ProcessEnv 
     const reader = createPaperMarketDataReader({ apiKey, secretKey });
     const markGroups = await Promise.all(groupPositionSymbolsByAssetClass(managedPositions).map(async (group) => ({ assetClass: group.assetClass, marks: await reader.readSnapshots(group) })));
     const marks = markGroups.flatMap((group) => group.marks.map((mark) => ({ assetClass: group.assetClass, mark })));
+    const unavailable = getUnavailablePositionSymbols(managedPositions, marks.map((item) => ({ assetClass: item.assetClass, fresh: Boolean(getFreshPositionMark(item.mark)), symbol: item.mark.symbol })));
+    for (const symbol of unavailable) {
+      const position = managedPositions.find((candidate) => canonicalSymbol(candidate.symbol) === canonicalSymbol(symbol) && candidate.assetClass === (marks.find((item) => canonicalSymbol(item.mark.symbol) === canonicalSymbol(symbol))?.assetClass ?? candidate.assetClass));
+      await notifier.notify({ code: "position_market_data_unavailable", cooldownKey: `position_market_data_unavailable:${position?.assetClass ?? "unknown"}:${symbol}`, cooldownMs: POSITION_DETECTED_COOLDOWN_MS, dedupeKey: `position_market_data_unavailable:${position?.assetClass ?? "unknown"}:${symbol}`, message: `Position management paused for ${symbol}: no fresh market mark is available. No automatic exit was submitted.`, severity: "critical" });
+    }
+    if (unavailable.length > 0) throw new Error("position_market_data_unavailable");
     const managed = managedPositions.flatMap((position) => {
       const plan = plans.get(`${position.assetClass}:${canonicalSymbol(position.symbol)}`);
       const mark = marks.find((item) => item.assetClass === (position.assetClass === "crypto" ? "crypto" : "us_equity") && canonicalSymbol(item.mark.symbol) === canonicalSymbol(position.symbol))?.mark;

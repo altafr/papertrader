@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { buildPaperExitSubmittedMessage, buildPositionExitDecisionLog, buildPositionExitDecisionMessage, buildPositionManagementLog, buildUnmanagedPositionLog, getActiveExitIntentIds, getFreshPositionMark, getPaperOrderStatusTransitions, getPositionDetectedDedupeKey, getPositionExitDecisionDedupeKey, getPositionExitIntentId, groupPositionSymbolsByAssetClass, isTerminalPaperOrderStatus } from "./position-management-runtime.js";
+import { buildPaperExitSubmittedMessage, buildPositionExitDecisionLog, buildPositionExitDecisionMessage, buildPositionManagementLog, buildUnmanagedPositionLog, getActiveExitIntentIds, getFreshPositionMark, getPaperOrderStatusTransitions, getPositionDetectedDedupeKey, getPositionExitDecisionDedupeKey, getPositionExitIntentId, getUnavailablePositionSymbols, groupPositionSymbolsByAssetClass, isTerminalPaperOrderStatus } from "./position-management-runtime.js";
 import { assessPositionManagementLiveness } from "./position-management-scheduler.js";
 
 describe("paper order status transitions", () => {
@@ -38,6 +38,12 @@ describe("position market-data grouping", () => {
     expect(getFreshPositionMark({ symbol: "BTC/USD", latestTrade: { price: "100", timestamp: "2026-08-29T00:04:30.000Z" } }, now)).toBe("100");
     expect(getFreshPositionMark({ symbol: "BTC/USD", latestTrade: { price: "999999999999999999999999999999", timestamp: "2026-08-29T00:04:30.000Z" } }, now)).toBe("999999999999999999999999999999");
     expect(getFreshPositionMark({ symbol: "BTC/USD", latestQuote: { askPrice: "101", bidPrice: "99", timestamp: "2026-08-29T00:04:30.000Z" } }, now)).toBe("99");
+  });
+});
+
+describe("position market-data availability", () => {
+  it("identifies managed positions without a fresh mark", () => {
+    expect(getUnavailablePositionSymbols([{ assetClass: "crypto", symbol: "BTCUSD" }, { assetClass: "us_equity", symbol: "AAPL" }], [{ assetClass: "crypto", symbol: "BTC/USD", fresh: false }, { assetClass: "us_equity", symbol: "AAPL", fresh: true }])).toEqual(["BTCUSD"]);
   });
 });
 

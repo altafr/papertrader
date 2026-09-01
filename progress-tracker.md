@@ -2,11 +2,17 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.730 — Market-close summary delivery verification.
+- **Phase:** Phase 6.731 — Missing-mark fail-closed monitoring.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, fresh crypto data, scheduled research, and position-management execution. All three live paper positions have complete exit-plan coverage; the signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit confirms complete position coverage and Telegram delivery from a persisted sent test.
 - **Last updated:** 2026-09-02.
+
+### Phase 6.731 — Missing-mark fail-closed monitoring (2026-09-02)
+
+- Position management now detects any managed position lacking a fresh market mark, emits a critical Telegram alert, and fails the pass closed instead of silently skipping that position.
+- Added canonical-symbol regression coverage; Worker typecheck and lint pass. No broker state changed.
+- **Next smallest unit:** deploy the Worker revision and verify that healthy position-management passes continue when all marks are fresh.
 
 ### Phase 6.730 — Market-close summary delivery verification (2026-09-02)
 
