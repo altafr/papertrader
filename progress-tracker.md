@@ -2,11 +2,18 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.767 — Production build verification during evidence collection.
+- **Phase:** Phase 6.768 — Secret-surface release audit.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, scheduled research, healthy position management, and complete exit-plan coverage for all three live paper positions. The signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit confirms complete position coverage and Telegram delivery from a persisted sent test.
 - **Last updated:** 2026-09-02.
+
+### Phase 6.768 — Secret-surface release audit (2026-09-02)
+
+- The repository secret-surface audit passed: no credential-like values were found in source or browser output.
+- This preserves the server-only credential boundary for Alpaca, Telegram, and Firecrawl while the hosted Worker continues paper trading.
+- No runtime configuration, broker state, or deployment was changed. The next scheduled crypto cycle remains the next operational evidence point.
+- **Next smallest unit:** verify the next hosted scheduler cycle and continue the 30-day evidence window.
 
 ### Phase 6.767 — Production build verification during evidence collection (2026-09-02)
 
