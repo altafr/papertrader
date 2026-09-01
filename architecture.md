@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.683 continuous runtime safety evidence; continuous Paper Autopilot and multi-day evidence collection continue.
+- **Stage:** Phase 6.684 Mini App/Worker exit-plan consistency fix; continuous Paper Autopilot and multi-day evidence collection continue.
 - **Current hosted state:** Worker is deployed in Paper Autopilot with fresh crypto data, scheduled research, deterministic risk/execution gates, two-percent minimum sizing, equity bracket entries, ratcheting position stops, restart-safe synthetic crypto protection explicitly enabled, and the read-only Telegram operations assistant enabled with polling. Worker health exposes assistant readiness without secrets. The hosted readiness contract remains degraded only for two unmanaged legacy positions (BTCUSD and PFD), which still pause new entries.
 
 Telegram research questions are routed into the durable agent-run ledger (`stock_research` for companies/equities, `crypto_research` for crypto, `macro_advisory` for rates/inflation/macro questions). Optional Firecrawl lookup is server-side only, bounded to three results, labelled untrusted reference material, and has no order authority; absent or failed lookup is fail-closed.
@@ -10,6 +10,8 @@ Telegram research questions are routed into the durable agent-run ledger (`stock
 Exit-plan, stop-loss, take-profit, unmanaged-position, and position-management questions stay on the local read-only path rather than being sent to web research. The assistant reports stored managed/review-required coverage and never gains order authority.
 
 Telegram portfolio responses include an exit-plan coverage label for each position (`managed` or `review required`) based on complete persisted provenance, matching the Worker fail-closed rule.
+
+The authenticated dashboard and Telegram Mini App select only complete qualifying plan provenance (approved or broker-linked) when determining managed coverage; an unrelated newer incomplete submission cannot falsely mark a managed position as unmanaged.
 
 Those responses also include decimal-safe aggregate day P/L (when a prior equity snapshot exists) and unrealized P/L, formatted to two decimals; missing or malformed values fail closed to `unknown`.
 

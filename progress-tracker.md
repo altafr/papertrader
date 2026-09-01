@@ -2,7 +2,7 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.683 — Continuous runtime safety evidence.
+- **Phase:** Phase 6.684 — Mini App/Worker exit-plan consistency fix.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, fresh crypto data, scheduled research, and position-management execution. The hosted contract is intentionally degraded only because BTCUSD and PFD are unmanaged legacy positions. The signed Telegram Mini App is deployed on Vercel and the API reports it enabled/configured with portfolio, order, alert, P/L, freshness, and unmanaged-position projections.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading, promote one reviewed local batch when provider limits clear, verify authenticated portfolio/P&L rendering and exports, and accumulate the 30-day evidence gate without loosening risk controls. Deploy the current local heartbeat/dashboard changes only after explicit operator authorization.
@@ -109,6 +109,13 @@
 - BTCUSD and PFD continue to be explicitly detected as unmanaged; the risk/position gate remains fail-closed and no new order was submitted.
 - Telegram assistant remains enabled/read-only with Firecrawl configured; no runtime failure or stale-data breach appeared.
 - **Next smallest unit:** continue paper-forward evidence collection and complete operator-reviewed legacy exit-plan adoption when values are supplied.
+
+### Phase 6.684 — Mini App/Worker exit-plan consistency fix (2026-09-01)
+
+- Fixed the API dashboard and Telegram Mini App unmanaged-position queries to select only complete qualifying exit plans, matching the Worker’s authoritative coverage rule.
+- This removes a false unmanaged count caused by a newer incomplete submission row shadowing a complete managed plan; incomplete positions remain fail-closed.
+- API-focused tests, typecheck, lint, and diff hygiene pass; no broker or database state changed.
+- **Next smallest unit:** deploy the API revision and rerun the signed Mini App verifier; its unmanaged count should match Worker health (currently two).
 
 ### Phase 6.618 — Injectable Firecrawl provider boundary (2026-08-31)
 
