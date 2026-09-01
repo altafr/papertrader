@@ -19,7 +19,7 @@ import { reconcileBeforeSchedulerStart } from "./startup-recovery.js";
 import { createPositionManagementSchedulerFromEnvironment } from "./position-management-runtime.js";
 import { createRuntimeAlertNotifier } from "./telegram-events.js";
 import { getDailyNotificationDedupeKey } from "./notification-dedupe.js";
-import { countUnmanagedPositions, formatDailyPortfolioSummary } from "./daily-summary.js";
+import { attachPositionProtection, countUnmanagedPositions, formatDailyPortfolioSummary } from "./daily-summary.js";
 import { createTelegramOpsAssistant, createTelegramOpsAssistantData } from "./telegram-ops-assistant.js";
 
 const streamEnabled = process.env.MARKET_STREAM_ENABLED;
@@ -126,7 +126,7 @@ if (durableConfiguration.enabled) {
       const account = model?.snapshot;
       if (account && !marketCloseSummaryEnabled) {
         const plans = (await createPaperOrderRepository(db).listExitPlans()).filter((plan) => isCompleteExitPlan(plan));
-        await createRuntimeAlertNotifier(process.env, createTelegramAlertRepository(db)).notify({ code: "daily_portfolio_summary", cooldownKey: "daily_portfolio_summary:portfolio", cooldownMs: 86_400_000, dedupeKey: getDailyNotificationDedupeKey("daily_portfolio_summary", "portfolio", account.capturedAt), message: formatDailyPortfolioSummary({ buyingPower: account.buyingPower, cash: account.cash, equity: account.equity, ...(account.lastEquity == null ? {} : { lastEquity: account.lastEquity }), orders: model?.orders.length ?? 0, unmanagedPositions: countUnmanagedPositions(model?.positions ?? [], plans), positions: model?.positions ?? [] }), occurredAt: account.capturedAt.toISOString(), severity: "info" });
+        await createRuntimeAlertNotifier(process.env, createTelegramAlertRepository(db)).notify({ code: "daily_portfolio_summary", cooldownKey: "daily_portfolio_summary:portfolio", cooldownMs: 86_400_000, dedupeKey: getDailyNotificationDedupeKey("daily_portfolio_summary", "portfolio", account.capturedAt), message: formatDailyPortfolioSummary({ buyingPower: account.buyingPower, cash: account.cash, equity: account.equity, ...(account.lastEquity == null ? {} : { lastEquity: account.lastEquity }), orders: model?.orders.length ?? 0, unmanagedPositions: countUnmanagedPositions(model?.positions ?? [], plans), positions: attachPositionProtection(model?.positions ?? [], plans) }), occurredAt: account.capturedAt.toISOString(), severity: "info" });
       }
       return { accountSnapshotId: snapshot.id };
     } finally {

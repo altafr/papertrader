@@ -12,7 +12,7 @@ import { runPaperAutopilotRiskCycle } from "./paper-autopilot-cycle.js";
 import { executePaperAutopilotOrder } from "./paper-execution.js";
 import { reconcilePaperAccount } from "./reconcile.js";
 import { getPaperAutopilotQuantityForCandidate } from "./paper-quantity.js";
-import { countUnmanagedPositions, formatDailyPortfolioSummary } from "./daily-summary.js";
+import { attachPositionProtection, countUnmanagedPositions, formatDailyPortfolioSummary } from "./daily-summary.js";
 import { getDailyNotificationDedupeKey } from "./notification-dedupe.js";
 
 /** True during the weekday New York 16:00 close hour, including DST. */
@@ -122,7 +122,7 @@ export function createResearchSchedulerFromEnvironment(environment: NodeJS.Proce
           const orderRepository = createPaperOrderRepository(db);
           if (model?.snapshot && isMarketCloseSummaryEnabled(environment) && isUsMarketCloseSummaryWindow(model.snapshot.capturedAt)) {
             const plans = (await orderRepository.listExitPlans()).filter((plan) => isCompleteExitPlan(plan));
-            await notifier.notify({ code: "daily_portfolio_summary", cooldownKey: "daily_portfolio_summary:market_close", cooldownMs: 86_400_000, dedupeKey: getDailyNotificationDedupeKey("daily_portfolio_summary", "market_close", model.snapshot.capturedAt), message: formatDailyPortfolioSummary({ buyingPower: model.snapshot.buyingPower, cash: model.snapshot.cash, equity: model.snapshot.equity, ...(model.snapshot.lastEquity == null ? {} : { lastEquity: model.snapshot.lastEquity }), orders: model.orders.length, unmanagedPositions: countUnmanagedPositions(model.positions, plans), positions: model.positions }), occurredAt: model.snapshot.capturedAt.toISOString(), severity: "info" });
+            await notifier.notify({ code: "daily_portfolio_summary", cooldownKey: "daily_portfolio_summary:market_close", cooldownMs: 86_400_000, dedupeKey: getDailyNotificationDedupeKey("daily_portfolio_summary", "market_close", model.snapshot.capturedAt), message: formatDailyPortfolioSummary({ buyingPower: model.snapshot.buyingPower, cash: model.snapshot.cash, equity: model.snapshot.equity, ...(model.snapshot.lastEquity == null ? {} : { lastEquity: model.snapshot.lastEquity }), orders: model.orders.length, unmanagedPositions: countUnmanagedPositions(model.positions, plans), positions: attachPositionProtection(model.positions, plans) }), occurredAt: model.snapshot.capturedAt.toISOString(), severity: "info" });
           }
           if (candidates.length === 0) return;
           const executeApproved = orderSubmissionFlag === "true" ? async (order: Parameters<typeof executePaperAutopilotOrder>[0]["order"]) => {

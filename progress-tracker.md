@@ -2,11 +2,18 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.727 — Telegram portfolio runtime checkpoint.
+- **Phase:** Phase 6.728 — Daily summary protection digest.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, fresh crypto data, scheduled research, and position-management execution. All three live paper positions have complete exit-plan coverage; the signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit confirms complete position coverage and Telegram delivery from a persisted sent test.
 - **Last updated:** 2026-09-02.
+
+### Phase 6.728 — Daily summary protection digest (2026-09-02)
+
+- End-of-session and portfolio summaries now include a bounded protection digest with each position’s active ratcheted stop and target, alongside P/L and exposure.
+- Summary construction canonicalizes crypto symbols when attaching persisted plans, keeping Telegram reporting aligned with Worker enforcement.
+- Added regression coverage; Worker typecheck and lint pass. No broker state changed.
+- **Next smallest unit:** deploy the Worker revision and verify the next summary path/hosted health.
 
 ### Phase 6.727 — Telegram portfolio runtime checkpoint (2026-09-02)
 

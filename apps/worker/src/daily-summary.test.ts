@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { countUnmanagedPositions, formatDailyPortfolioSummary } from "./daily-summary.js";
+import { attachPositionProtection, countUnmanagedPositions, formatDailyPortfolioSummary } from "./daily-summary.js";
 
 describe("daily portfolio summary", () => {
   it("counts positions without a matching exit plan", () => {
@@ -8,6 +8,11 @@ describe("daily portfolio summary", () => {
 
   it("matches compact and slash-form broker symbols", () => {
     expect(countUnmanagedPositions([{ assetClass: "crypto", symbol: "BTCUSD" }], [{ assetClass: "crypto", symbol: "BTC/USD" }])).toBe(0);
+  });
+
+  it("projects durable active protection into the summary", () => {
+    const positions = attachPositionProtection([{ assetClass: "crypto", symbol: "BTCUSD", marketValue: "100", unrealizedPl: "4" }], [{ assetClass: "crypto", symbol: "BTC/USD", plannedStopPrice: "95", trailingStopPrice: "114", plannedTargetPrice: "120" }]);
+    expect(formatDailyPortfolioSummary({ buyingPower: "0", cash: "0", equity: "100", orders: 1, positions })).toContain("protection [BTCUSD stop 114.00 target 120.00]");
   });
 
   it("formats P/L and exposure from persisted positions", () => {
