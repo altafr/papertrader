@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, gte, inArray, isNotNull, lt, or, sql } from "drizzle-orm";
+import { and, asc, desc, eq, gte, inArray, isNotNull, isNull, lt, or, sql } from "drizzle-orm";
 
 import type { Database } from "./client.js";
 import { accountSnapshots, activities, agentRuns, durableOneRunAudits, durableScheduleRuns, orders, paperBaselineConfirmations, paperOrderSubmissions, positions, shadowObservationOutcomes, shadowObservations, strategyLifecycleEvents, strategyPaperEvidence, telegramAlertEvents } from "./schema.js";
@@ -47,6 +47,7 @@ export interface PersistedPaperOrderSubmission {
   readonly plannedTargetPrice?: string;
   readonly strategyKey?: string;
   readonly strategyVersion?: string;
+  readonly trailingStopPrice?: string;
   readonly timeStopAt?: Date;
   readonly status: string;
   readonly submittedAt?: Date;
@@ -545,6 +546,7 @@ export function createPaperOrderRepository(db: Database) {
               ...(submission.plannedTargetPrice ? { plannedTargetPrice: submission.plannedTargetPrice } : {}),
               ...(submission.strategyKey ? { strategyKey: submission.strategyKey } : {}),
               ...(submission.strategyVersion ? { strategyVersion: submission.strategyVersion } : {}),
+              ...(submission.trailingStopPrice ? { trailingStopPrice: submission.trailingStopPrice } : {}),
               ...(submission.marketSnapshot ? { marketSnapshot: submission.marketSnapshot } : {}),
               ...(submission.riskDecision ? { riskDecision: submission.riskDecision } : {}),
               updatedAt: submission.updatedAt ?? new Date(),
@@ -569,6 +571,7 @@ export function createPaperOrderRepository(db: Database) {
           ...(submission.plannedTargetPrice ? { plannedTargetPrice: submission.plannedTargetPrice } : {}),
           ...(submission.strategyKey ? { strategyKey: submission.strategyKey } : {}),
           ...(submission.strategyVersion ? { strategyVersion: submission.strategyVersion } : {}),
+          ...(submission.trailingStopPrice ? { trailingStopPrice: submission.trailingStopPrice } : {}),
           ...(submission.timeStopAt ? { timeStopAt: submission.timeStopAt } : {}),
           ...(submission.alpacaOrderId ? { alpacaOrderId: submission.alpacaOrderId } : {}),
           ...(submission.filledQuantity ? { filledQuantity: submission.filledQuantity } : {}),
@@ -597,6 +600,7 @@ export function createPaperOrderRepository(db: Database) {
         ...(submission.plannedTargetPrice ? { plannedTargetPrice: submission.plannedTargetPrice } : {}),
         ...(submission.strategyKey ? { strategyKey: submission.strategyKey } : {}),
         ...(submission.strategyVersion ? { strategyVersion: submission.strategyVersion } : {}),
+        ...(submission.trailingStopPrice ? { trailingStopPrice: submission.trailingStopPrice } : {}),
         ...(submission.timeStopAt ? { timeStopAt: submission.timeStopAt } : {}),
         ...(submission.alpacaOrderId ? { alpacaOrderId: submission.alpacaOrderId } : {}),
         ...(submission.filledQuantity ? { filledQuantity: submission.filledQuantity } : {}),
@@ -622,6 +626,11 @@ export function createPaperOrderRepository(db: Database) {
     async markFailed(intentId: string) {
       const [row] = await db.update(paperOrderSubmissions).set({ status: "failed", updatedAt: new Date() }).where(eq(paperOrderSubmissions.intentId, intentId)).returning();
       if (!row) throw new Error("Paper order submission was not found.");
+      return row;
+    },
+
+    async ratchetTrailingStop(intentId: string, trailingStopPrice: string) {
+      const [row] = await db.update(paperOrderSubmissions).set({ trailingStopPrice, updatedAt: new Date() }).where(and(eq(paperOrderSubmissions.intentId, intentId), or(isNull(paperOrderSubmissions.trailingStopPrice), lt(paperOrderSubmissions.trailingStopPrice, trailingStopPrice)))).returning();
       return row;
     },
 

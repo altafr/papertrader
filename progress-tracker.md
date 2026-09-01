@@ -2,11 +2,18 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.714 — Full regression checkpoint.
+- **Phase:** Phase 6.715 — Durable trailing-stop ratchet.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, fresh crypto data, scheduled research, and position-management execution. All three live paper positions have complete exit-plan coverage; the signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit confirms complete position coverage and Telegram delivery from a persisted sent test.
 - **Last updated:** 2026-09-02.
+
+### Phase 6.715 — Durable trailing-stop ratchet (2026-09-02)
+
+- Position management now persists the effective trailing stop and only raises it; a favorable move cannot be lost after a price pullback or Worker restart.
+- Exit-decision notifications and credential-free logs report the active effective stop, while the original approved plan remains immutable provenance.
+- Added migration `0017_paper_order_trailing_stop.sql`, repository ratchet update, domain regression coverage, and full verification (99 files / 449 tests, typechecks, lint).
+- **Next smallest unit:** apply migration 0017, deploy the Worker, and verify hosted readiness.
 
 ### Phase 6.714 — Full regression checkpoint (2026-09-02)
 

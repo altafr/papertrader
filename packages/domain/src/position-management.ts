@@ -18,6 +18,8 @@ export interface ManagedPaperPosition {
   readonly assetClass: "crypto" | "us_equity";
   readonly currentPrice: string;
   readonly entryPrice: string;
+  /** Last durably ratcheted stop; it may only move upward for a long position. */
+  readonly effectiveStopPrice?: string;
   readonly plannedStopPrice: string;
   readonly plannedTargetPrice?: string;
   readonly quantity: string;
@@ -37,9 +39,9 @@ export interface PositionExitDecision {
 }
 
 /** Ratchet a long stop upward by 5% below the current favorable mark. */
-export function calculateTrailingStopPrice(input: { readonly currentPrice: string; readonly entryPrice: string; readonly plannedStopPrice: string }): string {
+export function calculateTrailingStopPrice(input: { readonly currentPrice: string; readonly entryPrice: string; readonly plannedStopPrice: string; readonly effectiveStopPrice?: string }): string {
   const current = new Decimal(input.currentPrice);
-  const planned = new Decimal(input.plannedStopPrice);
+  const planned = new Decimal(input.effectiveStopPrice ?? input.plannedStopPrice);
   const trailing = current.greaterThan(input.entryPrice) ? current.times("0.95") : planned;
   return (planned.greaterThan(trailing.toFixed(8)) ? planned : trailing).toDecimalPlaces(8).toFixed(8);
 }

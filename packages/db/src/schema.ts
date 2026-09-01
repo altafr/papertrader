@@ -145,6 +145,7 @@ export const paperOrderSubmissions = pgTable(
     symbol: text("symbol").notNull(),
     strategyKey: text("strategy_key"),
     strategyVersion: text("strategy_version"),
+    trailingStopPrice: numeric("trailing_stop_price", { precision: 20, scale: 8 }),
     timeStopAt: timestamp("time_stop_at", { withTimezone: true }),
     updatedAt: timestamp("updated_at", { withTimezone: true }),
   },

@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.714 full regression checkpoint; continuous Paper Autopilot and multi-day evidence collection continue.
+- **Stage:** Phase 6.715 durable trailing-stop ratchet; continuous Paper Autopilot and multi-day evidence collection continue.
 - **Current hosted state:** Worker is deployed in Paper Autopilot with fresh crypto data, scheduled research, deterministic risk/execution gates, two-percent minimum sizing, equity bracket entries, ratcheting position stops, restart-safe synthetic crypto protection explicitly enabled, and the read-only Telegram operations assistant enabled with polling. Worker health exposes assistant readiness without secrets. All three paper positions have complete exit-plan coverage; the only remaining release blocker is the 30-consecutive-calendar-day evidence gate.
 
 Telegram research questions are routed into the durable agent-run ledger (`stock_research` for companies/equities, `crypto_research` for crypto, `macro_advisory` for rates/inflation/macro questions). Optional Firecrawl lookup is server-side only, bounded to three results, labelled untrusted reference material, and has no order authority; absent or failed lookup is fail-closed.
@@ -12,6 +12,8 @@ Exit-plan, stop-loss, take-profit, unmanaged-position, and position-management q
 Telegram portfolio responses include an exit-plan coverage label for each position (`managed` or `review required`) based on complete persisted provenance, matching the Worker fail-closed rule.
 
 Scheduled paper orders use asset-class-specific broker duration: crypto orders use good-til-cancelled (`gtc`), while US-equity orders use day duration. This mapping is deterministic and does not bypass risk, approval, bracket, or reconciliation gates.
+
+For long positions, the effective trailing stop is durably persisted per managed entry and updated only when the new stop is higher. The approved planned stop remains unchanged as provenance; restart-safe ratcheting prevents a favorable move from being given back after a pullback.
 
 The authenticated dashboard and Telegram Mini App select only complete qualifying plan provenance (approved or broker-linked) when determining managed coverage; an unrelated newer incomplete submission cannot falsely mark a managed position as unmanaged.
 

@@ -99,8 +99,8 @@ export function buildPositionExitDecisionLog(input: { readonly currentPrice?: st
 }
 
 /** Bounded Telegram explanation for an exit decision using the stored plan. */
-export function buildPositionExitDecisionMessage(input: { readonly currentPrice: string; readonly entryPrice: string; readonly plannedStopPrice: string; readonly plannedTargetPrice?: string; readonly timeStopAt?: string; readonly reason: string; readonly strategyKey: string; readonly strategyVersion: string; readonly symbol: string }): string {
-  return `Paper exit decision: ${input.symbol} ${input.reason} at ${input.currentPrice}. Strategy ${input.strategyKey} ${input.strategyVersion}; entry ${input.entryPrice}, stop ${input.plannedStopPrice}${input.plannedTargetPrice ? `, target ${input.plannedTargetPrice}` : ""}${input.timeStopAt ? `, time stop ${input.timeStopAt}` : ""}. Triggered by the stored deterministic exit plan.`.slice(0, 900);
+export function buildPositionExitDecisionMessage(input: { readonly currentPrice: string; readonly entryPrice: string; readonly plannedStopPrice: string; readonly effectiveStopPrice?: string; readonly plannedTargetPrice?: string; readonly timeStopAt?: string; readonly reason: string; readonly strategyKey: string; readonly strategyVersion: string; readonly symbol: string }): string {
+  return `Paper exit decision: ${input.symbol} ${input.reason} at ${input.currentPrice}. Strategy ${input.strategyKey} ${input.strategyVersion}; entry ${input.entryPrice}, stop ${input.effectiveStopPrice ?? input.plannedStopPrice}${input.plannedTargetPrice ? `, target ${input.plannedTargetPrice}` : ""}${input.timeStopAt ? `, time stop ${input.timeStopAt}` : ""}. Triggered by the stored deterministic exit plan.`.slice(0, 900);
 }
 
 /** Keep the aggregate submission alert actionable without duplicating full decision alerts. */
@@ -199,7 +199,7 @@ export async function runPositionManagementCycle(environment: NodeJS.ProcessEnv 
       const mark = marks.find((item) => item.assetClass === (position.assetClass === "crypto" ? "crypto" : "us_equity") && canonicalSymbol(item.mark.symbol) === canonicalSymbol(position.symbol))?.mark;
       const currentPrice = mark ? getFreshPositionMark(mark) : undefined;
       if (!plan || !currentPrice) return [];
-      return [{ assetClass: position.assetClass === "crypto" ? "crypto" as const : "us_equity" as const, currentPrice, entryPrice: plan.entryPrice!, plannedStopPrice: plan.plannedStopPrice!, ...(plan.plannedTargetPrice ? { plannedTargetPrice: plan.plannedTargetPrice } : {}), quantity: position.quantity, strategyKey: plan.strategyKey!, strategyVersion: plan.strategyVersion!, symbol: position.symbol, ...(plan.timeStopAt ? { timeStopAt: plan.timeStopAt.toISOString() } : {}), intentId: plan.intentId }];
+      return [{ assetClass: position.assetClass === "crypto" ? "crypto" as const : "us_equity" as const, currentPrice, entryPrice: plan.entryPrice!, plannedStopPrice: plan.plannedStopPrice!, ...(plan.trailingStopPrice ? { effectiveStopPrice: plan.trailingStopPrice } : {}), ...(plan.plannedTargetPrice ? { plannedTargetPrice: plan.plannedTargetPrice } : {}), quantity: position.quantity, strategyKey: plan.strategyKey!, strategyVersion: plan.strategyVersion!, symbol: position.symbol, ...(plan.timeStopAt ? { timeStopAt: plan.timeStopAt.toISOString() } : {}), intentId: plan.intentId }];
     });
     for (const position of managedPositions) {
       const mark = marks.find((item) => item.assetClass === (position.assetClass === "crypto" ? "crypto" : "us_equity") && canonicalSymbol(item.mark.symbol) === canonicalSymbol(position.symbol))?.mark;
@@ -227,10 +227,11 @@ export async function runPositionManagementCycle(environment: NodeJS.ProcessEnv 
     const result = await runPaperPositionManagementOnce({ activeExitIntentIds, now: new Date().toISOString(), positions: managed, submitter: exitSubmitter });
     for (const decision of result.decisions) {
       const source = managed.find((position) => position.symbol === decision.symbol);
+      if (source) await orderRepository.ratchetTrailingStop(source.intentId, decision.effectiveStopPrice);
       console.log(JSON.stringify(buildPositionExitDecisionLog({ ...decision, currentPrice: decision.exitPrice, ...(source ? { entryPrice: source.entryPrice, plannedStopPrice: source.plannedStopPrice, ...(source.plannedTargetPrice ? { plannedTargetPrice: source.plannedTargetPrice } : {}), strategyKey: source.strategyKey, strategyVersion: source.strategyVersion, ...(source.timeStopAt ? { timeStopAt: source.timeStopAt } : {}) } : {}), submitted: result.submissions.some((submission) => submission.symbol === decision.symbol) })));
       if (!decision.shouldExit || !decision.reason) continue;
       const intentId = source?.intentId ?? decision.symbol;
-      await notifier.notify({ code: "position_exit_decision", dedupeKey: getPositionExitDecisionDedupeKey(intentId, decision.reason), message: source ? buildPositionExitDecisionMessage({ currentPrice: decision.exitPrice, entryPrice: source.entryPrice, plannedStopPrice: source.plannedStopPrice, ...(source.plannedTargetPrice ? { plannedTargetPrice: source.plannedTargetPrice } : {}), ...(source.timeStopAt ? { timeStopAt: source.timeStopAt } : {}), reason: decision.reason, strategyKey: source.strategyKey, strategyVersion: source.strategyVersion, symbol: decision.symbol }) : `${decision.symbol} exit decision: ${decision.reason} at mark ${decision.exitPrice}. This was triggered by the stored deterministic exit plan.`, severity: decision.reason === "stop_loss" ? "critical" : "info" });
+      await notifier.notify({ code: "position_exit_decision", dedupeKey: getPositionExitDecisionDedupeKey(intentId, decision.reason), message: source ? buildPositionExitDecisionMessage({ currentPrice: decision.exitPrice, entryPrice: source.entryPrice, plannedStopPrice: source.plannedStopPrice, effectiveStopPrice: decision.effectiveStopPrice, ...(source.plannedTargetPrice ? { plannedTargetPrice: source.plannedTargetPrice } : {}), ...(source.timeStopAt ? { timeStopAt: source.timeStopAt } : {}), reason: decision.reason, strategyKey: source.strategyKey, strategyVersion: source.strategyVersion, symbol: decision.symbol }) : `${decision.symbol} exit decision: ${decision.reason} at mark ${decision.exitPrice}. This was triggered by the stored deterministic exit plan.`, severity: decision.reason === "stop_loss" ? "critical" : "info" });
     }
     if (result.submitted > 0) {
       const submittedDecisions = result.decisions.filter((decision) => decision.shouldExit);

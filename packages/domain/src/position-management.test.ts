@@ -12,4 +12,7 @@ describe("paper position management", () => {
     expect(calculateTrailingStopPrice({ currentPrice: "120", entryPrice: "100", plannedStopPrice: "95" })).toBe("114.00000000");
     expect(calculateTrailingStopPrice({ currentPrice: "100", entryPrice: "100", plannedStopPrice: "95" })).toBe("95.00000000");
   });
+  it("never loosens a durably ratcheted stop after a pullback", () => {
+    expect(calculateTrailingStopPrice({ currentPrice: "108", entryPrice: "100", plannedStopPrice: "95", effectiveStopPrice: "114" })).toBe("114.00000000");
+  });
 });
