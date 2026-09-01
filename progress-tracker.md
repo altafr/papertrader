@@ -2,11 +2,19 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.751 — Scheduler diagnostics deployment verification.
+- **Phase:** Phase 6.752 — Legacy exit-plan approval verification.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, scheduled research, healthy position management, and complete exit-plan coverage for all three live paper positions. The signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit confirms complete position coverage and Telegram delivery from a persisted sent test.
 - **Last updated:** 2026-09-02.
+
+### Phase 6.752 — Legacy exit-plan approval verification (2026-09-02)
+
+- The operator approved complete protective exit plans for BTCUSD and PFD.
+- Hosted read-only exit-plan review now reports `managed` for BTCUSD, PFD, and AAPL, with `reviewRequired: 0` and `unmanagedCount: 0`.
+- Full paper-autonomous readiness confirms `exitPlanCoverage: complete`; no order or broker mutation was required for this verification.
+- The only remaining release gate is the evidence window: 9 consecutive calendar days captured, 21 days remaining out of 30.
+- **Next smallest unit:** continue unattended paper cycles and re-audit after the next evidence-day boundary.
 
 ### Phase 6.751 — Scheduler diagnostics deployment verification (2026-09-02)
 
