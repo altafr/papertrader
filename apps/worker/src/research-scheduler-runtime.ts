@@ -43,6 +43,12 @@ export function buildPaperRiskCycleFailureAlert(input: { readonly agentType: str
   return { code: "paper_risk_cycle_failed", dedupeKey: `paper_risk_cycle_failed:${input.runId}`, message: `Paper risk cycle failed closed after ${input.agentType} research run ${input.runId}; no additional order decision was authorized.`, severity: "critical" as const };
 }
 
+/** Bounded, credential-free log record for a failed deterministic risk cycle. */
+export function buildPaperRiskCycleFailureLog(error: unknown) {
+  const detail = getResearchSchedulerFailureDetail(error);
+  return { event: "paper_risk_cycle_failed", ...(detail ? { detail } : {}) } as const;
+}
+
 export function buildResearchSchedulerStartFailureAlert(occurredAt = new Date().toISOString()) {
   const day = Number.isFinite(Date.parse(occurredAt)) ? new Date(occurredAt).toISOString().slice(0, 10) : "unknown";
   return { code: "research_scheduler_start_failed", dedupeKey: `research_scheduler_start_failed:${day}`, message: "Research scheduler startup retries were exhausted; no new paper decision was authorized.", severity: "critical" as const };
@@ -140,8 +146,9 @@ export function createResearchSchedulerFromEnvironment(environment: NodeJS.Proce
           const riskResults = await runPaperAutopilotRiskCycle({ ...(approvalReference ? { approvalReference } : {}), candidates, db, environment, quantityForCandidate: (candidate, equity) => getPaperAutopilotQuantityForCandidate(candidate, equity, environment), ...(executeApproved ? { executeApproved } : {}), notify: notifier.notify });
           setResearchRiskCycleHealth({ approved: riskResults.filter((result) => result.approvalStatus === "approved").length, decisions: riskResults.length, status: "completed" });
           console.log(JSON.stringify(buildPaperRiskCycleLog({ decisions: riskResults, researchRunIds: results.map((result) => result.runId) })));
-        } catch {
+        } catch (error: unknown) {
           setResearchRiskCycleHealth({ approved: 0, decisions: 0, status: "failed" });
+          console.error(JSON.stringify(buildPaperRiskCycleFailureLog(error)));
           await notifier.notify(buildPaperRiskCycleFailureAlert({ agentType: "research_batch", runId: results.map((result) => result.runId).join(",").slice(0, 120) }));
           throw new Error("paper_risk_cycle_failed");
         }

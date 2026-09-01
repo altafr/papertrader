@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { ResearchWatchlistCandidate } from "@momentum/domain";
 
-import { buildPaperRiskCycleFailureAlert, buildPaperRiskCycleLog, buildResearchCycleLog, buildResearchSchedulerStaleAlert, buildResearchSchedulerStartFailureAlert, createResearchSchedulerFromEnvironment, dedupeResearchCandidates, isMarketCloseSummaryEnabled, isUsMarketCloseSummaryWindow } from "./research-scheduler-runtime.js";
+import { buildPaperRiskCycleFailureAlert, buildPaperRiskCycleFailureLog, buildPaperRiskCycleLog, buildResearchCycleLog, buildResearchSchedulerStaleAlert, buildResearchSchedulerStartFailureAlert, createResearchSchedulerFromEnvironment, dedupeResearchCandidates, isMarketCloseSummaryEnabled, isUsMarketCloseSummaryWindow } from "./research-scheduler-runtime.js";
 
 describe("research scheduler startup composition", () => {
   it("builds a redacted startup-failure alert", () => {
@@ -25,6 +25,11 @@ describe("research scheduler startup composition", () => {
 
   it("builds a run-scoped risk-cycle failure alert", () => {
     expect(buildPaperRiskCycleFailureAlert({ agentType: "crypto_research", runId: "research-1" })).toEqual({ code: "paper_risk_cycle_failed", dedupeKey: "paper_risk_cycle_failed:research-1", message: "Paper risk cycle failed closed after crypto_research research run research-1; no additional order decision was authorized.", severity: "critical" });
+  });
+
+  it("records bounded risk-cycle failure detail", () => {
+    expect(buildPaperRiskCycleFailureLog(new Error("duplicate intent / secret=hidden"))).toEqual({ event: "paper_risk_cycle_failed", detail: "duplicate_intent_secret_hidden" });
+    expect(buildPaperRiskCycleFailureLog({ message: "untrusted" })).toEqual({ event: "paper_risk_cycle_failed" });
   });
 
   it("builds a bounded credential-free cycle log", () => {

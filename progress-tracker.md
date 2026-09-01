@@ -2,7 +2,7 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.753 — Research scheduler recovery probe.
+- **Phase:** Phase 6.754 — Risk-cycle failure diagnostics.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, scheduled research, healthy position management, and complete exit-plan coverage for all three live paper positions. The signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit confirms complete position coverage and Telegram delivery from a persisted sent test.
@@ -22,6 +22,13 @@
 - The probe submitted no order and did not alter broker state; deterministic risk/execution gates remain the only path to submission.
 - The earlier scheduled `All_research_preparation_plans_failed` condition is therefore transient or schedule-context-specific, not a crypto market-data outage. The next scheduled cycle remains the authoritative recovery check.
 - **Next smallest unit:** verify the 21:15 UTC scheduled cycle and its risk-cycle telemetry.
+
+### Phase 6.754 — Risk-cycle failure diagnostics (2026-09-02)
+
+- The scheduled 21:15 UTC research run produced a valid crypto candidate, but its deterministic risk cycle failed closed; no additional order decision was authorized.
+- Added a bounded, credential-free `paper_risk_cycle_failed` detail log so the next failure identifies its stage/reason without exposing broker payloads or secrets.
+- Added focused regression coverage; Worker typecheck and the scheduler-runtime test file pass.
+- **Next smallest unit:** deploy and verify the new hosted failure detail, then continue paper evidence collection.
 
 ### Phase 6.751 — Scheduler diagnostics deployment verification (2026-09-02)
 
