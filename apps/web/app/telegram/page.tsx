@@ -33,6 +33,11 @@ export const getMiniAppErrorMessage = (status: number, code: unknown): string =>
   if (status === 404 || code === "read_model_not_available") return "The paper portfolio has not produced a reconciled snapshot yet.";
   return typeof code === "string" && code.length > 0 ? `The paper portfolio is unavailable (${code}).` : "The paper portfolio is unavailable.";
 };
+export const getMiniAppFreshness = (asOf: string, now = Date.now()): "fresh" | "stale" | "unknown" => {
+  const captured = Date.parse(asOf);
+  if (!Number.isFinite(captured) || captured > now + 30_000) return "unknown";
+  return now - captured <= 300_000 ? "fresh" : "stale";
+};
 
 export default function TelegramMiniAppPage() {
   const [tab, setTab] = useState<"portfolio" | "alerts">("portfolio");
@@ -77,12 +82,14 @@ export default function TelegramMiniAppPage() {
   const metrics = data?.portfolio.metrics ?? {};
   const orders = data?.portfolio.orders ?? [];
   const unmanagedPositions = data?.unmanagedPositions ?? [];
+  const freshness = data?.asOf ? getMiniAppFreshness(data.asOf) : "unknown";
   return <>
     <Script src="https://telegram.org/js/telegram-web-app.js" strategy="beforeInteractive" />
     <main className="telegram-mini-app">
       {unmanagedPositions.length ? <p className="mini-error">Review required: {unmanagedPositions.map((position) => position.symbol).join(", ")} lack complete exit-plan provenance.</p> : null}
       <header><div><p className="eyebrow">MOMENTUM AUTOPILOT</p><h1>Paper trading</h1></div><div className="mini-header-actions"><button className="mini-refresh" onClick={() => setRefreshKey((key) => key + 1)} disabled={refreshing}>{refreshing ? "Refreshing…" : "Refresh"}</button><span className="badge paper">PAPER</span></div></header>
       <nav className="mini-tabs" aria-label="Mini App sections"><button className={tab === "portfolio" ? "active" : ""} onClick={() => setTab("portfolio")}>Portfolio</button><button className={tab === "alerts" ? "active" : ""} onClick={() => setTab("alerts")}>Alerts{data?.alerts.length ? ` (${data.alerts.length})` : ""}</button></nav>
+      {data && freshness !== "fresh" ? <p className="mini-error">Snapshot freshness: {freshness}. Verify the latest reconciliation before relying on values.</p> : null}
       {error ? <p className="mini-error">{error}</p> : tab === "portfolio" ? <section className="mini-section"><div className="mini-metrics"><div><span>Equity</span><strong>${money(snapshot.equity)}</strong></div><div><span>Cash</span><strong>${money(snapshot.cash)}</strong></div><div><span>Buying power</span><strong>${money(snapshot.buyingPower)}</strong></div><div><span>Day P/L</span><strong className={Number(metrics.dayPnl) < 0 ? "negative" : "positive"}>${money(metrics.dayPnl)}</strong></div><div><span>Unrealized P/L</span><strong className={Number(metrics.unrealizedPl) < 0 ? "negative" : "positive"}>${money(metrics.unrealizedPl)}</strong></div></div><h2>Open positions</h2>{data?.portfolio.positions.length ? <div className="mini-list">{data.portfolio.positions.map((position) => <article key={String(position.symbol)}><div><strong>{String(position.symbol ?? "—")}</strong><small>{money(position.quantity)} units · value ${money(position.marketValue)}</small></div><span className={Number(position.unrealizedPl) < 0 ? "negative" : "positive"}>{money(position.unrealizedPl)}</span></article>)}</div> : <p className="mini-muted">No open positions.</p>}<h2>Recent orders</h2>{orders.length ? <div className="mini-list">{orders.slice(0, 20).map((order, index) => <article key={String(order.id ?? order.clientOrderId ?? `${order.symbol ?? "order"}-${index}`)}><div><strong>{String(order.symbol ?? "—")}</strong><small>{String(order.side ?? "—").toUpperCase()} · {String(order.status ?? "—")} · {money(order.filledQuantity ?? order.quantity)} units</small><small>{order.updatedAt ? new Date(String(order.updatedAt)).toLocaleString() : "—"}</small></div></article>)}</div> : <p className="mini-muted">No recent orders.</p>}<p className="mini-foot">Updated {data?.asOf ? new Date(data.asOf).toLocaleString() : "—"}</p></section> : <section className="mini-section"><h2>Important alerts</h2>{data?.alerts.length ? <div className="mini-list">{data.alerts.map((alert) => <article key={alert.eventId}><div><strong className={alert.severity === "critical" ? "negative" : alert.severity === "warning" ? "warning" : ""}>{alert.code}</strong><small>{alert.message}</small><small>{new Date(alert.occurredAt).toLocaleString()} · {alert.deliveryStatus}</small></div></article>)}</div> : <p className="mini-muted">No alerts recorded.</p>}</section>}
       <p className="mini-foot">Read-only view. Orders and risk controls remain server-managed.</p>
     </main>

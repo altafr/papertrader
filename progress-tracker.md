@@ -2,7 +2,7 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.656 — Signed Mini App payload verification.
+- **Phase:** Phase 6.657 — Mini App freshness visibility.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, fresh crypto data, scheduled research, and position-management execution. The hosted contract is intentionally degraded only because BTCUSD and PFD are unmanaged legacy positions. The signed Telegram Mini App is deployed on Vercel with aggregate P/L cards, but API activation remains fail-closed until its four Telegram variables are configured.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading, promote one reviewed local batch when provider limits clear, verify authenticated portfolio/P&L rendering and exports, and accumulate the 30-day evidence gate without loosening risk controls. Deploy the current local heartbeat/dashboard changes only after explicit operator authorization.
@@ -270,6 +270,12 @@
 - Server-side signed verification returned HTTP 200 with 3 positions, 22 recent orders, 50 alerts, Day P/L, Unrealized P/L, and unmanaged symbols BTCUSD/PFD.
 - No secrets were exposed and no broker/database state changed.
 - **Next smallest unit:** open `/dashboard` in Telegram and tap **Open portfolio & alerts** for the interactive check.
+
+### Phase 6.657 — Mini App freshness visibility (2026-09-01)
+
+- Added a five-minute snapshot-freshness classifier and visible stale/unknown warning to the Mini App.
+- Added regression coverage for fresh, stale, and invalid timestamps; this remains read-only and cannot authorize trading.
+- **Next smallest unit:** publish the frontend revision and verify the freshness indicator in Telegram.
 
 ### Phase 6.396 — End-to-end Worker cycle telemetry (2026-08-29)
 

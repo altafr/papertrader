@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { getMiniAppErrorMessage, isMiniAppData } from "./page";
+import { getMiniAppErrorMessage, getMiniAppFreshness, isMiniAppData } from "./page";
 
 describe("Telegram Mini App error messages", () => {
   it("turns disabled backend state into an actionable setup message", () => {
@@ -17,5 +17,12 @@ describe("Telegram Mini App error messages", () => {
 
   it("rejects malformed portfolio responses before rendering", () => {
     expect(isMiniAppData({ portfolio: {}, alerts: [] })).toBe(false);
+  });
+
+  it("classifies snapshot freshness with a bounded tolerance", () => {
+    const now = Date.parse("2026-09-01T00:00:00.000Z");
+    expect(getMiniAppFreshness("2026-08-31T23:55:01.000Z", now)).toBe("fresh");
+    expect(getMiniAppFreshness("2026-08-31T23:54:59.000Z", now)).toBe("stale");
+    expect(getMiniAppFreshness("invalid", now)).toBe("unknown");
   });
 });
