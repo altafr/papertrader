@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { buildPaperExitSubmittedMessage, buildPositionExitDecisionLog, buildPositionExitDecisionMessage, buildPositionManagementLog, buildUnmanagedPositionLog, getActiveExitIntentIds, getFreshPositionMark, getPaperOrderStatusTransitions, getPositionDetectedDedupeKey, getPositionExitDecisionDedupeKey, getPositionExitIntentId, getUnavailablePositionSymbols, groupPositionSymbolsByAssetClass, isTerminalPaperOrderStatus } from "./position-management-runtime.js";
+import { buildPaperExitSubmittedMessage, buildPositionExitDecisionLog, buildPositionExitDecisionMessage, buildPositionManagementLog, buildUnmanagedPositionLog, getActiveExitIntentIds, getFreshPositionMark, getPaperOrderStatusTransitions, getPositionDetectedDedupeKey, getPositionExitDecisionDedupeKey, getPositionExitIntentId, getUnavailablePositionSymbols, groupPositionSymbolsByAssetClass, isTerminalPaperOrderStatus, isUsEquityRegularSession } from "./position-management-runtime.js";
 import { assessPositionManagementLiveness } from "./position-management-scheduler.js";
 
 describe("paper order status transitions", () => {
@@ -42,8 +42,14 @@ describe("position market-data grouping", () => {
 });
 
 describe("position market-data availability", () => {
+  it("requires equity marks only during the regular US session", () => {
+    expect(isUsEquityRegularSession(new Date("2026-08-28T14:00:00.000Z"))).toBe(true);
+    expect(isUsEquityRegularSession(new Date("2026-08-28T22:00:00.000Z"))).toBe(false);
+  });
+
   it("identifies managed positions without a fresh mark", () => {
-    expect(getUnavailablePositionSymbols([{ assetClass: "crypto", symbol: "BTCUSD" }, { assetClass: "us_equity", symbol: "AAPL" }], [{ assetClass: "crypto", symbol: "BTC/USD", fresh: false }, { assetClass: "us_equity", symbol: "AAPL", fresh: true }])).toEqual(["BTCUSD"]);
+    const now = new Date("2026-08-28T14:00:00.000Z");
+    expect(getUnavailablePositionSymbols([{ assetClass: "crypto", symbol: "BTCUSD" }, { assetClass: "us_equity", symbol: "AAPL" }], [{ assetClass: "crypto", symbol: "BTC/USD", fresh: false }, { assetClass: "us_equity", symbol: "AAPL", fresh: true }], now)).toEqual(["BTCUSD"]);
   });
 });
 

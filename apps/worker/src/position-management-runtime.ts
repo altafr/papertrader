@@ -54,8 +54,23 @@ export function groupPositionSymbolsByAssetClass(positions: ReadonlyArray<{ read
 export function getUnavailablePositionSymbols(
   positions: ReadonlyArray<{ readonly assetClass: string; readonly symbol: string }>,
   marks: ReadonlyArray<{ readonly assetClass: string; readonly symbol: string; readonly fresh: boolean }>,
+  now = new Date(),
 ): readonly string[] {
-  return positions.filter((position) => !marks.some((mark) => mark.assetClass === (position.assetClass === "crypto" ? "crypto" : "us_equity") && canonicalSymbol(mark.symbol) === canonicalSymbol(position.symbol) && mark.fresh)).map((position) => position.symbol).slice(0, 20);
+  const equitySessionOpen = isUsEquityRegularSession(now);
+  return positions.filter((position) => {
+    // Equity feeds are intentionally not required overnight/weekends; crypto is 24/7.
+    if (position.assetClass !== "crypto" && !equitySessionOpen) return false;
+    return !marks.some((mark) => mark.assetClass === (position.assetClass === "crypto" ? "crypto" : "us_equity") && canonicalSymbol(mark.symbol) === canonicalSymbol(position.symbol) && mark.fresh);
+  }).map((position) => position.symbol).slice(0, 20);
+}
+
+/** Regular US equity session (09:30–16:00 America/New_York, weekdays). */
+export function isUsEquityRegularSession(now: Date): boolean {
+  const parts = new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", hour: "2-digit", minute: "2-digit", hourCycle: "h23", weekday: "short" }).formatToParts(now);
+  const weekday = parts.find((part) => part.type === "weekday")?.value;
+  if (!["Mon", "Tue", "Wed", "Thu", "Fri"].includes(weekday ?? "")) return false;
+  const minutes = Number(parts.find((part) => part.type === "hour")?.value ?? "-1") * 60 + Number(parts.find((part) => part.type === "minute")?.value ?? "-1");
+  return minutes >= 570 && minutes < 960;
 }
 
 export function getPositionDetectedDedupeKey(assetClass: string, symbol: string, intentId = "unknown"): string {
