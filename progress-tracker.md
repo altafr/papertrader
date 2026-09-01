@@ -2,7 +2,7 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.682 — Hosted Telegram portfolio P/L summary.
+- **Phase:** Phase 6.683 — Continuous runtime safety evidence.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, fresh crypto data, scheduled research, and position-management execution. The hosted contract is intentionally degraded only because BTCUSD and PFD are unmanaged legacy positions. The signed Telegram Mini App is deployed on Vercel and the API reports it enabled/configured with portfolio, order, alert, P/L, freshness, and unmanaged-position projections.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading, promote one reviewed local batch when provider limits clear, verify authenticated portfolio/P&L rendering and exports, and accumulate the 30-day evidence gate without loosening risk controls. Deploy the current local heartbeat/dashboard changes only after explicit operator authorization.
@@ -102,6 +102,13 @@
 - Railway deployed Worker commit `c970938` successfully.
 - Post-deploy health confirms Telegram assistant readiness, Firecrawl configuration, fresh crypto data, and active position management; the only degraded condition remains the two unmanaged legacy positions.
 - **Next smallest unit:** ask the connected Telegram assistant for a portfolio summary to verify day P/L, unrealized P/L, and per-position exit-plan labels in the live channel.
+
+### Phase 6.683 — Continuous runtime safety evidence (2026-09-01)
+
+- Live Worker health and logs show the scheduler advancing to its next run, crypto market data fresh, position management executing every 60 seconds, and AAPL receiving deterministic monitoring without an exit submission.
+- BTCUSD and PFD continue to be explicitly detected as unmanaged; the risk/position gate remains fail-closed and no new order was submitted.
+- Telegram assistant remains enabled/read-only with Firecrawl configured; no runtime failure or stale-data breach appeared.
+- **Next smallest unit:** continue paper-forward evidence collection and complete operator-reviewed legacy exit-plan adoption when values are supplied.
 
 ### Phase 6.618 — Injectable Firecrawl provider boundary (2026-08-31)
 
