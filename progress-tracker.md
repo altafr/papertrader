@@ -20,6 +20,7 @@
 - Full repository regression suite passes: 99 test files, 453 tests. Paper-only risk, approval, reconciliation, and notification invariants remain covered.
 - Re-audited hosted runtime: API/Worker healthy, market stream fresh, position management ready, zero unmanaged positions, release identity consistent, and future scheduler runs valid.
 - Latest readiness evidence: 10 calendar days, 9 consecutive days, 8,983 reconciled account snapshots, latest captured at `2026-09-01T20:27:18Z`; no new calendar boundary has been recorded yet.
+- Infrastructure audit: PostgreSQL is reachable and the migration plan reports `pending:[]`; no schema action is required for the next evidence cycle.
 - **Next smallest unit:** continue unattended paper cycles and re-audit the evidence gate after the next calendar-day boundary.
 
 ### Phase 6.730 — Market-close summary delivery verification (2026-09-02)
