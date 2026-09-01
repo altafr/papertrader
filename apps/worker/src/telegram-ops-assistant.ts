@@ -110,8 +110,8 @@ export async function buildTelegramOpsAssistantReply(question: string, data: Tel
     if (!model?.snapshot) return "No reconciled paper portfolio snapshot is available.";
     const submissions = await data.getSubmissions();
     const positions = model.positions.length === 0 ? "none" : model.positions.map((position) => {
-      const managed = submissions.some((submission) => positionKey(submission.assetClass, submission.symbol) === positionKey(position.assetClass, position.symbol) && hasCompleteExitPlan(submission));
-      return `${position.symbol} ${display(position.quantity)} · value ${display(position.marketValue)} · unrealized P/L ${display(position.unrealizedPl)} · exit plan ${managed ? "managed" : "review required"}`;
+      const plan = submissions.find((submission) => positionKey(submission.assetClass, submission.symbol) === positionKey(position.assetClass, position.symbol) && hasCompleteExitPlan(submission));
+      return `${position.symbol} ${display(position.quantity)} · value ${display(position.marketValue)} · unrealized P/L ${display(position.unrealizedPl)} · exit plan ${plan ? `managed (active stop ${display(plan.trailingStopPrice ?? plan.plannedStopPrice)}, target ${display(plan.plannedTargetPrice)})` : "review required"}`;
     }).join("; ");
     const dayPnl = model.snapshot.lastEquity ? safeDifference(model.snapshot.equity, model.snapshot.lastEquity) : "unknown";
     const unrealizedPnl = safeSum(model.positions.map((position) => position.unrealizedPl));

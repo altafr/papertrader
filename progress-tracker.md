@@ -2,11 +2,18 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.724 — Durable ratchet runtime evidence.
+- **Phase:** Phase 6.725 — Telegram portfolio risk visibility.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, fresh crypto data, scheduled research, and position-management execution. All three live paper positions have complete exit-plan coverage; the signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit confirms complete position coverage and Telegram delivery from a persisted sent test.
 - **Last updated:** 2026-09-02.
+
+### Phase 6.725 — Telegram portfolio risk visibility (2026-09-02)
+
+- Routine Telegram portfolio responses now include each managed position’s active ratcheted stop and target, not just a managed/review label.
+- This improves real-time operator awareness while remaining read-only; deterministic Worker position management remains the only exit authority.
+- Focused assistant tests, Worker typecheck, and lint pass; no broker state changed.
+- **Next smallest unit:** deploy the Worker revision and verify hosted health.
 
 ### Phase 6.724 — Durable ratchet runtime evidence (2026-09-02)
 
