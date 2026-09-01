@@ -2,7 +2,7 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.695 — Telegram readiness telemetry.
+- **Phase:** Phase 6.696 — Telegram status evidence telemetry.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, fresh crypto data, scheduled research, and position-management execution. All three live paper positions have complete exit-plan coverage; the signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit confirms complete position coverage and Telegram delivery from a persisted sent test.
@@ -50,6 +50,13 @@
 - The dashboard Paper performance card displays the remaining consecutive-day requirement alongside snapshots and P/L; parser compatibility remains fail-closed for malformed values.
 - API/web typechecks and tests passed; the API deployment completed successfully. No order or risk behavior changed.
 - **Next smallest unit:** continue unattended paper operation; monitor the dashboard or Worker readiness report for evidence progress.
+
+### Phase 6.696 — Telegram status evidence telemetry (2026-09-01)
+
+- Infrastructure and status replies from the read-only Telegram assistant now include the persisted paper-evidence window alongside runtime and position-coverage status.
+- Worker deployment reached `SUCCESS`; hosted health remains healthy with fresh crypto data, ready position management, and zero unmanaged positions.
+- Full readiness remains intentionally blocked only by the minimum 30 consecutive calendar-day evidence gate: 1 day captured, 29 remaining.
+- **Next smallest unit:** continue unattended paper operation and monitor evidence accumulation; no new approval or deployment is required.
 
 ### Phase 6.695 — Telegram readiness telemetry (2026-09-01)
 
