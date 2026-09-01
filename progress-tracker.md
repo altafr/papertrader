@@ -2,11 +2,17 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.726 — Live Telegram portfolio verification.
+- **Phase:** Phase 6.727 — Telegram portfolio runtime checkpoint.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, fresh crypto data, scheduled research, and position-management execution. All three live paper positions have complete exit-plan coverage; the signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit confirms complete position coverage and Telegram delivery from a persisted sent test.
 - **Last updated:** 2026-09-02.
+
+### Phase 6.727 — Telegram portfolio runtime checkpoint (2026-09-02)
+
+- Re-ran hosted verification after the Telegram portfolio deployment; Worker/API are healthy, market data is fresh, schedulers are active, release identity is consistent, and unmanaged position count remains zero.
+- Full autonomous readiness remains blocked only by the required evidence window (9 consecutive days captured, 21 remaining).
+- **Next smallest unit:** continue unattended paper cycles and re-audit after the next evidence-day boundary.
 
 ### Phase 6.726 — Live Telegram portfolio verification (2026-09-02)
 
