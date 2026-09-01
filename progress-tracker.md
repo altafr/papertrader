@@ -2,11 +2,17 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.765 — Recovery-cycle evidence verification.
+- **Phase:** Phase 6.766 — Regression verification during evidence collection.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, scheduled research, healthy position management, and complete exit-plan coverage for all three live paper positions. The signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit confirms complete position coverage and Telegram delivery from a persisted sent test.
 - **Last updated:** 2026-09-02.
+
+### Phase 6.766 — Regression verification during evidence collection (2026-09-02)
+
+- The complete local regression suite passed: `99` test files and `456` tests, including deterministic risk, retry/idempotency, position-management, scheduler, Telegram, API, and dashboard contracts.
+- No source or deployment configuration changed in this verification step; the hosted Worker remains paper-only and fail-closed while the next scheduled crypto boundary is pending.
+- **Next smallest unit:** verify the next hosted scheduler cycle and continue the 30-day evidence window.
 
 ### Phase 6.765 — Recovery-cycle evidence verification (2026-09-02)
 
