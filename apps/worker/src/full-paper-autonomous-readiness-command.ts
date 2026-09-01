@@ -24,8 +24,7 @@ try {
   const positionReview = buildExitPlanReviewReport(account?.positions ?? [], plans);
   const performanceRows = await pool.query<{ readonly captured_at: Date; readonly equity: string }>("SELECT captured_at, equity FROM account_snapshots ORDER BY captured_at DESC LIMIT $1", [PAPER_EVIDENCE_SNAPSHOT_LIMIT]);
   const performance = buildPaperPerformanceReport(performanceRows.rows.map((row) => ({ capturedAt: row.captured_at.toISOString(), equity: String(row.equity) })));
-  const recentAlerts = await telegramRepository.listRecent(100);
-  const deliveryVerified = recentAlerts.some((event) => event.code === "telegram_channel_test" && event.deliveryStatus === "sent");
+  const deliveryVerified = await telegramRepository.hasSent("telegram_channel_test");
   const readiness = combineFullPaperAutonomousReadiness({
     runtime,
     positionCoverage: { positionCount: positionReview.length, unmanagedCount: positionReview.filter((row) => row.status === "review_required").length },

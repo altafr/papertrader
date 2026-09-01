@@ -2,7 +2,7 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.699 — Evidence-window history capacity.
+- **Phase:** Phase 6.700 — Durable Telegram delivery verification.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, fresh crypto data, scheduled research, and position-management execution. All three live paper positions have complete exit-plan coverage; the signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit confirms complete position coverage and Telegram delivery from a persisted sent test.
@@ -50,6 +50,13 @@
 - The dashboard Paper performance card displays the remaining consecutive-day requirement alongside snapshots and P/L; parser compatibility remains fail-closed for malformed values.
 - API/web typechecks and tests passed; the API deployment completed successfully. No order or risk behavior changed.
 - **Next smallest unit:** continue unattended paper operation; monitor the dashboard or Worker readiness report for evidence progress.
+
+### Phase 6.700 — Durable Telegram delivery verification (2026-09-02)
+
+- Full-readiness now queries PostgreSQL directly for any sent `telegram_channel_test` event instead of scanning only the latest 100 alerts.
+- This prevents long-running alert history from causing a false delivery block after the original verified test scrolls out of the recent window.
+- Workspace regression remains green (99 files / 445 tests); DB and Worker typechecks pass. No broker or notification behavior changed.
+- **Next smallest unit:** deploy and verify the hosted readiness report, then continue collecting evidence.
 
 ### Phase 6.699 — Evidence-window history capacity (2026-09-01)
 

@@ -357,6 +357,10 @@ export function createTelegramAlertRepository(db: Database) {
     async listRecent(limit = 100) {
       return db.select().from(telegramAlertEvents).orderBy(desc(telegramAlertEvents.occurredAt)).limit(limit);
     },
+    async hasSent(code: string) {
+      const [row] = await db.select({ eventId: telegramAlertEvents.eventId }).from(telegramAlertEvents).where(and(eq(telegramAlertEvents.code, code), eq(telegramAlertEvents.deliveryStatus, "sent"))).limit(1);
+      return Boolean(row);
+    },
     async hasRecent(code: string, dedupeKeyPrefix: string, since: Date) {
       const [row] = await db.select({ eventId: telegramAlertEvents.eventId }).from(telegramAlertEvents).where(and(eq(telegramAlertEvents.code, code), sql`${telegramAlertEvents.dedupeKey} LIKE ${`${dedupeKeyPrefix}:%`}`, gte(telegramAlertEvents.occurredAt, since))).limit(1);
       return Boolean(row);
