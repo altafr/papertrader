@@ -2,7 +2,7 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.671 — Hosted broker-linked exit-plan prefill rollout.
+- **Phase:** Phase 6.672 — Live broker provenance review.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, fresh crypto data, scheduled research, and position-management execution. The hosted contract is intentionally degraded only because BTCUSD and PFD are unmanaged legacy positions. The signed Telegram Mini App is deployed on Vercel and the API reports it enabled/configured with portfolio, order, alert, P/L, freshness, and unmanaged-position projections.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading, promote one reviewed local batch when provider limits clear, verify authenticated portfolio/P&L rendering and exports, and accumulate the 30-day evidence gate without loosening risk controls. Deploy the current local heartbeat/dashboard changes only after explicit operator authorization.
@@ -29,6 +29,12 @@
 - Post-deploy health confirms Paper Autopilot, read-only Telegram assistant, Firecrawl configuration, fresh crypto data, and active position management remain intact.
 - The Worker remains intentionally degraded only for BTCUSD/PFD unmanaged-position coverage; no orders or provenance records were changed.
 - **Next smallest unit:** run the guarded dry-run preflight with operator-reviewed BTCUSD/PFD broker order IDs and exit/strategy values.
+
+### Phase 6.672 — Live broker provenance review (2026-09-01)
+
+- Read-only review from the deployed Worker confirms complete broker fill coverage for PFD (2,903 shares; weighted fill price 11.49) and BTCUSD (17 fills; weighted fill price 77,721.489764705882353, with the documented crypto dust adjustment).
+- The review made no PostgreSQL writes and no broker order mutations. AAPL remains fully managed; BTCUSD and PFD remain unmanaged only because exit-plan and strategy provenance has not been operator-approved/adopted.
+- **Next smallest unit:** run guarded dry-run adoption for PFD and BTCUSD with the reviewed fill IDs, protective stops no wider than 5%, a target or time stop, strategy key/version, and a bounded approval reference.
 
 ### Phase 6.618 — Injectable Firecrawl provider boundary (2026-08-31)
 
