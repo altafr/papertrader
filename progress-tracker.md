@@ -2,11 +2,19 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.668 — Smoke verifier regression coverage.
+- **Phase:** Phase 6.669 — Full release regression after Telegram Mini App verification.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, fresh crypto data, scheduled research, and position-management execution. The hosted contract is intentionally degraded only because BTCUSD and PFD are unmanaged legacy positions. The signed Telegram Mini App is deployed on Vercel and the API reports it enabled/configured with portfolio, order, alert, P/L, freshness, and unmanaged-position projections.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading, promote one reviewed local batch when provider limits clear, verify authenticated portfolio/P&L rendering and exports, and accumulate the 30-day evidence gate without loosening risk controls. Deploy the current local heartbeat/dashboard changes only after explicit operator authorization.
 - **Last updated:** 2026-09-01.
+
+### Phase 6.669 — Full release regression after Telegram Mini App verification (2026-09-01)
+
+- Full workspace regression passed: 98 test files / 433 tests, including the deterministic signed Telegram Mini App verifier.
+- Workspace lint, typechecks, and production builds passed for the dashboard, API, Worker, and shared packages.
+- Hosted recheck confirms the API is healthy with the Mini App enabled/configured, the Worker is connected with fresh market data, and Vercel `/telegram` returns HTTP 200. Worker health remains degraded only for the two known unmanaged legacy positions.
+- No broker orders, database records, Telegram messages, or environment values were changed by this phase.
+- **Next smallest unit:** perform the operator interaction check in Telegram (`/dashboard` → Portfolio & Alerts), then complete reviewed BTCUSD/PFD exit-plan adoption before new entries can be authorized.
 
 ### Phase 6.618 — Injectable Firecrawl provider boundary (2026-08-31)
 
