@@ -86,7 +86,7 @@ export default function TelegramMiniAppPage() {
   return <>
     <Script src="https://telegram.org/js/telegram-web-app.js" strategy="beforeInteractive" />
     <main className="telegram-mini-app">
-      {unmanagedPositions.length ? <p className="mini-error">Review required: {unmanagedPositions.map((position) => position.symbol).join(", ")} lack complete exit-plan provenance.</p> : null}
+      {unmanagedPositions.length ? <p className="mini-error">Review required: {unmanagedPositions.map((position) => `${position.symbol} (${position.missingFields.join(", ")})`).join("; ")}.</p> : null}
       <header><div><p className="eyebrow">MOMENTUM AUTOPILOT</p><h1>Paper trading</h1></div><div className="mini-header-actions"><button className="mini-refresh" onClick={() => setRefreshKey((key) => key + 1)} disabled={refreshing}>{refreshing ? "Refreshing…" : "Refresh"}</button><span className="badge paper">PAPER</span></div></header>
       <nav className="mini-tabs" aria-label="Mini App sections"><button className={tab === "portfolio" ? "active" : ""} onClick={() => setTab("portfolio")}>Portfolio</button><button className={tab === "alerts" ? "active" : ""} onClick={() => setTab("alerts")}>Alerts{data?.alerts.length ? ` (${data.alerts.length})` : ""}</button></nav>
       {data && freshness !== "fresh" ? <p className="mini-error">Snapshot freshness: {freshness}. Verify the latest reconciliation before relying on values.</p> : null}
