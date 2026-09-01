@@ -2,7 +2,7 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.760 — Intent-aware retry reconciliation.
+- **Phase:** Phase 6.761 — Hosted intent-aware retry deployment.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, scheduled research, healthy position management, and complete exit-plan coverage for all three live paper positions. The signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit confirms complete position coverage and Telegram delivery from a persisted sent test.
@@ -72,6 +72,13 @@
 - Execution now looks up the existing intent, reuses its persisted approved quantity, and continues only from an approved risk-evidence state; pending/unknown states still fail closed.
 - Added repository support and focused regression coverage; Worker and DB typechecks plus 18 targeted tests pass.
 - **Next smallest unit:** deploy and verify the intent-aware retry path on Railway.
+
+### Phase 6.761 — Hosted intent-aware retry deployment (2026-09-02)
+
+- Worker deployment `39de690b-2954-4491-90d6-ce9794e67880` reached `SUCCESS`.
+- Hosted contract verification passes: Worker/API healthy, paper mode and order approval present, fresh market stream, ready position management, zero unmanaged positions, scheduled research/durable scheduler, valid telemetry, and consistent release identity.
+- The retry fix is active without changing risk thresholds or broker mode.
+- **Next smallest unit:** verify the next scheduled crypto retry/cycle and continue the 30-day evidence window.
 
 ### Phase 6.751 — Scheduler diagnostics deployment verification (2026-09-02)
 
