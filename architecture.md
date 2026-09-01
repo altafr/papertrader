@@ -27,6 +27,8 @@ The guarded `full-paper-autonomous-readiness` command is the release-level fail-
 
 Telegram delivery verification is evidence-based: the release audit clears that gate only after it finds a persisted `telegram_channel_test` event marked `sent`; valid bot configuration alone is insufficient.
 
+Exit-plan review canonicalizes slash-form broker symbols and ranks candidate provenance by completeness before recency. This prevents newer rejected or incomplete rows from shadowing a complete broker-linked fill set. Approved legacy adoption remains provenance-only and does not submit a new order.
+
 Operator-facing financial, quantity, risk, and indicator values are formatted to two decimal places on the dashboard and Telegram assistant; stored and broker precision remains unchanged.
 
 ### Always-on multi-agent runtime requirement

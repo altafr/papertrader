@@ -21,6 +21,14 @@
 - Railway deployed Worker commit `ef3731e` successfully. Hosted full-readiness output now has only two blockers: `unmanaged_positions_present` and `minimum_30_consecutive_calendar_days_not_met`.
 - **Next smallest unit:** complete operator-approved BTCUSD/PFD exit-plan adoption; the Telegram delivery gate is now verified.
 
+### Phase 6.691 — Approved legacy exit-plan coverage (2026-09-01)
+
+- Operator approved the suggested BTCUSD/PFD protection plans using `research-watchlist@1.0.0`; guarded dry-runs passed before any write.
+- Fixed exit-plan review to canonicalize symbols such as `BTC/USD` versus `BTCUSD` and to prefer complete broker-linked plans over newer incomplete/rejected rows.
+- BTCUSD was confirmed managed from its existing broker-linked fills; PFD was adopted with its broker-linked fill, a 4.99%-inside-5% protective stop, 4% target, and bounded approval reference. No new broker order was submitted.
+- Hosted full-readiness audit now reports `positionCoverage.unmanagedCount=0`; the only remaining blocker is `minimum_30_consecutive_calendar_days_not_met`.
+- **Next smallest unit:** continue unattended paper operation and accumulate the 30-day evidence window while monitoring the dashboard and Telegram alerts.
+
 ### Phase 6.690 — Hosted continuous-runtime recheck (2026-09-01)
 
 - Hosted health recheck confirms Paper Autopilot, durable scheduler, fresh crypto stream, 60-second position supervision, Telegram assistant, and Firecrawl configuration remain active.
