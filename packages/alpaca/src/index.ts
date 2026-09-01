@@ -78,7 +78,7 @@ const barsPayloadSchema = z.object({
   bars: z.record(z.string(), z.array(marketBarPayloadSchema)),
   next_page_token: z.string().nullable().optional(),
 });
-const snapshotPayloadSchema = z.record(
+const snapshotRecordSchema = z.record(
   z.string(),
   z.object({
     latestTrade: z
@@ -92,6 +92,12 @@ const snapshotPayloadSchema = z.record(
     prevDailyBar: marketBarPayloadSchema.optional(),
   }),
 );
+// Alpaca's crypto endpoint wraps snapshots in { snapshots: ... }, while some
+// feeds return the record directly. Accept both response shapes.
+const snapshotPayloadSchema = z.union([
+  z.object({ snapshots: snapshotRecordSchema }),
+  snapshotRecordSchema,
+]);
 
 export interface PaperAccountSnapshot {
   readonly accountId: string;
@@ -421,7 +427,8 @@ export function createPaperMarketDataReader(options: AlpacaMarketDataReaderOptio
           ? "/v2/stocks/snapshots"
           : "/v1beta3/crypto/us/snapshots";
       const parsed = await requestJson(`${path}?${new URLSearchParams({ symbols }).toString()}`, snapshotPayloadSchema);
-      return Object.entries(parsed).map(([symbol, snapshot]) => ({
+      const snapshots = "snapshots" in parsed ? parsed.snapshots : parsed;
+      return Object.entries(snapshots).map(([symbol, snapshot]) => ({
         ...(snapshot.dailyBar ? { dailyBar: normalizeBar(symbol, snapshot.dailyBar) } : {}),
         ...(snapshot.latestQuote
           ? {
