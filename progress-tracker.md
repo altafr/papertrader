@@ -2,11 +2,18 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.773 — Post-cycle hosted contract checkpoint.
+- **Phase:** Phase 6.774 — Full paper-autonomous readiness audit.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, scheduled research, healthy position management, and complete exit-plan coverage for all three live paper positions. The signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit confirms complete position coverage and Telegram delivery from a persisted sent test.
 - **Last updated:** 2026-09-02.
+
+### Phase 6.774 — Full paper-autonomous readiness audit (2026-09-02)
+
+- The guarded Railway audit confirmed runtime readiness, complete exit-plan coverage for all three positions, and verified Telegram delivery. No broker or database mutation occurred.
+- Paper evidence currently contains `10` calendar days and `9` consecutive days (`21` days remaining of the required `30`); this is the sole blocked gate: `minimum_30_consecutive_calendar_days_not_met`.
+- The current paper-forward metrics are preserved for audit: final equity `99659.31`, total P/L `269.10`, and maximum drawdown `1.24%`.
+- **Next smallest unit:** continue unattended scheduled paper cycles and re-run the guarded audit after the next UTC evidence-day boundary.
 
 ### Phase 6.773 — Post-cycle hosted contract checkpoint (2026-09-02)
 
