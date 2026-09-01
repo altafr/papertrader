@@ -2,7 +2,7 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.678 — Hosted broker-entry provenance enforcement.
+- **Phase:** Phase 6.679 — Telegram portfolio exit-plan visibility.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, fresh crypto data, scheduled research, and position-management execution. The hosted contract is intentionally degraded only because BTCUSD and PFD are unmanaged legacy positions. The signed Telegram Mini App is deployed on Vercel and the API reports it enabled/configured with portfolio, order, alert, P/L, freshness, and unmanaged-position projections.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading, promote one reviewed local batch when provider limits clear, verify authenticated portfolio/P&L rendering and exports, and accumulate the 30-day evidence gate without loosening risk controls. Deploy the current local heartbeat/dashboard changes only after explicit operator authorization.
@@ -77,6 +77,12 @@
 - Post-deploy health remains fresh/connected with Paper Autopilot, read-only Telegram/Firecrawl, and active position supervision; the only degraded condition is the expected two unmanaged legacy positions.
 - No broker orders or database records were changed during rollout.
 - **Next smallest unit:** operator supplies reviewed stop/target or time-stop and strategy metadata, then run the guarded dry-run adoption; mismatched entry overrides now fail closed.
+
+### Phase 6.679 — Telegram portfolio exit-plan visibility (2026-09-01)
+
+- Read-only Telegram portfolio responses now label each position as `exit plan managed` or `exit plan review required`, using the same complete-plan fields enforced by position management.
+- Added regression coverage; full test suite remains green with 98 test files / 436 tests, plus typecheck, lint, and diff hygiene.
+- **Next smallest unit:** deploy the Worker revision and ask for a portfolio summary in Telegram to verify the label against the live read model.
 
 ### Phase 6.618 — Injectable Firecrawl provider boundary (2026-08-31)
 

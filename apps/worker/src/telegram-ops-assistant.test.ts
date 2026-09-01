@@ -13,6 +13,7 @@ describe("Telegram operations assistant", () => {
   it("answers portfolio questions from the reconciled read model", async () => {
     await expect(buildTelegramOpsAssistantReply("show my portfolio and P&L", data)).resolves.toContain("Equity: 99000");
     await expect(buildTelegramOpsAssistantReply("show my portfolio and P&L", data)).resolves.toContain("AAPL 4");
+    await expect(buildTelegramOpsAssistantReply("show my portfolio and P&L", data)).resolves.toContain("exit plan review required");
   });
 
   it("keeps exit-plan questions local and reports managed coverage", async () => {

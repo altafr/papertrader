@@ -27,6 +27,8 @@ const display = (value: string | number | null | undefined): string => {
 };
 const utc = (value: Date | string | undefined): string => value ? new Date(value).toISOString() : "unknown";
 const limit = (value: string, max = 3900): string => value.length <= max ? value : `${value.slice(0, max - 16)}… [truncated]`;
+const hasCompleteExitPlan = (submission: AssistantSubmission): boolean => Boolean(submission.entryPrice && submission.plannedStopPrice && submission.strategyKey && submission.strategyVersion && (submission.plannedTargetPrice || submission.timeStopAt));
+const positionKey = (assetClass: string, symbol: string): string => `${assetClass}:${symbol.replaceAll("/", "").toUpperCase()}`;
 
 /** Fetches only bounded, advisory Firecrawl references; never returns provider credentials. */
 export async function fetchFirecrawlSources(question: string, apiKey: string, fetcher: typeof fetch = fetch): Promise<{ readonly sources: readonly FirecrawlSource[] } | { readonly error: "unavailable" | "failed" }> {
@@ -81,8 +83,8 @@ export async function buildTelegramOpsAssistantReply(question: string, data: Tel
     const submissions = await data.getSubmissions();
     if (!model?.positions.length) return "No reconciled paper positions are available for exit-plan review.";
     const status = model.positions.map((position) => {
-      const key = `${position.assetClass}:${position.symbol.replaceAll("/", "").toUpperCase()}`;
-      const plan = submissions.find((submission) => `${submission.assetClass}:${submission.symbol.replaceAll("/", "").toUpperCase()}` === key && submission.entryPrice && submission.plannedStopPrice && submission.strategyKey && submission.strategyVersion && (submission.plannedTargetPrice || submission.timeStopAt));
+      const key = positionKey(position.assetClass, position.symbol);
+      const plan = submissions.find((submission) => positionKey(submission.assetClass, submission.symbol) === key && hasCompleteExitPlan(submission));
       if (plan) return `${position.symbol}: managed (stop ${display(plan.plannedStopPrice)}, ${plan.plannedTargetPrice ? `target ${display(plan.plannedTargetPrice)}` : `time stop ${utc(plan.timeStopAt!)}`})`;
       return `${position.symbol}: review required (no complete stored exit plan)`;
     }).join("; ");
@@ -90,7 +92,11 @@ export async function buildTelegramOpsAssistantReply(question: string, data: Tel
   }
   if (normalized.includes("position") || normalized.includes("portfolio") || normalized.includes("p&l") || normalized.includes("pnl") || normalized.includes("equity") || normalized.includes("cash")) {
     if (!model?.snapshot) return "No reconciled paper portfolio snapshot is available.";
-    const positions = model.positions.length === 0 ? "none" : model.positions.map((position) => `${position.symbol} ${display(position.quantity)} · value ${display(position.marketValue)} · unrealized P/L ${display(position.unrealizedPl)}`).join("; ");
+    const submissions = await data.getSubmissions();
+    const positions = model.positions.length === 0 ? "none" : model.positions.map((position) => {
+      const managed = submissions.some((submission) => positionKey(submission.assetClass, submission.symbol) === positionKey(position.assetClass, position.symbol) && hasCompleteExitPlan(submission));
+      return `${position.symbol} ${display(position.quantity)} · value ${display(position.marketValue)} · unrealized P/L ${display(position.unrealizedPl)} · exit plan ${managed ? "managed" : "review required"}`;
+    }).join("; ");
     return limit(`Paper portfolio as of ${utc(model.snapshot.capturedAt)}\nEquity: ${display(model.snapshot.equity)}\nCash: ${display(model.snapshot.cash)}\nBuying power: ${display(model.snapshot.buyingPower)}\nPositions: ${positions}`);
   }
   if (normalized.includes("trade") || normalized.includes("order") || normalized.includes("decision") || normalized.includes("why") || normalized.includes("agent")) {
