@@ -2,7 +2,7 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.761 — Hosted intent-aware retry deployment.
+- **Phase:** Phase 6.762 — Post-deployment scheduler verification.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, scheduled research, healthy position management, and complete exit-plan coverage for all three live paper positions. The signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit confirms complete position coverage and Telegram delivery from a persisted sent test.
@@ -79,6 +79,13 @@
 - Hosted contract verification passes: Worker/API healthy, paper mode and order approval present, fresh market stream, ready position management, zero unmanaged positions, scheduled research/durable scheduler, valid telemetry, and consistent release identity.
 - The retry fix is active without changing risk thresholds or broker mode.
 - **Next smallest unit:** verify the next scheduled crypto retry/cycle and continue the 30-day evidence window.
+
+### Phase 6.762 — Post-deployment scheduler verification (2026-09-02)
+
+- After the intent-aware retry deployment, Worker health is `healthy`; position management is `ready`, market data is connected/fresh, and `unmanagedCount: 0`.
+- The deployment occurred at the 21:30 boundary; the startup catch-up was rejected by its deterministic idempotency key, so no duplicate catch-up order was created. The next scheduled crypto tick is 21:45 UTC.
+- No `filled_quantity_outside_the_approved_order_quantity` failure has occurred after the new release; the next cycle is the remaining runtime proof point.
+- **Next smallest unit:** verify the 21:45 UTC cycle and its persisted order/reconciliation outcome.
 
 ### Phase 6.751 — Scheduler diagnostics deployment verification (2026-09-02)
 
