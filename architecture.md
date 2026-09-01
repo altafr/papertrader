@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.696 Telegram status evidence telemetry; continuous Paper Autopilot and multi-day evidence collection continue.
+- **Stage:** Phase 6.697 canonical daily-summary position coverage; continuous Paper Autopilot and multi-day evidence collection continue.
 - **Current hosted state:** Worker is deployed in Paper Autopilot with fresh crypto data, scheduled research, deterministic risk/execution gates, two-percent minimum sizing, equity bracket entries, ratcheting position stops, restart-safe synthetic crypto protection explicitly enabled, and the read-only Telegram operations assistant enabled with polling. Worker health exposes assistant readiness without secrets. All three paper positions have complete exit-plan coverage; the only remaining release blocker is the 30-consecutive-calendar-day evidence gate.
 
 Telegram research questions are routed into the durable agent-run ledger (`stock_research` for companies/equities, `crypto_research` for crypto, `macro_advisory` for rates/inflation/macro questions). Optional Firecrawl lookup is server-side only, bounded to three results, labelled untrusted reference material, and has no order authority; absent or failed lookup is fail-closed.
@@ -32,6 +32,8 @@ Exit-plan review canonicalizes slash-form broker symbols and ranks candidate pro
 The full-readiness report exposes the evidence-window progress (`calendarDays`, `consecutiveCalendarDays`, required days, and days remaining) as bounded operator telemetry; it does not shorten or bypass the 30-day gate.
 
 The position-management runtime canonicalizes portfolio symbols for plan matching and converts compact crypto symbols to Alpaca's slash-form only at the market-data request boundary. This keeps broker/provider formatting separate from persisted portfolio identity and prevents valid crypto positions from being incorrectly marked unmanaged or producing avoidable market-data errors.
+
+Daily portfolio summaries apply the same canonical symbol identity when counting unmanaged positions, preventing compact/slash-form crypto symbols from producing false coverage warnings in Telegram summaries.
 
 The authenticated performance API and dashboard also expose bounded evidence-window progress (`daysRemaining`) next to the existing consecutive-day metrics. This is read-only telemetry and does not alter the 30-day promotion gate.
 

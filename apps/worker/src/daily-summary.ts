@@ -8,12 +8,16 @@ export type DailySummaryInput = {
   readonly positions: readonly { readonly marketValue: string; readonly symbol?: string; readonly unrealizedPl: string }[];
 };
 
+function canonicalSymbol(symbol: string): string {
+  return symbol.replaceAll("/", "").trim().toUpperCase();
+}
+
 export function countUnmanagedPositions(
   positions: readonly { readonly assetClass: string; readonly symbol: string }[],
   plans: readonly { readonly assetClass: string; readonly symbol: string }[],
 ): number {
-  const managed = new Set(plans.map((plan) => `${plan.assetClass}:${plan.symbol}`));
-  return positions.filter((position) => !managed.has(`${position.assetClass}:${position.symbol}`)).length;
+  const managed = new Set(plans.map((plan) => `${plan.assetClass}:${canonicalSymbol(plan.symbol)}`));
+  return positions.filter((position) => !managed.has(`${position.assetClass}:${canonicalSymbol(position.symbol)}`)).length;
 }
 
 function metric(value: string | undefined): string {

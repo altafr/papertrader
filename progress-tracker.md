@@ -2,7 +2,7 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.696 — Telegram status evidence telemetry.
+- **Phase:** Phase 6.697 — Canonical daily-summary position coverage.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, fresh crypto data, scheduled research, and position-management execution. All three live paper positions have complete exit-plan coverage; the signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit confirms complete position coverage and Telegram delivery from a persisted sent test.
@@ -50,6 +50,13 @@
 - The dashboard Paper performance card displays the remaining consecutive-day requirement alongside snapshots and P/L; parser compatibility remains fail-closed for malformed values.
 - API/web typechecks and tests passed; the API deployment completed successfully. No order or risk behavior changed.
 - **Next smallest unit:** continue unattended paper operation; monitor the dashboard or Worker readiness report for evidence progress.
+
+### Phase 6.697 — Canonical daily-summary position coverage (2026-09-01)
+
+- Daily portfolio-summary unmanaged counts now canonicalize broker symbols, so slash-form and compact crypto symbols (for example `BTC/USD` and `BTCUSD`) resolve to the same position.
+- Added regression coverage; all 50 Worker test files and 235 Worker tests pass, with Worker typecheck clean.
+- This is observability-only: no order, risk, exit-plan, scheduler, or broker behavior changed.
+- **Next smallest unit:** continue unattended paper operation and monitor the 30-day evidence counter.
 
 ### Phase 6.696 — Telegram status evidence telemetry (2026-09-01)
 
