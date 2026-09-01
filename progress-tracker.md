@@ -2,7 +2,7 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.684 — Mini App/Worker exit-plan consistency fix.
+- **Phase:** Phase 6.685 — Hosted Mini App/Worker exit-plan consistency verification.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, fresh crypto data, scheduled research, and position-management execution. The hosted contract is intentionally degraded only because BTCUSD and PFD are unmanaged legacy positions. The signed Telegram Mini App is deployed on Vercel and the API reports it enabled/configured with portfolio, order, alert, P/L, freshness, and unmanaged-position projections.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading, promote one reviewed local batch when provider limits clear, verify authenticated portfolio/P&L rendering and exports, and accumulate the 30-day evidence gate without loosening risk controls. Deploy the current local heartbeat/dashboard changes only after explicit operator authorization.
@@ -116,6 +116,13 @@
 - This removes a false unmanaged count caused by a newer incomplete submission row shadowing a complete managed plan; incomplete positions remain fail-closed.
 - API-focused tests, typecheck, lint, and diff hygiene pass; no broker or database state changed.
 - **Next smallest unit:** deploy the API revision and rerun the signed Mini App verifier; its unmanaged count should match Worker health (currently two).
+
+### Phase 6.685 — Hosted Mini App/Worker exit-plan consistency verification (2026-09-01)
+
+- Explicitly deployed the current API checkout to Railway after the service redeploy was found to be using the prior image.
+- Signed Mini App verification now returns HTTP 200 with 3 positions, 22 orders, 50 alerts, aggregate P/L metrics, and **2 unmanaged positions**, matching Worker health exactly.
+- No broker orders or database records were changed; the API remains healthy and the Worker remains Paper Autopilot/read-only.
+- **Next smallest unit:** verify the live Telegram `/dashboard` interaction, then obtain operator-approved exit-plan values for BTCUSD/PFD.
 
 ### Phase 6.618 — Injectable Firecrawl provider boundary (2026-08-31)
 
