@@ -229,6 +229,15 @@ describe("paper account reader", () => {
     expect(requests[1]).toContain("/v2/stocks/snapshots?symbols=TEST");
   });
 
+  it("unwraps Alpaca crypto snapshot responses", async () => {
+    const reader = createPaperMarketDataReader({
+      apiKey: "paper-key",
+      fetchImpl: async () => new Response(JSON.stringify({ snapshots: { "BTC/USD": { latestTrade: { p: "100", t: "2026-08-22T00:01:00Z" } } } }), { status: 200 }),
+      secretKey: "paper-secret",
+    });
+    await expect(reader.readSnapshots({ assetClass: "crypto", symbols: ["BTC/USD"] })).resolves.toEqual([{ latestTrade: { price: "100", timestamp: "2026-08-22T00:01:00Z" }, symbol: "BTC/USD" }]);
+  });
+
   it("rejects a non-market-data endpoint", () => {
     expect(() =>
       createPaperMarketDataReader({
