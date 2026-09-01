@@ -2,11 +2,16 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.770 — Public-surface verification.
+- **Phase:** Phase 6.771 — Paper-runtime contract verification.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, scheduled research, healthy position management, and complete exit-plan coverage for all three live paper positions. The signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit confirms complete position coverage and Telegram delivery from a persisted sent test.
 - **Last updated:** 2026-09-02.
+
+### Phase 6.771 — Paper-runtime contract verification (2026-09-02)
+
+- The hosted paper-runtime verifier passed end to end: Worker/API healthy, Alpaca and database configured, paper mode enforced, order-submission approval present, fresh market data, ready position management, active research and durable schedulers, aligned release identity, inactive kill switch, valid telemetry, and zero unmanaged positions.
+- No runtime configuration, broker state, or source behavior changed. **Next smallest unit:** verify the next scheduled crypto cycle and continue the 30-day evidence window.
 
 ### Phase 6.770 — Public-surface verification (2026-09-02)
 
