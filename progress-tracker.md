@@ -2,11 +2,18 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.784 — hosted migration audit and 23:15 UTC cycle verified.
+- **Phase:** Phase 6.785 — hosted runtime error audit.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, scheduled research, healthy position management, and complete exit-plan coverage for all three live paper positions. The signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit confirms complete position coverage and Telegram delivery from a persisted sent test.
 - **Last updated:** 2026-09-02.
+
+### Phase 6.785 — Hosted runtime error audit (2026-09-02)
+
+- A 30-minute Railway Worker log audit found no error, failed-cycle, exception, degraded-state, kill-switch, or unmanaged-position events.
+- The live heartbeat remains healthy with fresh market data, completed 23:15 UTC risk telemetry, and the next research boundary scheduled for 23:30 UTC.
+- No code, configuration, broker state, or database state changed in this read-only audit.
+- **Next smallest unit:** verify the next scheduled crypto cycle and continue the evidence window.
 
 ### Phase 6.784 — Hosted migration audit (2026-09-02)
 
