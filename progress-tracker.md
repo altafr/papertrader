@@ -2,7 +2,7 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.705 — Evidence-capacity regression guard.
+- **Phase:** Phase 6.706 — Hosted system verification.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, fresh crypto data, scheduled research, and position-management execution. All three live paper positions have complete exit-plan coverage; the signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit confirms complete position coverage and Telegram delivery from a persisted sent test.
@@ -50,6 +50,13 @@
 - The dashboard Paper performance card displays the remaining consecutive-day requirement alongside snapshots and P/L; parser compatibility remains fail-closed for malformed values.
 - API/web typechecks and tests passed; the API deployment completed successfully. No order or risk behavior changed.
 - **Next smallest unit:** continue unattended paper operation; monitor the dashboard or Worker readiness report for evidence progress.
+
+### Phase 6.706 — Hosted system verification (2026-09-02)
+
+- Ran the repository hosted verifier against the production Railway Worker/API and Vercel web surface.
+- Verification passed for paper mode, broker/database configuration, order-submission approval gate, fresh market stream, position management, zero unmanaged positions, both schedulers, kill switch, risk telemetry, release consistency, and Vercel HTTP 200.
+- This confirms the deployed system is internally consistent; full release readiness remains gated only by the 30-day evidence window.
+- **Next smallest unit:** continue unattended paper cycles and monitor the evidence counter.
 
 ### Phase 6.705 — Evidence-capacity regression guard (2026-09-02)
 
