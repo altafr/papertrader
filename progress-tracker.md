@@ -2,7 +2,7 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.755 — Hosted risk-cycle diagnostics deployment.
+- **Phase:** Phase 6.756 — Scheduled recovery and idempotent paper execution.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, scheduled research, healthy position management, and complete exit-plan coverage for all three live paper positions. The signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit confirms complete position coverage and Telegram delivery from a persisted sent test.
@@ -36,6 +36,13 @@
 - Hosted health is `healthy`; research scheduling is `scheduled` with the next tick at `2026-09-01T21:30:00Z`, position management is `ready`, market data is fresh, and `unmanagedCount: 0`.
 - The 21:15 failure remained fail-closed; the next scheduled run will provide the new bounded failure detail if it recurs.
 - **Next smallest unit:** verify the next scheduled risk cycle and continue the 30-day paper evidence window.
+
+### Phase 6.756 — Scheduled recovery and idempotent paper execution (2026-09-02)
+
+- The recovered scheduler cycle at `2026-09-01T21:19:17Z` succeeded for `crypto_research` and emitted complete risk telemetry: one approved/reconciled BTC/USD decision, quantity `0.02590325`, estimated loss `4.99%`.
+- The deterministic intent remained stable across the retry, and the read-only reconciled portfolio now shows BTCUSD `0.06847022`, AAPL `4`, and PFD `2903`; no unmanaged positions were introduced.
+- Worker health remains `healthy`, scheduler status `scheduled`, market data fresh, and position management ready. The prior failure was fail-closed and did not create a duplicate intent.
+- **Next smallest unit:** continue the 15-minute crypto schedule and verify the next scheduled cycle after the deployed diagnostic revision.
 
 ### Phase 6.751 — Scheduler diagnostics deployment verification (2026-09-02)
 
