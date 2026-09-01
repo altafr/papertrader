@@ -5,6 +5,7 @@ import { createAccountStateRepository, createPaperOrderRepository, type Database
 
 import { assessResearchCandidateRisk, buildRiskCandidate, isPaperBaselineVerified } from "./paper-risk-dry-run.js";
 import { isCompleteExitPlan } from "@momentum/domain";
+import { getPaperTimeInForce } from "./paper-order-duration.js";
 
 /**
  * Bound each cycle to a small candidate set. Broker-enabled cycles still
@@ -42,9 +43,7 @@ export function getUnmanagedPositionSymbols(
   return positions.filter((position) => !completePlans.has(`${position.assetClass}:${canonicalSymbol(position.symbol)}`)).map((position) => position.symbol).slice(0, 20);
 }
 
-export function getPaperTimeInForce(assetClass: "crypto" | "us_equity"): "day" | "gtc" {
-  return assetClass === "crypto" ? "gtc" : "day";
-}
+export { getPaperTimeInForce } from "./paper-order-duration.js";
 
 /** Bounded, human-readable entry explanation for the important Telegram alert. */
 export function buildPaperRiskDecisionMessage(input: {
