@@ -2,11 +2,18 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.712 — One-shot crypto order duration alignment.
+- **Phase:** Phase 6.713 — Hosted release identity alignment.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, fresh crypto data, scheduled research, and position-management execution. All three live paper positions have complete exit-plan coverage; the signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit confirms complete position coverage and Telegram delivery from a persisted sent test.
 - **Last updated:** 2026-09-02.
+
+### Phase 6.713 — Hosted release identity alignment (2026-09-02)
+
+- Updated the non-secret `PAPERTRADER_RELEASE` observability value on Railway Worker and API services to the deployed revision `b90b997`.
+- Both services redeployed successfully; hosted verification now reports `releaseMatches=true` and `apiReleaseMatches=true` with the current revision.
+- Runtime remains paper-only and healthy: fresh market stream, active schedulers, position management ready, zero unmanaged positions, and verified Telegram delivery.
+- **Next smallest unit:** continue unattended paper cycles and accumulate the remaining evidence days.
 
 ### Phase 6.712 — One-shot crypto order duration alignment (2026-09-02)
 
