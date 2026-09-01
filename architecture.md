@@ -2,10 +2,12 @@
 
 ## Status
 
-- **Stage:** Phase 6.675 post-rollout safety audit; continuous Paper Autopilot and multi-day evidence collection continue.
+- **Stage:** Phase 6.676 Telegram exit-plan query routing; continuous Paper Autopilot and multi-day evidence collection continue.
 - **Current hosted state:** Worker is deployed in Paper Autopilot with fresh crypto data, scheduled research, deterministic risk/execution gates, two-percent minimum sizing, equity bracket entries, ratcheting position stops, restart-safe synthetic crypto protection explicitly enabled, and the read-only Telegram operations assistant enabled with polling. Worker health exposes assistant readiness without secrets. The hosted readiness contract remains degraded only for two unmanaged legacy positions (BTCUSD and PFD), which still pause new entries.
 
 Telegram research questions are routed into the durable agent-run ledger (`stock_research` for companies/equities, `crypto_research` for crypto, `macro_advisory` for rates/inflation/macro questions). Optional Firecrawl lookup is server-side only, bounded to three results, labelled untrusted reference material, and has no order authority; absent or failed lookup is fail-closed.
+
+Exit-plan, stop-loss, take-profit, unmanaged-position, and position-management questions stay on the local read-only path rather than being sent to web research. The assistant reports stored managed/review-required coverage and never gains order authority.
 
 Legacy-position adoption can derive an omitted entry price from the weighted average of selected broker-reported filled buys. This is provenance-only convenience: stop/target or time-stop, strategy metadata, order selection, and the explicit operator reference remain required, and the guarded command still performs no broker mutation.
 

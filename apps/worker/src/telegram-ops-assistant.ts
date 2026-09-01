@@ -5,7 +5,7 @@ type JsonRecord = Record<string, unknown>;
 type AssistantHealth = { readonly status?: string; readonly operatingMode?: string; readonly marketStream?: JsonRecord; readonly researchSchedule?: JsonRecord; readonly positionManagement?: JsonRecord; readonly durableScheduler?: JsonRecord; readonly telegramAlerts?: JsonRecord };
 type AssistantModel = { readonly snapshot?: { readonly capturedAt: Date; readonly cash: string; readonly equity: string; readonly buyingPower: string; readonly lastEquity?: string | null }; readonly positions: readonly { readonly symbol: string; readonly assetClass: string; readonly quantity: string; readonly marketValue: string; readonly unrealizedPl: string }[]; readonly orders: readonly { readonly symbol: string; readonly status: string; readonly side: string; readonly filledQuantity?: string | null; readonly updatedAt?: Date | null }[] } | undefined;
 type AssistantRun = { readonly agentType: string; readonly status: string; readonly runId: string; readonly createdAt: Date; readonly artifactRationale?: string | null };
-type AssistantSubmission = { readonly symbol: string; readonly status: string; readonly assetClass: string; readonly quantity: string; readonly filledQuantity?: string | null; readonly riskDecision?: { readonly approvalStatus?: string; readonly reasons?: readonly string[] } | null; readonly updatedAt?: Date | null };
+type AssistantSubmission = { readonly symbol: string; readonly status: string; readonly assetClass: string; readonly quantity: string; readonly filledQuantity?: string | null; readonly entryPrice?: string | null; readonly plannedStopPrice?: string | null; readonly plannedTargetPrice?: string | null; readonly strategyKey?: string | null; readonly strategyVersion?: string | null; readonly timeStopAt?: Date | null; readonly alpacaOrderId?: string | null; readonly riskDecision?: { readonly approvalStatus?: string; readonly reasons?: readonly string[] } | null; readonly updatedAt?: Date | null };
 export type FirecrawlSource = { readonly title: string; readonly url: string; readonly description: string };
 
 export interface TelegramOpsAssistantData {
@@ -41,7 +41,7 @@ export async function fetchFirecrawlSources(question: string, apiKey: string, fe
   }
 }
 export function isResearchQuestion(question: string): boolean {
-  if (/\b(portfolio|position|p&l|p\/l|trade|order|risk|health|infra|scheduler|log|status|alert|telegram)\b/i.test(question)) return false;
+  if (/\b(portfolio|position|p&l|p\/l|trade|order|risk|health|infra|scheduler|log|status|alert|telegram|exit plan|stop loss|take profit|unmanaged|position management)\b/i.test(question)) return false;
   return /\b(company|companies|earnings|revenue|fundamentals|news|headline|analyst|sector|industry|fed|federal reserve|interest rate|rates|inflation|cpi|gdp|jobs report|unemployment|yield curve|macro|why is .*moving|what happened to)\b/i.test(question)
     || /\b[A-Z]{1,5}\b/.test(question);
 }
@@ -66,7 +66,8 @@ export async function buildTelegramOpsAssistantReply(question: string, data: Tel
     }
   }
   const health = data.getHealth();
-  if (normalized.includes("health") || normalized.includes("infra") || normalized.includes("scheduler") || normalized.includes("log") || normalized.includes("status")) {
+  const asksExitPlan = normalized.includes("exit plan") || normalized.includes("stop loss") || normalized.includes("take profit") || normalized.includes("unmanaged") || normalized.includes("position management");
+  if (!asksExitPlan && (normalized.includes("health") || normalized.includes("infra") || normalized.includes("scheduler") || normalized.includes("log") || normalized.includes("status"))) {
     const research = health.researchSchedule ?? {};
     const stream = health.marketStream ?? {};
     const positions = health.positionManagement ?? {};
@@ -76,6 +77,17 @@ export async function buildTelegramOpsAssistantReply(question: string, data: Tel
     return limit(`Infrastructure health\nWorker: ${scalar(health.status)} · mode ${scalar(health.operatingMode)}\nMarket stream: ${scalar(stream.status)} · freshness ${scalar(stream.freshness)}\nResearch: ${scalar(research.status)} · next ${scalar(research.nextRunAt)} · last risk ${scalar(research.lastRiskCycleStatus)}\nPosition management: ${scalar(positions.status)} · unmanaged ${scalar(positions.unmanagedCount, "0")}\nDurable scheduler: ${scalar(durable.status)} · next ${scalar(durable.nextRunAt)}\nLatest agent run: ${latest ? `${latest.agentType} ${latest.status} at ${utc(latest.createdAt)}` : "none"}`);
   }
   const model = await data.getModel();
+  if (asksExitPlan) {
+    const submissions = await data.getSubmissions();
+    if (!model?.positions.length) return "No reconciled paper positions are available for exit-plan review.";
+    const status = model.positions.map((position) => {
+      const key = `${position.assetClass}:${position.symbol.replaceAll("/", "").toUpperCase()}`;
+      const plan = submissions.find((submission) => `${submission.assetClass}:${submission.symbol.replaceAll("/", "").toUpperCase()}` === key && submission.entryPrice && submission.plannedStopPrice && submission.strategyKey && submission.strategyVersion && (submission.plannedTargetPrice || submission.timeStopAt));
+      if (plan) return `${position.symbol}: managed (stop ${display(plan.plannedStopPrice)}, ${plan.plannedTargetPrice ? `target ${display(plan.plannedTargetPrice)}` : `time stop ${utc(plan.timeStopAt!)}`})`;
+      return `${position.symbol}: review required (no complete stored exit plan)`;
+    }).join("; ");
+    return limit(`Exit-plan coverage as of ${utc(model.snapshot?.capturedAt)}\n${status}\nUnmanaged positions remain fail-closed and receive no automatic exits.`);
+  }
   if (normalized.includes("position") || normalized.includes("portfolio") || normalized.includes("p&l") || normalized.includes("pnl") || normalized.includes("equity") || normalized.includes("cash")) {
     if (!model?.snapshot) return "No reconciled paper portfolio snapshot is available.";
     const positions = model.positions.length === 0 ? "none" : model.positions.map((position) => `${position.symbol} ${display(position.quantity)} · value ${display(position.marketValue)} · unrealized P/L ${display(position.unrealizedPl)}`).join("; ");

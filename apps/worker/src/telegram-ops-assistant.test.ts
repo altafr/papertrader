@@ -15,6 +15,18 @@ describe("Telegram operations assistant", () => {
     await expect(buildTelegramOpsAssistantReply("show my portfolio and P&L", data)).resolves.toContain("AAPL 4");
   });
 
+  it("keeps exit-plan questions local and reports managed coverage", async () => {
+    let researched = false;
+    const reply = await buildTelegramOpsAssistantReply("show my exit plan status", {
+      ...data,
+      getSubmissions: async () => [{ symbol: "AAPL", assetClass: "us_equity", status: "filled", quantity: "4", entryPrice: "100", plannedStopPrice: "95", plannedTargetPrice: "104", strategyKey: "momentum", strategyVersion: "1.0.0" }],
+      askResearch: async () => { researched = true; return "incorrect route"; },
+    });
+    expect(researched).toBe(false);
+    expect(reply).toContain("AAPL: managed");
+    expect(reply).toContain("stop 95.00");
+  });
+
   it("answers infra questions with bounded health and agent data", async () => {
     const reply = await buildTelegramOpsAssistantReply("infra status", data);
     expect(reply).toContain("Market stream: connected · freshness fresh");
