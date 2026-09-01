@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.708 release identity alignment; continuous Paper Autopilot and multi-day evidence collection continue.
+- **Stage:** Phase 6.709 market-close summary verification; continuous Paper Autopilot and multi-day evidence collection continue.
 - **Current hosted state:** Worker is deployed in Paper Autopilot with fresh crypto data, scheduled research, deterministic risk/execution gates, two-percent minimum sizing, equity bracket entries, ratcheting position stops, restart-safe synthetic crypto protection explicitly enabled, and the read-only Telegram operations assistant enabled with polling. Worker health exposes assistant readiness without secrets. All three paper positions have complete exit-plan coverage; the only remaining release blocker is the 30-consecutive-calendar-day evidence gate.
 
 Telegram research questions are routed into the durable agent-run ledger (`stock_research` for companies/equities, `crypto_research` for crypto, `macro_advisory` for rates/inflation/macro questions). Optional Firecrawl lookup is server-side only, bounded to three results, labelled untrusted reference material, and has no order authority; absent or failed lookup is fail-closed.
@@ -54,6 +54,8 @@ The repository hosted verifier currently passes across Railway Worker/API and Ve
 A subsequent hosted stability checkpoint passed the same verifier and confirmed that the only release blocker remains the time-based 30-day paper-evidence requirement.
 
 Railway Worker and API release identity is now aligned to the current repository revision, and hosted verification confirms both services report the same revision without exposing secrets.
+
+The guarded market-close summary verifier confirms persisted Telegram delivery for two end-of-session portfolio summaries, with no synthetic notification or broker mutation performed by the verification.
 
 The authenticated performance API and dashboard also expose bounded evidence-window progress (`daysRemaining`) next to the existing consecutive-day metrics. This is read-only telemetry and does not alter the 30-day promotion gate.
 
