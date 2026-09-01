@@ -63,10 +63,10 @@ export function dedupeResearchCandidates(candidates: readonly ResearchWatchlistC
 
 export function buildPaperRiskCycleLog(input: {
   readonly researchRunIds: readonly string[];
-  readonly decisions: readonly Pick<Awaited<ReturnType<typeof runPaperAutopilotRiskCycle>>[number], "approvalStatus" | "executionStatus" | "intentId" | "reasons" | "symbol">[];
+  readonly decisions: readonly Pick<Awaited<ReturnType<typeof runPaperAutopilotRiskCycle>>[number], "approvalStatus" | "entryPrice" | "executionStatus" | "estimatedLossPercent" | "intentId" | "quantity" | "reasons" | "symbol">[];
 }) {
   return {
-    decisions: input.decisions.slice(0, 10).map((decision) => ({ approvalStatus: decision.approvalStatus, executionStatus: decision.executionStatus, intentId: decision.intentId, reasons: decision.reasons.slice(0, 8), symbol: decision.symbol })),
+    decisions: input.decisions.slice(0, 10).map((decision) => ({ approvalStatus: decision.approvalStatus, entryPrice: decision.entryPrice, estimatedLossPercent: decision.estimatedLossPercent, executionStatus: decision.executionStatus, intentId: decision.intentId, quantity: decision.quantity, reasons: decision.reasons.slice(0, 8), symbol: decision.symbol })),
     event: "paper_risk_cycle_result",
     researchRunIds: input.researchRunIds.slice(0, 10),
   } as const;

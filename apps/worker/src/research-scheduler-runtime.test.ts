@@ -51,6 +51,6 @@ describe("research scheduler startup composition", () => {
   });
 
   it("bounds risk-cycle log reasons and run identifiers", () => {
-    expect(buildPaperRiskCycleLog({ researchRunIds: ["run-1"], decisions: [{ approvalStatus: "rejected", executionStatus: "not_submitted", intentId: "intent-1", reasons: ["reason-1", "reason-2"], symbol: "BTC/USD" }] })).toEqual({ decisions: [{ approvalStatus: "rejected", executionStatus: "not_submitted", intentId: "intent-1", reasons: ["reason-1", "reason-2"], symbol: "BTC/USD" }], event: "paper_risk_cycle_result", researchRunIds: ["run-1"] });
+    expect(buildPaperRiskCycleLog({ researchRunIds: ["run-1"], decisions: [{ approvalStatus: "rejected", entryPrice: "100", estimatedLossPercent: "5.00", executionStatus: "not_submitted", intentId: "intent-1", quantity: "2", reasons: ["reason-1", "reason-2"], symbol: "BTC/USD" }] })).toEqual({ decisions: [{ approvalStatus: "rejected", entryPrice: "100", estimatedLossPercent: "5.00", executionStatus: "not_submitted", intentId: "intent-1", quantity: "2", reasons: ["reason-1", "reason-2"], symbol: "BTC/USD" }], event: "paper_risk_cycle_result", researchRunIds: ["run-1"] });
   });
 });

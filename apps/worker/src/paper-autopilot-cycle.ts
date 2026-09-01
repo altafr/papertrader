@@ -20,8 +20,11 @@ export function selectPaperAutopilotCandidates<T>(candidates: readonly T[], exec
 
 export interface PaperAutopilotRiskCycleResult {
   readonly approvalStatus: "approved" | "rejected";
+  readonly entryPrice: string;
   readonly executionStatus: "not_submitted" | "reconciled";
+  readonly estimatedLossPercent: string;
   readonly intentId: string;
+  readonly quantity: string;
   readonly reasons: readonly string[];
   readonly symbol: string;
 }
@@ -136,7 +139,7 @@ export async function runPaperAutopilotRiskCycle(input: {
       executionStatus = "reconciled";
       executionSubmitted = true;
     }
-    results.push({ approvalStatus: approval.status, executionStatus, intentId, reasons: approval.assessment.reasons, symbol: candidate.symbol });
+    results.push({ approvalStatus: approval.status, entryPrice: riskCandidate.proposedEntryPrice, executionStatus, estimatedLossPercent: approval.assessment.estimatedLossPercent, intentId, quantity, reasons: approval.assessment.reasons, symbol: candidate.symbol });
     if (shouldNotifyPaperRiskDecision(approval.status)) {
       await input.notify?.({ code: "paper_risk_decision", dedupeKey: `paper_risk_decision:${intentId}`, message: buildPaperRiskDecisionMessage({ ...(input.approvalReference ? { approvalReference: input.approvalReference } : {}), candidate, entryPrice: riskCandidate.proposedEntryPrice, plannedStopPrice: riskCandidate.plannedStopPrice, plannedTargetPrice: riskCandidate.plannedExitPrice, ...(riskCandidate.timeStopAt ? { timeStopAt: riskCandidate.timeStopAt } : {}) }), severity: "info" });
     }

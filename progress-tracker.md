@@ -2,13 +2,13 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.740 — Dynamic sizing configuration alignment.
+- **Phase:** Phase 6.741 — Risk sizing telemetry.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, scheduled research, healthy position management, and complete exit-plan coverage for all three live paper positions. The signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit confirms complete position coverage and Telegram delivery from a persisted sent test.
 - **Last updated:** 2026-09-02.
 
-### Phase 6.740 — Dynamic sizing configuration alignment (2026-09-02)
+### Phase 6.741 — Risk sizing telemetry (2026-09-02)
 
 - Position management now detects managed positions lacking a fresh market mark and fails closed during the applicable market session; crypto remains enforced 24/7 while US equities are exempted overnight/weekends when no fresh quote is expected.
 - Added canonical-symbol and New York session regression coverage. No broker state changed.
@@ -26,6 +26,8 @@
 - Redeployed Worker health is healthy; hosted contract verification passes and the override is confirmed absent. No order was submitted by this configuration change.
 - Post-redeploy runtime check confirms position management is `ready` with zero unmanaged positions, fresh connected market data, and scheduled research. The next risk cycle remains scheduled for 20:45 UTC.
 - Removed fixed quantity examples from `.env.example` so local deployments also use dynamic 2%-of-equity sizing by default; explicit overrides remain available but are still subject to deterministic risk validation.
+- Risk-cycle decision logs now include bounded entry price, quantity, and estimated loss percentage alongside approval status and rejection reasons, making the 2%/5% policy auditable without exposing credentials or model output.
+- Focused Worker tests and typecheck pass; **Next smallest unit:** deploy Worker and verify the next scheduled risk-cycle log.
 - **Next smallest unit:** continue unattended paper cycles and re-audit the evidence gate after the next calendar-day boundary.
 
 ### Phase 6.730 — Market-close summary delivery verification (2026-09-02)
