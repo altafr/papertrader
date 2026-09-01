@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest";
 
-import { buildPaperRiskDecisionMessage, selectPaperAutopilotCandidates, shouldNotifyPaperRiskDecision } from "./paper-autopilot-cycle.js";
+import { buildPaperRiskDecisionMessage, getUnmanagedPositionSymbols, selectPaperAutopilotCandidates, shouldNotifyPaperRiskDecision } from "./paper-autopilot-cycle.js";
+
+describe("paper autopilot position coverage", () => {
+  it("matches compact and slash-form crypto symbols", () => {
+    expect(getUnmanagedPositionSymbols([{ assetClass: "crypto", symbol: "BTCUSD" }], [{ assetClass: "crypto", symbol: "BTC/USD" }])).toEqual([]);
+  });
+});
 
 describe("paper autopilot candidate bound", () => {
   const candidates = Array.from({ length: 12 }, (_, index) => `candidate-${index + 1}`);

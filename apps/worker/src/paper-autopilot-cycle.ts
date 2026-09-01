@@ -30,6 +30,18 @@ export function shouldNotifyPaperRiskDecision(status: PaperAutopilotRiskCycleRes
   return status === "approved";
 }
 
+function canonicalSymbol(symbol: string): string {
+  return symbol.replaceAll("/", "").trim().toUpperCase();
+}
+
+export function getUnmanagedPositionSymbols(
+  positions: readonly { readonly assetClass: string; readonly symbol: string }[],
+  plans: readonly { readonly assetClass: string; readonly symbol: string }[],
+): readonly string[] {
+  const completePlans = new Set(plans.map((plan) => `${plan.assetClass}:${canonicalSymbol(plan.symbol)}`));
+  return positions.filter((position) => !completePlans.has(`${position.assetClass}:${canonicalSymbol(position.symbol)}`)).map((position) => position.symbol).slice(0, 20);
+}
+
 /** Bounded, human-readable entry explanation for the important Telegram alert. */
 export function buildPaperRiskDecisionMessage(input: {
   readonly approvalReference?: string;
@@ -73,8 +85,8 @@ export async function runPaperAutopilotRiskCycle(input: {
   const baselineConfirmation = await accountRepository.getLatestPaperBaselineConfirmation(snapshot.accountId, "100000");
   const baselineVerified = Boolean(baselineConfirmation || (initialSnapshot && isPaperBaselineVerified(initialSnapshot.equity)));
   const repository = createPaperOrderRepository(input.db);
-  const completePlans = new Set((await repository.listExitPlans()).filter((plan) => isCompleteExitPlan(plan)).map((plan) => `${plan.assetClass}:${plan.symbol}`));
-  const unmanagedPositions = model.positions.filter((position) => !completePlans.has(`${position.assetClass}:${position.symbol}`)).map((position) => position.symbol).slice(0, 20);
+  const completePlans = (await repository.listExitPlans()).filter((plan) => isCompleteExitPlan(plan));
+  const unmanagedPositions = getUnmanagedPositionSymbols(model.positions, completePlans);
   const accountFresh = Math.floor((now.getTime() - model.freshness.capturedAt.getTime()) / 1000) <= 172_800;
   const baseState = {
     accountBaselineVerified: baselineVerified,
