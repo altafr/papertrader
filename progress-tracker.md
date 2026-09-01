@@ -2,13 +2,13 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.747 — Active protection continuity checkpoint.
+- **Phase:** Phase 6.748 — Live trailing-stop ratchet verification.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, scheduled research, healthy position management, and complete exit-plan coverage for all three live paper positions. The signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit confirms complete position coverage and Telegram delivery from a persisted sent test.
 - **Last updated:** 2026-09-02.
 
-### Phase 6.747 — Active protection continuity checkpoint (2026-09-02)
+### Phase 6.748 — Live trailing-stop ratchet verification (2026-09-02)
 
 - Position management now detects managed positions lacking a fresh market mark and fails closed during the applicable market session; crypto remains enforced 24/7 while US equities are exempted overnight/weekends when no fresh quote is expected.
 - Added canonical-symbol and New York session regression coverage. No broker state changed.
@@ -36,6 +36,7 @@
 - **Next smallest unit:** run focused tests, deploy Worker, and verify the active BTC plan in logs.
 - Worker deployment is live and the active BTCUSD decision now uses the newest complete plan (entry `77353.32`, stop `73493.389332`, target `80447.4528`). Hosted verification passes with healthy runtime and zero unmanaged positions.
 - Subsequent position passes continue to use that plan with current mark below entry; no exit is triggered and the stop has not loosened. Portfolio reconciliation reports equity `99669.94` and three covered positions. Full readiness remains blocked only by the evidence window (9/30 consecutive days).
+- A favorable BTCUSD mark ratcheted the active stop upward from `73493.389332` to `73497.0635`; the Worker persisted the stronger stop and kept the deterministic exit decision at `shouldExit=false`.
 - **Next smallest unit:** continue unattended paper cycles and re-audit the evidence gate after the next calendar-day boundary.
 
 ### Phase 6.730 — Market-close summary delivery verification (2026-09-02)
