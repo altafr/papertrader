@@ -2,11 +2,18 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.763 — Retry-fix live cycle verification.
+- **Phase:** Phase 6.764 — Scheduled cycle evidence continuation.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, scheduled research, healthy position management, and complete exit-plan coverage for all three live paper positions. The signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit confirms complete position coverage and Telegram delivery from a persisted sent test.
 - **Last updated:** 2026-09-02.
+
+### Phase 6.764 — Scheduled cycle evidence continuation (2026-09-02)
+
+- The hosted 21:45 UTC crypto cycle completed successfully at `2026-09-01T21:45:07Z`: one BTC/USD candidate was researched, approved by the deterministic risk gate, and reconciled to paper broker truth with quantity `0.02584768`, entry `77112.71150000`, and estimated stop loss `4.99%`.
+- The deterministic intent remained `intent:BTC_USD:2026-09-01T21:00:00Z`; the retry-aware execution path reused persisted intent evidence and produced no duplicate-order or `filled_quantity_outside_the_approved_order_quantity` failure.
+- Post-cycle health remains healthy: market stream connected/fresh, position management ready with zero unmanaged positions, and the next crypto run scheduled for 22:00 UTC. The only release blocker remains the 30-consecutive-calendar-day paper evidence gate.
+- **Next smallest unit:** continue unattended scheduled cycles and re-audit the evidence counter after the next UTC calendar boundary.
 
 ### Phase 6.752 — Legacy exit-plan approval verification (2026-09-02)
 
