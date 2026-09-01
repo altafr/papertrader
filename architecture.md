@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.687 hosted cross-surface Mini App verification; continuous Paper Autopilot and multi-day evidence collection continue.
+- **Stage:** Phase 6.688 full paper-autonomous release-readiness reporting; continuous Paper Autopilot and multi-day evidence collection continue.
 - **Current hosted state:** Worker is deployed in Paper Autopilot with fresh crypto data, scheduled research, deterministic risk/execution gates, two-percent minimum sizing, equity bracket entries, ratcheting position stops, restart-safe synthetic crypto protection explicitly enabled, and the read-only Telegram operations assistant enabled with polling. Worker health exposes assistant readiness without secrets. The hosted readiness contract remains degraded only for two unmanaged legacy positions (BTCUSD and PFD), which still pause new entries.
 
 Telegram research questions are routed into the durable agent-run ledger (`stock_research` for companies/equities, `crypto_research` for crypto, `macro_advisory` for rates/inflation/macro questions). Optional Firecrawl lookup is server-side only, bounded to three results, labelled untrusted reference material, and has no order authority; absent or failed lookup is fail-closed.
@@ -22,6 +22,8 @@ Legacy-position adoption can derive an omitted entry price from the weighted ave
 If an operator supplies an entry override during legacy adoption, it must equal the selected broker fills' weighted average (decimal-safe comparison). A mismatch fails closed; when broker average fill data is incomplete, an explicit entry remains required.
 
 The broker review command also emits non-authoritative stop/target suggestions (4.99% protective distance and 4% target) from that broker-linked entry. They are explicitly marked as requiring operator approval and are never persisted or submitted automatically.
+
+The guarded `full-paper-autonomous-readiness` command is the release-level fail-closed audit. It combines runtime readiness, database-derived complete exit-plan coverage, Telegram alert configuration/delivery verification, and paper performance stability evidence. A `ready` runtime therefore does not imply full release readiness: unmanaged positions, unverified alert delivery, or an incomplete evidence window remain explicit blockers.
 
 Operator-facing financial, quantity, risk, and indicator values are formatted to two decimal places on the dashboard and Telegram assistant; stored and broker precision remains unchanged.
 
