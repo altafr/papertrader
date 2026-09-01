@@ -13,6 +13,11 @@ import { createRuntimeAlertNotifier } from "./telegram-events.js";
 const POSITION_DETECTED_COOLDOWN_MS = 86_400_000;
 const POSITION_MARK_MAX_AGE_MS = 5 * 60_000;
 const canonicalSymbol = (symbol: string): string => symbol.replaceAll("/", "").toUpperCase();
+const providerSymbol = (assetClass: "crypto" | "us_equity", symbol: string): string => {
+  if (assetClass !== "crypto" || symbol.includes("/")) return symbol;
+  const canonical = canonicalSymbol(symbol);
+  return canonical.endsWith("USD") && canonical.length > 3 ? `${canonical.slice(0, -3)}/USD` : symbol;
+};
 interface MarkDecimal { isNegative(): boolean; isZero(): boolean; }
 interface MarkDecimalConstructor { new (value: string): MarkDecimal; }
 const MarkDecimal = (DecimalModule as unknown as { readonly default: MarkDecimalConstructor }).default;
@@ -39,7 +44,8 @@ export function groupPositionSymbolsByAssetClass(positions: ReadonlyArray<{ read
   for (const position of positions) {
     const assetClass = position.assetClass === "crypto" ? "crypto" : "us_equity";
     const symbols = groups.get(assetClass) ?? [];
-    if (!symbols.includes(position.symbol)) symbols.push(position.symbol);
+    const provider = providerSymbol(assetClass, position.symbol);
+    if (!symbols.includes(provider)) symbols.push(provider);
     groups.set(assetClass, symbols);
   }
   return [...groups.entries()].map(([assetClass, symbols]) => ({ assetClass, symbols }));

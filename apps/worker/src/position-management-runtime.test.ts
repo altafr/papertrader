@@ -28,6 +28,10 @@ describe("position market-data grouping", () => {
     ]);
   });
 
+  it("normalizes broker crypto symbols for Alpaca market-data requests", () => {
+    expect(groupPositionSymbolsByAssetClass([{ assetClass: "crypto", symbol: "BTCUSD" }])).toEqual([{ assetClass: "crypto", symbols: ["BTC/USD"] }]);
+  });
+
   it("rejects stale marks and accepts a fresh timestamped trade", () => {
     const now = new Date("2026-08-29T00:05:00.000Z");
     expect(getFreshPositionMark({ symbol: "BTC/USD", latestTrade: { price: "100", timestamp: "2026-08-28T23:59:00.000Z" } }, now)).toBeUndefined();
