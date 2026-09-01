@@ -21,6 +21,12 @@
 - Railway deployed Worker commit `ef3731e` successfully. Hosted full-readiness output now has only two blockers: `unmanaged_positions_present` and `minimum_30_consecutive_calendar_days_not_met`.
 - **Next smallest unit:** complete operator-approved BTCUSD/PFD exit-plan adoption; the Telegram delivery gate is now verified.
 
+### Phase 6.690 — Hosted continuous-runtime recheck (2026-09-01)
+
+- Hosted health recheck confirms Paper Autopilot, durable scheduler, fresh crypto stream, 60-second position supervision, Telegram assistant, and Firecrawl configuration remain active.
+- The full readiness audit still reports only `unmanaged_positions_present` and `minimum_30_consecutive_calendar_days_not_met`; no new broker, database, freshness, or kill-switch failure was observed.
+- **Next smallest unit:** obtain the operator-approved BTCUSD/PFD exit-plan metadata and run the guarded batch adoption preflight.
+
 ### Phase 6.669 — Full release regression after Telegram Mini App verification (2026-09-01)
 
 - Full workspace regression passed: 98 test files / 433 tests, including the deterministic signed Telegram Mini App verifier.
