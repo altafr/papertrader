@@ -2,7 +2,7 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.670 — Broker-linked legacy exit-plan prefill.
+- **Phase:** Phase 6.671 — Hosted broker-linked exit-plan prefill rollout.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, fresh crypto data, scheduled research, and position-management execution. The hosted contract is intentionally degraded only because BTCUSD and PFD are unmanaged legacy positions. The signed Telegram Mini App is deployed on Vercel and the API reports it enabled/configured with portfolio, order, alert, P/L, freshness, and unmanaged-position projections.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading, promote one reviewed local batch when provider limits clear, verify authenticated portfolio/P&L rendering and exports, and accumulate the 30-day evidence gate without loosening risk controls. Deploy the current local heartbeat/dashboard changes only after explicit operator authorization.
@@ -22,6 +22,13 @@
 - The derived value is shown in dry-run output before any provenance write; all operator-approved stop/target or time-stop, strategy metadata, broker-order selection, and reference requirements remain enforced.
 - Added regression coverage for weighted fills and incomplete broker price data; focused tests, typecheck, lint, and diff hygiene pass.
 - **Next smallest unit:** run the dry-run preflight for BTCUSD and PFD using reviewed broker order IDs and operator-approved exit/strategy values; perform adoption only after reviewing its bounded output.
+
+### Phase 6.671 — Hosted broker-linked exit-plan prefill rollout (2026-09-01)
+
+- Railway automatically deployed Worker commit `3addb3e` successfully.
+- Post-deploy health confirms Paper Autopilot, read-only Telegram assistant, Firecrawl configuration, fresh crypto data, and active position management remain intact.
+- The Worker remains intentionally degraded only for BTCUSD/PFD unmanaged-position coverage; no orders or provenance records were changed.
+- **Next smallest unit:** run the guarded dry-run preflight with operator-reviewed BTCUSD/PFD broker order IDs and exit/strategy values.
 
 ### Phase 6.618 — Injectable Firecrawl provider boundary (2026-08-31)
 
