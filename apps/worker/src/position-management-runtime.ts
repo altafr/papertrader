@@ -64,6 +64,18 @@ export function getUnavailablePositionSymbols(
   }).map((position) => position.symbol).slice(0, 20);
 }
 
+/** Select one deterministic, newest complete plan for each netted position. */
+export function selectLatestCompleteExitPlans<T extends { readonly assetClass: string; readonly symbol: string; readonly intentId: string; readonly createdAt?: Date | null; readonly updatedAt?: Date | null }>(plans: readonly T[]): ReadonlyMap<string, T> {
+  const selected = new Map<string, T>();
+  const timestamp = (plan: T): number => plan.updatedAt?.getTime() ?? plan.createdAt?.getTime() ?? 0;
+  for (const plan of plans) {
+    const key = `${plan.assetClass}:${canonicalSymbol(plan.symbol)}`;
+    const current = selected.get(key);
+    if (!current || timestamp(plan) > timestamp(current) || (timestamp(plan) === timestamp(current) && plan.intentId > current.intentId)) selected.set(key, plan);
+  }
+  return selected;
+}
+
 /** Regular US equity session (09:30–16:00 America/New_York, weekdays). */
 export function isUsEquityRegularSession(now: Date): boolean {
   const parts = new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", hour: "2-digit", minute: "2-digit", hourCycle: "h23", weekday: "short" }).formatToParts(now);
@@ -192,7 +204,7 @@ export async function runPositionManagementCycle(environment: NodeJS.ProcessEnv 
     }
     const rows = await orderRepository.listExitPlans();
     const activeExitIntentIds = getActiveExitIntentIds(await orderRepository.listActiveExitSubmissions());
-    const plans = new Map(rows.filter((row) => isCompleteExitPlan(row)).map((row) => [`${row.assetClass}:${canonicalSymbol(row.symbol)}`, row]));
+    const plans = selectLatestCompleteExitPlans(rows.filter((row) => isCompleteExitPlan(row)));
     const positions = model?.positions ?? [];
     const managedPositions = positions.filter((position) => plans.has(`${position.assetClass}:${canonicalSymbol(position.symbol)}`));
     const unmanagedPositions = positions.filter((position) => !plans.has(`${position.assetClass}:${canonicalSymbol(position.symbol)}`));

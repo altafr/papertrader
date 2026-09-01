@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { buildPaperExitSubmittedMessage, buildPositionExitDecisionLog, buildPositionExitDecisionMessage, buildPositionManagementLog, buildUnmanagedPositionLog, getActiveExitIntentIds, getFreshPositionMark, getPaperOrderStatusTransitions, getPositionDetectedDedupeKey, getPositionExitDecisionDedupeKey, getPositionExitIntentId, getUnavailablePositionSymbols, groupPositionSymbolsByAssetClass, isTerminalPaperOrderStatus, isUsEquityRegularSession } from "./position-management-runtime.js";
+import { buildPaperExitSubmittedMessage, buildPositionExitDecisionLog, buildPositionExitDecisionMessage, buildPositionManagementLog, buildUnmanagedPositionLog, getActiveExitIntentIds, getFreshPositionMark, getPaperOrderStatusTransitions, getPositionDetectedDedupeKey, getPositionExitDecisionDedupeKey, getPositionExitIntentId, getUnavailablePositionSymbols, groupPositionSymbolsByAssetClass, isTerminalPaperOrderStatus, isUsEquityRegularSession, selectLatestCompleteExitPlans } from "./position-management-runtime.js";
 import { assessPositionManagementLiveness } from "./position-management-scheduler.js";
 
 describe("paper order status transitions", () => {
@@ -50,6 +50,16 @@ describe("position market-data availability", () => {
   it("identifies managed positions without a fresh mark", () => {
     const now = new Date("2026-08-28T14:00:00.000Z");
     expect(getUnavailablePositionSymbols([{ assetClass: "crypto", symbol: "BTCUSD" }, { assetClass: "us_equity", symbol: "AAPL" }], [{ assetClass: "crypto", symbol: "BTC/USD", fresh: false }, { assetClass: "us_equity", symbol: "AAPL", fresh: true }], now)).toEqual(["BTCUSD"]);
+  });
+});
+
+describe("position plan selection", () => {
+  it("selects the newest complete plan for a netted symbol", () => {
+    const selected = selectLatestCompleteExitPlans([
+      { assetClass: "crypto", symbol: "BTCUSD", intentId: "old", createdAt: new Date("2026-08-01T00:00:00Z") },
+      { assetClass: "crypto", symbol: "BTC/USD", intentId: "new", createdAt: new Date("2026-09-01T00:00:00Z") },
+    ]);
+    expect(selected.get("crypto:BTCUSD")?.intentId).toBe("new");
   });
 });
 
