@@ -2,7 +2,7 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.752 — Legacy exit-plan approval verification.
+- **Phase:** Phase 6.753 — Research scheduler recovery probe.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, scheduled research, healthy position management, and complete exit-plan coverage for all three live paper positions. The signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit confirms complete position coverage and Telegram delivery from a persisted sent test.
@@ -15,6 +15,13 @@
 - Full paper-autonomous readiness confirms `exitPlanCoverage: complete`; no order or broker mutation was required for this verification.
 - The only remaining release gate is the evidence window: 9 consecutive calendar days captured, 21 days remaining out of 30.
 - **Next smallest unit:** continue unattended paper cycles and re-audit after the next evidence-day boundary.
+
+### Phase 6.753 — Research scheduler recovery probe (2026-09-02)
+
+- The guarded paper-only research preparation probe completed successfully for `crypto_research` at `2026-09-01T21:12:06Z`, producing one bounded BTC/USD candidate and persisted agent-run evidence.
+- The probe submitted no order and did not alter broker state; deterministic risk/execution gates remain the only path to submission.
+- The earlier scheduled `All_research_preparation_plans_failed` condition is therefore transient or schedule-context-specific, not a crypto market-data outage. The next scheduled cycle remains the authoritative recovery check.
+- **Next smallest unit:** verify the 21:15 UTC scheduled cycle and its risk-cycle telemetry.
 
 ### Phase 6.751 — Scheduler diagnostics deployment verification (2026-09-02)
 
