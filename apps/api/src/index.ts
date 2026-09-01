@@ -50,6 +50,8 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 const marketAssetClasses = new Set<MarketAssetClass>(["crypto", "us_equity"]);
+/** Bounded history window aligned with the Worker 30-day evidence query. */
+const PAPER_EVIDENCE_SNAPSHOT_LIMIT = 10_000;
 const marketBarTimeframes = new Set<MarketBarTimeframe>([
   "1Day",
   "1Hour",
@@ -468,7 +470,7 @@ async function readPaperPerformance(request: IncomingMessage) {
     const url = new URL(request.url ?? "/", `http://${request.headers.host ?? "localhost"}`);
     const requestedRange = url.searchParams.get("range") ?? "all";
     if (!(requestedRange === "all" || requestedRange === "7d" || requestedRange === "30d")) return { body: { error: "invalid_performance_range" }, status: 400 } as const;
-    const result = await pool.query<{ readonly captured_at: Date; readonly equity: string }>("SELECT captured_at, equity FROM account_snapshots ORDER BY captured_at DESC LIMIT 500");
+    const result = await pool.query<{ readonly captured_at: Date; readonly equity: string }>("SELECT captured_at, equity FROM account_snapshots ORDER BY captured_at DESC LIMIT $1", [PAPER_EVIDENCE_SNAPSHOT_LIMIT]);
     const allSnapshots = result.rows.map((row) => ({ capturedAt: row.captured_at.toISOString(), equity: String(row.equity) })).sort((left, right) => Date.parse(left.capturedAt) - Date.parse(right.capturedAt));
     const latestCapturedAt = allSnapshots.at(-1)?.capturedAt;
     const cutoff = requestedRange === "all" || !latestCapturedAt ? undefined : Date.parse(latestCapturedAt) - (requestedRange === "7d" ? 7 : 30) * 86_400_000;

@@ -2,7 +2,7 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.700 — Durable Telegram delivery verification.
+- **Phase:** Phase 6.701 — Dashboard evidence history alignment.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, fresh crypto data, scheduled research, and position-management execution. All three live paper positions have complete exit-plan coverage; the signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit confirms complete position coverage and Telegram delivery from a persisted sent test.
@@ -50,6 +50,13 @@
 - The dashboard Paper performance card displays the remaining consecutive-day requirement alongside snapshots and P/L; parser compatibility remains fail-closed for malformed values.
 - API/web typechecks and tests passed; the API deployment completed successfully. No order or risk behavior changed.
 - **Next smallest unit:** continue unattended paper operation; monitor the dashboard or Worker readiness report for evidence progress.
+
+### Phase 6.701 — Dashboard evidence history alignment (2026-09-02)
+
+- Increased the authenticated paper-performance API history window from 500 to 10,000 snapshots, matching Worker readiness and the configured 15-minute evidence cadence.
+- Dashboard performance, days-remaining, return, and drawdown telemetry can now represent the same 30-day evidence window as the release audit.
+- API typecheck and API/dashboard regression tests pass; no order or risk behavior changed.
+- **Next smallest unit:** deploy the API revision and verify the authenticated performance endpoint, then continue evidence collection.
 
 ### Phase 6.700 — Durable Telegram delivery verification (2026-09-02)
 
