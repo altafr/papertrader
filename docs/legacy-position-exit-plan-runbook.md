@@ -25,7 +25,8 @@ EXIT_PLAN_ADOPT=true \
 EXIT_PLAN_ASSET_CLASS='us_equity' \
 EXIT_PLAN_SYMBOL='PFD' \
 EXIT_PLAN_ALPACA_ORDER_IDS='<reviewed filled order id>[,<second reviewed fill id>...]' \
-EXIT_PLAN_ENTRY_PRICE='<reviewed entry price>' \
+# Optional when every selected broker fill includes an average fill price; the command then derives a weighted broker-linked entry.
+EXIT_PLAN_ENTRY_PRICE='<optional reviewed entry price>' \
 EXIT_PLAN_STOP_PRICE='<operator-approved stop>' \
 EXIT_PLAN_TARGET_PRICE='<operator-approved target>' \
 EXIT_PLAN_STRATEGY_KEY='<reviewed strategy key>' \
@@ -49,7 +50,7 @@ railway run --project '<project-id>' --environment '<environment-id>' --service 
   pnpm --filter @momentum/worker exit-plan-adopt
 ```
 
-After reviewing the successful preflight JSON, remove `EXIT_PLAN_ADOPT_DRY_RUN=true` and run the identical command once. The command writes provenance only; it does not submit, cancel, or replace a broker order. Keep the Railway identifiers and all plan values operator-reviewed, and never paste secret environment values into a shell history or chat.
+When `EXIT_PLAN_ENTRY_PRICE` is omitted, the successful preflight JSON shows the weighted average of the selected broker-reported fills and uses that value as the entry. After reviewing the successful preflight JSON, remove `EXIT_PLAN_ADOPT_DRY_RUN=true` and run the identical command once. The command writes provenance only; it does not submit, cancel, or replace a broker order. Keep the Railway identifiers and all plan values operator-reviewed, and never paste secret environment values into a shell history or chat.
 
 Use `EXIT_PLAN_TIME_STOP_AT` instead of `EXIT_PLAN_TARGET_PRICE` only when an explicit time stop is the reviewed plan.
 

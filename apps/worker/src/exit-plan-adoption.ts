@@ -1,12 +1,21 @@
 import type { PaperAccountState, PaperOrder, PaperPosition } from "@momentum/alpaca";
 import * as DecimalModule from "decimal.js";
 
-interface DecimalValue { eq(value: DecimalValue): boolean; lte(value: DecimalValue): boolean; greaterThan(value: DecimalValue): boolean; isNegative(): boolean; isZero(): boolean; plus(value: DecimalValue): DecimalValue; minus(value: DecimalValue): DecimalValue; }
+interface DecimalValue { div(value: DecimalValue): DecimalValue; eq(value: DecimalValue): boolean; lte(value: DecimalValue): boolean; greaterThan(value: DecimalValue): boolean; isNegative(): boolean; isZero(): boolean; plus(value: DecimalValue): DecimalValue; minus(value: DecimalValue): DecimalValue; times(value: DecimalValue): DecimalValue; }
 interface DecimalConstructor { new (value: string): DecimalValue; }
 const Decimal = (DecimalModule as unknown as { readonly default: DecimalConstructor }).default;
 export const CRYPTO_POSITION_QUANTITY_TOLERANCE = "0.0001";
 
 const canonical = (value: string): string => value.replaceAll("/", "").toUpperCase();
+
+/** Derive a broker-linked entry price from the selected filled buys. */
+export function getWeightedAverageFilledPrice(orders: readonly PaperOrder[]): string | undefined {
+  if (orders.length === 0 || orders.some((order) => !order.filledQuantity || !order.filledAveragePrice)) return undefined;
+  const quantity = orders.reduce((sum, order) => sum.plus(new Decimal(order.filledQuantity!)), new Decimal("0"));
+  if (quantity.isZero()) return undefined;
+  const notional = orders.reduce((sum, order) => sum.plus(new Decimal(order.filledQuantity!).times(new Decimal(order.filledAveragePrice!))), new Decimal("0"));
+  return String(notional.div(quantity));
+}
 
 export function selectLegacyPositionBrokerOrders(state: Pick<PaperAccountState, "orders" | "positions">, input: { readonly alpacaOrderIds: readonly string[]; readonly assetClass: string; readonly symbol: string }): { readonly orders: readonly PaperOrder[]; readonly position: PaperPosition } {
   const position = state.positions.find((candidate) => candidate.assetClass === input.assetClass && canonical(candidate.symbol) === canonical(input.symbol));
