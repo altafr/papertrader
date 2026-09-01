@@ -2,17 +2,18 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.732 — Session-aware missing-mark fail-closed monitoring.
+- **Phase:** Phase 6.733 — Position mark-path diagnostics.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, fresh crypto data, scheduled research, and position-management execution. All three live paper positions have complete exit-plan coverage; the signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit confirms complete position coverage and Telegram delivery from a persisted sent test.
 - **Last updated:** 2026-09-02.
 
-### Phase 6.732 — Session-aware missing-mark fail-closed monitoring (2026-09-02)
+### Phase 6.733 — Position mark-path diagnostics (2026-09-02)
 
 - Position management now detects managed positions lacking a fresh market mark and fails closed during the applicable market session; crypto remains enforced 24/7 while US equities are exempted overnight/weekends when no fresh quote is expected.
 - Added canonical-symbol and New York session regression coverage. No broker state changed.
-- **Next smallest unit:** deploy the Worker revision and verify crypto protection remains healthy while equity positions are not falsely degraded outside session hours.
+- Added a bounded symbol-only log for unavailable marks so the crypto REST data path can be diagnosed without exposing credentials or changing broker state.
+- **Next smallest unit:** deploy and inspect the unavailable symbol, then repair the data path or configuration if needed.
 
 ### Phase 6.730 — Market-close summary delivery verification (2026-09-02)
 

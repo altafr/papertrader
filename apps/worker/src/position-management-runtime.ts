@@ -217,6 +217,7 @@ export async function runPositionManagementCycle(environment: NodeJS.ProcessEnv 
     const markGroups = await Promise.all(groupPositionSymbolsByAssetClass(managedPositions).map(async (group) => ({ assetClass: group.assetClass, marks: await reader.readSnapshots(group) })));
     const marks = markGroups.flatMap((group) => group.marks.map((mark) => ({ assetClass: group.assetClass, mark })));
     const unavailable = getUnavailablePositionSymbols(managedPositions, marks.map((item) => ({ assetClass: item.assetClass, fresh: Boolean(getFreshPositionMark(item.mark)), symbol: item.mark.symbol })));
+    if (unavailable.length > 0) console.log(JSON.stringify({ event: "position_market_data_unavailable", symbols: unavailable }));
     for (const symbol of unavailable) {
       const position = managedPositions.find((candidate) => canonicalSymbol(candidate.symbol) === canonicalSymbol(symbol) && candidate.assetClass === (marks.find((item) => canonicalSymbol(item.mark.symbol) === canonicalSymbol(symbol))?.assetClass ?? candidate.assetClass));
       await notifier.notify({ code: "position_market_data_unavailable", cooldownKey: `position_market_data_unavailable:${position?.assetClass ?? "unknown"}:${symbol}`, cooldownMs: POSITION_DETECTED_COOLDOWN_MS, dedupeKey: `position_market_data_unavailable:${position?.assetClass ?? "unknown"}:${symbol}`, message: `Position management paused for ${symbol}: no fresh market mark is available. No automatic exit was submitted.`, severity: "critical" });
