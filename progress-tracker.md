@@ -2,7 +2,7 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.779 — 22:45 UTC scheduled cycle evidence.
+- **Phase:** Phase 6.780 — Telegram alert-test preflight.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, scheduled research, healthy position management, and complete exit-plan coverage for all three live paper positions. The signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit confirms complete position coverage and Telegram delivery from a persisted sent test.
@@ -21,6 +21,12 @@
 - The reconciled decision used quantity `0.02584194`, entry `77118.27500000`, and estimated stop-loss distance `4.99%`; stable intent `intent:BTC_USD:2026-09-01T22:00:00Z` was reused without duplicate-order or quantity-mismatch failures.
 - Worker health remained healthy with zero unmanaged positions, fresh market data, and the next run advanced to `23:00 UTC`. No risk threshold or operating mode changed.
 - **Next smallest unit:** continue unattended cycles and verify the next scheduled crypto run.
+
+### Phase 6.780 — Telegram alert-test preflight (2026-09-02)
+
+- The guarded Railway read-only preflight confirmed Telegram delivery configuration is valid: alerts are enabled, bot token and chat ID are configured, and both formats pass validation.
+- A new outbound alert test remains fail-closed because `telegram_alert_test_approval_reference_missing`; this preflight sent no message and changed no runtime or broker state. Existing persisted delivery evidence continues to satisfy the full-readiness alert gate.
+- **Next smallest unit:** continue unattended paper cycles; only run a new Telegram test after an explicit bounded approval reference is supplied.
 
 ### Phase 6.777 — Regression and hosted contract verification (2026-09-02)
 
