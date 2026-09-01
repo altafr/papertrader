@@ -47,9 +47,18 @@ export function buildExitPlanReviewReport(
   for (const plan of plans) {
     const key = `${plan.assetClass}:${canonicalSymbol(plan.symbol)}`;
     const current = latest.get(key);
+    const missingCount = (candidate: ExitPlanReviewPlan | undefined): number => candidate ? getExitPlanMissingFields({
+      ...(candidate.alpacaOrderId == null ? {} : { alpacaOrderId: candidate.alpacaOrderId }),
+      ...(candidate.entryPrice == null ? {} : { entryPrice: candidate.entryPrice }),
+      ...(candidate.plannedStopPrice == null ? {} : { plannedStopPrice: candidate.plannedStopPrice }),
+      ...(candidate.plannedTargetPrice == null ? {} : { plannedTargetPrice: candidate.plannedTargetPrice }),
+      ...(candidate.strategyKey == null ? {} : { strategyKey: candidate.strategyKey }),
+      ...(candidate.strategyVersion == null ? {} : { strategyVersion: candidate.strategyVersion }),
+      ...(candidate.timeStopAt == null ? {} : { timeStopAt: candidate.timeStopAt }),
+    }).length : Number.POSITIVE_INFINITY;
     const planTime = plan.updatedAt?.getTime() ?? plan.createdAt?.getTime() ?? 0;
     const currentTime = current?.updatedAt?.getTime() ?? current?.createdAt?.getTime() ?? 0;
-    if (!current || planTime > currentTime || (planTime === currentTime && plan.intentId > current.intentId)) latest.set(key, plan);
+    if (!current || missingCount(plan) < missingCount(current) || (missingCount(plan) === missingCount(current) && (planTime > currentTime || (planTime === currentTime && plan.intentId > current.intentId)))) latest.set(key, plan);
   }
   return [...positions]
     .sort((left, right) => `${left.assetClass}:${left.symbol}`.localeCompare(`${right.assetClass}:${right.symbol}`))

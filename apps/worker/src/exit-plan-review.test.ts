@@ -32,4 +32,14 @@ describe("exit plan review", () => {
       [{ alpacaOrderId: "order-1", assetClass: "crypto", entryPrice: "100", intentId: "intent-1", plannedStopPrice: "95", plannedTargetPrice: "104", strategyKey: "momentum", strategyVersion: "1.0.0", symbol: "BTC/USD" }],
     )).toEqual([{ assetClass: "crypto", missingFields: [], status: "managed", symbol: "BTCUSD" }]);
   });
+
+  it("does not let a newer incomplete plan shadow a complete broker-linked plan", () => {
+    expect(buildExitPlanReviewReport(
+      [{ assetClass: "crypto", symbol: "BTCUSD" }],
+      [
+        { alpacaOrderId: "order-1", assetClass: "crypto", entryPrice: "100", intentId: "complete", plannedStopPrice: "95", plannedTargetPrice: "104", strategyKey: "momentum", strategyVersion: "1.0.0", symbol: "BTC/USD", createdAt: new Date("2026-01-01") },
+        { assetClass: "crypto", entryPrice: "101", intentId: "newer-incomplete", plannedStopPrice: "96", plannedTargetPrice: "105", strategyKey: "momentum", strategyVersion: "1.0.0", symbol: "BTC/USD", createdAt: new Date("2026-01-02") },
+      ],
+    )).toEqual([{ assetClass: "crypto", missingFields: [], status: "managed", symbol: "BTCUSD" }]);
+  });
 });
