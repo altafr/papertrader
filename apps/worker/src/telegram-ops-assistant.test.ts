@@ -7,6 +7,7 @@ const data = {
   getModel: async () => ({ snapshot: { capturedAt: new Date("2026-08-31T01:00:00Z"), cash: "64000", equity: "99000", buyingPower: "64000", lastEquity: "98800" }, positions: [{ symbol: "AAPL", assetClass: "us_equity", quantity: "4", marketValue: "1200", unrealizedPl: "10" }], orders: [] }),
   getRuns: async () => [{ agentType: "crypto_research", status: "succeeded", runId: "run-1", createdAt: new Date("2026-08-31T01:00:00Z") }],
   getSubmissions: async () => [{ symbol: "BTC/USD", assetClass: "crypto", status: "risk_dry_run_rejected", quantity: "0.001", filledQuantity: null, riskDecision: { approvalStatus: "rejected", reasons: ["Existing positions lack complete exit plans"] } }],
+  getEvidence: async () => ({ calendarDays: 1, consecutiveCalendarDays: 1, daysRemaining: 29, requiredConsecutiveCalendarDays: 30 }),
 };
 
 describe("Telegram operations assistant", () => {
@@ -34,6 +35,10 @@ describe("Telegram operations assistant", () => {
     const reply = await buildTelegramOpsAssistantReply("infra status", data);
     expect(reply).toContain("Market stream: connected · freshness fresh");
     expect(reply).toContain("Latest agent run: crypto_research succeeded");
+  });
+
+  it("answers autonomous readiness questions from bounded evidence telemetry", async () => {
+    await expect(buildTelegramOpsAssistantReply("show autonomous readiness", data)).resolves.toContain("29 days remaining");
   });
 
   it("explains recent deterministic decisions and declares read-only authority", async () => {

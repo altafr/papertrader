@@ -5,12 +5,14 @@ interface DecimalValue { minus(value: DecimalValue): DecimalValue; plus(value: D
 interface DecimalConstructor { new (value: string): DecimalValue; }
 const Decimal = (DecimalModule as unknown as { readonly default: DecimalConstructor }).default;
 import { getTelegramNotificationConfig } from "@momentum/notifications";
+import { buildPaperPerformanceReport } from "./paper-performance-report.js";
 
 type JsonRecord = Record<string, unknown>;
 type AssistantHealth = { readonly status?: string; readonly operatingMode?: string; readonly marketStream?: JsonRecord; readonly researchSchedule?: JsonRecord; readonly positionManagement?: JsonRecord; readonly durableScheduler?: JsonRecord; readonly telegramAlerts?: JsonRecord };
 type AssistantModel = { readonly snapshot?: { readonly capturedAt: Date; readonly cash: string; readonly equity: string; readonly buyingPower: string; readonly lastEquity?: string | null }; readonly positions: readonly { readonly symbol: string; readonly assetClass: string; readonly quantity: string; readonly marketValue: string; readonly unrealizedPl: string }[]; readonly orders: readonly { readonly symbol: string; readonly status: string; readonly side: string; readonly filledQuantity?: string | null; readonly updatedAt?: Date | null }[] } | undefined;
 type AssistantRun = { readonly agentType: string; readonly status: string; readonly runId: string; readonly createdAt: Date; readonly artifactRationale?: string | null };
 type AssistantSubmission = { readonly symbol: string; readonly status: string; readonly assetClass: string; readonly quantity: string; readonly filledQuantity?: string | null; readonly entryPrice?: string | null; readonly plannedStopPrice?: string | null; readonly plannedTargetPrice?: string | null; readonly strategyKey?: string | null; readonly strategyVersion?: string | null; readonly timeStopAt?: Date | null; readonly alpacaOrderId?: string | null; readonly riskDecision?: { readonly approvalStatus?: string; readonly reasons?: readonly string[] } | null; readonly updatedAt?: Date | null };
+type AssistantEvidence = { readonly calendarDays: number; readonly consecutiveCalendarDays: number; readonly daysRemaining: number; readonly requiredConsecutiveCalendarDays: number };
 export type FirecrawlSource = { readonly title: string; readonly url: string; readonly description: string };
 
 export interface TelegramOpsAssistantData {
@@ -18,6 +20,7 @@ export interface TelegramOpsAssistantData {
   readonly getModel: () => Promise<AssistantModel>;
   readonly getRuns: () => Promise<readonly AssistantRun[]>;
   readonly getSubmissions: () => Promise<readonly AssistantSubmission[]>;
+  readonly getEvidence?: () => Promise<AssistantEvidence>;
   /** Route a non-trading research question to the appropriate agent/web provider. */
   readonly askResearch?: (question: string) => Promise<string>;
 }
@@ -50,7 +53,7 @@ export async function fetchFirecrawlSources(question: string, apiKey: string, fe
   }
 }
 export function isResearchQuestion(question: string): boolean {
-  if (/\b(portfolio|position|p&l|p\/l|trade|order|risk|health|infra|scheduler|log|status|alert|telegram|exit plan|stop loss|take profit|unmanaged|position management)\b/i.test(question)) return false;
+  if (/\b(portfolio|position|p&l|p\/l|trade|order|risk|health|infra|scheduler|log|status|alert|telegram|exit plan|stop loss|take profit|unmanaged|position management|readiness|evidence|autonomous)\b/i.test(question)) return false;
   return /\b(company|companies|earnings|revenue|fundamentals|news|headline|analyst|sector|industry|fed|federal reserve|interest rate|rates|inflation|cpi|gdp|jobs report|unemployment|yield curve|macro|why is .*moving|what happened to)\b/i.test(question)
     || /\b[A-Z]{1,5}\b/.test(question);
 }
@@ -66,6 +69,11 @@ export async function buildTelegramOpsAssistantReply(question: string, data: Tel
     return "I can answer read-only questions about portfolio/P&L, open positions, recent trades and decisions, agent runs, scheduler health, market-data freshness, Telegram delivery, and company, crypto, or macro research via the research agents. Send /dashboard to open the portfolio and alerts Mini App, or /myid to get your numeric Telegram user ID for setup. I cannot place, cancel, or modify orders.";
   }
   if (isMiniAppRequest(question)) return "Open the read-only Portfolio & Alerts Mini App using the button below.";
+  if (/(?:readiness|evidence|autonomous)/i.test(normalized)) {
+    if (!data.getEvidence) return "Autonomous readiness is monitored by the Worker. Ask for infrastructure status to see runtime health and position coverage.";
+    const evidence = await data.getEvidence();
+    return `Paper Autopilot readiness\nRuntime and position controls are server-side and read-only here. Evidence: ${evidence.consecutiveCalendarDays}/${evidence.requiredConsecutiveCalendarDays} consecutive days; ${evidence.daysRemaining} days remaining. Calendar days observed: ${evidence.calendarDays}.`;
+  }
   if (isResearchQuestion(question)) {
     if (!data.askResearch) return "The research route is not available in this deployment. Trading and risk controls are unaffected.";
     try {
@@ -214,6 +222,11 @@ export function createTelegramOpsAssistantData(environment: NodeJS.ProcessEnv, h
     getModel: () => account.getLatestReadModel(),
     getRuns: () => runs.listRecent(20),
     getSubmissions: async () => orders.listRecent(20),
+    getEvidence: async () => {
+      const result = await pool.query<{ readonly captured_at: Date; readonly equity: string }>("SELECT captured_at, equity FROM account_snapshots ORDER BY captured_at DESC LIMIT $1", [500]);
+      const report = buildPaperPerformanceReport(result.rows.map((row) => ({ capturedAt: row.captured_at.toISOString(), equity: String(row.equity) })));
+      return { calendarDays: report.calendarDays, consecutiveCalendarDays: report.consecutiveCalendarDays, daysRemaining: Math.max(0, 30 - report.consecutiveCalendarDays), requiredConsecutiveCalendarDays: 30 };
+    },
     askResearch,
   } };
 }
