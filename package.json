@@ -21,7 +21,8 @@
     "verify:operator-overview": "tsx scripts/verify-operator-overview.ts",
     "verify:paper-runtime": "tsx scripts/verify-paper-runtime.ts",
     "verify:public-surface": "tsx scripts/verify-public-surface.ts",
-    "verify:hosted": "tsx scripts/verify-hosted.ts"
+    "verify:hosted": "tsx scripts/verify-hosted.ts",
+    "verify:telegram-mini-app": "tsx scripts/verify-telegram-mini-app.ts"
   },
   "devDependencies": {
     "@eslint/js": "9.39.5",

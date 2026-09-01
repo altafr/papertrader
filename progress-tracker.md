@@ -2,7 +2,7 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.660 — Live paper-loop telemetry.
+- **Phase:** Phase 6.661 — Repeatable Mini App smoke verification.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, fresh crypto data, scheduled research, and position-management execution. The hosted contract is intentionally degraded only because BTCUSD and PFD are unmanaged legacy positions. The signed Telegram Mini App is deployed on Vercel and the API reports it enabled/configured with portfolio, order, alert, P/L, freshness, and unmanaged-position projections.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading, promote one reviewed local batch when provider limits clear, verify authenticated portfolio/P&L rendering and exports, and accumulate the 30-day evidence gate without loosening risk controls. Deploy the current local heartbeat/dashboard changes only after explicit operator authorization.
@@ -295,6 +295,12 @@
 - Railway logs confirm minute-by-minute position-management passes and successful scheduled crypto research.
 - A candidate was rejected by deterministic safeguards for incomplete legacy exit plans and sub-2% sizing; `executionStatus=not_submitted` confirms no unsafe order was sent.
 - **Next smallest unit:** complete reviewed BTCUSD/PFD exit-plan adoption, then verify an approved candidate can pass the same risk and reconciliation gates.
+
+### Phase 6.661 — Repeatable Mini App smoke verification (2026-09-01)
+
+- Added `verify:telegram-mini-app`, a server-side signed-request verifier that prints only response counts and metric keys, never credentials or portfolio values.
+- This makes post-deploy Mini App checks repeatable while preserving the read-only boundary.
+- **Next smallest unit:** run the verifier inside Railway after each API rollout, then complete the interactive Telegram launch check.
 
 ### Phase 6.396 — End-to-end Worker cycle telemetry (2026-08-29)
 
