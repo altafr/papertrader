@@ -2,10 +2,10 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.688 — Full paper-autonomous release-readiness report.
-- **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, fresh crypto data, scheduled research, and position-management execution. The hosted contract is intentionally degraded only because BTCUSD and PFD are unmanaged legacy positions. The signed Telegram Mini App is deployed on Vercel and the API reports it enabled/configured with portfolio, order, alert, P/L, freshness, and unmanaged-position projections.
+- **Phase:** Phase 6.693 — Live position-manager symbol normalization.
+- **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, fresh crypto data, scheduled research, and position-management execution. All three live paper positions have complete exit-plan coverage; the signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
-- **Current goal:** Continue durable paper trading, adopt reviewed BTCUSD/PFD exit plans, and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit now confirms Telegram delivery from a persisted sent test.
+- **Current goal:** Continue durable paper trading and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit confirms complete position coverage and Telegram delivery from a persisted sent test.
 - **Last updated:** 2026-09-01.
 
 ### Phase 6.688 — Full paper-autonomous release-readiness report (2026-09-01)
