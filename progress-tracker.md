@@ -2,7 +2,7 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.686 — Cross-surface Mini App verifier.
+- **Phase:** Phase 6.687 — Hosted cross-surface Mini App verification.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, fresh crypto data, scheduled research, and position-management execution. The hosted contract is intentionally degraded only because BTCUSD and PFD are unmanaged legacy positions. The signed Telegram Mini App is deployed on Vercel and the API reports it enabled/configured with portfolio, order, alert, P/L, freshness, and unmanaged-position projections.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading, promote one reviewed local batch when provider limits clear, verify authenticated portfolio/P&L rendering and exports, and accumulate the 30-day evidence gate without loosening risk controls. Deploy the current local heartbeat/dashboard changes only after explicit operator authorization.
@@ -129,6 +129,12 @@
 - Extended `verify:telegram-mini-app` with an optional Worker-health comparison; mismatched unmanaged counts now fail closed and matched counts are reported as `surfaceConsistency=matched`.
 - Added regression coverage for divergence, successful matching, and secret non-disclosure; full suite passes with 98 test files / 438 tests.
 - **Next smallest unit:** deploy the verifier revision and run it with `PAPERTRADER_WORKER_HEALTH_URL` against the hosted API/Worker pair.
+
+### Phase 6.687 — Hosted cross-surface Mini App verification (2026-09-01)
+
+- Ran the verifier with Railway-held credentials and public API/Worker URLs; it returned HTTP 200 with 3 positions, 22 orders, 50 alerts, both P/L metrics, and matching unmanaged counts of 2.
+- The result reported `surfaceConsistency=matched`; no credential values, broker orders, or database records were exposed or changed.
+- **Next smallest unit:** keep the verifier in the deployment checklist and complete the operator Telegram `/dashboard` interaction plus legacy exit-plan approvals.
 
 ### Phase 6.618 — Injectable Firecrawl provider boundary (2026-08-31)
 
