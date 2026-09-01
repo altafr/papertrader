@@ -29,6 +29,8 @@ Telegram delivery verification is evidence-based: the release audit clears that 
 
 Exit-plan review canonicalizes slash-form broker symbols and ranks candidate provenance by completeness before recency. This prevents newer rejected or incomplete rows from shadowing a complete broker-linked fill set. Approved legacy adoption remains provenance-only and does not submit a new order.
 
+The full-readiness report exposes the evidence-window progress (`calendarDays`, `consecutiveCalendarDays`, required days, and days remaining) as bounded operator telemetry; it does not shorten or bypass the 30-day gate.
+
 Operator-facing financial, quantity, risk, and indicator values are formatted to two decimal places on the dashboard and Telegram assistant; stored and broker precision remains unchanged.
 
 ### Always-on multi-agent runtime requirement

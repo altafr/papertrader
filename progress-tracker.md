@@ -29,6 +29,13 @@
 - Hosted full-readiness audit now reports `positionCoverage.unmanagedCount=0`; the only remaining blocker is `minimum_30_consecutive_calendar_days_not_met`.
 - **Next smallest unit:** continue unattended paper operation and accumulate the 30-day evidence window while monitoring the dashboard and Telegram alerts.
 
+### Phase 6.692 — Evidence-window progress visibility (2026-09-01)
+
+- Full-readiness output now exposes `evidence.calendarDays`, `consecutiveCalendarDays`, `requiredConsecutiveCalendarDays`, and `daysRemaining` so progress is directly monitorable.
+- Focused regression coverage, Worker typecheck, and hosted deployment passed.
+- Hosted audit confirms runtime ready, complete position coverage, verified Telegram delivery, and **29 consecutive days remaining** in the evidence gate.
+- **Next smallest unit:** keep the Worker running continuously; no additional approval or deployment is required for evidence accumulation.
+
 ### Phase 6.690 — Hosted continuous-runtime recheck (2026-09-01)
 
 - Hosted health recheck confirms Paper Autopilot, durable scheduler, fresh crypto stream, 60-second position supervision, Telegram assistant, and Firecrawl configuration remain active.
