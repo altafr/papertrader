@@ -2,7 +2,7 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.701 — Dashboard evidence history alignment.
+- **Phase:** Phase 6.702 — High-frequency evidence history capacity.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, fresh crypto data, scheduled research, and position-management execution. All three live paper positions have complete exit-plan coverage; the signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit confirms complete position coverage and Telegram delivery from a persisted sent test.
@@ -50,6 +50,13 @@
 - The dashboard Paper performance card displays the remaining consecutive-day requirement alongside snapshots and P/L; parser compatibility remains fail-closed for malformed values.
 - API/web typechecks and tests passed; the API deployment completed successfully. No order or risk behavior changed.
 - **Next smallest unit:** continue unattended paper operation; monitor the dashboard or Worker readiness report for evidence progress.
+
+### Phase 6.702 — High-frequency evidence history capacity (2026-09-02)
+
+- Live audit showed approximately 8,800 snapshots across 9 days, so the previous 10,000-row bound would have rolled off before 30 days despite being aligned to the nominal schedule.
+- Increased Worker and API evidence history capacity to 100,000 rows, preserving a bounded query while covering the observed high-frequency reconciliation rate.
+- Worker/API focused typechecks and regression tests pass; no broker, order, or risk behavior changed.
+- **Next smallest unit:** deploy the Worker/API revisions and verify the evidence counter remains consistent across readiness and dashboard surfaces.
 
 ### Phase 6.701 — Dashboard evidence history alignment (2026-09-02)
 

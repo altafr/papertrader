@@ -51,7 +51,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 const marketAssetClasses = new Set<MarketAssetClass>(["crypto", "us_equity"]);
 /** Bounded history window aligned with the Worker 30-day evidence query. */
-const PAPER_EVIDENCE_SNAPSHOT_LIMIT = 10_000;
+const PAPER_EVIDENCE_SNAPSHOT_LIMIT = 100_000;
 const marketBarTimeframes = new Set<MarketBarTimeframe>([
   "1Day",
   "1Hour",
