@@ -36,6 +36,14 @@
 - Hosted audit confirms runtime ready, complete position coverage, verified Telegram delivery, and **29 consecutive days remaining** in the evidence gate.
 - **Next smallest unit:** keep the Worker running continuously; no additional approval or deployment is required for evidence accumulation.
 
+### Phase 6.693 — Live position-manager symbol normalization (2026-09-01)
+
+- Hosted monitoring exposed a provider-boundary mismatch: Alpaca positions use `BTCUSD`, while crypto market-data requests require `BTC/USD`.
+- The live 60-second position manager now normalizes crypto symbols only for market-data requests and canonicalizes matching back to the portfolio symbol.
+- Focused tests, typecheck, deployment, and hosted health passed: market stream fresh, position manager ready, and `unmanagedCount=0`.
+- Full-readiness audit still has only the 30-day paper-evidence blocker (`daysRemaining=29`).
+- **Next smallest unit:** continue unattended paper operation and monitor the evidence counter.
+
 ### Phase 6.690 — Hosted continuous-runtime recheck (2026-09-01)
 
 - Hosted health recheck confirms Paper Autopilot, durable scheduler, fresh crypto stream, 60-second position supervision, Telegram assistant, and Firecrawl configuration remain active.
