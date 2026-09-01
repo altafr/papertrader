@@ -2,7 +2,7 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.674 — Hosted read-only exit-plan proposal verification.
+- **Phase:** Phase 6.675 — Post-rollout safety audit.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, fresh crypto data, scheduled research, and position-management execution. The hosted contract is intentionally degraded only because BTCUSD and PFD are unmanaged legacy positions. The signed Telegram Mini App is deployed on Vercel and the API reports it enabled/configured with portfolio, order, alert, P/L, freshness, and unmanaged-position projections.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading, promote one reviewed local batch when provider limits clear, verify authenticated portfolio/P&L rendering and exports, and accumulate the 30-day evidence gate without loosening risk controls. Deploy the current local heartbeat/dashboard changes only after explicit operator authorization.
@@ -49,6 +49,13 @@
 - The deployed broker review returns broker-linked proposals for BTCUSD and PFD, each explicitly marked `requiresOperatorApproval=true`; the review remains read-only and does not write plans or mutate orders.
 - Worker health continues to show Paper Autopilot, read-only Telegram/Firecrawl readiness, fresh crypto data, and only the two expected unmanaged positions.
 - **Next smallest unit:** operator confirms or edits the suggested stop/target, supplies strategy key/version and approval references, then run the guarded dry-run adoption.
+
+### Phase 6.675 — Post-rollout safety audit (2026-09-01)
+
+- Post-rollout Worker health remains connected with fresh crypto data, active 60-second position supervision, and read-only Telegram/Firecrawl readiness.
+- The only degraded condition remains the expected two unmanaged legacy positions; no new scheduler, stale-data, broker, or configuration failure appeared.
+- The latest docs-only commit was correctly skipped by Railway, leaving the verified Worker runtime unchanged.
+- **Next smallest unit:** obtain operator-reviewed exit-plan values and run the dry-run preflight; until then, new entries and automatic exits for those two positions remain fail-closed.
 
 ### Phase 6.618 — Injectable Firecrawl provider boundary (2026-08-31)
 
