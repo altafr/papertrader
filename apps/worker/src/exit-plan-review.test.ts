@@ -25,4 +25,11 @@ describe("exit plan review", () => {
       ],
     ).map((row) => row.symbol)).toEqual(["AAPL", "MSFT"]);
   });
+
+  it("matches slash-form broker symbols to canonical portfolio symbols", () => {
+    expect(buildExitPlanReviewReport(
+      [{ assetClass: "crypto", symbol: "BTCUSD" }],
+      [{ alpacaOrderId: "order-1", assetClass: "crypto", entryPrice: "100", intentId: "intent-1", plannedStopPrice: "95", plannedTargetPrice: "104", strategyKey: "momentum", strategyVersion: "1.0.0", symbol: "BTC/USD" }],
+    )).toEqual([{ assetClass: "crypto", missingFields: [], status: "managed", symbol: "BTCUSD" }]);
+  });
 });

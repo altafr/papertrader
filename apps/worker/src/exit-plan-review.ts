@@ -36,6 +36,8 @@ export interface ExitPlanReviewRow {
   readonly symbol: string;
 }
 
+const canonicalSymbol = (symbol: string): string => symbol.replaceAll("/", "").toUpperCase();
+
 /** Build a bounded review report from broker positions and persisted plan provenance. */
 export function buildExitPlanReviewReport(
   positions: readonly ExitPlanReviewPosition[],
@@ -43,7 +45,7 @@ export function buildExitPlanReviewReport(
 ): readonly ExitPlanReviewRow[] {
   const latest = new Map<string, ExitPlanReviewPlan>();
   for (const plan of plans) {
-    const key = `${plan.assetClass}:${plan.symbol}`;
+    const key = `${plan.assetClass}:${canonicalSymbol(plan.symbol)}`;
     const current = latest.get(key);
     const planTime = plan.updatedAt?.getTime() ?? plan.createdAt?.getTime() ?? 0;
     const currentTime = current?.updatedAt?.getTime() ?? current?.createdAt?.getTime() ?? 0;
@@ -53,7 +55,7 @@ export function buildExitPlanReviewReport(
     .sort((left, right) => `${left.assetClass}:${left.symbol}`.localeCompare(`${right.assetClass}:${right.symbol}`))
     .slice(0, 100)
     .map((position) => {
-    const plan = latest.get(`${position.assetClass}:${position.symbol}`);
+    const plan = latest.get(`${position.assetClass}:${canonicalSymbol(position.symbol)}`);
     const missingFields = getExitPlanMissingFields(plan ? {
       ...(plan.alpacaOrderId == null ? {} : { alpacaOrderId: plan.alpacaOrderId }),
       ...(plan.entryPrice == null ? {} : { entryPrice: plan.entryPrice }),
