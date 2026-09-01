@@ -2,7 +2,7 @@ import { createAccountStateRepository, createDatabase, createPaperOrderRepositor
 import { getTelegramNotificationReadiness } from "@momentum/notifications";
 
 import { buildExitPlanReviewReport } from "./exit-plan-review.js";
-import { buildPaperPerformanceReport } from "./paper-performance-report.js";
+import { buildPaperPerformanceReport, PAPER_EVIDENCE_SNAPSHOT_LIMIT } from "./paper-performance-report.js";
 import { getPaperAutopilotReadiness } from "./paper-autopilot-readiness.js";
 import { assessRuntimeReconciliation, combinePaperAutopilotRuntimeReadiness } from "./paper-autopilot-runtime-readiness.js";
 import { combineFullPaperAutonomousReadiness } from "./full-paper-autonomous-readiness.js";
@@ -22,7 +22,7 @@ try {
   const runtime = combinePaperAutopilotRuntimeReadiness(configuration, assessRuntimeReconciliation(account?.snapshot.capturedAt));
   const plans = await createPaperOrderRepository(db).listExitPlans();
   const positionReview = buildExitPlanReviewReport(account?.positions ?? [], plans);
-  const performanceRows = await pool.query<{ readonly captured_at: Date; readonly equity: string }>("SELECT captured_at, equity FROM account_snapshots ORDER BY captured_at DESC LIMIT $1", [500]);
+  const performanceRows = await pool.query<{ readonly captured_at: Date; readonly equity: string }>("SELECT captured_at, equity FROM account_snapshots ORDER BY captured_at DESC LIMIT $1", [PAPER_EVIDENCE_SNAPSHOT_LIMIT]);
   const performance = buildPaperPerformanceReport(performanceRows.rows.map((row) => ({ capturedAt: row.captured_at.toISOString(), equity: String(row.equity) })));
   const recentAlerts = await telegramRepository.listRecent(100);
   const deliveryVerified = recentAlerts.some((event) => event.code === "telegram_channel_test" && event.deliveryStatus === "sent");

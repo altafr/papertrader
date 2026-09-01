@@ -5,7 +5,7 @@ interface DecimalValue { minus(value: DecimalValue): DecimalValue; plus(value: D
 interface DecimalConstructor { new (value: string): DecimalValue; }
 const Decimal = (DecimalModule as unknown as { readonly default: DecimalConstructor }).default;
 import { getTelegramNotificationConfig } from "@momentum/notifications";
-import { buildPaperPerformanceReport } from "./paper-performance-report.js";
+import { buildPaperPerformanceReport, PAPER_EVIDENCE_SNAPSHOT_LIMIT } from "./paper-performance-report.js";
 
 type JsonRecord = Record<string, unknown>;
 type AssistantHealth = { readonly status?: string; readonly operatingMode?: string; readonly marketStream?: JsonRecord; readonly researchSchedule?: JsonRecord; readonly positionManagement?: JsonRecord; readonly durableScheduler?: JsonRecord; readonly telegramAlerts?: JsonRecord };
@@ -224,7 +224,7 @@ export function createTelegramOpsAssistantData(environment: NodeJS.ProcessEnv, h
     getRuns: () => runs.listRecent(20),
     getSubmissions: async () => orders.listRecent(20),
     getEvidence: async () => {
-      const result = await pool.query<{ readonly captured_at: Date; readonly equity: string }>("SELECT captured_at, equity FROM account_snapshots ORDER BY captured_at DESC LIMIT $1", [500]);
+      const result = await pool.query<{ readonly captured_at: Date; readonly equity: string }>("SELECT captured_at, equity FROM account_snapshots ORDER BY captured_at DESC LIMIT $1", [PAPER_EVIDENCE_SNAPSHOT_LIMIT]);
       const report = buildPaperPerformanceReport(result.rows.map((row) => ({ capturedAt: row.captured_at.toISOString(), equity: String(row.equity) })));
       return { calendarDays: report.calendarDays, consecutiveCalendarDays: report.consecutiveCalendarDays, daysRemaining: Math.max(0, 30 - report.consecutiveCalendarDays), requiredConsecutiveCalendarDays: 30 };
     },

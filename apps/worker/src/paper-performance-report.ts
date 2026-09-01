@@ -5,6 +5,9 @@ export interface PaperPerformanceSnapshot {
   readonly equity: string;
 }
 
+/** Bounded history window large enough to cover a 30-day, 15-minute evidence cadence. */
+export const PAPER_EVIDENCE_SNAPSHOT_LIMIT = 10_000;
+
 export interface PaperPerformanceReport {
   readonly calendarDays: number;
   readonly consecutiveCalendarDays: number;
