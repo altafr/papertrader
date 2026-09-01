@@ -36,6 +36,13 @@ export function getWeightedAverageFilledPrice(orders: readonly PaperOrder[]): st
   return String(notional.div(quantity));
 }
 
+/** Require an explicit entry override to remain equal to broker-derived evidence. */
+export function matchesWeightedBrokerEntryPrice(entryPrice: string, orders: readonly PaperOrder[]): boolean {
+  const brokerPrice = getWeightedAverageFilledPrice(orders);
+  if (!brokerPrice) return false;
+  try { return new Decimal(entryPrice).eq(new Decimal(brokerPrice)); } catch { return false; }
+}
+
 export function selectLegacyPositionBrokerOrders(state: Pick<PaperAccountState, "orders" | "positions">, input: { readonly alpacaOrderIds: readonly string[]; readonly assetClass: string; readonly symbol: string }): { readonly orders: readonly PaperOrder[]; readonly position: PaperPosition } {
   const position = state.positions.find((candidate) => candidate.assetClass === input.assetClass && canonical(candidate.symbol) === canonical(input.symbol));
   if (!position) throw new Error("Open paper position was not found.");

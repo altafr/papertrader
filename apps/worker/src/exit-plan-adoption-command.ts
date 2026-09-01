@@ -2,7 +2,7 @@ import { createPaperAccountReader } from "@momentum/alpaca";
 import { getPaperOnlyRuntimeConfig } from "@momentum/config";
 import { createDatabase, createPaperOrderRepository } from "@momentum/db";
 import { validateExitPlanValues } from "@momentum/domain";
-import { getWeightedAverageFilledPrice, selectLegacyPositionBrokerOrders } from "./exit-plan-adoption.js";
+import { getWeightedAverageFilledPrice, matchesWeightedBrokerEntryPrice, selectLegacyPositionBrokerOrders } from "./exit-plan-adoption.js";
 
 if (process.env.EXIT_PLAN_ADOPT !== "true") throw new Error("EXIT_PLAN_ADOPT must be exactly true.");
 const runtime = getPaperOnlyRuntimeConfig();
@@ -25,7 +25,10 @@ const strategyVersion = bounded("EXIT_PLAN_STRATEGY_VERSION");
 const reference = bounded("EXIT_PLAN_REFERENCE");
 const state = await createPaperAccountReader({ apiKey: process.env.ALPACA_API_KEY ?? "", secretKey: process.env.ALPACA_SECRET_KEY ?? "" }).readAccountState();
 const selected = selectLegacyPositionBrokerOrders(state, { alpacaOrderIds, assetClass, symbol });
-const entryPrice = process.env.EXIT_PLAN_ENTRY_PRICE?.trim() || getWeightedAverageFilledPrice(selected.orders);
+const suppliedEntryPrice = process.env.EXIT_PLAN_ENTRY_PRICE?.trim();
+const brokerEntryPrice = getWeightedAverageFilledPrice(selected.orders);
+if (suppliedEntryPrice && brokerEntryPrice && !matchesWeightedBrokerEntryPrice(suppliedEntryPrice, selected.orders)) throw new Error("EXIT_PLAN_ENTRY_PRICE must match the selected broker fills' weighted average price.");
+const entryPrice = suppliedEntryPrice || brokerEntryPrice;
 if (!entryPrice) throw new Error("EXIT_PLAN_ENTRY_PRICE is required when selected broker fills have no complete average fill price.");
 // The derived default is broker-linked; an explicit override remains operator-reviewed and is validated below.
 validateExitPlanValues({ entryPrice, plannedStopPrice, ...(plannedTargetPrice ? { plannedTargetPrice } : {}), ...(timeStopAt ? { timeStopAt } : {}) });

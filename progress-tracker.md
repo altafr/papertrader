@@ -2,7 +2,7 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.676 — Telegram exit-plan query routing.
+- **Phase:** Phase 6.677 — Broker-entry provenance enforcement.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, fresh crypto data, scheduled research, and position-management execution. The hosted contract is intentionally degraded only because BTCUSD and PFD are unmanaged legacy positions. The signed Telegram Mini App is deployed on Vercel and the API reports it enabled/configured with portfolio, order, alert, P/L, freshness, and unmanaged-position projections.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading, promote one reviewed local batch when provider limits clear, verify authenticated portfolio/P&L rendering and exports, and accumulate the 30-day evidence gate without loosening risk controls. Deploy the current local heartbeat/dashboard changes only after explicit operator authorization.
@@ -63,6 +63,13 @@
 - The assistant reports stored managed/review-required coverage and bounded stop/target or time-stop values when available; no order or configuration authority was added.
 - Added regression coverage for routing and formatted plan status; full suite passes with 98 test files / 436 tests.
 - **Next smallest unit:** deploy the Worker revision, then verify one authorized exit-plan status question in Telegram.
+
+### Phase 6.677 — Broker-entry provenance enforcement (2026-09-01)
+
+- Guarded legacy adoption now rejects an explicit entry-price override when it differs from the selected broker fills' weighted-average price.
+- Decimal-safe matching and incomplete-fill behavior are covered by regression tests; stop/target/time-stop, strategy, reference, and paper-only gates remain unchanged.
+- Full suite, typecheck, lint, and diff hygiene pass; no broker or database state changed.
+- **Next smallest unit:** deploy the Worker revision and rerun the read-only broker review, then use the guarded preflight for operator-approved plans.
 
 ### Phase 6.618 — Injectable Firecrawl provider boundary (2026-08-31)
 

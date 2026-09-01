@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildLegacyExitPlanProposal, getWeightedAverageFilledPrice, selectLegacyPositionBrokerOrder, selectLegacyPositionBrokerOrders } from "./exit-plan-adoption.js";
+import { buildLegacyExitPlanProposal, getWeightedAverageFilledPrice, matchesWeightedBrokerEntryPrice, selectLegacyPositionBrokerOrder, selectLegacyPositionBrokerOrders } from "./exit-plan-adoption.js";
 
 const position = { assetClass: "crypto", averageEntryPrice: "100", marketValue: "100", quantity: "0.001", symbol: "BTCUSD", unrealizedPl: "0" } as const;
 
@@ -14,6 +14,9 @@ describe("legacy position adoption", () => {
       { alpacaOrderId: "order-2", assetClass: "crypto", filledAveragePrice: "110", filledQuantity: "0.002", quantity: "0.002", side: "buy", status: "filled", symbol: "BTC/USD", type: "market" },
     ])).toBe("106.66666666666666667");
     expect(getWeightedAverageFilledPrice([{ alpacaOrderId: "order-1", assetClass: "crypto", filledQuantity: "0.001", quantity: "0.001", side: "buy", status: "filled", symbol: "BTC/USD", type: "market" }])).toBeUndefined();
+    const fill = { alpacaOrderId: "order-1", assetClass: "crypto", filledAveragePrice: "100", filledQuantity: "0.001", quantity: "0.001", side: "buy", status: "filled", symbol: "BTC/USD", type: "market" } as const;
+    expect(matchesWeightedBrokerEntryPrice("100.0000", [fill])).toBe(true);
+    expect(matchesWeightedBrokerEntryPrice("101", [fill])).toBe(false);
   });
 
   it("requires an exact filled buy order and quantity match", () => {
