@@ -2,7 +2,7 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.662 — Production Mini App smoke verification.
+- **Phase:** Phase 6.663 — Live runtime error audit.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, fresh crypto data, scheduled research, and position-management execution. The hosted contract is intentionally degraded only because BTCUSD and PFD are unmanaged legacy positions. The signed Telegram Mini App is deployed on Vercel and the API reports it enabled/configured with portfolio, order, alert, P/L, freshness, and unmanaged-position projections.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading, promote one reviewed local batch when provider limits clear, verify authenticated portfolio/P&L rendering and exports, and accumulate the 30-day evidence gate without loosening risk controls. Deploy the current local heartbeat/dashboard changes only after explicit operator authorization.
@@ -308,6 +308,12 @@
 - Verified HTTP 200 with 3 positions, 22 orders, 50 alerts, Day/Unrealized P/L metrics, and 2 unmanaged positions.
 - No credentials or portfolio values were printed; no broker/database state changed.
 - **Next smallest unit:** open `/dashboard` in Telegram and perform the final interactive launch check.
+
+### Phase 6.663 — Live runtime error audit (2026-09-01)
+
+- Recent Railway Worker logs show no scheduler-start failures or runtime errors.
+- Position management continues to run and correctly records zero submissions while BTCUSD/PFD lack complete exit-plan provenance.
+- **Next smallest unit:** complete operator-reviewed legacy exit-plan adoption, then rerun the hosted verifier.
 
 ### Phase 6.396 — End-to-end Worker cycle telemetry (2026-08-29)
 
