@@ -42,6 +42,10 @@ export function getUnmanagedPositionSymbols(
   return positions.filter((position) => !completePlans.has(`${position.assetClass}:${canonicalSymbol(position.symbol)}`)).map((position) => position.symbol).slice(0, 20);
 }
 
+export function getPaperTimeInForce(assetClass: "crypto" | "us_equity"): "day" | "gtc" {
+  return assetClass === "crypto" ? "gtc" : "day";
+}
+
 /** Bounded, human-readable entry explanation for the important Telegram alert. */
 export function buildPaperRiskDecisionMessage(input: {
   readonly approvalReference?: string;
@@ -129,7 +133,7 @@ export async function runPaperAutopilotRiskCycle(input: {
     await repository.recordSubmission(persisted);
     let executionStatus: PaperAutopilotRiskCycleResult["executionStatus"] = "not_submitted";
     if (approval.status === "approved" && input.executeApproved) {
-      await input.executeApproved({ approval: { approvalId: approval.approvalId, intentId, riskDecision: { approvalStatus: approval.status, estimatedLoss: approval.assessment.estimatedLoss, estimatedLossPercent: approval.assessment.estimatedLossPercent, policyVersion: approval.policyVersion, reasons: approval.assessment.reasons }, status: "approved" }, assetClass: riskCandidate.assetClass, clientOrderId: `${intentId}-paper`, ...(riskCandidate.marketSnapshot ? { marketSnapshot: riskCandidate.marketSnapshot as unknown as Readonly<Record<string, string | null>> } : {}), quantity, entryPrice: riskCandidate.proposedEntryPrice, plannedStopPrice: riskCandidate.plannedStopPrice, plannedTargetPrice: riskCandidate.plannedExitPrice, ...(riskCandidate.timeStopAt ? { timeStopAt: riskCandidate.timeStopAt } : {}), strategyKey: riskCandidate.strategyKey, strategyVersion: riskCandidate.strategyVersion, side: "buy", symbol: riskCandidate.symbol, timeInForce: "day", type: "market" });
+      await input.executeApproved({ approval: { approvalId: approval.approvalId, intentId, riskDecision: { approvalStatus: approval.status, estimatedLoss: approval.assessment.estimatedLoss, estimatedLossPercent: approval.assessment.estimatedLossPercent, policyVersion: approval.policyVersion, reasons: approval.assessment.reasons }, status: "approved" }, assetClass: riskCandidate.assetClass, clientOrderId: `${intentId}-paper`, ...(riskCandidate.marketSnapshot ? { marketSnapshot: riskCandidate.marketSnapshot as unknown as Readonly<Record<string, string | null>> } : {}), quantity, entryPrice: riskCandidate.proposedEntryPrice, plannedStopPrice: riskCandidate.plannedStopPrice, plannedTargetPrice: riskCandidate.plannedExitPrice, ...(riskCandidate.timeStopAt ? { timeStopAt: riskCandidate.timeStopAt } : {}), strategyKey: riskCandidate.strategyKey, strategyVersion: riskCandidate.strategyVersion, side: "buy", symbol: riskCandidate.symbol, timeInForce: getPaperTimeInForce(riskCandidate.assetClass), type: "market" });
       executionStatus = "reconciled";
       executionSubmitted = true;
     }

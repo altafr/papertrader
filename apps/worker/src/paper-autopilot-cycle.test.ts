@@ -1,10 +1,17 @@
 import { describe, expect, it } from "vitest";
 
-import { buildPaperRiskDecisionMessage, getUnmanagedPositionSymbols, selectPaperAutopilotCandidates, shouldNotifyPaperRiskDecision } from "./paper-autopilot-cycle.js";
+import { buildPaperRiskDecisionMessage, getPaperTimeInForce, getUnmanagedPositionSymbols, selectPaperAutopilotCandidates, shouldNotifyPaperRiskDecision } from "./paper-autopilot-cycle.js";
 
 describe("paper autopilot position coverage", () => {
   it("matches compact and slash-form crypto symbols", () => {
     expect(getUnmanagedPositionSymbols([{ assetClass: "crypto", symbol: "BTCUSD" }], [{ assetClass: "crypto", symbol: "BTC/USD" }])).toEqual([]);
+  });
+});
+
+describe("paper autopilot order duration", () => {
+  it("uses GTC for crypto and day for equities", () => {
+    expect(getPaperTimeInForce("crypto")).toBe("gtc");
+    expect(getPaperTimeInForce("us_equity")).toBe("day");
   });
 });
 

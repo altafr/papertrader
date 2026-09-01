@@ -2,11 +2,18 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.710 — Risk-cycle position identity alignment.
+- **Phase:** Phase 6.711 — Asset-class order duration alignment.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, fresh crypto data, scheduled research, and position-management execution. All three live paper positions have complete exit-plan coverage; the signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit confirms complete position coverage and Telegram delivery from a persisted sent test.
 - **Last updated:** 2026-09-02.
+
+### Phase 6.711 — Asset-class order duration alignment (2026-09-02)
+
+- Scheduled Paper Autopilot execution now selects broker-compatible order duration by asset class: `gtc` for crypto and `day` for US equities.
+- Added regression coverage for both branches; focused Worker tests and typecheck pass.
+- This closes a crypto execution-path defect without broadening order authority or changing risk limits; deterministic approval, bracket, reconciliation, and kill-switch gates remain required.
+- **Next smallest unit:** deploy the Worker revision and verify hosted health and readiness.
 
 ### Phase 6.688 — Full paper-autonomous release-readiness report (2026-09-01)
 
