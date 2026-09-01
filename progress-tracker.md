@@ -2,11 +2,18 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.776 — full-readiness audit after 22:26 UTC reconciliation.
+- **Phase:** Phase 6.777 — regression and hosted contract verification.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, scheduled research, healthy position management, and complete exit-plan coverage for all three live paper positions. The signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit confirms complete position coverage and Telegram delivery from a persisted sent test.
 - **Last updated:** 2026-09-02.
+
+### Phase 6.777 — Regression and hosted contract verification (2026-09-02)
+
+- The complete local regression suite passed: `99` test files and `456` tests.
+- `pnpm verify:hosted` passed against Railway Worker/API and Vercel: paper mode, order approval, fresh market data, ready position management, active schedulers, aligned release identity, inactive kill switch, valid telemetry, zero unmanaged positions, and dashboard HTTP `200`.
+- This verification changed no runtime configuration or broker state. The sole release blocker remains the time-based 30-day paper-evidence gate.
+- **Next smallest unit:** continue unattended cycles and re-run the guarded readiness audit after the next UTC evidence-day boundary.
 
 ### Phase 6.776 — Full paper-autonomous readiness audit after 22:26 UTC reconciliation (2026-09-02)
 
