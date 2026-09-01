@@ -2,18 +2,21 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.733 — Position mark-path diagnostics.
-- **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, scheduled research, and complete exit-plan coverage for all three live paper positions. Position management is deliberately degraded until the BTCUSD REST mark path returns a fresh price; no automatic exit is submitted while that safety condition is unmet. The signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections.
+- **Phase:** Phase 6.734 — Crypto snapshot wrapper repair.
+- **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, scheduled research, healthy position management, and complete exit-plan coverage for all three live paper positions. The signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit confirms complete position coverage and Telegram delivery from a persisted sent test.
 - **Last updated:** 2026-09-02.
 
-### Phase 6.733 — Position mark-path diagnostics (2026-09-02)
+### Phase 6.734 — Crypto snapshot wrapper repair (2026-09-02)
 
 - Position management now detects managed positions lacking a fresh market mark and fails closed during the applicable market session; crypto remains enforced 24/7 while US equities are exempted overnight/weekends when no fresh quote is expected.
 - Added canonical-symbol and New York session regression coverage. No broker state changed.
-- Added a bounded symbol-only log for unavailable marks so the crypto REST data path can be diagnosed without exposing credentials or changing broker state.
-- **Next smallest unit:** deploy and inspect the unavailable symbol, then repair the data path or configuration if needed.
+- Confirmed Alpaca’s crypto snapshot response is wrapped in a top-level `snapshots` object; the adapter now unwraps wrapped and direct snapshot payloads.
+- Added regression coverage for BTC/USD normalization. No order behavior or risk thresholds changed.
+- **Next smallest unit:** continue unattended paper cycles and re-audit after the next evidence-day boundary.
+
+- **Verification:** Worker deployment is live; hosted contract verification passes with fresh market data, healthy position management, zero unmanaged positions, and future scheduler runs. Full readiness remains blocked only by the 30-day evidence window (9 consecutive days captured, 21 remaining).
 
 ### Phase 6.730 — Market-close summary delivery verification (2026-09-02)
 
