@@ -2,7 +2,7 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.756 — Scheduled recovery and idempotent paper execution.
+- **Phase:** Phase 6.757 — Hosted contract and readiness audit.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, scheduled research, healthy position management, and complete exit-plan coverage for all three live paper positions. The signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit confirms complete position coverage and Telegram delivery from a persisted sent test.
@@ -43,6 +43,14 @@
 - The deterministic intent remained stable across the retry, and the read-only reconciled portfolio now shows BTCUSD `0.06847022`, AAPL `4`, and PFD `2903`; no unmanaged positions were introduced.
 - Worker health remains `healthy`, scheduler status `scheduled`, market data fresh, and position management ready. The prior failure was fail-closed and did not create a duplicate intent.
 - **Next smallest unit:** continue the 15-minute crypto schedule and verify the next scheduled cycle after the deployed diagnostic revision.
+
+### Phase 6.757 — Hosted contract and readiness audit (2026-09-02)
+
+- `pnpm verify:hosted` passes across the deployed API, Worker, and Vercel surfaces: paper mode, order-submission approval, fresh market stream, position management, scheduler, risk telemetry, heartbeat, and release identity all verify.
+- Full readiness remains `blocked` only by the required 30-consecutive-calendar-day paper evidence window: 9 consecutive days captured, 21 remaining.
+- Exit-plan coverage remains complete for all 3 positions; Telegram delivery remains verified; no live mode is enabled.
+- Current reconciled equity is `99650.35`, total tracked P/L `260.14`, and maximum drawdown `1.24%`.
+- **Next smallest unit:** continue the scheduled crypto paper loop and re-audit after the next UTC calendar boundary.
 
 ### Phase 6.751 — Scheduler diagnostics deployment verification (2026-09-02)
 
