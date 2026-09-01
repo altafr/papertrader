@@ -1,12 +1,31 @@
 import type { PaperAccountState, PaperOrder, PaperPosition } from "@momentum/alpaca";
 import * as DecimalModule from "decimal.js";
 
-interface DecimalValue { div(value: DecimalValue): DecimalValue; eq(value: DecimalValue): boolean; lte(value: DecimalValue): boolean; greaterThan(value: DecimalValue): boolean; isNegative(): boolean; isZero(): boolean; plus(value: DecimalValue): DecimalValue; minus(value: DecimalValue): DecimalValue; times(value: DecimalValue): DecimalValue; }
+interface DecimalValue { div(value: DecimalValue): DecimalValue; eq(value: DecimalValue): boolean; lte(value: DecimalValue): boolean; greaterThan(value: DecimalValue): boolean; isNegative(): boolean; isZero(): boolean; plus(value: DecimalValue): DecimalValue; minus(value: DecimalValue): DecimalValue; times(value: DecimalValue): DecimalValue; toDecimalPlaces(decimalPlaces: number): DecimalValue; toFixed(decimalPlaces?: number): string; }
 interface DecimalConstructor { new (value: string): DecimalValue; }
 const Decimal = (DecimalModule as unknown as { readonly default: DecimalConstructor }).default;
 export const CRYPTO_POSITION_QUANTITY_TOLERANCE = "0.0001";
 
 const canonical = (value: string): string => value.replaceAll("/", "").toUpperCase();
+
+export interface LegacyExitPlanProposal {
+  readonly entryPrice: string;
+  readonly requiresOperatorApproval: true;
+  readonly suggestedStopPrice: string;
+  readonly suggestedTargetPrice: string;
+}
+
+/** Build non-authoritative defaults from broker evidence for faster operator review. */
+export function buildLegacyExitPlanProposal(entryPrice: string): LegacyExitPlanProposal {
+  const entry = new Decimal(entryPrice);
+  return {
+    entryPrice,
+    requiresOperatorApproval: true,
+    // 95.01% keeps rounding strictly inside the documented 5% adverse limit.
+    suggestedStopPrice: entry.times(new Decimal("0.9501")).toDecimalPlaces(8).toFixed(8),
+    suggestedTargetPrice: entry.times(new Decimal("1.04")).toDecimalPlaces(8).toFixed(8),
+  };
+}
 
 /** Derive a broker-linked entry price from the selected filled buys. */
 export function getWeightedAverageFilledPrice(orders: readonly PaperOrder[]): string | undefined {

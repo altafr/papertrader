@@ -2,7 +2,7 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.672 — Live broker provenance review.
+- **Phase:** Phase 6.673 — Read-only exit-plan proposal generation.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, fresh crypto data, scheduled research, and position-management execution. The hosted contract is intentionally degraded only because BTCUSD and PFD are unmanaged legacy positions. The signed Telegram Mini App is deployed on Vercel and the API reports it enabled/configured with portfolio, order, alert, P/L, freshness, and unmanaged-position projections.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading, promote one reviewed local batch when provider limits clear, verify authenticated portfolio/P&L rendering and exports, and accumulate the 30-day evidence gate without loosening risk controls. Deploy the current local heartbeat/dashboard changes only after explicit operator authorization.
@@ -35,6 +35,13 @@
 - Read-only review from the deployed Worker confirms complete broker fill coverage for PFD (2,903 shares; weighted fill price 11.49) and BTCUSD (17 fills; weighted fill price 77,721.489764705882353, with the documented crypto dust adjustment).
 - The review made no PostgreSQL writes and no broker order mutations. AAPL remains fully managed; BTCUSD and PFD remain unmanaged only because exit-plan and strategy provenance has not been operator-approved/adopted.
 - **Next smallest unit:** run guarded dry-run adoption for PFD and BTCUSD with the reviewed fill IDs, protective stops no wider than 5%, a target or time stop, strategy key/version, and a bounded approval reference.
+
+### Phase 6.673 — Read-only exit-plan proposal generation (2026-09-01)
+
+- The broker review output now includes non-authoritative stop and target suggestions derived from broker-linked weighted fills: a stop at 95.01% of entry (strictly inside the 5% maximum) and a target at 104% of entry.
+- Suggestions are marked `requiresOperatorApproval` and are never written to PostgreSQL, submitted to Alpaca, or treated as strategy provenance.
+- Added regression coverage; focused tests, typecheck, lint, and diff hygiene pass.
+- **Next smallest unit:** operator reviews the proposal, supplies strategy metadata and approval references, then run dry-run adoption for BTCUSD/PFD.
 
 ### Phase 6.618 — Injectable Firecrawl provider boundary (2026-08-31)
 

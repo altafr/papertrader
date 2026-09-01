@@ -1,9 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { getWeightedAverageFilledPrice, selectLegacyPositionBrokerOrder, selectLegacyPositionBrokerOrders } from "./exit-plan-adoption.js";
+import { buildLegacyExitPlanProposal, getWeightedAverageFilledPrice, selectLegacyPositionBrokerOrder, selectLegacyPositionBrokerOrders } from "./exit-plan-adoption.js";
 
 const position = { assetClass: "crypto", averageEntryPrice: "100", marketValue: "100", quantity: "0.001", symbol: "BTCUSD", unrealizedPl: "0" } as const;
 
 describe("legacy position adoption", () => {
+  it("builds non-authoritative stop and target suggestions from broker entry evidence", () => {
+    expect(buildLegacyExitPlanProposal("100")).toEqual({ entryPrice: "100", requiresOperatorApproval: true, suggestedStopPrice: "95.01000000", suggestedTargetPrice: "104.00000000" });
+  });
+
   it("derives a broker-linked weighted entry price from selected fills", () => {
     expect(getWeightedAverageFilledPrice([
       { alpacaOrderId: "order-1", assetClass: "crypto", filledAveragePrice: "100", filledQuantity: "0.001", quantity: "0.001", side: "buy", status: "filled", symbol: "BTC/USD", type: "market" },
