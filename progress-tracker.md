@@ -2,11 +2,18 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.713 — Hosted release identity alignment.
+- **Phase:** Phase 6.714 — Full regression checkpoint.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, fresh crypto data, scheduled research, and position-management execution. All three live paper positions have complete exit-plan coverage; the signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit confirms complete position coverage and Telegram delivery from a persisted sent test.
 - **Last updated:** 2026-09-02.
+
+### Phase 6.714 — Full regression checkpoint (2026-09-02)
+
+- Full repository verification passed: 99 test files / 448 tests, all workspace typechecks, and ESLint with zero warnings.
+- Hosted verification remains green for paper mode, fresh data, active schedulers, Telegram delivery, release consistency, and zero unmanaged positions.
+- Full autonomous release readiness remains correctly blocked only by the 30-day paper-evidence requirement (9 consecutive days captured, 21 remaining).
+- **Next smallest unit:** keep the deployed Worker running and re-audit after the next evidence-day boundary.
 
 ### Phase 6.713 — Hosted release identity alignment (2026-09-02)
 
