@@ -2,7 +2,7 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.663 — Live runtime error audit.
+- **Phase:** Phase 6.664 — Scheduler health confirmation.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, fresh crypto data, scheduled research, and position-management execution. The hosted contract is intentionally degraded only because BTCUSD and PFD are unmanaged legacy positions. The signed Telegram Mini App is deployed on Vercel and the API reports it enabled/configured with portfolio, order, alert, P/L, freshness, and unmanaged-position projections.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading, promote one reviewed local batch when provider limits clear, verify authenticated portfolio/P&L rendering and exports, and accumulate the 30-day evidence gate without loosening risk controls. Deploy the current local heartbeat/dashboard changes only after explicit operator authorization.
@@ -314,6 +314,12 @@
 - Recent Railway Worker logs show no scheduler-start failures or runtime errors.
 - Position management continues to run and correctly records zero submissions while BTCUSD/PFD lack complete exit-plan provenance.
 - **Next smallest unit:** complete operator-reviewed legacy exit-plan adoption, then rerun the hosted verifier.
+
+### Phase 6.664 — Scheduler health confirmation (2026-09-01)
+
+- Worker health confirms research scheduling is enabled/scheduled with a future next run, fresh market data, and 60-second position-management execution.
+- The sole degraded condition remains the two unmanaged legacy positions; no new runtime failure is present.
+- **Next smallest unit:** complete reviewed BTCUSD/PFD exit-plan adoption and rerun the release-pinned hosted verifier.
 
 ### Phase 6.396 — End-to-end Worker cycle telemetry (2026-08-29)
 
