@@ -14,8 +14,8 @@ describe("authenticated read-model contract", () => {
   });
 
   it("projects originating strategy and exit metadata onto matching positions", () => {
-    const result = attachPositionMetadata({ positions: [{ assetClass: "crypto", symbol: "BTC/USD", marketValue: "100" }, { assetClass: "us_equity", symbol: "AAPL" }] }, [{ assetClass: "crypto", symbol: "BTC/USD", plannedStopPrice: "95", plannedTargetPrice: "110", positionOpenedAt: "2026-08-29T00:00:00.000Z", strategyKey: "breakout", strategyVersion: "1.0.0" }]);
-    expect(result.positions[0]).toMatchObject({ plannedStopPrice: "95", plannedTargetPrice: "110", strategyKey: "breakout", strategyVersion: "1.0.0" });
+    const result = attachPositionMetadata({ positions: [{ assetClass: "crypto", symbol: "BTCUSD", marketValue: "100" }, { assetClass: "us_equity", symbol: "AAPL" }] }, [{ assetClass: "crypto", symbol: "BTC/USD", effectiveStopPrice: "114", plannedStopPrice: "95", plannedTargetPrice: "110", positionOpenedAt: "2026-08-29T00:00:00.000Z", strategyKey: "breakout", strategyVersion: "1.0.0" }]);
+    expect(result.positions[0]).toMatchObject({ effectiveStopPrice: "114", plannedStopPrice: "95", plannedTargetPrice: "110", strategyKey: "breakout", strategyVersion: "1.0.0" });
     expect(result.positions[1]).toEqual({ assetClass: "us_equity", symbol: "AAPL" });
   });
 });

@@ -2,11 +2,18 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.717 — Live active-stop surface verification.
+- **Phase:** Phase 6.718 — Canonical crypto dashboard coverage.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, fresh crypto data, scheduled research, and position-management execution. All three live paper positions have complete exit-plan coverage; the signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit confirms complete position coverage and Telegram delivery from a persisted sent test.
 - **Last updated:** 2026-09-02.
+
+### Phase 6.718 — Canonical crypto dashboard coverage (2026-09-02)
+
+- Authenticated API joins and the read-model projection now canonicalize crypto symbols (`BTCUSD` and `BTC/USD`) consistently with Worker position management.
+- This prevents a valid broker-linked exit plan or active stop from being hidden on the dashboard/Mini App because of provider formatting.
+- Added regression coverage for slash/compact symbol matching; API/web typechecks and lint pass. No broker state changed.
+- **Next smallest unit:** deploy API and web revisions, then verify hosted health and Mini App surfaces.
 
 ### Phase 6.717 — Live active-stop surface verification (2026-09-02)
 

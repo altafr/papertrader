@@ -11,6 +11,10 @@ export type PositionMetadata = UnmanagedPosition & {
   readonly strategyVersion?: string;
 };
 
+function canonicalSymbol(value: string): string {
+  return value.replaceAll("/", "").trim().toUpperCase();
+}
+
 /** Attach the bounded safety projection where the authenticated dashboard expects it. */
 export function attachUnmanagedPositions<T extends object>(model: T, unmanagedPositions: readonly UnmanagedPosition[]): T & { readonly unmanagedPositions: readonly UnmanagedPosition[] } {
   return { ...model, unmanagedPositions };
@@ -22,13 +26,13 @@ export function attachActiveExitPositions<T extends object>(model: T, activeExit
 
 /** Attach bounded originating-order metadata to positions without changing broker truth. */
 export function attachPositionMetadata<T extends { readonly positions: readonly Record<string, unknown>[] }>(model: T, metadata: readonly PositionMetadata[]): T {
-  const byPosition = new Map(metadata.map((item) => [`${item.assetClass}:${item.symbol}`, item]));
+  const byPosition = new Map(metadata.map((item) => [`${item.assetClass}:${canonicalSymbol(item.symbol)}`, item]));
   return {
     ...model,
     positions: model.positions.map((position) => {
       const assetClass = typeof position.assetClass === "string" ? position.assetClass : "";
       const symbol = typeof position.symbol === "string" ? position.symbol : "";
-      const match = byPosition.get(`${assetClass}:${symbol}`);
+      const match = byPosition.get(`${assetClass}:${canonicalSymbol(symbol)}`);
       if (!match) return position;
       return {
         ...position,
