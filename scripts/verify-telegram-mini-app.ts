@@ -9,8 +9,8 @@ export function buildTelegramInitData(botToken: string, userId: string, now = Ma
   return params.toString();
 }
 
-export async function verifyTelegramMiniApp(fetcher: typeof fetch, apiUrl: string, botToken: string, userId: string) {
-  const response = await fetcher(`${apiUrl.replace(/\/$/, "")}/v1/telegram-mini-app`, { headers: { "x-telegram-init-data": buildTelegramInitData(botToken, userId) } });
+export async function verifyTelegramMiniApp(fetcher: typeof fetch, apiUrl: string, botToken: string, userId: string, now = Math.floor(Date.now() / 1000)) {
+  const response = await fetcher(`${apiUrl.replace(/\/$/, "")}/v1/telegram-mini-app`, { headers: { "x-telegram-init-data": buildTelegramInitData(botToken, userId, now) } });
   const body = await response.json() as { readonly portfolio?: { readonly positions?: readonly unknown[]; readonly orders?: readonly unknown[]; readonly metrics?: Record<string, unknown> }; readonly alerts?: readonly unknown[]; readonly unmanagedPositions?: readonly unknown[] };
   if (!response.ok || !body.portfolio) throw new Error(`telegram_mini_app_verification_failed:${response.status}`);
   return { status: response.status, positions: body.portfolio.positions?.length ?? 0, orders: body.portfolio.orders?.length ?? 0, alerts: body.alerts?.length ?? 0, unmanagedPositions: body.unmanagedPositions?.length ?? 0, metricKeys: Object.keys(body.portfolio.metrics ?? {}) };
