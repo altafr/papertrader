@@ -2,7 +2,7 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.677 — Broker-entry provenance enforcement.
+- **Phase:** Phase 6.678 — Hosted broker-entry provenance enforcement.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, fresh crypto data, scheduled research, and position-management execution. The hosted contract is intentionally degraded only because BTCUSD and PFD are unmanaged legacy positions. The signed Telegram Mini App is deployed on Vercel and the API reports it enabled/configured with portfolio, order, alert, P/L, freshness, and unmanaged-position projections.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading, promote one reviewed local batch when provider limits clear, verify authenticated portfolio/P&L rendering and exports, and accumulate the 30-day evidence gate without loosening risk controls. Deploy the current local heartbeat/dashboard changes only after explicit operator authorization.
@@ -70,6 +70,13 @@
 - Decimal-safe matching and incomplete-fill behavior are covered by regression tests; stop/target/time-stop, strategy, reference, and paper-only gates remain unchanged.
 - Full suite, typecheck, lint, and diff hygiene pass; no broker or database state changed.
 - **Next smallest unit:** deploy the Worker revision and rerun the read-only broker review, then use the guarded preflight for operator-approved plans.
+
+### Phase 6.678 — Hosted broker-entry provenance enforcement (2026-09-01)
+
+- Railway deployed Worker commit `17bc53f` successfully.
+- Post-deploy health remains fresh/connected with Paper Autopilot, read-only Telegram/Firecrawl, and active position supervision; the only degraded condition is the expected two unmanaged legacy positions.
+- No broker orders or database records were changed during rollout.
+- **Next smallest unit:** operator supplies reviewed stop/target or time-stop and strategy metadata, then run the guarded dry-run adoption; mismatched entry overrides now fail closed.
 
 ### Phase 6.618 — Injectable Firecrawl provider boundary (2026-08-31)
 
