@@ -2,7 +2,7 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.706 — Hosted system verification.
+- **Phase:** Phase 6.707 — Hosted stability checkpoint.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, fresh crypto data, scheduled research, and position-management execution. All three live paper positions have complete exit-plan coverage; the signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit confirms complete position coverage and Telegram delivery from a persisted sent test.
@@ -50,6 +50,13 @@
 - The dashboard Paper performance card displays the remaining consecutive-day requirement alongside snapshots and P/L; parser compatibility remains fail-closed for malformed values.
 - API/web typechecks and tests passed; the API deployment completed successfully. No order or risk behavior changed.
 - **Next smallest unit:** continue unattended paper operation; monitor the dashboard or Worker readiness report for evidence progress.
+
+### Phase 6.707 — Hosted stability checkpoint (2026-09-02)
+
+- Re-ran the complete hosted verifier after the latest Worker/API changes; all runtime, risk, freshness, scheduler, position-coverage, release-consistency, and Vercel checks passed.
+- Full readiness remains blocked only by `minimum_30_consecutive_calendar_days_not_met`, with 9 consecutive days captured and 21 remaining.
+- No new deployment, approval, or configuration change is required; unattended paper operation continues.
+- **Next smallest unit:** continue scheduled cycles and re-audit after the next evidence-day boundary.
 
 ### Phase 6.706 — Hosted system verification (2026-09-02)
 
