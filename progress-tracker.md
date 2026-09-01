@@ -13,7 +13,7 @@
 - The guarded research-to-paper-order command now uses the same deterministic duration mapping as scheduled Autopilot: `gtc` for crypto and `day` for US equities.
 - This removes the remaining invalid crypto `day` request from an order-entry path while preserving paper-only mode, approval provenance, risk validation, and reconciliation.
 - Worker focused tests and typecheck pass; no order was submitted during verification.
-- **Next smallest unit:** deploy the Worker revision and re-run hosted health/readiness checks.
+- **Next smallest unit:** continue unattended paper cycles and accumulate the remaining 21 evidence days.
 
 ### Phase 6.711 — Asset-class order duration alignment (2026-09-02)
 
