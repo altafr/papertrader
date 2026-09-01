@@ -2,7 +2,7 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.762 — Post-deployment scheduler verification.
+- **Phase:** Phase 6.763 — Retry-fix live cycle verification.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, scheduled research, healthy position management, and complete exit-plan coverage for all three live paper positions. The signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit confirms complete position coverage and Telegram delivery from a persisted sent test.
@@ -86,6 +86,13 @@
 - The deployment occurred at the 21:30 boundary; the startup catch-up was rejected by its deterministic idempotency key, so no duplicate catch-up order was created. The next scheduled crypto tick is 21:45 UTC.
 - No `filled_quantity_outside_the_approved_order_quantity` failure has occurred after the new release; the next cycle is the remaining runtime proof point.
 - **Next smallest unit:** verify the 21:45 UTC cycle and its persisted order/reconciliation outcome.
+
+### Phase 6.763 — Retry-fix live cycle verification (2026-09-02)
+
+- The first post-deployment risk cycle completed successfully at `2026-09-01T21:32:27Z`: one BTC/USD decision was approved and reconciled with quantity `0.02586311` and estimated loss `4.99%`.
+- No `filled_quantity_outside_the_approved_order_quantity` failure or scheduler degradation occurred after the intent-aware retry release.
+- Worker health is `healthy`, scheduler is `scheduled` for 21:45 UTC, market data is fresh, and position management reports zero unmanaged positions.
+- **Next smallest unit:** continue scheduled cycles and re-audit the 30-day evidence window after the next UTC boundary.
 
 ### Phase 6.751 — Scheduler diagnostics deployment verification (2026-09-02)
 
