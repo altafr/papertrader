@@ -44,6 +44,13 @@
 - Full-readiness audit still has only the 30-day paper-evidence blocker (`daysRemaining=29`).
 - **Next smallest unit:** continue unattended paper operation and monitor the evidence counter.
 
+### Phase 6.694 — Dashboard evidence-window telemetry (2026-09-01)
+
+- The authenticated API performance contract now includes bounded `daysRemaining` evidence telemetry in both insufficient-history and normal responses.
+- The dashboard Paper performance card displays the remaining consecutive-day requirement alongside snapshots and P/L; parser compatibility remains fail-closed for malformed values.
+- API/web typechecks and tests passed; the API deployment completed successfully. No order or risk behavior changed.
+- **Next smallest unit:** continue unattended paper operation; monitor the dashboard or Worker readiness report for evidence progress.
+
 ### Phase 6.690 — Hosted continuous-runtime recheck (2026-09-01)
 
 - Hosted health recheck confirms Paper Autopilot, durable scheduler, fresh crypto stream, 60-second position supervision, Telegram assistant, and Firecrawl configuration remain active.

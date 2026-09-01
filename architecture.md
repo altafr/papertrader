@@ -33,6 +33,8 @@ The full-readiness report exposes the evidence-window progress (`calendarDays`, 
 
 The position-management runtime canonicalizes portfolio symbols for plan matching and converts compact crypto symbols to Alpaca's slash-form only at the market-data request boundary. This keeps broker/provider formatting separate from persisted portfolio identity and prevents valid crypto positions from being incorrectly marked unmanaged or producing avoidable market-data errors.
 
+The authenticated performance API and dashboard also expose bounded evidence-window progress (`daysRemaining`) next to the existing consecutive-day metrics. This is read-only telemetry and does not alter the 30-day promotion gate.
+
 Operator-facing financial, quantity, risk, and indicator values are formatted to two decimal places on the dashboard and Telegram assistant; stored and broker precision remains unchanged.
 
 ### Always-on multi-agent runtime requirement
