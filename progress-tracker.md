@@ -2,7 +2,7 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.758 — Full regression and production build verification.
+- **Phase:** Phase 6.759 — Idempotent retry quantity fix.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, scheduled research, healthy position management, and complete exit-plan coverage for all three live paper positions. The signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit confirms complete position coverage and Telegram delivery from a persisted sent test.
@@ -58,6 +58,13 @@
 - All workspace TypeScript builds pass, including production Next.js, API, Worker, Alpaca, database, configuration, domain, and notification packages.
 - No working-tree changes remain beyond the recorded commits; deployed behavior remains paper-only and fail-closed.
 - **Next smallest unit:** continue scheduled paper cycles and verify evidence accumulation after the next UTC calendar boundary.
+
+### Phase 6.759 — Idempotent retry quantity fix (2026-09-02)
+
+- Production diagnostics identified a retry edge case: a deterministic intent could be re-evaluated with a new dynamic quantity while its broker-bound order retained the original approved quantity.
+- Execution now treats the persisted broker-bound quantity as authoritative during retries, preventing false `filled_quantity_outside_approved_order_quantity` failures and duplicate submissions.
+- Added focused regression coverage; Worker tests and typecheck pass.
+- **Next smallest unit:** deploy and verify the retry fix on the hosted Worker.
 
 ### Phase 6.751 — Scheduler diagnostics deployment verification (2026-09-02)
 

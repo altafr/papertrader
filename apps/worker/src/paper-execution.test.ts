@@ -54,6 +54,12 @@ describe("paper execution wiring", () => {
     expect(submitted).toBe(0);
   });
 
+  it("uses the persisted approved quantity when a retry recalculates sizing", async () => {
+    const result = await executePaperAutopilotOrder({ autopilot: mode, order, persistence: { getByClientOrderId: async () => ({ alpacaOrderId: "alpaca-existing", quantity: "0.03", status: "filled", filledQuantity: "0.03" }), recordSubmission: async () => { throw new Error("must not persist"); }, reconcile: async () => {}, markFailed: async () => {} }, submitter: { submit: async () => { throw new Error("must not submit"); } } });
+    expect(result.brokerOrder.quantity).toBe("0.03");
+    expect(result.brokerOrder.filledQuantity).toBe("0.03");
+  });
+
   it("fails closed when an intent is already pending without broker identity", async () => {
     await expect(executePaperAutopilotOrder({ autopilot: mode, order, persistence: { getByClientOrderId: async () => ({ status: "pending" }), recordSubmission: async () => { throw new Error("must not persist"); }, reconcile: async () => {}, markFailed: async () => {} }, submitter: { submit: async () => { throw new Error("must not submit"); } } })).rejects.toThrow("refusing duplicate submission");
   });

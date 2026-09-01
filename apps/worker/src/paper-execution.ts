@@ -15,12 +15,16 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 function asExistingBrokerOrder(value: unknown, order: PaperOrderSubmissionRequest): PaperOrderSubmission | undefined {
   if (!isRecord(value) || typeof value.alpacaOrderId !== "string" || typeof value.status !== "string") return undefined;
+  // Retries may recalculate a candidate quantity from the latest equity/mark.
+  // Once a client order is broker-bound, its persisted quantity is the
+  // authoritative approved quantity for reconciliation.
+  const quantity = typeof value.quantity === "string" ? value.quantity : order.quantity;
   return {
     alpacaOrderId: value.alpacaOrderId,
     assetClass: order.assetClass,
     clientOrderId: order.clientOrderId,
     ...(typeof value.filledQuantity === "string" ? { filledQuantity: value.filledQuantity } : {}),
-    quantity: order.quantity,
+    quantity,
     status: value.status,
     ...(value.submittedAt instanceof Date ? { submittedAt: value.submittedAt.toISOString() } : typeof value.submittedAt === "string" ? { submittedAt: value.submittedAt } : {}),
     symbol: order.symbol,
