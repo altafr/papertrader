@@ -1,8 +1,12 @@
 import { describe, expect, it } from "vitest";
 
-import { buildPaperPerformanceReport } from "./paper-performance-report.js";
+import { buildPaperPerformanceReport, PAPER_EVIDENCE_SNAPSHOT_LIMIT } from "./paper-performance-report.js";
 
 describe("paper performance report", () => {
+  it("retains enough bounded history for the evidence window", () => {
+    expect(PAPER_EVIDENCE_SNAPSHOT_LIMIT).toBeGreaterThanOrEqual(30_000);
+  });
+
   it("reports insufficient history until two reconciled snapshots exist", () => {
     expect(buildPaperPerformanceReport([{ capturedAt: "2026-08-25T00:00:00Z", equity: "100000" }])).toMatchObject({ calendarDays: 1, consecutiveCalendarDays: 1, snapshotCount: 1, stability: { status: "blocked" }, status: "insufficient_history" });
   });
