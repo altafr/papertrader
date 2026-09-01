@@ -12,6 +12,7 @@ import { createRuntimeAlertNotifier } from "./telegram-events.js";
 
 const POSITION_DETECTED_COOLDOWN_MS = 86_400_000;
 const POSITION_MARK_MAX_AGE_MS = 5 * 60_000;
+const canonicalSymbol = (symbol: string): string => symbol.replaceAll("/", "").toUpperCase();
 interface MarkDecimal { isNegative(): boolean; isZero(): boolean; }
 interface MarkDecimalConstructor { new (value: string): MarkDecimal; }
 const MarkDecimal = (DecimalModule as unknown as { readonly default: MarkDecimalConstructor }).default;
@@ -163,10 +164,10 @@ export async function runPositionManagementCycle(environment: NodeJS.ProcessEnv 
     }
     const rows = await orderRepository.listExitPlans();
     const activeExitIntentIds = getActiveExitIntentIds(await orderRepository.listActiveExitSubmissions());
-    const plans = new Map(rows.filter((row) => isCompleteExitPlan(row)).map((row) => [`${row.assetClass}:${row.symbol}`, row]));
+    const plans = new Map(rows.filter((row) => isCompleteExitPlan(row)).map((row) => [`${row.assetClass}:${canonicalSymbol(row.symbol)}`, row]));
     const positions = model?.positions ?? [];
-    const managedPositions = positions.filter((position) => plans.has(`${position.assetClass}:${position.symbol}`));
-    const unmanagedPositions = positions.filter((position) => !plans.has(`${position.assetClass}:${position.symbol}`));
+    const managedPositions = positions.filter((position) => plans.has(`${position.assetClass}:${canonicalSymbol(position.symbol)}`));
+    const unmanagedPositions = positions.filter((position) => !plans.has(`${position.assetClass}:${canonicalSymbol(position.symbol)}`));
     setPositionManagementUnmanagedCount(unmanagedPositions.length);
     if (unmanagedPositions.length > 0) {
       const symbols = unmanagedPositions.map((position) => position.symbol);
@@ -180,7 +181,7 @@ export async function runPositionManagementCycle(environment: NodeJS.ProcessEnv 
       return { managed: 0, submitted: 0 };
     }
     for (const position of managedPositions) {
-      const plan = plans.get(`${position.assetClass}:${position.symbol}`);
+      const plan = plans.get(`${position.assetClass}:${canonicalSymbol(position.symbol)}`);
       const intentId = plan?.intentId ?? "unknown";
       await notifier.notify({ code: "position_detected", cooldownKey: `position_detected:${position.assetClass}:${position.symbol}`, cooldownMs: POSITION_DETECTED_COOLDOWN_MS, dedupeKey: getPositionDetectedDedupeKey(position.assetClass, position.symbol, intentId), message: `Managed paper position detected: ${position.symbol}. Exit plan is active and being monitored.`, severity: "info" });
     }
@@ -188,14 +189,14 @@ export async function runPositionManagementCycle(environment: NodeJS.ProcessEnv 
     const markGroups = await Promise.all(groupPositionSymbolsByAssetClass(managedPositions).map(async (group) => ({ assetClass: group.assetClass, marks: await reader.readSnapshots(group) })));
     const marks = markGroups.flatMap((group) => group.marks.map((mark) => ({ assetClass: group.assetClass, mark })));
     const managed = managedPositions.flatMap((position) => {
-      const plan = plans.get(`${position.assetClass}:${position.symbol}`);
-      const mark = marks.find((item) => item.assetClass === (position.assetClass === "crypto" ? "crypto" : "us_equity") && item.mark.symbol === position.symbol)?.mark;
+      const plan = plans.get(`${position.assetClass}:${canonicalSymbol(position.symbol)}`);
+      const mark = marks.find((item) => item.assetClass === (position.assetClass === "crypto" ? "crypto" : "us_equity") && canonicalSymbol(item.mark.symbol) === canonicalSymbol(position.symbol))?.mark;
       const currentPrice = mark ? getFreshPositionMark(mark) : undefined;
       if (!plan || !currentPrice) return [];
       return [{ assetClass: position.assetClass === "crypto" ? "crypto" as const : "us_equity" as const, currentPrice, entryPrice: plan.entryPrice!, plannedStopPrice: plan.plannedStopPrice!, ...(plan.plannedTargetPrice ? { plannedTargetPrice: plan.plannedTargetPrice } : {}), quantity: position.quantity, strategyKey: plan.strategyKey!, strategyVersion: plan.strategyVersion!, symbol: position.symbol, ...(plan.timeStopAt ? { timeStopAt: plan.timeStopAt.toISOString() } : {}), intentId: plan.intentId }];
     });
     for (const position of managedPositions) {
-      const mark = marks.find((item) => item.assetClass === (position.assetClass === "crypto" ? "crypto" : "us_equity") && item.mark.symbol === position.symbol)?.mark;
+      const mark = marks.find((item) => item.assetClass === (position.assetClass === "crypto" ? "crypto" : "us_equity") && canonicalSymbol(item.mark.symbol) === canonicalSymbol(position.symbol))?.mark;
       if (mark && !getFreshPositionMark(mark)) {
         await notifier.notify({ code: "stale_position_market_data", cooldownKey: `stale_position_market_data:${position.assetClass}:${position.symbol}`, cooldownMs: POSITION_DETECTED_COOLDOWN_MS, dedupeKey: `stale_position_market_data:${position.assetClass}:${position.symbol}`, message: `Position management paused for ${position.symbol}: latest market mark is stale. No automatic exit was submitted.`, severity: "critical" });
       }
