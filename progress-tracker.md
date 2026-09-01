@@ -2,11 +2,18 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.729 — Live daily-summary protection verification.
+- **Phase:** Phase 6.730 — Market-close summary delivery verification.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, fresh crypto data, scheduled research, and position-management execution. All three live paper positions have complete exit-plan coverage; the signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit confirms complete position coverage and Telegram delivery from a persisted sent test.
 - **Last updated:** 2026-09-02.
+
+### Phase 6.730 — Market-close summary delivery verification (2026-09-02)
+
+- Guarded market-close verifier passed with 3 persisted delivered `daily_portfolio_summary` events; latest captured at `2026-09-01T20:04:55Z`.
+- Hosted runtime remains healthy with fresh market data, active schedulers, zero unmanaged positions, and verified Telegram delivery.
+- Full readiness remains blocked only by the 30-day evidence window (9 consecutive days captured, 21 remaining).
+- **Next smallest unit:** continue unattended paper cycles and re-audit after the next evidence-day boundary.
 
 ### Phase 6.729 — Live daily-summary protection verification (2026-09-02)
 
