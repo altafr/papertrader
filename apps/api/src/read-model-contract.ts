@@ -3,6 +3,7 @@ export type ActiveExitPosition = UnmanagedPosition;
 export type PositionMetadata = UnmanagedPosition & {
   readonly entryPrice?: string;
   readonly plannedStopPrice?: string;
+  readonly effectiveStopPrice?: string;
   readonly plannedTargetPrice?: string;
   readonly timeStopAt?: string;
   readonly positionOpenedAt?: string;
@@ -33,6 +34,7 @@ export function attachPositionMetadata<T extends { readonly positions: readonly 
         ...position,
         ...(match.entryPrice ? { entryPrice: match.entryPrice } : {}),
         ...(match.plannedStopPrice ? { plannedStopPrice: match.plannedStopPrice } : {}),
+        ...(match.effectiveStopPrice ? { effectiveStopPrice: match.effectiveStopPrice } : {}),
         ...(match.plannedTargetPrice ? { plannedTargetPrice: match.plannedTargetPrice } : {}),
         ...(match.timeStopAt ? { timeStopAt: match.timeStopAt } : {}),
         ...(match.positionOpenedAt ? { positionOpenedAt: match.positionOpenedAt } : {}),

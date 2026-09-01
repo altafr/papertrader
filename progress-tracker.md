@@ -2,11 +2,18 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.715 — Durable trailing-stop ratchet.
+- **Phase:** Phase 6.716 — Active stop dashboard projection.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, fresh crypto data, scheduled research, and position-management execution. All three live paper positions have complete exit-plan coverage; the signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit confirms complete position coverage and Telegram delivery from a persisted sent test.
 - **Last updated:** 2026-09-02.
+
+### Phase 6.716 — Active stop dashboard projection (2026-09-02)
+
+- Authenticated API position metadata now includes the durably ratcheted effective stop, and the dashboard displays it alongside the immutable planned stop.
+- This makes the operator view match the stop actually enforced by the Worker after favorable moves and restarts.
+- API/web typechecks, focused contract tests, and lint pass; no broker state changed.
+- **Next smallest unit:** deploy API and web revisions, then verify the live dashboard and hosted runtime.
 
 ### Phase 6.715 — Durable trailing-stop ratchet (2026-09-02)
 
