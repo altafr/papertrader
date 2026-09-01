@@ -398,6 +398,7 @@ async function readOperationsHealth(request: IncomingMessage) {
     const migration = await readAuditMigrationReadiness(migrationDatabase.pool);
     const schedulerAuditMigration = await readSchedulerAuditMigrationReadiness(migrationDatabase.pool);
     const riskCycleResult = await migrationDatabase.pool.query<{ readonly latest_at: Date | null; readonly latest_status: string | null; readonly decisions: number; readonly approved: number }>("SELECT MAX(COALESCE(updated_at, created_at)) FILTER (WHERE risk_decision IS NOT NULL) AS latest_at, (array_agg(status ORDER BY COALESCE(updated_at, created_at) DESC) FILTER (WHERE risk_decision IS NOT NULL))[1] AS latest_status, COUNT(*) FILTER (WHERE risk_decision IS NOT NULL)::int AS decisions, COUNT(*) FILTER (WHERE risk_decision->>'approvalStatus' = 'approved' OR status = 'risk_dry_run_approved')::int AS approved FROM paper_order_submissions WHERE COALESCE(updated_at, created_at) >= NOW() - INTERVAL '7 days'");
+    const telegramDeliveryResult = await migrationDatabase.pool.query<{ readonly verified: boolean }>("SELECT EXISTS (SELECT 1 FROM telegram_alert_events WHERE code = 'telegram_channel_test' AND delivery_status = 'sent') AS verified");
     const riskCycle = serializeRiskCycleSummary(riskCycleResult.rows[0]);
     const schedulerAuditEnabled = readBooleanEnvironmentFlag("DURABLE_SCHEDULER_AUDIT_ENABLED");
     const schedulerAuditActivationApprovalReferencePresent = Boolean(process.env.DURABLE_SCHEDULER_AUDIT_ACTIVATION_APPROVAL_REFERENCE?.trim() && /^[A-Za-z0-9][A-Za-z0-9._:/-]{0,127}$/.test(process.env.DURABLE_SCHEDULER_AUDIT_ACTIVATION_APPROVAL_REFERENCE.trim()));
@@ -449,7 +450,7 @@ async function readOperationsHealth(request: IncomingMessage) {
           decisions: riskCycle.decisions,
           approved: riskCycle.approved,
         },
-        telegramAlerts: { deliveryVerification: telegram.deliveryVerification, enabled: telegram.checks.enabled, riskDecisionAlerts: "approved_only", routineCooldownHours: 24, status: telegram.status },
+        telegramAlerts: { deliveryVerification: telegramDeliveryResult.rows[0]?.verified === true ? "verified" : telegram.deliveryVerification, enabled: telegram.checks.enabled, riskDecisionAlerts: "approved_only", routineCooldownHours: 24, status: telegram.status },
         telegramAlertTest: { approvalReferencePresent: telegramTest.approvalReferencePresent, status: telegramTest.status },
         migration,
       },
