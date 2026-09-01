@@ -51,6 +51,13 @@
 - API/web typechecks and tests passed; the API deployment completed successfully. No order or risk behavior changed.
 - **Next smallest unit:** continue unattended paper operation; monitor the dashboard or Worker readiness report for evidence progress.
 
+### Phase 6.695 — Telegram readiness telemetry (2026-09-01)
+
+- The read-only Telegram assistant now answers `readiness`, `autonomous`, and `evidence` questions from bounded persisted account-snapshot telemetry.
+- Replies report consecutive-day coverage, days remaining, and observed calendar days; research routing and order authority remain unchanged.
+- Worker typecheck/tests and hosted deployment passed; Worker health confirms the assistant is enabled and position coverage remains complete.
+- **Next smallest unit:** ask the connected Telegram channel “show autonomous readiness” to verify the operator-facing response, then continue evidence collection.
+
 ### Phase 6.690 — Hosted continuous-runtime recheck (2026-09-01)
 
 - Hosted health recheck confirms Paper Autopilot, durable scheduler, fresh crypto stream, 60-second position supervision, Telegram assistant, and Firecrawl configuration remain active.

@@ -35,6 +35,8 @@ The position-management runtime canonicalizes portfolio symbols for plan matchin
 
 The authenticated performance API and dashboard also expose bounded evidence-window progress (`daysRemaining`) next to the existing consecutive-day metrics. This is read-only telemetry and does not alter the 30-day promotion gate.
 
+The Telegram operations assistant exposes the same bounded evidence telemetry for `readiness`, `autonomous`, and `evidence` questions. It reads persisted snapshots only, reports the evidence window, and cannot approve, submit, cancel, or modify orders.
+
 Operator-facing financial, quantity, risk, and indicator values are formatted to two decimal places on the dashboard and Telegram assistant; stored and broker precision remains unchanged.
 
 ### Always-on multi-agent runtime requirement
