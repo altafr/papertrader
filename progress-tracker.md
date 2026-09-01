@@ -2,7 +2,7 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.754 — Risk-cycle failure diagnostics.
+- **Phase:** Phase 6.755 — Hosted risk-cycle diagnostics deployment.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, scheduled research, healthy position management, and complete exit-plan coverage for all three live paper positions. The signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit confirms complete position coverage and Telegram delivery from a persisted sent test.
@@ -29,6 +29,13 @@
 - Added a bounded, credential-free `paper_risk_cycle_failed` detail log so the next failure identifies its stage/reason without exposing broker payloads or secrets.
 - Added focused regression coverage; Worker typecheck and the scheduler-runtime test file pass.
 - **Next smallest unit:** deploy and verify the new hosted failure detail, then continue paper evidence collection.
+
+### Phase 6.755 — Hosted risk-cycle diagnostics deployment (2026-09-02)
+
+- Worker deployment `a036e23a-8543-4a02-b40f-f8d8a8348e1e` reached `SUCCESS` with the risk-cycle diagnostic logging revision.
+- Hosted health is `healthy`; research scheduling is `scheduled` with the next tick at `2026-09-01T21:30:00Z`, position management is `ready`, market data is fresh, and `unmanagedCount: 0`.
+- The 21:15 failure remained fail-closed; the next scheduled run will provide the new bounded failure detail if it recurs.
+- **Next smallest unit:** verify the next scheduled risk cycle and continue the 30-day paper evidence window.
 
 ### Phase 6.751 — Scheduler diagnostics deployment verification (2026-09-02)
 
