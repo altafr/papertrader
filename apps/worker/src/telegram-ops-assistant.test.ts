@@ -34,6 +34,7 @@ describe("Telegram operations assistant", () => {
   it("answers infra questions with bounded health and agent data", async () => {
     const reply = await buildTelegramOpsAssistantReply("infra status", data);
     expect(reply).toContain("Market stream: connected · freshness fresh");
+    expect(reply).toContain("Evidence: 1/30 consecutive days · 29 remaining");
     expect(reply).toContain("Latest agent run: crypto_research succeeded");
   });
 
