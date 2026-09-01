@@ -2,7 +2,7 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.659 — Exit-plan warning detail.
+- **Phase:** Phase 6.660 — Live paper-loop telemetry.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, fresh crypto data, scheduled research, and position-management execution. The hosted contract is intentionally degraded only because BTCUSD and PFD are unmanaged legacy positions. The signed Telegram Mini App is deployed on Vercel with aggregate P/L cards, but API activation remains fail-closed until its four Telegram variables are configured.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading, promote one reviewed local batch when provider limits clear, verify authenticated portfolio/P&L rendering and exports, and accumulate the 30-day evidence gate without loosening risk controls. Deploy the current local heartbeat/dashboard changes only after explicit operator authorization.
@@ -289,6 +289,12 @@
 - The Mini App unmanaged-position warning now lists the exact missing exit-plan/provenance fields per symbol.
 - This remains informational and read-only; it does not infer values or authorize adoption.
 - **Next smallest unit:** publish the frontend revision and use the listed fields to complete guarded BTCUSD/PFD review.
+
+### Phase 6.660 — Live paper-loop telemetry (2026-09-01)
+
+- Railway logs confirm minute-by-minute position-management passes and successful scheduled crypto research.
+- A candidate was rejected by deterministic safeguards for incomplete legacy exit plans and sub-2% sizing; `executionStatus=not_submitted` confirms no unsafe order was sent.
+- **Next smallest unit:** complete reviewed BTCUSD/PFD exit-plan adoption, then verify an approved candidate can pass the same risk and reconciliation gates.
 
 ### Phase 6.396 — End-to-end Worker cycle telemetry (2026-08-29)
 
