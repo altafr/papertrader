@@ -55,7 +55,9 @@ describe("paper execution wiring", () => {
   });
 
   it("uses the persisted approved quantity when a retry recalculates sizing", async () => {
-    const result = await executePaperAutopilotOrder({ autopilot: mode, order, persistence: { getByClientOrderId: async () => ({ alpacaOrderId: "alpaca-existing", quantity: "0.03", status: "filled", filledQuantity: "0.03" }), recordSubmission: async () => { throw new Error("must not persist"); }, reconcile: async () => {}, markFailed: async () => {} }, submitter: { submit: async () => { throw new Error("must not submit"); } } });
+    let submittedQuantity = "";
+    const result = await executePaperAutopilotOrder({ autopilot: mode, order, persistence: { getByIntentId: async () => ({ quantity: "0.03", status: "risk_dry_run_approved" }), recordSubmission: async () => {}, reconcile: async () => {}, markFailed: async () => {} }, submitter: { submit: async (request) => { submittedQuantity = request.quantity; return { alpacaOrderId: "alpaca-existing", assetClass: request.assetClass, clientOrderId: request.clientOrderId, filledQuantity: "0.03", quantity: request.quantity, status: "filled", symbol: request.symbol, type: request.type }; } } });
+    expect(submittedQuantity).toBe("0.03");
     expect(result.brokerOrder.quantity).toBe("0.03");
     expect(result.brokerOrder.filledQuantity).toBe("0.03");
   });

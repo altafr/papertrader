@@ -4,6 +4,7 @@ import { reconcilePaperOrder } from "@momentum/domain";
 
 export interface PaperSubmissionPersistence {
   getByClientOrderId?(clientOrderId: string): Promise<unknown>;
+  getByIntentId?(intentId: string): Promise<unknown>;
   recordSubmission(input: { readonly approvalId: string; readonly assetClass: string; readonly clientOrderId: string; readonly intentId: string; readonly marketSnapshot?: Readonly<Record<string, string | null>>; readonly quantity: string; readonly entryPrice?: string; readonly plannedStopPrice?: string; readonly plannedTargetPrice?: string; readonly strategyKey?: string; readonly strategyVersion?: string; readonly timeStopAt?: Date; readonly riskDecision?: Readonly<{ readonly approvalStatus?: "approved" | "rejected"; readonly estimatedLoss?: string; readonly estimatedLossPercent?: string; readonly policyVersion?: string; readonly reasons?: readonly string[] }>; readonly status: string; readonly symbol: string }): Promise<unknown>;
   reconcile(input: { readonly alpacaOrderId: string; readonly filledQuantity?: string; readonly intentId: string; readonly status: string; readonly submittedAt?: Date; readonly updatedAt?: Date }): Promise<unknown>;
   markFailed(intentId: string): Promise<unknown>;
@@ -59,16 +60,21 @@ export async function executePaperAutopilotOrder(input: {
   if (isGlobalKillSwitchActive()) throw new Error("Paper order execution is blocked by the global kill switch.");
   if (input.order.approval.status !== "approved") throw new Error("A passing paper risk approval is required.");
   const intentId = input.order.approval.intentId;
-  const existing = await input.persistence.getByClientOrderId?.(input.order.clientOrderId);
-  if (existing !== undefined && existing !== null) {
-    const brokerOrder = asExistingBrokerOrder(existing, input.order);
+  const existingByClientOrder = await input.persistence.getByClientOrderId?.(input.order.clientOrderId);
+  const existingByIntent = existingByClientOrder ?? await input.persistence.getByIntentId?.(intentId);
+  let submissionOrder = input.order;
+  if (existingByIntent !== undefined && existingByIntent !== null) {
+    const brokerOrder = asExistingBrokerOrder(existingByIntent, input.order);
     if (brokerOrder) return { brokerOrder, intentId, status: "reconciled" };
-    throw new Error("Paper order intent is already recorded without broker confirmation; refusing duplicate submission.");
+    if (!isRecord(existingByIntent) || existingByIntent.status !== "risk_dry_run_approved" || typeof existingByIntent.quantity !== "string") throw new Error("Paper order intent is already recorded without broker confirmation; refusing duplicate submission.");
+    // A risk-evidence row may precede execution and has a different client
+    // ID. Reuse its approved quantity for the broker request.
+    submissionOrder = { ...input.order, quantity: existingByIntent.quantity };
   }
-  await input.persistence.recordSubmission({ approvalId: input.order.approval.approvalId, assetClass: input.order.assetClass, clientOrderId: input.order.clientOrderId, intentId, ...(input.order.marketSnapshot ? { marketSnapshot: input.order.marketSnapshot } : {}), quantity: input.order.quantity, ...(input.order.entryPrice ? { entryPrice: input.order.entryPrice } : {}), ...(input.order.plannedStopPrice ? { plannedStopPrice: input.order.plannedStopPrice } : {}), ...(input.order.plannedTargetPrice ? { plannedTargetPrice: input.order.plannedTargetPrice } : {}), ...(input.order.strategyKey ? { strategyKey: input.order.strategyKey } : {}), ...(input.order.strategyVersion ? { strategyVersion: input.order.strategyVersion } : {}), ...(input.order.timeStopAt ? { timeStopAt: new Date(input.order.timeStopAt) } : {}), ...(input.order.approval.riskDecision ? { riskDecision: input.order.approval.riskDecision } : {}), status: "pending", symbol: input.order.symbol });
+  await input.persistence.recordSubmission({ approvalId: submissionOrder.approval.approvalId, assetClass: submissionOrder.assetClass, clientOrderId: submissionOrder.clientOrderId, intentId, ...(submissionOrder.marketSnapshot ? { marketSnapshot: submissionOrder.marketSnapshot } : {}), quantity: submissionOrder.quantity, ...(submissionOrder.entryPrice ? { entryPrice: submissionOrder.entryPrice } : {}), ...(submissionOrder.plannedStopPrice ? { plannedStopPrice: submissionOrder.plannedStopPrice } : {}), ...(submissionOrder.plannedTargetPrice ? { plannedTargetPrice: submissionOrder.plannedTargetPrice } : {}), ...(submissionOrder.strategyKey ? { strategyKey: submissionOrder.strategyKey } : {}), ...(submissionOrder.strategyVersion ? { strategyVersion: submissionOrder.strategyVersion } : {}), ...(submissionOrder.timeStopAt ? { timeStopAt: new Date(submissionOrder.timeStopAt) } : {}), ...(submissionOrder.approval.riskDecision ? { riskDecision: submissionOrder.approval.riskDecision } : {}), status: "pending", symbol: submissionOrder.symbol });
   try {
-    const brokerOrder = await input.submitter.submit(input.order);
-    const recovery = reconcilePaperOrder({ brokerClientOrderId: brokerOrder.clientOrderId, brokerStatus: brokerOrder.status, expectedClientOrderId: input.order.clientOrderId, expectedQuantity: input.order.quantity, ...(brokerOrder.filledQuantity ? { filledQuantity: brokerOrder.filledQuantity } : {}) });
+    const brokerOrder = await input.submitter.submit(submissionOrder);
+    const recovery = reconcilePaperOrder({ brokerClientOrderId: brokerOrder.clientOrderId, brokerStatus: brokerOrder.status, expectedClientOrderId: submissionOrder.clientOrderId, expectedQuantity: submissionOrder.quantity, ...(brokerOrder.filledQuantity ? { filledQuantity: brokerOrder.filledQuantity } : {}) });
     await input.persistence.reconcile({ alpacaOrderId: brokerOrder.alpacaOrderId, ...(recovery.filledQuantity ? { filledQuantity: recovery.filledQuantity } : {}), intentId, status: recovery.status, ...(brokerOrder.submittedAt ? { submittedAt: new Date(brokerOrder.submittedAt) } : {}), ...(brokerOrder.updatedAt ? { updatedAt: new Date(brokerOrder.updatedAt) } : {}) });
     await input.notify?.({ code: "paper_entry_submitted", message: `Paper entry submitted and reconciled: ${input.order.symbol} (${input.order.quantity}). Status: ${recovery.status}.`, severity: "info" });
     return { brokerOrder, intentId, status: "reconciled" };
