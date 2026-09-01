@@ -13,7 +13,7 @@
 - Position management now persists the effective trailing stop and only raises it; a favorable move cannot be lost after a price pullback or Worker restart.
 - Exit-decision notifications and credential-free logs report the active effective stop, while the original approved plan remains immutable provenance.
 - Added migration `0017_paper_order_trailing_stop.sql`, repository ratchet update, domain regression coverage, and full verification (99 files / 449 tests, typechecks, lint).
-- **Next smallest unit:** apply migration 0017, deploy the Worker, and verify hosted readiness.
+- **Next smallest unit:** continue unattended paper cycles and accumulate the remaining evidence days.
 
 ### Phase 6.714 — Full regression checkpoint (2026-09-02)
 
