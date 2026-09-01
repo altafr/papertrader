@@ -25,6 +25,8 @@ The broker review command also emits non-authoritative stop/target suggestions (
 
 The guarded `full-paper-autonomous-readiness` command is the release-level fail-closed audit. It combines runtime readiness, database-derived complete exit-plan coverage, Telegram alert configuration/delivery verification, and paper performance stability evidence. A `ready` runtime therefore does not imply full release readiness: unmanaged positions, unverified alert delivery, or an incomplete evidence window remain explicit blockers.
 
+Telegram delivery verification is evidence-based: the release audit clears that gate only after it finds a persisted `telegram_channel_test` event marked `sent`; valid bot configuration alone is insufficient.
+
 Operator-facing financial, quantity, risk, and indicator values are formatted to two decimal places on the dashboard and Telegram assistant; stored and broker precision remains unchanged.
 
 ### Always-on multi-agent runtime requirement

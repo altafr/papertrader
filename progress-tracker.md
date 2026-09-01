@@ -5,7 +5,7 @@
 - **Phase:** Phase 6.688 — Full paper-autonomous release-readiness report.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, fresh crypto data, scheduled research, and position-management execution. The hosted contract is intentionally degraded only because BTCUSD and PFD are unmanaged legacy positions. The signed Telegram Mini App is deployed on Vercel and the API reports it enabled/configured with portfolio, order, alert, P/L, freshness, and unmanaged-position projections.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
-- **Current goal:** Continue durable paper trading, promote one reviewed local batch when provider limits clear, verify authenticated portfolio/P&L rendering and exports, and accumulate the 30-day evidence gate without loosening risk controls. Deploy the current local heartbeat/dashboard changes only after explicit operator authorization.
+- **Current goal:** Continue durable paper trading, adopt reviewed BTCUSD/PFD exit plans, and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit now confirms Telegram delivery from a persisted sent test.
 - **Last updated:** 2026-09-01.
 
 ### Phase 6.688 — Full paper-autonomous release-readiness report (2026-09-01)
@@ -14,6 +14,12 @@
 - Added pure-function regression coverage for the all-gates pass case and actionable blocked reasons. No broker orders, database records, or environment values were changed.
 - Current hosted runtime readiness remains `ready`; full release readiness remains blocked by the two unmanaged legacy positions, unverified Telegram delivery, and the evidence-period gate.
 - **Next smallest unit:** operator reviews and adopts BTCUSD/PFD exit plans, runs the approved Telegram alert test, then continue collecting paper evidence.
+
+### Phase 6.689 — Persisted Telegram delivery verification (2026-09-01)
+
+- The full readiness command now treats Telegram delivery as verified only when a persisted `telegram_channel_test` event has status `sent`; configuration alone cannot clear this gate.
+- Railway deployed Worker commit `ef3731e` successfully. Hosted full-readiness output now has only two blockers: `unmanaged_positions_present` and `minimum_30_consecutive_calendar_days_not_met`.
+- **Next smallest unit:** complete operator-approved BTCUSD/PFD exit-plan adoption; the Telegram delivery gate is now verified.
 
 ### Phase 6.669 — Full release regression after Telegram Mini App verification (2026-09-01)
 
