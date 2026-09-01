@@ -2,11 +2,17 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.769 — Lint gate verification.
+- **Phase:** Phase 6.770 — Public-surface verification.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, scheduled research, healthy position management, and complete exit-plan coverage for all three live paper positions. The signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit confirms complete position coverage and Telegram delivery from a persisted sent test.
 - **Last updated:** 2026-09-02.
+
+### Phase 6.770 — Public-surface verification (2026-09-02)
+
+- The credential-free Vercel public-surface verifier passed with HTTP `200` for `https://papertrader-web.vercel.app/`.
+- The Telegram Mini App verifier was not run locally because it requires the Telegram bot token and Mini App user ID from Railway secret storage; its hosted endpoint remains covered by the hosted contract check without exposing those values.
+- No runtime configuration or broker state changed. **Next smallest unit:** verify the next hosted scheduler cycle and continue the 30-day evidence window.
 
 ### Phase 6.769 — Lint gate verification (2026-09-02)
 
