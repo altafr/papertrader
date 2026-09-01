@@ -15,6 +15,14 @@ import { getPaperAutopilotQuantityForCandidate } from "./paper-quantity.js";
 import { attachPositionProtection, countUnmanagedPositions, formatDailyPortfolioSummary } from "./daily-summary.js";
 import { getDailyNotificationDedupeKey } from "./notification-dedupe.js";
 
+/** Bounded, credential-free error detail for diagnosing failed scheduled cycles. */
+function getResearchSchedulerFailureDetail(error: unknown): string | undefined {
+  const message = error instanceof Error ? error.message : undefined;
+  if (!message) return undefined;
+  const bounded = message.replace(/[^A-Za-z0-9_.:-]+/g, "_").slice(0, 120);
+  return bounded || undefined;
+}
+
 /** True during the weekday New York 16:00 close hour, including DST. */
 export function isUsMarketCloseSummaryWindow(now = new Date()): boolean {
   const parts = new Intl.DateTimeFormat("en-US", { hour: "2-digit", hour12: false, timeZone: "America/New_York", weekday: "short" }).formatToParts(now);
@@ -149,7 +157,8 @@ export function createResearchSchedulerFromEnvironment(environment: NodeJS.Proce
       try {
         await handler(job);
       } catch (error: unknown) {
-        console.error(JSON.stringify({ ...getResearchSchedulerErrorMetadata(error), event: "research_preparation_failed" }));
+        const detail = getResearchSchedulerFailureDetail(error);
+        console.error(JSON.stringify({ ...getResearchSchedulerErrorMetadata(error), ...(detail ? { detail } : {}), event: "research_preparation_failed" }));
         throw error;
       }
     },
