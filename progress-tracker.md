@@ -2,7 +2,7 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.780 — Telegram alert-test preflight.
+- **Phase:** Phase 6.781 — full-readiness audit at 22:49 UTC.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, scheduled research, healthy position management, and complete exit-plan coverage for all three live paper positions. The signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit confirms complete position coverage and Telegram delivery from a persisted sent test.
@@ -27,6 +27,13 @@
 - The guarded Railway read-only preflight confirmed Telegram delivery configuration is valid: alerts are enabled, bot token and chat ID are configured, and both formats pass validation.
 - A new outbound alert test remains fail-closed because `telegram_alert_test_approval_reference_missing`; this preflight sent no message and changed no runtime or broker state. Existing persisted delivery evidence continues to satisfy the full-readiness alert gate.
 - **Next smallest unit:** continue unattended paper cycles; only run a new Telegram test after an explicit bounded approval reference is supplied.
+
+### Phase 6.781 — full-readiness audit at 22:49 UTC (2026-09-02)
+
+- The guarded Railway full-readiness audit confirmed runtime readiness, complete exit-plan coverage (`3` positions, `0` unmanaged), and verified Telegram delivery.
+- Paper evidence remains the sole blocker: `10` calendar days, `9` consecutive days, and `21` days remaining of the required `30`. The audit captured `9,169` snapshots with final equity `99644.77`, total P/L `254.56`, and maximum drawdown `1.24%`.
+- No runtime configuration, broker state, risk threshold, or operating mode changed.
+- **Next smallest unit:** continue unattended cycles and re-run the audit after the next scheduled evidence boundary.
 
 ### Phase 6.777 — Regression and hosted contract verification (2026-09-02)
 
