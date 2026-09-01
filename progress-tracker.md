@@ -2,11 +2,18 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.721 — Live Telegram active-stop verification.
+- **Phase:** Phase 6.722 — Mini App active-stop projection.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, fresh crypto data, scheduled research, and position-management execution. All three live paper positions have complete exit-plan coverage; the signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit confirms complete position coverage and Telegram delivery from a persisted sent test.
 - **Last updated:** 2026-09-02.
+
+### Phase 6.722 — Mini App active-stop projection (2026-09-02)
+
+- The Telegram Mini App API now projects managed exit metadata using canonical crypto symbols, including the effective ratcheted stop and target.
+- The Mini App portfolio tab displays the active stop and target for each open position, keeping its read-only view aligned with Worker enforcement and the main dashboard.
+- API/web typechecks and lint pass; no broker state changed.
+- **Next smallest unit:** deploy API and web revisions, then verify the live Mini App endpoint and hosted runtime.
 
 ### Phase 6.721 — Live Telegram active-stop verification (2026-09-02)
 
