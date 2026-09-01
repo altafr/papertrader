@@ -2,11 +2,17 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.772 — 22:00 UTC scheduled cycle verification.
+- **Phase:** Phase 6.773 — Post-cycle hosted contract checkpoint.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, scheduled research, healthy position management, and complete exit-plan coverage for all three live paper positions. The signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit confirms complete position coverage and Telegram delivery from a persisted sent test.
 - **Last updated:** 2026-09-02.
+
+### Phase 6.773 — Post-cycle hosted contract checkpoint (2026-09-02)
+
+- After the 22:00 UTC cycle, `pnpm verify:hosted` passed across Railway Worker/API and Vercel: paper mode, order approval, fresh market stream, ready position management, active schedulers, aligned release identity, inactive kill switch, valid telemetry, and zero unmanaged positions all verified.
+- The dashboard public surface returned HTTP `200`; no source, runtime configuration, or broker state changed in this checkpoint.
+- **Next smallest unit:** continue unattended paper cycles and verify the next scheduled 22:15 UTC cycle.
 
 ### Phase 6.772 — 22:00 UTC scheduled cycle verification (2026-09-02)
 
