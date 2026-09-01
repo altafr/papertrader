@@ -35,6 +35,6 @@ export function formatDailyPortfolioSummary(input: DailySummaryInput): string {
   const dayPnl = input.lastEquity === undefined ? undefined : (() => { try { return subtractDecimalStrings(input.equity, input.lastEquity); } catch { return undefined; } })();
   const exposure = sum(input.positions.map((position) => position.marketValue));
   const positionDigest = input.positions.slice(0, 10).map((position) => `${position.symbol ?? "unknown"} ${metric(position.unrealizedPl)}`).join(", ") || "none";
-  return `Market session summary (paper): equity ${input.equity}, cash ${input.cash}, buying power ${input.buyingPower}, day P/L ${metric(dayPnl)}, unrealized P/L ${metric(unrealizedPnl)}, gross exposure ${metric(exposure)}, open positions ${input.positions.length}, position P/L [${positionDigest}], tracked orders ${input.orders}${input.unmanagedPositions === undefined ? "." : `, unmanaged positions ${input.unmanagedPositions}.`}`;
+  return `Market session summary (paper): equity ${metric(input.equity)}, cash ${metric(input.cash)}, buying power ${metric(input.buyingPower)}, day P/L ${metric(dayPnl)}, unrealized P/L ${metric(unrealizedPnl)}, gross exposure ${metric(exposure)}, open positions ${input.positions.length}, position P/L [${positionDigest}], tracked orders ${input.orders}${input.unmanagedPositions === undefined ? "." : `, unmanaged positions ${input.unmanagedPositions}.`}`;
 }
 import { addDecimalStrings, formatDecimalString, subtractDecimalStrings } from "@momentum/domain";

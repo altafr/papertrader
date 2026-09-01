@@ -11,7 +11,7 @@ describe("daily portfolio summary", () => {
   });
 
   it("formats P/L and exposure from persisted positions", () => {
-    expect(formatDailyPortfolioSummary({ buyingPower: "99000", cash: "98000", equity: "100000", lastEquity: "99500", orders: 3, unmanagedPositions: 1, positions: [{ marketValue: "1200", symbol: "AAPL", unrealizedPl: "25.50" }, { marketValue: "800", symbol: "BTC/USD", unrealizedPl: "-10.25" }] })).toContain("day P/L 500.00, unrealized P/L 15.25, gross exposure 2000.00, open positions 2, position P/L [AAPL 25.50, BTC/USD -10.25], tracked orders 3, unmanaged positions 1.");
+    expect(formatDailyPortfolioSummary({ buyingPower: "99000", cash: "98000", equity: "100000", lastEquity: "99500", orders: 3, unmanagedPositions: 1, positions: [{ marketValue: "1200", symbol: "AAPL", unrealizedPl: "25.50" }, { marketValue: "800", symbol: "BTC/USD", unrealizedPl: "-10.25" }] })).toContain("equity 100000.00, cash 98000.00, buying power 99000.00, day P/L 500.00, unrealized P/L 15.25, gross exposure 2000.00, open positions 2, position P/L [AAPL 25.50, BTC/USD -10.25], tracked orders 3, unmanaged positions 1.");
   });
 
   it("reports unavailable metrics without inventing values", () => {
