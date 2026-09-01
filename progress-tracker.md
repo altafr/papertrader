@@ -2,13 +2,13 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.745 — Deterministic netted-plan selection.
+- **Phase:** Phase 6.746 — Netted-plan selection deployment verification.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, scheduled research, healthy position management, and complete exit-plan coverage for all three live paper positions. The signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit confirms complete position coverage and Telegram delivery from a persisted sent test.
 - **Last updated:** 2026-09-02.
 
-### Phase 6.745 — Deterministic netted-plan selection (2026-09-02)
+### Phase 6.746 — Netted-plan selection deployment verification (2026-09-02)
 
 - Position management now detects managed positions lacking a fresh market mark and fails closed during the applicable market session; crypto remains enforced 24/7 while US equities are exempted overnight/weekends when no fresh quote is expected.
 - Added canonical-symbol and New York session regression coverage. No broker state changed.
@@ -34,6 +34,7 @@
 - Read-only PostgreSQL audit confirms the new BTC/USD submission has a complete protective stop and target plan; historical undersized `0.001` BTC attempts remain rejected records and are not executable. No broker state was changed by the audit.
 - Position management now selects the newest complete exit plan deterministically when Alpaca nets multiple entries under one symbol, preventing an older plan from governing a newer position. Added canonical-symbol regression coverage.
 - **Next smallest unit:** run focused tests, deploy Worker, and verify the active BTC plan in logs.
+- Worker deployment is live and the active BTCUSD decision now uses the newest complete plan (entry `77353.32`, stop `73493.389332`, target `80447.4528`). Hosted verification passes with healthy runtime and zero unmanaged positions.
 - **Next smallest unit:** continue unattended paper cycles and re-audit the evidence gate after the next calendar-day boundary.
 
 ### Phase 6.730 — Market-close summary delivery verification (2026-09-02)
