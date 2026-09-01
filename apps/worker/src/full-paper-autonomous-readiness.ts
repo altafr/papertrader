@@ -27,6 +27,12 @@ export interface FullPaperAutonomousReadiness {
   readonly positionCoverage: FullPaperAutonomousReadinessInput["positionCoverage"];
   readonly alerts: FullPaperAutonomousReadinessInput["alerts"];
   readonly performance: PaperPerformanceReport;
+  readonly evidence: {
+    readonly calendarDays: number;
+    readonly consecutiveCalendarDays: number;
+    readonly daysRemaining: number;
+    readonly requiredConsecutiveCalendarDays: 30;
+  };
   readonly status: "blocked" | "ready";
 }
 
@@ -39,6 +45,7 @@ export function combineFullPaperAutonomousReadiness(input: FullPaperAutonomousRe
     ...(input.alerts.deliveryVerified ? [] : ["telegram_alert_delivery_unverified"]),
     ...input.performance.stability.blockedReasons,
   ];
+  const consecutiveCalendarDays = input.performance.consecutiveCalendarDays;
   return {
     blockedReasons,
     gates: {
@@ -51,6 +58,7 @@ export function combineFullPaperAutonomousReadiness(input: FullPaperAutonomousRe
     positionCoverage: input.positionCoverage,
     alerts: input.alerts,
     performance: input.performance,
+    evidence: { calendarDays: input.performance.calendarDays, consecutiveCalendarDays, daysRemaining: Math.max(0, 30 - consecutiveCalendarDays), requiredConsecutiveCalendarDays: 30 },
     status: blockedReasons.length === 0 ? "ready" : "blocked",
   };
 }
