@@ -1,4 +1,9 @@
 import { createAccountStateRepository, createAgentRunRepository, createDatabase, createPaperOrderRepository } from "@momentum/db";
+import * as DecimalModule from "decimal.js";
+
+interface DecimalValue { minus(value: DecimalValue): DecimalValue; plus(value: DecimalValue): DecimalValue; toFixed(decimalPlaces?: number): string; }
+interface DecimalConstructor { new (value: string): DecimalValue; }
+const Decimal = (DecimalModule as unknown as { readonly default: DecimalConstructor }).default;
 import { getTelegramNotificationConfig } from "@momentum/notifications";
 
 type JsonRecord = Record<string, unknown>;
@@ -29,6 +34,8 @@ const utc = (value: Date | string | undefined): string => value ? new Date(value
 const limit = (value: string, max = 3900): string => value.length <= max ? value : `${value.slice(0, max - 16)}… [truncated]`;
 const hasCompleteExitPlan = (submission: AssistantSubmission): boolean => Boolean(submission.entryPrice && submission.plannedStopPrice && submission.strategyKey && submission.strategyVersion && (submission.plannedTargetPrice || submission.timeStopAt));
 const positionKey = (assetClass: string, symbol: string): string => `${assetClass}:${symbol.replaceAll("/", "").toUpperCase()}`;
+const safeDifference = (left: string, right: string): string => { try { return new Decimal(left).minus(new Decimal(right)).toFixed(2); } catch { return "unknown"; } };
+const safeSum = (values: readonly string[]): string => { try { return values.reduce((total, value) => total.plus(new Decimal(value)), new Decimal("0")).toFixed(2); } catch { return "unknown"; } };
 
 /** Fetches only bounded, advisory Firecrawl references; never returns provider credentials. */
 export async function fetchFirecrawlSources(question: string, apiKey: string, fetcher: typeof fetch = fetch): Promise<{ readonly sources: readonly FirecrawlSource[] } | { readonly error: "unavailable" | "failed" }> {
@@ -97,7 +104,9 @@ export async function buildTelegramOpsAssistantReply(question: string, data: Tel
       const managed = submissions.some((submission) => positionKey(submission.assetClass, submission.symbol) === positionKey(position.assetClass, position.symbol) && hasCompleteExitPlan(submission));
       return `${position.symbol} ${display(position.quantity)} · value ${display(position.marketValue)} · unrealized P/L ${display(position.unrealizedPl)} · exit plan ${managed ? "managed" : "review required"}`;
     }).join("; ");
-    return limit(`Paper portfolio as of ${utc(model.snapshot.capturedAt)}\nEquity: ${display(model.snapshot.equity)}\nCash: ${display(model.snapshot.cash)}\nBuying power: ${display(model.snapshot.buyingPower)}\nPositions: ${positions}`);
+    const dayPnl = model.snapshot.lastEquity ? safeDifference(model.snapshot.equity, model.snapshot.lastEquity) : "unknown";
+    const unrealizedPnl = safeSum(model.positions.map((position) => position.unrealizedPl));
+    return limit(`Paper portfolio as of ${utc(model.snapshot.capturedAt)}\nEquity: ${display(model.snapshot.equity)}\nDay P/L: ${dayPnl}\nUnrealized P/L: ${unrealizedPnl}\nCash: ${display(model.snapshot.cash)}\nBuying power: ${display(model.snapshot.buyingPower)}\nPositions: ${positions}`);
   }
   if (normalized.includes("trade") || normalized.includes("order") || normalized.includes("decision") || normalized.includes("why") || normalized.includes("agent")) {
     const [submissions, runs] = await Promise.all([data.getSubmissions(), data.getRuns()]);
