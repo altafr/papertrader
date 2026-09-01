@@ -2,7 +2,7 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.666 — Crypto cycle safety-gate verification.
+- **Phase:** Phase 6.667 — Continuous cadence confirmation.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, fresh crypto data, scheduled research, and position-management execution. The hosted contract is intentionally degraded only because BTCUSD and PFD are unmanaged legacy positions. The signed Telegram Mini App is deployed on Vercel and the API reports it enabled/configured with portfolio, order, alert, P/L, freshness, and unmanaged-position projections.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading, promote one reviewed local batch when provider limits clear, verify authenticated portfolio/P&L rendering and exports, and accumulate the 30-day evidence gate without loosening risk controls. Deploy the current local heartbeat/dashboard changes only after explicit operator authorization.
@@ -332,6 +332,12 @@
 - The 02:00 UTC crypto research cycle succeeded with one candidate and completed the deterministic risk cycle.
 - The candidate was rejected for incomplete existing exit plans and proposed sizing below the 2% portfolio minimum; execution remained `not_submitted`.
 - **Next smallest unit:** continue 15-minute crypto cycles and complete reviewed BTCUSD/PFD exit-plan adoption.
+
+### Phase 6.667 — Continuous cadence confirmation (2026-09-01)
+
+- Worker health confirms the next crypto run remains scheduled for 02:15 UTC, market data is fresh, and position management is executing every 60 seconds.
+- No new runtime or risk-state change occurred between cycles; the unmanaged-position gate remains active for BTCUSD/PFD.
+- **Next smallest unit:** verify the 02:15 UTC cycle and continue reviewed exit-plan remediation.
 
 ### Phase 6.396 — End-to-end Worker cycle telemetry (2026-08-29)
 
