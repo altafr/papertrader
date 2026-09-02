@@ -19,7 +19,7 @@ describe("Alpaca research input source", () => {
     const input = await createAlpacaResearchInputSource(reader, () => new Date("2026-08-23T02:00:00.000Z")).read({ assetClass: "us_equity", limit: 20, maxCandidates: 3, symbols: ["AAA"], timeframe: "1Day" });
     expect(input.source).toBe("alpaca");
     expect(input.bars[0]?.symbol).toBe("AAA");
-    expect(request).toMatchObject({ assetClass: "us_equity", limit: 20, symbols: ["AAA"], timeframe: "1Day" });
+    expect(request).toMatchObject({ assetClass: "us_equity", limit: 20, symbols: ["AAA"], timeframe: "1Day", start: "2026-08-09T02:00:00.000Z" });
   });
 
   it("fails closed on unbounded source requests", async () => {

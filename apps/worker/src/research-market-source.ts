@@ -9,6 +9,24 @@ const BarDecimal = (DecimalModule as unknown as { readonly default: BarDecimalCo
 
 const allowedTimeframes: readonly MarketBarTimeframe[] = ["1Day", "1Hour", "1Min", "1Month", "1Week", "5Min", "15Min"];
 
+/**
+ * Alpaca defaults an unbounded historical-bars request to a very narrow
+ * recent window. Around a UTC day boundary that can contain only one bar,
+ * which is insufficient for every momentum calculation. Keep the request
+ * bounded, but provide enough lookback for at least two finalized bars.
+ */
+function defaultLookbackMs(timeframe: MarketBarTimeframe): number {
+  switch (timeframe) {
+    case "1Min": return 2 * 60 * 60 * 1_000;
+    case "5Min": return 12 * 60 * 60 * 1_000;
+    case "15Min": return 24 * 60 * 60 * 1_000;
+    case "1Hour": return 7 * 24 * 60 * 60 * 1_000;
+    case "1Day": return 14 * 24 * 60 * 60 * 1_000;
+    case "1Week": return 12 * 7 * 24 * 60 * 60 * 1_000;
+    case "1Month": return 6 * 31 * 24 * 60 * 60 * 1_000;
+  }
+}
+
 function positiveDecimal(value: string, label: string): BarDecimal {
   let parsed: BarDecimal;
   try { parsed = new BarDecimal(value); } catch { throw new Error(`${label} must be a positive number.`); }
@@ -59,7 +77,9 @@ export function createAlpacaResearchInputSource(reader: PaperMarketDataReader, c
       if (!Number.isSafeInteger(input.limit) || input.limit < 2 || input.limit > 1_000) throw new Error("Research source limit must be an integer from 2 to 1000.");
       if (!Number.isSafeInteger(input.maxCandidates) || input.maxCandidates < 1 || input.maxCandidates > 20) throw new Error("Research source maxCandidates must be an integer from 1 to 20.");
       if (!allowedTimeframes.includes(input.timeframe)) throw new Error("Research source timeframe is not supported.");
-      const request = { assetClass: input.assetClass as MarketAssetClass, limit: input.limit, symbols: input.symbols, timeframe: input.timeframe, ...(input.end ? { end: input.end } : {}), ...(input.start ? { start: input.start } : {}) };
+      const capturedAt = clock();
+      const start = input.start ?? new Date(capturedAt.getTime() - defaultLookbackMs(input.timeframe)).toISOString();
+      const request = { assetClass: input.assetClass as MarketAssetClass, limit: input.limit, symbols: input.symbols, timeframe: input.timeframe, ...(input.end ? { end: input.end } : {}), start };
       let result: Awaited<ReturnType<PaperMarketDataReader["readHistoricalBars"]>> | undefined;
       let lastError: unknown;
       for (let attempt = 1; attempt <= 2; attempt += 1) {
@@ -73,7 +93,6 @@ export function createAlpacaResearchInputSource(reader: PaperMarketDataReader, c
         if (attempt < 2) await sleep(500);
       }
       if (!result || result.bars.length < 2) throw lastError instanceof Error ? lastError : new Error("Research source returned fewer than 2 bars.");
-      const capturedAt = clock();
       validateResearchBars({ bars: result.bars, now: capturedAt, symbols: input.symbols });
       return {
         assetClass: input.assetClass,

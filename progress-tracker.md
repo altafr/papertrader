@@ -2,11 +2,18 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.789 — bounded Alpaca bar retry.
+- **Phase:** Phase 6.790 — bounded Alpaca research lookback.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, scheduled research, healthy position management, and complete exit-plan coverage for all three live paper positions. The signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit confirms complete position coverage and Telegram delivery from a persisted sent test.
 - **Last updated:** 2026-09-02.
+
+### Phase 6.790 — bounded Alpaca research lookback (2026-09-02)
+
+- The first post-retry hosted cycles still returned one crypto bar at the UTC boundary; retrying cannot create historical data that the request did not ask Alpaca to return.
+- The source now supplies a bounded, timeframe-aware lookback when callers omit `start` (including seven days for hourly crypto), while preserving caller-supplied ranges and all future/order/OHLC validation.
+- Focused market-source tests (5) and Worker typecheck pass; no broker or database state changed.
+- **Next smallest unit:** deploy and verify a scheduled crypto cycle using the lookback request; confirm research and risk-cycle health recover.
 
 ### Phase 6.789 — bounded Alpaca bar retry (2026-09-02)
 
