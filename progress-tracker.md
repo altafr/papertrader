@@ -2,11 +2,17 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.794 — hosted contract continuity verified.
+- **Phase:** Phase 6.795 — repository regression gate.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, scheduled research, healthy position management, and complete exit-plan coverage for all three live paper positions. The signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit confirms complete position coverage and Telegram delivery from a persisted sent test.
 - **Last updated:** 2026-09-02.
+
+### Phase 6.795 — repository regression gate (2026-09-02)
+
+- Repository-wide regression verification passed: `459` tests across `99` files, all workspace typechecks, and ESLint with zero warnings.
+- This validates the recent Alpaca lookback, delayed-expiry, scheduler, risk, execution, dashboard, and Telegram paths together without changing hosted state.
+- **Next smallest unit:** continue the 30-day paper-forward evidence window and verify the next scheduled cycle against the hosted contract.
 
 ### Phase 6.794 — hosted contract continuity verified (2026-09-02)
 
