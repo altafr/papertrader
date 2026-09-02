@@ -2,11 +2,18 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.793 — current-bar autonomous cycle verified.
+- **Phase:** Phase 6.794 — hosted contract continuity verified.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, scheduled research, healthy position management, and complete exit-plan coverage for all three live paper positions. The signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit confirms complete position coverage and Telegram delivery from a persisted sent test.
 - **Last updated:** 2026-09-02.
+
+### Phase 6.794 — hosted contract continuity verified (2026-09-02)
+
+- The repeatable hosted verifier passed against the live Worker, API, and Vercel dashboard: paper mode, approved order-submission gate, fresh market stream, scheduled research and durable scheduler, valid risk telemetry, ready position management, inactive kill switch, and zero unmanaged positions.
+- Vercel production remains reachable with HTTP `200`; no credentials were printed and no broker/database state was mutated by this read-only check.
+- The only release-level blocker remains the 30-consecutive-calendar-day paper evidence gate.
+- **Next smallest unit:** continue unattended 15-minute crypto cycles and re-run the hosted verifier after the next evidence boundary.
 
 ### Phase 6.793 — current-bar autonomous cycle verified (2026-09-02)
 
