@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import type { ResearchAgentInput } from "@momentum/domain";
 
-import { createResearchPreparationPlan, createResearchPreparationQueueHandler, executeResearchPreparation, getResearchPreparationConfig, getResearchRecommendationDedupeKey, isUsStockResearchWindow } from "./research-preparation.js";
+import { buildResearchPreparationFailureLog, createResearchPreparationPlan, createResearchPreparationQueueHandler, executeResearchPreparation, getResearchPreparationConfig, getResearchPreparationFailureDetail, getResearchRecommendationDedupeKey, isUsStockResearchWindow } from "./research-preparation.js";
 
 const input = (assetClass: ResearchAgentInput["assetClass"]): ResearchAgentInput => ({
   assetClass,
@@ -31,6 +31,12 @@ describe("research preparation", () => {
   });
   it("uses one recommendation notification bucket per agent and UTC day", () => {
     expect(getResearchRecommendationDedupeKey("stock_research", new Date("2026-08-23T02:01:00.000Z"))).toBe("research_recommendations:stock_research:2026-08-23");
+  });
+  it("records bounded credential-free detail for failed plans", () => {
+    const detail = getResearchPreparationFailureDetail(new Error("HTTP 429: secret=value\nretry later"));
+    expect(detail).toBe("HTTP_429:_secret_value_retry_later");
+    expect(buildResearchPreparationFailureLog({ agentType: "crypto_research", detail: detail! })).toEqual({ agentType: "crypto_research", detail, event: "research_preparation_plan_failed" });
+    expect(getResearchPreparationFailureDetail("unknown")).toBeUndefined();
   });
   it("builds bounded stock and crypto plans from explicit symbols", () => {
     const config = getResearchPreparationConfig({ RESEARCH_STOCK_SYMBOLS: " aapl, msft ", RESEARCH_CRYPTO_SYMBOLS: "btc/usd, eth/usd", RESEARCH_LIMIT: "20", RESEARCH_MAX_CANDIDATES: "5" });

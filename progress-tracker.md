@@ -2,11 +2,18 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.787 — 23:45 UTC scheduled cycle evidence.
+- **Phase:** Phase 6.788 — midnight scheduler failure observability.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, scheduled research, healthy position management, and complete exit-plan coverage for all three live paper positions. The signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit confirms complete position coverage and Telegram delivery from a persisted sent test.
 - **Last updated:** 2026-09-02.
+
+### Phase 6.788 — midnight scheduler failure observability (2026-09-02)
+
+- The hosted midnight tick exposed a real degraded condition: both research preparation plans failed, and the scheduler correctly failed closed without authorizing a new trade.
+- Added bounded, credential-free per-plan failure logs so the next retry identifies whether the stock or crypto source failed and preserves a safe error detail without exposing secrets.
+- Focused research-preparation tests pass; no broker or database state was changed by this diagnostic revision.
+- **Next smallest unit:** deploy this observability revision and inspect the next scheduled retry to identify and resolve the underlying source failure.
 
 ### Phase 6.787 — 23:45 UTC scheduled cycle evidence (2026-09-02)
 
