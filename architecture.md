@@ -2,10 +2,12 @@
 
 ## Status
 
-- **Stage:** Phase 6.790 bounded Alpaca research lookback; continuous Paper Autopilot remains paper-only and fail-closed when market data is incomplete.
+- **Stage:** Phase 6.791 delayed research intent expiry guard; continuous Paper Autopilot remains paper-only and fail-closed when market data is incomplete.
 - **Current hosted state:** Worker is deployed in Paper Autopilot with fresh crypto data, scheduled research, deterministic risk/execution gates, two-percent minimum sizing, equity bracket entries, ratcheting position stops, restart-safe synthetic crypto protection explicitly enabled, and the read-only Telegram operations assistant enabled with polling. Worker health exposes assistant readiness without secrets. All three paper positions have complete exit-plan coverage; the only remaining release blocker is the 30-consecutive-calendar-day evidence gate.
 
 The Alpaca research source applies a bounded timeframe-aware historical lookback when no explicit start is supplied. This prevents UTC-boundary requests from returning fewer than the two finalized bars required by momentum research; explicit caller ranges remain authoritative and validation still fails closed.
+
+Delayed or restarted research cycles also keep generated intent expiry strictly after intent creation; the normal signal horizon is preserved, with a bounded one-hour minimum only when the source bar is older than that horizon.
 
 Telegram research questions are routed into the durable agent-run ledger (`stock_research` for companies/equities, `crypto_research` for crypto, `macro_advisory` for rates/inflation/macro questions). Optional Firecrawl lookup is server-side only, bounded to three results, labelled untrusted reference material, and has no order authority; absent or failed lookup is fail-closed.
 

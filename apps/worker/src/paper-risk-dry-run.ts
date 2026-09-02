@@ -25,9 +25,16 @@ export function buildRiskCandidate(input: ResearchWatchlistCandidate, now = new 
   if (close.isNegative() || close.isZero()) throw new Error("Research candidate must include a positive point-in-time close.");
   const signalTime = input.dataAsOf;
   if (Number.isNaN(Date.parse(signalTime)) || Date.parse(signalTime) > now.getTime()) throw new Error("Research candidate data timestamp is invalid or from the future.");
+  // A delayed/restarted cycle can evaluate a still-valid historical bar
+  // after its nominal one-day horizon. Never manufacture an intent that is
+  // already expired at creation; retain the signal horizon when it is still
+  // future, otherwise give the deterministic risk engine a bounded hour to
+  // evaluate it.
+  const signalExpiry = Date.parse(signalTime) + 86_400_000;
+  const minimumFutureExpiry = now.getTime() + 3_600_000;
   return {
     ...input,
-    expiresAt: new Date(Date.parse(signalTime) + 86_400_000).toISOString(),
+    expiresAt: new Date(Math.max(signalExpiry, minimumFutureExpiry)).toISOString(),
     plannedExitPrice: close.times("1.04").toDecimalPlaces(8).toFixed(8),
     // Keep the planned stop strictly inside the 5% maximum. Using 95% and
     // then rounding can produce a tiny over-limit distance for some prices,
