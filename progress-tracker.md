@@ -2,11 +2,18 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.791 — delayed research intent expiry guard.
+- **Phase:** Phase 6.792 — recent-bar lookback bounds.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, scheduled research, healthy position management, and complete exit-plan coverage for all three live paper positions. The signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit confirms complete position coverage and Telegram delivery from a persisted sent test.
 - **Last updated:** 2026-09-02.
+
+### Phase 6.792 — recent-bar lookback bounds (2026-09-02)
+
+- Hosted verification confirmed the lookback source and future-expiry guard allow a complete research→risk cycle, but Alpaca's 100-bar cap returned an older slice from a seven-day hourly window, so the deterministic stale-data gate rejected it.
+- Reduced minute/hour default lookbacks to remain below the production bar cap (90, 96, 96, and 72 bars respectively), keeping current bars while retaining the two-bar minimum and fail-closed validation.
+- Focused Worker tests (10) and typecheck pass; no broker or database state changed.
+- **Next smallest unit:** deploy and verify a current-bar crypto cycle; confirm stale-data rejection clears when the market stream is fresh.
 
 ### Phase 6.791 — delayed research intent expiry guard (2026-09-02)
 

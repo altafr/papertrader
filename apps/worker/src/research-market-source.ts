@@ -17,10 +17,12 @@ const allowedTimeframes: readonly MarketBarTimeframe[] = ["1Day", "1Hour", "1Min
  */
 function defaultLookbackMs(timeframe: MarketBarTimeframe): number {
   switch (timeframe) {
-    case "1Min": return 2 * 60 * 60 * 1_000;
-    case "5Min": return 12 * 60 * 60 * 1_000;
+    // Keep the defaults below Alpaca's 100-bar production request cap so the
+    // response is recent rather than the oldest slice of a larger window.
+    case "1Min": return 90 * 60 * 1_000;
+    case "5Min": return 8 * 60 * 60 * 1_000;
     case "15Min": return 24 * 60 * 60 * 1_000;
-    case "1Hour": return 7 * 24 * 60 * 60 * 1_000;
+    case "1Hour": return 3 * 24 * 60 * 60 * 1_000;
     case "1Day": return 14 * 24 * 60 * 60 * 1_000;
     case "1Week": return 12 * 7 * 24 * 60 * 60 * 1_000;
     case "1Month": return 6 * 31 * 24 * 60 * 60 * 1_000;
