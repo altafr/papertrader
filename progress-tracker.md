@@ -2,11 +2,18 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.795 — repository regression gate.
+- **Phase:** Phase 6.796 — public and secret-surface audit.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, scheduled research, healthy position management, and complete exit-plan coverage for all three live paper positions. The signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit confirms complete position coverage and Telegram delivery from a persisted sent test.
 - **Last updated:** 2026-09-02.
+
+### Phase 6.796 — public and secret-surface audit (2026-09-02)
+
+- Secret-surface audit passed: no credential-like values were found in source or browser output.
+- The public Vercel surface verifier passed with HTTP `200` at `https://papertrader-web.vercel.app/`.
+- The hosted Worker remains healthy, paper-only, scheduled, and position-management ready; no broker or database state changed.
+- **Next smallest unit:** verify the next 15-minute crypto cycle and continue the 30-day paper-forward evidence window.
 
 ### Phase 6.795 — repository regression gate (2026-09-02)
 
