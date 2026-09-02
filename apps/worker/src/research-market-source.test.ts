@@ -5,6 +5,14 @@ import { createAlpacaResearchInputSource, validateResearchBars } from "./researc
 const bar = { close: "110", high: "111", low: "109", open: "110", symbol: "AAA", timestamp: "2026-08-23T01:00:00.000Z", volume: "1000" };
 
 describe("Alpaca research input source", () => {
+  it("retries a transient incomplete Alpaca response once", async () => {
+    let calls = 0;
+    const reader: PaperMarketDataReader = { readHistoricalBars: async () => { calls += 1; return calls === 1 ? { bars: [bar] } : { bars: [bar, { ...bar, timestamp: "2026-08-23T01:30:00.000Z" }] }; }, readSnapshots: async () => [] };
+    const input = await createAlpacaResearchInputSource(reader, () => new Date("2026-08-23T02:00:00.000Z"), async () => {}).read({ assetClass: "us_equity", limit: 20, maxCandidates: 3, symbols: ["AAA"], timeframe: "1Day" });
+    expect(input.bars).toHaveLength(2);
+    expect(calls).toBe(2);
+  });
+
   it("maps read-only paper bars into validated research input", async () => {
     let request: unknown;
     const reader: PaperMarketDataReader = { readHistoricalBars: async (value) => { request = value; return { bars: [bar, { ...bar, close: "111", high: "112", open: "110", timestamp: "2026-08-23T01:30:00.000Z" }] }; }, readSnapshots: async () => [] };

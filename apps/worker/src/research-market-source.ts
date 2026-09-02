@@ -44,7 +44,7 @@ export function validateResearchBars(input: {
   }
 }
 
-export function createAlpacaResearchInputSource(reader: PaperMarketDataReader, clock: () => Date = () => new Date()) {
+export function createAlpacaResearchInputSource(reader: PaperMarketDataReader, clock: () => Date = () => new Date(), sleep: (delayMs: number) => Promise<void> = (delayMs) => new Promise((resolve) => { const timer = setTimeout(resolve, delayMs); timer.unref?.(); })) {
   return {
     async read(input: {
       readonly assetClass: StrategyAssetClass;
@@ -59,7 +59,20 @@ export function createAlpacaResearchInputSource(reader: PaperMarketDataReader, c
       if (!Number.isSafeInteger(input.limit) || input.limit < 2 || input.limit > 1_000) throw new Error("Research source limit must be an integer from 2 to 1000.");
       if (!Number.isSafeInteger(input.maxCandidates) || input.maxCandidates < 1 || input.maxCandidates > 20) throw new Error("Research source maxCandidates must be an integer from 1 to 20.");
       if (!allowedTimeframes.includes(input.timeframe)) throw new Error("Research source timeframe is not supported.");
-      const result = await reader.readHistoricalBars({ assetClass: input.assetClass as MarketAssetClass, limit: input.limit, symbols: input.symbols, timeframe: input.timeframe, ...(input.end ? { end: input.end } : {}), ...(input.start ? { start: input.start } : {}) });
+      const request = { assetClass: input.assetClass as MarketAssetClass, limit: input.limit, symbols: input.symbols, timeframe: input.timeframe, ...(input.end ? { end: input.end } : {}), ...(input.start ? { start: input.start } : {}) };
+      let result: Awaited<ReturnType<PaperMarketDataReader["readHistoricalBars"]>> | undefined;
+      let lastError: unknown;
+      for (let attempt = 1; attempt <= 2; attempt += 1) {
+        try {
+          result = await reader.readHistoricalBars(request);
+          if (result.bars.length >= 2) break;
+          lastError = new Error("Research source returned fewer than 2 bars.");
+        } catch (error: unknown) {
+          lastError = error;
+        }
+        if (attempt < 2) await sleep(500);
+      }
+      if (!result || result.bars.length < 2) throw lastError instanceof Error ? lastError : new Error("Research source returned fewer than 2 bars.");
       const capturedAt = clock();
       validateResearchBars({ bars: result.bars, now: capturedAt, symbols: input.symbols });
       return {

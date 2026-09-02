@@ -2,11 +2,18 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.788 — midnight scheduler failure observability.
+- **Phase:** Phase 6.789 — bounded Alpaca bar retry.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, scheduled research, healthy position management, and complete exit-plan coverage for all three live paper positions. The signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit confirms complete position coverage and Telegram delivery from a persisted sent test.
 - **Last updated:** 2026-09-02.
+
+### Phase 6.789 — bounded Alpaca bar retry (2026-09-02)
+
+- The new per-plan log identified the midnight failure as `crypto_research` receiving fewer than two bars from Alpaca.
+- The research source now retries one incomplete or transient failed read after a bounded 500 ms delay, while retaining the minimum-two-bars validation and fail-closed behavior.
+- Worker typecheck and focused market-source/preparation tests pass; no broker or database state was changed.
+- **Next smallest unit:** deploy and verify the next 15-minute crypto cycle; confirm it either recovers or emits a precise source failure.
 
 ### Phase 6.788 — midnight scheduler failure observability (2026-09-02)
 
