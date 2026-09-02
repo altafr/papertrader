@@ -2,11 +2,18 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.792 — recent-bar lookback bounds.
+- **Phase:** Phase 6.793 — current-bar autonomous cycle verified.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, scheduled research, healthy position management, and complete exit-plan coverage for all three live paper positions. The signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit confirms complete position coverage and Telegram delivery from a persisted sent test.
 - **Last updated:** 2026-09-02.
+
+### Phase 6.793 — current-bar autonomous cycle verified (2026-09-02)
+
+- Railway deployment `c7000fcf-1635-418d-ad9f-e8a346007641` reached `SUCCESS` with the recent-bar lookback bounds.
+- The hosted `01:00 UTC` crypto cycle produced a BTC/USD candidate, passed deterministic risk approval at `4.99000000%` estimated stop loss, reconciled execution, and recorded no duplicate or quantity-mismatch failure.
+- Worker health is `healthy`, research is `scheduled` for the next 15-minute boundary, market data is `fresh`, position management is `ready`, and unmanaged positions remain `0`.
+- **Next smallest unit:** continue the unattended evidence window and verify another scheduled cycle plus the persisted dashboard/read-model state.
 
 ### Phase 6.792 — recent-bar lookback bounds (2026-09-02)
 
