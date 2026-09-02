@@ -2,11 +2,18 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.796 — public and secret-surface audit.
+- **Phase:** Phase 6.797 — scheduled crypto cycle and hosted contract continuity.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, scheduled research, healthy position management, and complete exit-plan coverage for all three live paper positions. The signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit confirms complete position coverage and Telegram delivery from a persisted sent test.
 - **Last updated:** 2026-09-02.
+
+### Phase 6.797 — scheduled crypto cycle and hosted contract continuity (2026-09-02)
+
+- The hosted Worker completed the scheduled `01:15 UTC` crypto cycle with one deterministic risk decision and a completed risk cycle; market data remained fresh and position management remained ready.
+- The unified hosted verifier passed against Railway Worker/API and Vercel: paper mode, explicit order-submission approval, connected/fresh market stream, scheduled research and durable scheduler, inactive kill switch, valid telemetry, zero unmanaged positions, and dashboard HTTP `200`.
+- No source, runtime configuration, risk threshold, broker state, or database state changed in this read-only evidence checkpoint.
+- **Next smallest unit:** continue unattended 15-minute crypto cycles and accumulate the remaining 30-day paper evidence window.
 
 ### Phase 6.796 — public and secret-surface audit (2026-09-02)
 
