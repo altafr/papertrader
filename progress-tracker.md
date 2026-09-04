@@ -2,11 +2,18 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.801 — Telegram tech-solver knowledge-base visibility.
+- **Phase:** Phase 6.802 — hosted Telegram tech-solver visibility verified.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, scheduled research, healthy position management, and complete exit-plan coverage for all three live paper positions. The signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit confirms complete position coverage and Telegram delivery from a persisted sent test.
 - **Last updated:** 2026-09-02.
+
+### Phase 6.802 — hosted Telegram tech-solver visibility verified (2026-09-04)
+
+- Railway deployment `dfadcf5c-f83d-4aff-9d06-7effe84dec3d` reached `SUCCESS`.
+- Worker health confirms the Telegram assistant is enabled, read-only, and Firecrawl-configured after rollout; market data remains fresh and zero positions are unmanaged.
+- Position management remains intentionally degraded only because Alpaca returns the recorded crypto entitlement `HTTP 403`; tech_solver continues persisting attempts and no trading gate is bypassed.
+- **Next smallest unit:** operator can ask the Telegram assistant for “tech solver problems/solutions” to inspect the durable knowledge base; separately review the Alpaca crypto entitlement.
 
 ### Phase 6.801 — Telegram tech-solver knowledge-base visibility (2026-09-04)
 
