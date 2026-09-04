@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.802 hosted Telegram tech-solver visibility verified; continuous Paper Autopilot remains paper-only and fail-closed when market data is incomplete.
+- **Stage:** Phase 6.803 legacy crypto symbol remediation; continuous Paper Autopilot remains paper-only and fail-closed when market data is incomplete.
 - **Current hosted state:** Worker is deployed in Paper Autopilot with fresh crypto data, scheduled research, deterministic risk/execution gates, two-percent minimum sizing, equity bracket entries, ratcheting position stops, restart-safe synthetic crypto protection explicitly enabled, and the read-only Telegram operations assistant enabled with polling. Worker health exposes assistant readiness without secrets. All three paper positions have complete exit-plan coverage; the only remaining release blocker is the 30-consecutive-calendar-day evidence gate.
 
 The `tech_solver` operations agent records bounded runtime failure diagnoses and remediation attempts in PostgreSQL (`tech_solver_cases`) for durable institutional memory. It has no order, risk-policy, credential, or deployment authority; repeated failures remain fail-closed and Telegram notifications are durably cooled down to one per error category per 24 hours.

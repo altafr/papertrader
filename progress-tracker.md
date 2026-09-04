@@ -2,11 +2,17 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.802 — hosted Telegram tech-solver visibility verified.
+- **Phase:** Phase 6.803 — legacy crypto symbol remediation.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, scheduled research, healthy position management, and complete exit-plan coverage for all three live paper positions. The signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit confirms complete position coverage and Telegram delivery from a persisted sent test.
 - **Last updated:** 2026-09-02.
+
+### Phase 6.803 — legacy crypto symbol remediation (2026-09-04)
+
+- Alpaca order submission now normalizes legacy crypto symbols such as `BTCUSD` to the provider-required `BTC/USD` format for both entries and deterministic exits.
+- Added adapter regression coverage (8 Alpaca tests); typecheck and lint pass. The change preserves paper-only, idempotent, risk-gated execution.
+- **Next smallest unit:** deploy the adapter fix and verify the hosted position manager clears the crypto entitlement error or records a precise remaining broker entitlement restriction.
 
 ### Phase 6.802 — hosted Telegram tech-solver visibility verified (2026-09-04)
 

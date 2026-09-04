@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { classifyPaperOrderFailure, createPaperOrderSubmitter } from "./orders.js";
+import { classifyPaperOrderFailure, createPaperExitOrderSubmitter, createPaperOrderSubmitter, normalizeAlpacaOrderSymbol } from "./orders.js";
 
 const approval = { approvalId: "intent-1:2026-01-10T00:03:00Z", intentId: "intent-1", status: "approved" as const };
 const request = { approval, assetClass: "us_equity" as const, clientOrderId: "intent-1-order", quantity: "0.02", side: "buy" as const, symbol: "AAA", timeInForce: "day" as const, type: "market" as const };
@@ -8,6 +8,11 @@ function response(status: number, body: unknown): Response { return new Response
 const order = { asset_class: "us_equity", client_order_id: "intent-1-order", id: "alpaca-1", qty: "0.02", side: "buy", status: "accepted", symbol: "AAA", type: "market" };
 
 describe("paper order submitter", () => {
+  it("normalizes legacy crypto symbols for broker orders", () => {
+    expect(normalizeAlpacaOrderSymbol("crypto", "BTCUSD")).toBe("BTC/USD");
+    expect(normalizeAlpacaOrderSymbol("crypto", "BTC/USD")).toBe("BTC/USD");
+    expect(normalizeAlpacaOrderSymbol("us_equity", "AAPL")).toBe("AAPL");
+  });
   it("classifies crypto entitlement failures without exposing provider response bodies", () => {
     expect(classifyPaperOrderFailure("crypto", 403)).toBe("crypto_order_entitlement_blocked");
     expect(classifyPaperOrderFailure("us_equity", 403)).toBe("paper_entry_http_403");
@@ -46,6 +51,16 @@ describe("paper order submitter", () => {
     } });
     await submitter.submit({ ...request, assetClass: "crypto", symbol: "BTC/USD" });
     expect(JSON.parse(body).time_in_force).toBe("gtc");
+  });
+
+  it("normalizes legacy crypto symbols on deterministic exits", async () => {
+    let body = "";
+    const submitter = createPaperExitOrderSubmitter({ apiKey: "key", brokerConnectionEnabled: true, secretKey: "secret", fetchImpl: async (_url, init) => {
+      if (init?.method === "POST") body = String(init.body ?? "");
+      return body ? response(201, { ...order, asset_class: "crypto", symbol: "BTC/USD" }) : response(404, {});
+    } });
+    await submitter.submitExit({ assetClass: "crypto", clientOrderId: "intent-1-exit-stop_loss", decision: { exitPrice: "95", reason: "stop_loss", shouldExit: true, symbol: "BTCUSD" }, quantity: "1", timeInForce: "gtc", type: "market" });
+    expect(JSON.parse(body).symbol).toBe("BTC/USD");
   });
 
   it("fails closed when disabled or approval is rejected", async () => {
