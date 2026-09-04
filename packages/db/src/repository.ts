@@ -432,7 +432,7 @@ export function createAgentRunRepository(db: Database) {
 export function createTechSolverRepository(db: Database) {
   return {
     async recordAttempt(input: PersistedTechSolverAttempt) {
-      const [row] = await db.insert(techSolverCases).values({ category: input.category, fingerprint: input.fingerprint, lastAttemptAt: input.lastAttemptAt, ...(input.lastError ? { lastError: input.lastError } : {}), problem: input.problem, solution: input.solution, status: input.status, updatedAt: input.lastAttemptAt }).onConflictDoUpdate({ target: techSolverCases.fingerprint, set: { attempts: sql`${techSolverCases.attempts} + 1`, category: input.category, lastAttemptAt: input.lastAttemptAt, ...(input.lastError ? { lastError: input.lastError } : {}), problem: input.problem, solution: input.solution, status: input.status, updatedAt: input.lastAttemptAt } }).returning();
+      const [row] = await db.insert(techSolverCases).values({ attempts: 1, category: input.category, fingerprint: input.fingerprint, lastAttemptAt: input.lastAttemptAt, ...(input.lastError ? { lastError: input.lastError } : {}), problem: input.problem, solution: input.solution, status: input.status, updatedAt: input.lastAttemptAt }).onConflictDoUpdate({ target: techSolverCases.fingerprint, set: { attempts: sql`${techSolverCases.attempts} + 1`, category: input.category, lastAttemptAt: input.lastAttemptAt, ...(input.lastError ? { lastError: input.lastError } : {}), problem: input.problem, solution: input.solution, status: input.status, updatedAt: input.lastAttemptAt } }).returning();
       return row;
     },
     async listRecent(limit = 50) {

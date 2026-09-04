@@ -2,11 +2,17 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.798 — persistent tech-solver and alert-noise control.
+- **Phase:** Phase 6.799 — hosted tech-solver diagnosis refinement.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, scheduled research, healthy position management, and complete exit-plan coverage for all three live paper positions. The signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit confirms complete position coverage and Telegram delivery from a persisted sent test.
 - **Last updated:** 2026-09-02.
+
+### Phase 6.799 — hosted tech-solver diagnosis refinement (2026-09-04)
+
+- The first hosted `tech_solver_cases` record confirmed durable persistence. The solver now starts each case at attempt `1` and classifies Alpaca entitlement/HTTP 403 failures as a distinct manual-review category rather than generic connectivity.
+- Added regression coverage for entitlement classification and secret redaction; Worker tests (11 focused), Worker/DB typechecks, and lint pass.
+- **Next smallest unit:** deploy this refinement and confirm the persisted case reflects the corrected category and attempt count; keep Telegram alert delivery cooled down per error category.
 
 ### Phase 6.798 — persistent tech-solver and alert-noise control (2026-09-04)
 
