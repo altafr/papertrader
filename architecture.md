@@ -15,6 +15,8 @@ Position-exit submission failures are isolated per managed position: the runner 
 
 Deployment `63990d56-cd99-44bf-a54d-8ee1356ea9d3` verified this isolation revision in Railway. The live supervisor remains intentionally degraded only for the provider entitlement error and continues to expose fresh market data and zero unmanaged positions.
 
+The dashboard public-health contract preserves the bounded `positionManagement.failureCode` and renders it in the health summary, so operators see a precise broker-permission blocker without receiving raw provider details.
+
 The `tech_solver` operations agent records bounded runtime failure diagnoses and remediation attempts in PostgreSQL (`tech_solver_cases`) for durable institutional memory. It has no order, risk-policy, credential, or deployment authority; repeated failures remain fail-closed and Telegram notifications are durably cooled down to one per error category per 24 hours.
 
 The Alpaca research source applies a bounded timeframe-aware historical lookback when no explicit start is supplied. This prevents UTC-boundary requests from returning fewer than the two finalized bars required by momentum research; explicit caller ranges remain authoritative and validation still fails closed.
