@@ -2,11 +2,17 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.820 — hosted request-ID diagnostic verified.
+- **Phase:** Phase 6.821 — tech_solver diagnostic persistence corrected.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, scheduled research, complete exit-plan coverage for all three live paper positions, and zero unmanaged positions. The signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections. Position management is currently degraded only because Alpaca rejects crypto exits with HTTP 403 (`crypto_order_entitlement_blocked`); the system remains fail-closed.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit confirms complete position coverage and Telegram delivery from a persisted sent test.
 - **Last updated:** 2026-09-04.
+
+### Phase 6.821 — tech_solver diagnostic persistence corrected (2026-09-04)
+
+- Fixed the durable solver write path so its already-redacted `problem` is also stored as `last_error`; provider request IDs now survive restarts and remain available for support escalation.
+- Added regression coverage; 471 tests, typechecks, and lint pass. No trading authority or risk behavior changed.
+- **Next smallest unit:** deploy and verify the next solver record contains the bounded Alpaca request ID while Telegram continues to redact provider details from routine alerts.
 
 ### Phase 6.820 — hosted request-ID diagnostic verified (2026-09-04)
 

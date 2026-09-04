@@ -22,5 +22,11 @@ export async function runTechSolverOnce(environment: NodeJS.ProcessEnv, error: u
   if (!databaseUrl) return undefined;
   const diagnosis = diagnoseTechSolverError(error);
   const { db, pool } = createDatabase(databaseUrl);
-  try { await createTechSolverRepository(db).recordAttempt({ ...diagnosis, lastAttemptAt: new Date() }); return diagnosis; } finally { await pool.end(); }
+  try {
+    const lastAttemptAt = new Date();
+    // `problem` is already bounded/redacted; persist it as the durable diagnostic
+    // so broker request IDs survive restarts without storing provider response bodies.
+    await createTechSolverRepository(db).recordAttempt({ ...diagnosis, lastAttemptAt, lastError: diagnosis.problem });
+    return diagnosis;
+  } finally { await pool.end(); }
 }
