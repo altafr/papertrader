@@ -186,6 +186,29 @@ export const agentRuns = pgTable(
   ],
 );
 
+/** Durable operations knowledge base for bounded, non-trading remediation attempts. */
+export const techSolverCases = pgTable(
+  "tech_solver_cases",
+  {
+    attempts: integer("attempts").notNull().default(0),
+    category: text("category").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    fingerprint: text("fingerprint").primaryKey(),
+    lastAttemptAt: timestamp("last_attempt_at", { withTimezone: true }).notNull(),
+    lastError: text("last_error"),
+    problem: text("problem").notNull(),
+    solution: text("solution").notNull(),
+    status: text("status").notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [
+    index("tech_solver_cases_category_updated_idx").on(table.category, table.updatedAt),
+    check("tech_solver_cases_non_empty_text", sql`length(${table.fingerprint}) > 0 AND length(${table.category}) > 0 AND length(${table.problem}) > 0 AND length(${table.solution}) > 0`),
+    check("tech_solver_cases_attempts_non_negative", sql`${table.attempts} >= 0`),
+    check("tech_solver_cases_status_valid", sql`${table.status} IN ('open', 'resolved', 'manual_review')`),
+  ],
+);
+
 export const durableOneRunAudits = pgTable(
   "durable_one_run_audits",
   {

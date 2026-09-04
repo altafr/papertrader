@@ -44,6 +44,18 @@ if (getResearchScheduleReadiness().status === "blocked" && process.env.RESEARCH_
   throw new Error("RESEARCH_SCHEDULER_ENABLED=true requires paper database, broker, credentials, and handler gates.");
 }
 let runtimeAlertNotifier = createRuntimeAlertNotifier(process.env);
+const alertDatabase = getTelegramNotificationConfig(process.env).enabled && process.env.DATABASE_URL?.trim() ? createDatabase(process.env.DATABASE_URL) : undefined;
+if (alertDatabase) runtimeAlertNotifier = createRuntimeAlertNotifier(process.env, createTelegramAlertRepository(alertDatabase.db));
+if (alertDatabase) {
+  let retryRunning = false;
+  const retryPersistedAlerts = async () => {
+    if (retryRunning) return;
+    retryRunning = true;
+    try { await runtimeAlertNotifier.retryPersisted(); } finally { retryRunning = false; }
+  };
+  void retryPersistedAlerts();
+  setInterval(() => { void retryPersistedAlerts(); }, 60_000).unref();
+}
 const researchScheduler = createResearchSchedulerFromEnvironment();
 if (researchScheduler) void startWithBoundedRetry({
   onExhausted: (error) => { const occurredAt = new Date().toISOString(); console.error(JSON.stringify({ ...getResearchSchedulerErrorMetadata(error), event: "research_scheduler_start_failed", status: "degraded" })); void runtimeAlertNotifier.notify({ ...buildResearchSchedulerStartFailureAlert(occurredAt), occurredAt }); },
@@ -54,24 +66,10 @@ const marketCloseSummaryEnabled = isMarketCloseSummaryEnabled();
 const autopilotConfiguration = getPaperAutopilotConfig();
 if (autopilotConfiguration.enabled && !process.env.DATABASE_URL?.trim()) throw new Error("PAPER_AUTOPILOT_ENABLED=true requires DATABASE_URL.");
 if (autopilotConfiguration.enabled && isGlobalKillSwitchActive()) throw new Error("PAPER_AUTOPILOT_ENABLED=true is blocked by GLOBAL_KILL_SWITCH_ACTIVE=true.");
-const positionManagementScheduler = createPositionManagementSchedulerFromEnvironment();
+const positionManagementScheduler = createPositionManagementSchedulerFromEnvironment(process.env, runtimeAlertNotifier);
 if (positionManagementScheduler) void positionManagementScheduler.start();
 const shadowConfiguration = getShadowEvaluationConfig();
 const durableConfiguration = getDurableSchedulerConfig();
-const telegramNotificationConfig = getTelegramNotificationConfig();
-runtimeAlertNotifier = createRuntimeAlertNotifier(process.env);
-if (telegramNotificationConfig.enabled && process.env.DATABASE_URL?.trim()) {
-  const alertDatabase = createDatabase(process.env.DATABASE_URL);
-  runtimeAlertNotifier = createRuntimeAlertNotifier(process.env, createTelegramAlertRepository(alertDatabase.db));
-  let retryRunning = false;
-  const retryPersistedAlerts = async () => {
-    if (retryRunning) return;
-    retryRunning = true;
-    try { await runtimeAlertNotifier.retryPersisted(); } finally { retryRunning = false; }
-  };
-  void retryPersistedAlerts();
-  setInterval(() => { void retryPersistedAlerts(); }, 60_000).unref();
-}
 if (process.env.TELEGRAM_ASSISTANT_ENABLED === "true") {
   const assistantDatabase = createTelegramOpsAssistantData(process.env, () => getWorkerHealth());
   const assistant = createTelegramOpsAssistant(process.env, assistantDatabase.data);

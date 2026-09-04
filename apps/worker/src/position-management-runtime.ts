@@ -9,6 +9,7 @@ import { reconcilePaperAccount } from "./reconcile.js";
 import { runPaperPositionManagementOnce } from "./position-management-runner.js";
 import { createPositionManagementScheduler, setPositionManagementUnmanagedCount, type PositionManagementSchedulerStatus } from "./position-management-scheduler.js";
 import { createRuntimeAlertNotifier } from "./telegram-events.js";
+import { runTechSolverOnce } from "./tech-solver.js";
 
 const POSITION_DETECTED_COOLDOWN_MS = 86_400_000;
 const POSITION_MARK_MAX_AGE_MS = 5 * 60_000;
@@ -286,11 +287,15 @@ export async function runPositionManagementCycle(environment: NodeJS.ProcessEnv 
   }
 }
 
-export function createPositionManagementSchedulerFromEnvironment(environment: NodeJS.ProcessEnv = process.env) {
+export function createPositionManagementSchedulerFromEnvironment(environment: NodeJS.ProcessEnv = process.env, alertNotifier = createRuntimeAlertNotifier(environment)) {
   if (!getPositionManagementSchedulerEnabled(environment)) return undefined;
   const readiness = getPositionManagementReadiness(environment);
   if (readiness.status !== "ready") throw new Error(`POSITION_MANAGEMENT_SCHEDULER_ENABLED=true requires position-management readiness: ${readiness.blockedReasons.join(",")}.`);
-  const notifier = createRuntimeAlertNotifier(environment);
-  const scheduler = createPositionManagementScheduler({ intervalSeconds: getPositionManagementIntervalSeconds(environment), onFailure: () => notifier.notify({ code: "position_management_failed", message: "Position-management pass failed closed; no further action was taken by the scheduler.", severity: "critical" }), run: async () => { await runPositionManagementCycle(environment); } });
+  const scheduler = createPositionManagementScheduler({ intervalSeconds: getPositionManagementIntervalSeconds(environment), onFailure: (error) => {
+    void runTechSolverOnce(environment, error).catch(() => undefined);
+    const detail = (error instanceof Error ? error.message : "position_management_failed").replace(/[^A-Za-z0-9._-]+/g, "_").slice(0, 64) || "position_management_failed";
+    const cooldownKey = `position_management_failed:${detail}`;
+    return alertNotifier.notify({ code: "position_management_failed", cooldownKey, cooldownMs: 86_400_000, dedupeKey: `${cooldownKey}:${new Date().toISOString().slice(0, 10)}`, message: "Position-management pass failed closed; no further action was taken by the scheduler.", severity: "critical" });
+  }, run: async () => { await runPositionManagementCycle(environment); } });
   return scheduler;
 }

@@ -11,6 +11,13 @@ export interface PositionManagementResult {
   readonly submissions: readonly PaperOrderSubmission[];
 }
 
+/** Alpaca accepts only a bounded provider-safe client order ID alphabet. */
+export function buildPositionExitClientOrderId(intentId: string, reason: string): string {
+  const safeIntent = intentId.replace(/[^A-Za-z0-9._:-]/g, "_");
+  const suffix = `-exit-${reason}`;
+  return `${safeIntent.slice(0, Math.max(1, 48 - suffix.length))}${suffix}`.slice(0, 48);
+}
+
 /** Evaluate reconciled paper positions and submit only deterministic exits. */
 export async function runPaperPositionManagementOnce(input: {
   readonly now: string;
@@ -28,7 +35,7 @@ export async function runPaperPositionManagementOnce(input: {
     if (!decision.shouldExit) continue;
     const exitIntentId = `${position.intentId}:exit`;
     if (input.activeExitIntentIds?.has(exitIntentId)) continue;
-    submissions.push(await input.submitter.submitExit({ assetClass: position.assetClass, clientOrderId: `${position.intentId}-exit-${decision.reason}`, decision, quantity: position.quantity, timeInForce: position.assetClass === "crypto" ? "gtc" : "day", type: "market" }));
+    submissions.push(await input.submitter.submitExit({ assetClass: position.assetClass, clientOrderId: buildPositionExitClientOrderId(position.intentId, decision.reason ?? "unknown"), decision, quantity: position.quantity, timeInForce: position.assetClass === "crypto" ? "gtc" : "day", type: "market" }));
     submitted += 1;
   }
   return { decisions, submitted, submissions };

@@ -2,8 +2,10 @@
 
 ## Status
 
-- **Stage:** Phase 6.797 scheduled crypto cycle and hosted contract continuity; continuous Paper Autopilot remains paper-only and fail-closed when market data is incomplete.
+- **Stage:** Phase 6.798 persistent tech-solver and alert-noise control; continuous Paper Autopilot remains paper-only and fail-closed when market data is incomplete.
 - **Current hosted state:** Worker is deployed in Paper Autopilot with fresh crypto data, scheduled research, deterministic risk/execution gates, two-percent minimum sizing, equity bracket entries, ratcheting position stops, restart-safe synthetic crypto protection explicitly enabled, and the read-only Telegram operations assistant enabled with polling. Worker health exposes assistant readiness without secrets. All three paper positions have complete exit-plan coverage; the only remaining release blocker is the 30-consecutive-calendar-day evidence gate.
+
+The `tech_solver` operations agent records bounded runtime failure diagnoses and remediation attempts in PostgreSQL (`tech_solver_cases`) for durable institutional memory. It has no order, risk-policy, credential, or deployment authority; repeated failures remain fail-closed and Telegram notifications are durably cooled down to one per error category per 24 hours.
 
 The Alpaca research source applies a bounded timeframe-aware historical lookback when no explicit start is supplied. This prevents UTC-boundary requests from returning fewer than the two finalized bars required by momentum research; explicit caller ranges remain authoritative and validation still fails closed.
 

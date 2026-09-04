@@ -1,7 +1,7 @@
 import { and, asc, desc, eq, gte, inArray, isNotNull, isNull, lt, or, sql } from "drizzle-orm";
 
 import type { Database } from "./client.js";
-import { accountSnapshots, activities, agentRuns, durableOneRunAudits, durableScheduleRuns, orders, paperBaselineConfirmations, paperOrderSubmissions, positions, shadowObservationOutcomes, shadowObservations, strategyLifecycleEvents, strategyPaperEvidence, telegramAlertEvents } from "./schema.js";
+import { accountSnapshots, activities, agentRuns, durableOneRunAudits, durableScheduleRuns, orders, paperBaselineConfirmations, paperOrderSubmissions, positions, shadowObservationOutcomes, shadowObservations, strategyLifecycleEvents, strategyPaperEvidence, techSolverCases, telegramAlertEvents } from "./schema.js";
 
 export interface PersistedTelegramAlertEvent {
   readonly code: string;
@@ -29,6 +29,16 @@ export interface PersistedAgentRun {
   readonly runId: string;
   readonly status: "failed" | "queued" | "running" | "succeeded";
   readonly task: string;
+}
+
+export interface PersistedTechSolverAttempt {
+  readonly category: string;
+  readonly fingerprint: string;
+  readonly lastAttemptAt: Date;
+  readonly lastError?: string;
+  readonly problem: string;
+  readonly solution: string;
+  readonly status: "manual_review" | "open" | "resolved";
 }
 
 export interface PersistedPaperOrderSubmission {
@@ -415,6 +425,19 @@ export function createAgentRunRepository(db: Database) {
     async listRecent(limit = 50) {
       if (!Number.isSafeInteger(limit) || limit < 1 || limit > 100) throw new Error("Agent run limit must be an integer from 1 to 100.");
       return db.select().from(agentRuns).orderBy(desc(agentRuns.createdAt)).limit(limit);
+    },
+  };
+}
+
+export function createTechSolverRepository(db: Database) {
+  return {
+    async recordAttempt(input: PersistedTechSolverAttempt) {
+      const [row] = await db.insert(techSolverCases).values({ category: input.category, fingerprint: input.fingerprint, lastAttemptAt: input.lastAttemptAt, ...(input.lastError ? { lastError: input.lastError } : {}), problem: input.problem, solution: input.solution, status: input.status, updatedAt: input.lastAttemptAt }).onConflictDoUpdate({ target: techSolverCases.fingerprint, set: { attempts: sql`${techSolverCases.attempts} + 1`, category: input.category, lastAttemptAt: input.lastAttemptAt, ...(input.lastError ? { lastError: input.lastError } : {}), problem: input.problem, solution: input.solution, status: input.status, updatedAt: input.lastAttemptAt } }).returning();
+      return row;
+    },
+    async listRecent(limit = 50) {
+      if (!Number.isSafeInteger(limit) || limit < 1 || limit > 100) throw new Error("Tech-solver case limit must be an integer from 1 to 100.");
+      return db.select().from(techSolverCases).orderBy(desc(techSolverCases.updatedAt)).limit(limit);
     },
   };
 }

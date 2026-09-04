@@ -1,9 +1,14 @@
 import { describe, expect, it, vi } from "vitest";
-import { runPaperPositionManagementOnce } from "./position-management-runner.js";
+import { buildPositionExitClientOrderId, runPaperPositionManagementOnce } from "./position-management-runner.js";
 
 const position = { assetClass: "us_equity" as const, currentPrice: "95", entryPrice: "100", plannedStopPrice: "95", plannedTargetPrice: "104", quantity: "1", strategyKey: "momentum", strategyVersion: "1.0.0", symbol: "AAPL", intentId: "intent-1" };
 
 describe("paper position management runner", () => {
+  it("normalizes long or slash-containing exit IDs to Alpaca-safe format", () => {
+    const id = buildPositionExitClientOrderId("legacy-adoption:crypto:BTC/USD:very-long-order-reference", "stop_loss");
+    expect(id).toMatch(/^[A-Za-z0-9._:-]{1,48}$/);
+    expect(id.endsWith("-exit-stop_loss")).toBe(true);
+  });
   it("submits one idempotent exit for a deterministic stop", async () => {
     const submitExit = vi.fn().mockResolvedValue({});
     const result = await runPaperPositionManagementOnce({ now: "2026-08-27T00:00:00Z", positions: [position], submitter: { submitExit } });

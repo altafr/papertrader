@@ -2,11 +2,18 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.797 — scheduled crypto cycle and hosted contract continuity.
+- **Phase:** Phase 6.798 — persistent tech-solver and alert-noise control.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, scheduled research, healthy position management, and complete exit-plan coverage for all three live paper positions. The signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit confirms complete position coverage and Telegram delivery from a persisted sent test.
 - **Last updated:** 2026-09-02.
+
+### Phase 6.798 — persistent tech-solver and alert-noise control (2026-09-04)
+
+- Added a durable PostgreSQL `tech_solver_cases` knowledge base and a server-side `tech_solver` diagnosis path. Runtime failures are classified into bounded categories, persisted with attempt counts and safe remediation guidance, and kept fail-closed with no trading authority.
+- Position-management failures now invoke the solver and use a durable 24-hour per-error Telegram cooldown, preventing the same failure from generating a notification every minute while preserving alerts for materially different failures.
+- Broker exit client-order IDs are normalized to Alpaca's provider-safe alphabet and 48-character bound; focused Worker tests (9), Worker/DB typechecks pass.
+- **Next smallest unit:** apply migration `0018_tech_solver_cases.sql`, deploy the Worker, and verify health/Telegram deduplication against the hosted runtime.
 
 ### Phase 6.797 — scheduled crypto cycle and hosted contract continuity (2026-09-02)
 
