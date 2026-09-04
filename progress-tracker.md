@@ -2,11 +2,17 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.812 — dashboard broker failure visibility deployed.
+- **Phase:** Phase 6.813 — Telegram broker failure visibility.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, scheduled research, complete exit-plan coverage for all three live paper positions, and zero unmanaged positions. The signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections. Position management is currently degraded only because Alpaca rejects crypto exits with HTTP 403 (`crypto_order_entitlement_blocked`); the system remains fail-closed.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit confirms complete position coverage and Telegram delivery from a persisted sent test.
 - **Last updated:** 2026-09-04.
+
+### Phase 6.813 — Telegram broker failure visibility (2026-09-04)
+
+- Telegram infrastructure responses now include the same bounded position-management `failureCode` shown in the dashboard, so the active broker permission issue is diagnosable from either operator surface.
+- Focused assistant tests (13), all workspace typechecks, and ESLint pass. No trading authority or credential surface changed.
+- **Next smallest unit:** deploy the Worker assistant update and verify a Telegram infrastructure query reports `crypto_order_entitlement_blocked` without repeating raw error details.
 
 ### Phase 6.812 — dashboard broker failure visibility deployed (2026-09-04)
 
