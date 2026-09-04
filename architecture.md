@@ -7,6 +7,8 @@
 
 The Worker health contract also exposes a stable non-secret `positionManagement.failureCode` when a supervisor pass fails (for example, `crypto_order_entitlement_blocked`), allowing dashboards and Telegram operations to distinguish broker permissions from generic connectivity without parsing provider text.
 
+The hosted database audit on 2026-09-04 confirms the end-to-end paper loop is active: 698 successful crypto-research runs, 113 successful stock-research runs, 21 filled paper orders, and 141 deterministic risk-dry-run rejections. Crypto exit submission remains blocked by Alpaca entitlement and is intentionally fail-closed.
+
 The `tech_solver` operations agent records bounded runtime failure diagnoses and remediation attempts in PostgreSQL (`tech_solver_cases`) for durable institutional memory. It has no order, risk-policy, credential, or deployment authority; repeated failures remain fail-closed and Telegram notifications are durably cooled down to one per error category per 24 hours.
 
 The Alpaca research source applies a bounded timeframe-aware historical lookback when no explicit start is supplied. This prevents UTC-boundary requests from returning fewer than the two finalized bars required by momentum research; explicit caller ranges remain authoritative and validation still fails closed.

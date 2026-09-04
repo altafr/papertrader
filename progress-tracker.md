@@ -2,11 +2,18 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.806 — explicit hosted position-management failure classification.
+- **Phase:** Phase 6.807 — hosted end-to-end paper activity verified.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, scheduled research, complete exit-plan coverage for all three live paper positions, and zero unmanaged positions. The signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections. Position management is currently degraded only because Alpaca rejects crypto exits with HTTP 403 (`crypto_order_entitlement_blocked`); the system remains fail-closed.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit confirms complete position coverage and Telegram delivery from a persisted sent test.
 - **Last updated:** 2026-09-04.
+
+### Phase 6.807 — hosted end-to-end paper activity verified (2026-09-04)
+
+- Read-only Railway PostgreSQL evidence confirms the autonomous loop is active: `crypto_research` has 698 succeeded runs, `stock_research` has 113 succeeded runs, and the order ledger contains 21 filled paper orders plus accepted/pending lifecycle records.
+- Risk controls are active: 141 candidates are recorded as `risk_dry_run_rejected`, and no live-mode order path was used. `tech_solver` has persisted 17 entitlement-failure attempts for operator review.
+- The remaining runtime issue is narrowly scoped: Alpaca rejects crypto exits with HTTP 403, while research, risk filtering, paper entry lifecycle, reconciliation records, scheduling, and dashboard/Telegram surfaces continue operating fail-closed.
+- **Next smallest unit:** review Alpaca crypto entitlement; after it is corrected, verify a successful deterministic crypto exit and rerun the hosted contract. The 30-day evidence gate remains after runtime recovery.
 
 ### Phase 6.806 — explicit hosted position-management failure classification (2026-09-04)
 
