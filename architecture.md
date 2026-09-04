@@ -21,6 +21,8 @@ Vercel production deployment `76XSLE8dj2vpUX2o1VS7VMPBvNBG` served the updated d
 
 Telegram infrastructure replies expose the same bounded position-management failure code as the dashboard, keeping operator diagnosis consistent across channels.
 
+Railway deployment `2a6f4ad4-2b1c-4f3b-b7a6-a347d7899af4` verified the Telegram observability update in production; the assistant remains read-only and the broker entitlement issue remains fail-closed.
+
 The `tech_solver` operations agent records bounded runtime failure diagnoses and remediation attempts in PostgreSQL (`tech_solver_cases`) for durable institutional memory. It has no order, risk-policy, credential, or deployment authority; repeated failures remain fail-closed and Telegram notifications are durably cooled down to one per error category per 24 hours.
 
 The Alpaca research source applies a bounded timeframe-aware historical lookback when no explicit start is supplied. This prevents UTC-boundary requests from returning fewer than the two finalized bars required by momentum research; explicit caller ranges remain authoritative and validation still fails closed.
