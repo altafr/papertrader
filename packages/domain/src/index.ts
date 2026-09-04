@@ -31,6 +31,8 @@ export interface WorkerHealth {
     readonly activationApprovalReferencePresent: boolean;
     readonly cron: string;
     readonly enabled: boolean;
+    /** Stable, non-secret runtime failure classification when the supervisor is degraded. */
+    readonly failureCode?: string;
     readonly timezone: "UTC";
     readonly lastRunAt?: string;
     readonly nextRunAt?: string;

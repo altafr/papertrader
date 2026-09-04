@@ -3,9 +3,18 @@ export type PositionManagementSchedulerStatus = "degraded" | "disabled" | "ready
 let status: PositionManagementSchedulerStatus = "disabled";
 let lastRunAt: string | undefined;
 let lastError: string | undefined;
+let failureCode: string | undefined;
 let unmanagedCount: number | undefined;
 
-export function getPositionManagementHealth() { return { lastError, lastRunAt, ...(unmanagedCount === undefined ? {} : { unmanagedCount }), status }; }
+export function classifyPositionManagementFailure(error: unknown): string {
+  const message = (error instanceof Error ? error.message : String(error)).toLowerCase();
+  if (message.includes("crypto_order_entitlement_blocked") || (message.includes("entitlement") && message.includes("403"))) return "crypto_order_entitlement_blocked";
+  if (message.includes("market_data") || message.includes("stale")) return "market_data_unavailable";
+  if (message.includes("network") || message.includes("fetch") || message.includes("http ")) return "provider_connectivity";
+  return "position_management_failed";
+}
+
+export function getPositionManagementHealth() { return { ...(failureCode ? { failureCode } : {}), ...(lastError ? { lastError } : {}), ...(lastRunAt ? { lastRunAt } : {}), ...(unmanagedCount === undefined ? {} : { unmanagedCount }), status }; }
 
 /** Record the bounded count of broker positions lacking a complete exit plan. */
 export function setPositionManagementUnmanagedCount(count: number | undefined): void {
@@ -33,6 +42,7 @@ export function createPositionManagementScheduler(input: { readonly intervalSeco
     if (assessPositionManagementLiveness({ lastRunAt, status }, input.intervalSeconds, new Date()) !== "degraded") return;
     status = "degraded";
     lastError = "position_management_stale";
+    failureCode = "market_data_unavailable";
     livenessAlerted = true;
     void input.onFailure?.(new Error("position_management_stale"));
   };
@@ -40,8 +50,8 @@ export function createPositionManagementScheduler(input: { readonly intervalSeco
   const execute = async () => {
     if (stopped || running) return;
     running = true; status = "running";
-    try { await input.run(); lastRunAt = new Date().toISOString(); lastError = undefined; livenessAlerted = false; status = "ready"; }
-    catch (error) { lastError = error instanceof Error ? error.message : "position_management_failed"; status = "degraded"; await input.onFailure?.(error); }
+    try { await input.run(); lastRunAt = new Date().toISOString(); lastError = undefined; failureCode = undefined; livenessAlerted = false; status = "ready"; }
+    catch (error) { lastError = error instanceof Error ? error.message : "position_management_failed"; failureCode = classifyPositionManagementFailure(error); status = "degraded"; await input.onFailure?.(error); }
     finally { running = false; }
   };
   return {

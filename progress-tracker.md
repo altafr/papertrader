@@ -2,11 +2,17 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.805 — hosted contract recheck and blocker recorded.
+- **Phase:** Phase 6.806 — explicit hosted position-management failure classification.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, scheduled research, complete exit-plan coverage for all three live paper positions, and zero unmanaged positions. The signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections. Position management is currently degraded only because Alpaca rejects crypto exits with HTTP 403 (`crypto_order_entitlement_blocked`); the system remains fail-closed.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit confirms complete position coverage and Telegram delivery from a persisted sent test.
 - **Last updated:** 2026-09-04.
+
+### Phase 6.806 — explicit hosted position-management failure classification (2026-09-04)
+
+- Added a stable, non-secret `failureCode` to Worker health for degraded position-management passes; crypto entitlement failures now surface as `crypto_order_entitlement_blocked` instead of requiring parsing provider text.
+- Added regression coverage; 466 tests, all workspace typechecks, and ESLint pass. No order authority, risk threshold, paper-mode gate, or credential surface changed.
+- **Next smallest unit:** deploy the Worker, verify the live health payload and run the end-to-end paper contract check; Alpaca entitlement review remains required before crypto exits can recover.
 
 ### Phase 6.805 — hosted contract recheck and blocker recorded (2026-09-04)
 

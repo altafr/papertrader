@@ -1,7 +1,11 @@
 import { describe, expect, it, vi } from "vitest";
-import { createPositionManagementScheduler, getPositionManagementHealth, setPositionManagementUnmanagedCount } from "./position-management-scheduler.js";
+import { classifyPositionManagementFailure, createPositionManagementScheduler, getPositionManagementHealth, setPositionManagementUnmanagedCount } from "./position-management-scheduler.js";
 
 describe("position management scheduler", () => {
+  it("classifies provider entitlement failures without exposing response details", () => {
+    expect(classifyPositionManagementFailure(new Error("Paper exit submission failed with HTTP 403 (crypto_order_entitlement_blocked)."))).toBe("crypto_order_entitlement_blocked");
+    expect(classifyPositionManagementFailure(new Error("provider network timeout"))).toBe("provider_connectivity");
+  });
   it("records a bounded unmanaged-position count for operator health", () => {
     setPositionManagementUnmanagedCount(3.9);
     expect(getPositionManagementHealth()).toMatchObject({ unmanagedCount: 3 });

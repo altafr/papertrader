@@ -2,8 +2,10 @@
 
 ## Status
 
-- **Stage:** Phase 6.805 hosted contract recheck; continuous Paper Autopilot remains paper-only and fail-closed when broker permissions or market data are incomplete.
+- **Stage:** Phase 6.806 explicit hosted position-management failure classification; continuous Paper Autopilot remains paper-only and fail-closed when broker permissions or market data are incomplete.
 - **Current hosted state:** Worker is deployed in Paper Autopilot with fresh crypto data, scheduled research, deterministic risk/execution gates, two-percent minimum sizing, equity bracket entries, ratcheting position stops, restart-safe synthetic crypto protection explicitly enabled, and the read-only Telegram operations assistant enabled with polling. Worker health exposes assistant readiness without secrets. All three paper positions have complete exit-plan coverage and zero unmanaged positions. Position management is degraded because Alpaca returns `HTTP 403 (crypto_order_entitlement_blocked)` for crypto exits; the system does not bypass that provider restriction. The 30-consecutive-calendar-day evidence gate remains required for release readiness after runtime recovery.
+
+The Worker health contract also exposes a stable non-secret `positionManagement.failureCode` when a supervisor pass fails (for example, `crypto_order_entitlement_blocked`), allowing dashboards and Telegram operations to distinguish broker permissions from generic connectivity without parsing provider text.
 
 The `tech_solver` operations agent records bounded runtime failure diagnoses and remediation attempts in PostgreSQL (`tech_solver_cases`) for durable institutional memory. It has no order, risk-policy, credential, or deployment authority; repeated failures remain fail-closed and Telegram notifications are durably cooled down to one per error category per 24 hours.
 
