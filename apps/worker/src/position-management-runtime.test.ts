@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { buildPaperExitSubmittedMessage, buildPositionExitDecisionLog, buildPositionExitDecisionMessage, buildPositionManagementLog, buildUnmanagedPositionLog, getActiveExitIntentIds, getFreshPositionMark, getPaperOrderStatusTransitions, getPositionDetectedDedupeKey, getPositionExitDecisionDedupeKey, getPositionExitIntentId, getUnavailablePositionSymbols, groupPositionSymbolsByAssetClass, isTerminalPaperOrderStatus, isUsEquityRegularSession, selectLatestCompleteExitPlans } from "./position-management-runtime.js";
+import { buildPaperExitSubmittedMessage, buildPositionExitDecisionLog, buildPositionExitDecisionMessage, buildPositionManagementFailureError, buildPositionManagementLog, buildUnmanagedPositionLog, getActiveExitIntentIds, getFreshPositionMark, getPaperOrderStatusTransitions, getPositionDetectedDedupeKey, getPositionExitDecisionDedupeKey, getPositionExitIntentId, getUnavailablePositionSymbols, groupPositionSymbolsByAssetClass, isTerminalPaperOrderStatus, isUsEquityRegularSession, selectLatestCompleteExitPlans } from "./position-management-runtime.js";
 import { assessPositionManagementLiveness } from "./position-management-scheduler.js";
 
 describe("paper order status transitions", () => {
@@ -89,6 +89,9 @@ describe("position scheduler liveness", () => {
 });
 
 describe("position pass observability", () => {
+  it("preserves one bounded broker request ID in the aggregate failure", () => {
+    expect(buildPositionManagementFailureError([{ error: "Paper exit failed (crypto_order_entitlement_blocked) request_id=abc-123." }]).message).toBe("crypto_order_entitlement_blocked request_id=abc-123");
+  });
   it("builds a bounded unmanaged-position warning", () => {
     expect(buildUnmanagedPositionLog(["BTC/USD", "", "ETH/USD"])).toEqual({ event: "unmanaged_position_detected", level: "warn", symbols: ["BTC/USD", "ETH/USD"] });
   });

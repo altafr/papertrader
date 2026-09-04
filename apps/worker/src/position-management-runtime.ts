@@ -153,6 +153,13 @@ export function buildUnmanagedPositionLog(symbols: readonly string[]) {
   return { event: "unmanaged_position_detected", level: "warn", symbols: symbols.filter((symbol) => symbol.trim().length > 0).slice(0, 10) } as const;
 }
 
+/** Preserve a bounded broker request ID while keeping the aggregate failure code stable. */
+export function buildPositionManagementFailureError(failures: readonly { readonly error: string }[]): Error {
+  const entitlementFailure = failures.some((failure) => failure.error.toLowerCase().includes("entitlement") || failure.error.includes("403"));
+  const requestId = failures.map((failure) => /\brequest_id=([A-Za-z0-9._:-]{1,128})\b/.exec(failure.error)?.[1]).find(Boolean);
+  return new Error(`${entitlementFailure ? "crypto_order_entitlement_blocked" : "position_exit_submission_failed"}${requestId ? ` request_id=${requestId}` : ""}`);
+}
+
 function parseBoolean(name: string, value: string | undefined, defaultValue: boolean): boolean {
   if (value === undefined) return defaultValue;
   if (value === "true") return true;
@@ -284,10 +291,7 @@ export async function runPositionManagementCycle(environment: NodeJS.ProcessEnv 
       await notifier.notify({ code: "paper_exit_submission_failed", cooldownKey: `paper_exit_submission_failed:${failure.assetClass}:${failure.symbol}`, cooldownMs: POSITION_DETECTED_COOLDOWN_MS, dedupeKey: `paper_exit_submission_failed:${failure.assetClass}:${failure.symbol}`, message: `Paper exit for ${failure.symbol} was rejected; the position remains open and will be retried after broker reconciliation.`, severity: "critical" });
     }
     console.log(JSON.stringify(buildPositionManagementLog({ managed: managed.length, positions: positions.length, submitted: result.submitted, symbols: managed.map((position) => position.symbol) })));
-    if (result.failures.length > 0) {
-      const entitlementFailure = result.failures.some((failure) => failure.error.toLowerCase().includes("entitlement") || failure.error.includes("403"));
-      throw new Error(entitlementFailure ? "crypto_order_entitlement_blocked" : "position_exit_submission_failed");
-    }
+    if (result.failures.length > 0) throw buildPositionManagementFailureError(result.failures);
     return { managed: managed.length, submitted: result.submitted };
   } finally {
     await pool.end();
