@@ -1,4 +1,4 @@
-import { createAccountStateRepository, createAgentRunRepository, createDatabase, createPaperOrderRepository } from "@momentum/db";
+import { createAccountStateRepository, createAgentRunRepository, createDatabase, createPaperOrderRepository, createTechSolverRepository } from "@momentum/db";
 import * as DecimalModule from "decimal.js";
 
 interface DecimalValue { minus(value: DecimalValue): DecimalValue; plus(value: DecimalValue): DecimalValue; toFixed(decimalPlaces?: number): string; }
@@ -13,6 +13,7 @@ type AssistantModel = { readonly snapshot?: { readonly capturedAt: Date; readonl
 type AssistantRun = { readonly agentType: string; readonly status: string; readonly runId: string; readonly createdAt: Date; readonly artifactRationale?: string | null };
 type AssistantSubmission = { readonly symbol: string; readonly status: string; readonly assetClass: string; readonly quantity: string; readonly filledQuantity?: string | null; readonly entryPrice?: string | null; readonly plannedStopPrice?: string | null; readonly trailingStopPrice?: string | null; readonly plannedTargetPrice?: string | null; readonly strategyKey?: string | null; readonly strategyVersion?: string | null; readonly timeStopAt?: Date | null; readonly alpacaOrderId?: string | null; readonly riskDecision?: { readonly approvalStatus?: string; readonly reasons?: readonly string[] } | null; readonly updatedAt?: Date | null };
 type AssistantEvidence = { readonly calendarDays: number; readonly consecutiveCalendarDays: number; readonly daysRemaining: number; readonly requiredConsecutiveCalendarDays: number };
+type AssistantTechSolverCase = { readonly category: string; readonly fingerprint: string; readonly attempts: number; readonly status: string; readonly problem: string; readonly solution: string; readonly updatedAt: Date };
 export type FirecrawlSource = { readonly title: string; readonly url: string; readonly description: string };
 
 export interface TelegramOpsAssistantData {
@@ -20,6 +21,7 @@ export interface TelegramOpsAssistantData {
   readonly getModel: () => Promise<AssistantModel>;
   readonly getRuns: () => Promise<readonly AssistantRun[]>;
   readonly getSubmissions: () => Promise<readonly AssistantSubmission[]>;
+  readonly getTechSolverCases?: () => Promise<readonly AssistantTechSolverCase[]>;
   readonly getEvidence?: () => Promise<AssistantEvidence>;
   /** Route a non-trading research question to the appropriate agent/web provider. */
   readonly askResearch?: (question: string) => Promise<string>;
@@ -81,6 +83,13 @@ export async function buildTelegramOpsAssistantReply(question: string, data: Tel
     } catch {
       return "The research agent could not be reached. The question was not treated as a trading instruction, and trading/risk controls are unaffected.";
     }
+  }
+  if (/\b(tech[_ -]?solver|known issue|known problem|root cause|remediation|solution|error history|failure history)\b/i.test(normalized)) {
+    if (!data.getTechSolverCases) return "The tech_solver knowledge base is not available in this deployment.";
+    const cases = await data.getTechSolverCases();
+    if (!cases.length) return "tech_solver has no persisted problem cases yet.";
+    const summary = cases.slice(0, 10).map((item) => `${item.category} · ${item.status} · attempts ${item.attempts}\nProblem: ${item.problem}\nSafe guidance: ${item.solution}`).join("\n\n");
+    return limit(`tech_solver knowledge base (read-only)\n${summary}`);
   }
   const health = data.getHealth();
   const asksExitPlan = normalized.includes("exit plan") || normalized.includes("stop loss") || normalized.includes("take profit") || normalized.includes("unmanaged") || normalized.includes("position management");
@@ -191,6 +200,7 @@ export function createTelegramOpsAssistantData(environment: NodeJS.ProcessEnv, h
   const account = createAccountStateRepository(db);
   const orders = createPaperOrderRepository(db);
   const runs = createAgentRunRepository(db);
+  const techSolver = createTechSolverRepository(db);
   const askResearch = async (question: string): Promise<string> => {
     const now = new Date();
     const runId = `telegram-research-${now.getTime()}`;
@@ -223,6 +233,7 @@ export function createTelegramOpsAssistantData(environment: NodeJS.ProcessEnv, h
     getModel: () => account.getLatestReadModel(),
     getRuns: () => runs.listRecent(20),
     getSubmissions: async () => orders.listRecent(20),
+    getTechSolverCases: async () => (await techSolver.listRecent(20)).map((item) => ({ attempts: item.attempts, category: item.category, fingerprint: item.fingerprint, problem: item.problem, solution: item.solution, status: item.status, updatedAt: item.updatedAt })),
     getEvidence: async () => {
       const result = await pool.query<{ readonly captured_at: Date; readonly equity: string }>("SELECT captured_at, equity FROM account_snapshots ORDER BY captured_at DESC LIMIT $1", [PAPER_EVIDENCE_SNAPSHOT_LIMIT]);
       const report = buildPaperPerformanceReport(result.rows.map((row) => ({ capturedAt: row.captured_at.toISOString(), equity: String(row.equity) })));

@@ -7,6 +7,7 @@ const data = {
   getModel: async () => ({ snapshot: { capturedAt: new Date("2026-08-31T01:00:00Z"), cash: "64000", equity: "99000", buyingPower: "64000", lastEquity: "98800" }, positions: [{ symbol: "AAPL", assetClass: "us_equity", quantity: "4", marketValue: "1200", unrealizedPl: "10" }], orders: [] }),
   getRuns: async () => [{ agentType: "crypto_research", status: "succeeded", runId: "run-1", createdAt: new Date("2026-08-31T01:00:00Z") }],
   getSubmissions: async () => [{ symbol: "BTC/USD", assetClass: "crypto", status: "risk_dry_run_rejected", quantity: "0.001", filledQuantity: null, riskDecision: { approvalStatus: "rejected", reasons: ["Existing positions lack complete exit plans"] } }],
+  getTechSolverCases: async () => [{ category: "broker_entitlement", fingerprint: "broker_entitlement_blocked", attempts: 3, status: "manual_review", problem: "HTTP 403", solution: "Review broker entitlement.", updatedAt: new Date("2026-09-04T02:00:00Z") }],
   getEvidence: async () => ({ calendarDays: 1, consecutiveCalendarDays: 1, daysRemaining: 29, requiredConsecutiveCalendarDays: 30 }),
 };
 
@@ -40,6 +41,12 @@ describe("Telegram operations assistant", () => {
 
   it("answers autonomous readiness questions from bounded evidence telemetry", async () => {
     await expect(buildTelegramOpsAssistantReply("show autonomous readiness", data)).resolves.toContain("29 days remaining");
+  });
+
+  it("reports the persistent tech_solver knowledge base read-only", async () => {
+    const reply = await buildTelegramOpsAssistantReply("show tech solver problems and solutions", data);
+    expect(reply).toContain("broker_entitlement");
+    expect(reply).toContain("Review broker entitlement");
   });
 
   it("explains recent deterministic decisions and declares read-only authority", async () => {

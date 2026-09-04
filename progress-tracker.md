@@ -2,11 +2,17 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.800 — hosted tech-solver and Telegram deduplication verified.
+- **Phase:** Phase 6.801 — Telegram tech-solver knowledge-base visibility.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, scheduled research, healthy position management, and complete exit-plan coverage for all three live paper positions. The signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit confirms complete position coverage and Telegram delivery from a persisted sent test.
 - **Last updated:** 2026-09-02.
+
+### Phase 6.801 — Telegram tech-solver knowledge-base visibility (2026-09-04)
+
+- The read-only Telegram operations assistant can now report persisted `tech_solver` problem cases, attempt counts, statuses, and safe remediation guidance.
+- Added assistant regression coverage; focused Worker tests (15), typecheck, and lint pass. No trading or risk authority was added.
+- **Next smallest unit:** deploy the assistant visibility revision and verify it against the hosted Telegram assistant/runtime contract.
 
 ### Phase 6.800 — hosted tech-solver and Telegram deduplication verified (2026-09-04)
 
