@@ -2,11 +2,18 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.803 — legacy crypto symbol remediation.
+- **Phase:** Phase 6.804 — hosted crypto entitlement diagnosis confirmed.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, scheduled research, healthy position management, and complete exit-plan coverage for all three live paper positions. The signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit confirms complete position coverage and Telegram delivery from a persisted sent test.
 - **Last updated:** 2026-09-02.
+
+### Phase 6.804 — hosted crypto entitlement diagnosis confirmed (2026-09-04)
+
+- Railway deployment `26a50fa4-3d04-4759-a6a8-e24d7dfb6545` reached `SUCCESS` with legacy crypto symbol normalization active.
+- The next hosted position-management pass still returned Alpaca `HTTP 403 (crypto_order_entitlement_blocked)`, confirming the remaining issue is broker entitlement rather than symbol formatting. `tech_solver` continues recording this as a manual-review case.
+- The Worker remains fail-closed with fresh data and zero unmanaged positions; no order, risk, or paper-mode safety control was bypassed.
+- **Next smallest unit:** review/enable crypto trading entitlement in Alpaca, then re-run the hosted position-management check.
 
 ### Phase 6.803 — legacy crypto symbol remediation (2026-09-04)
 
