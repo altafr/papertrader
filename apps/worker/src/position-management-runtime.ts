@@ -280,7 +280,14 @@ export async function runPositionManagementCycle(environment: NodeJS.ProcessEnv 
       const submittedSymbols = submittedDecisions.map((decision) => decision.symbol).sort().join(",");
       await notifier.notify({ code: "paper_exit_submitted", dedupeKey: `paper_exit_submitted:${submittedSymbols}`, message: buildPaperExitSubmittedMessage(submittedDecisions), severity: "warning" });
     }
+    for (const failure of result.failures) {
+      await notifier.notify({ code: "paper_exit_submission_failed", cooldownKey: `paper_exit_submission_failed:${failure.assetClass}:${failure.symbol}`, cooldownMs: POSITION_DETECTED_COOLDOWN_MS, dedupeKey: `paper_exit_submission_failed:${failure.assetClass}:${failure.symbol}`, message: `Paper exit for ${failure.symbol} was rejected; the position remains open and will be retried after broker reconciliation.`, severity: "critical" });
+    }
     console.log(JSON.stringify(buildPositionManagementLog({ managed: managed.length, positions: positions.length, submitted: result.submitted, symbols: managed.map((position) => position.symbol) })));
+    if (result.failures.length > 0) {
+      const entitlementFailure = result.failures.some((failure) => failure.error.toLowerCase().includes("entitlement") || failure.error.includes("403"));
+      throw new Error(entitlementFailure ? "crypto_order_entitlement_blocked" : "position_exit_submission_failed");
+    }
     return { managed: managed.length, submitted: result.submitted };
   } finally {
     await pool.end();

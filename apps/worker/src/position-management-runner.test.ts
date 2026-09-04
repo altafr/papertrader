@@ -30,8 +30,15 @@ describe("paper position management runner", () => {
     expect(submitExit).not.toHaveBeenCalled();
   });
 
-  it("fails closed when an exit submission fails", async () => {
+  it("isolates an exit submission failure while evaluating other positions", async () => {
     const submitExit = vi.fn().mockRejectedValue(new Error("broker unavailable"));
-    await expect(runPaperPositionManagementOnce({ now: "2026-08-27T00:00:00Z", positions: [position], submitter: { submitExit } })).rejects.toThrow("broker unavailable");
+    const result = await runPaperPositionManagementOnce({ now: "2026-08-27T00:00:00Z", positions: [position], submitter: { submitExit } });
+    expect(result).toMatchObject({ failures: [{ assetClass: "us_equity", error: "broker unavailable", symbol: "AAPL" }], submitted: 0 });
+  });
+
+  it("continues to submit an independent position after another broker failure", async () => {
+    const submitExit = vi.fn().mockRejectedValueOnce(new Error("crypto entitlement blocked")).mockResolvedValueOnce({ alpacaOrderId: "equity-1" });
+    const result = await runPaperPositionManagementOnce({ now: "2026-08-27T00:00:00Z", positions: [{ ...position, assetClass: "crypto", symbol: "BTC/USD" }, position], submitter: { submitExit } });
+    expect(result).toMatchObject({ failures: [{ symbol: "BTC/USD" }], submitted: 1, submissions: [{ alpacaOrderId: "equity-1" }] });
   });
 });

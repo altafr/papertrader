@@ -7,8 +7,15 @@ export interface ManagedPositionInput extends ManagedPaperPosition {
 
 export interface PositionManagementResult {
   readonly decisions: readonly PositionExitDecision[];
+  readonly failures: readonly PositionManagementFailure[];
   readonly submitted: number;
   readonly submissions: readonly PaperOrderSubmission[];
+}
+
+export interface PositionManagementFailure {
+  readonly assetClass: ManagedPositionInput["assetClass"];
+  readonly error: string;
+  readonly symbol: string;
 }
 
 /** Alpaca accepts only a bounded provider-safe client order ID alphabet. */
@@ -27,6 +34,7 @@ export async function runPaperPositionManagementOnce(input: {
   readonly submitter: Pick<PaperExitOrderSubmitter, "submitExit">;
 }): Promise<PositionManagementResult> {
   const decisions: PositionExitDecision[] = [];
+  const failures: PositionManagementFailure[] = [];
   const submissions: PaperOrderSubmission[] = [];
   let submitted = 0;
   for (const position of input.positions) {
@@ -35,10 +43,14 @@ export async function runPaperPositionManagementOnce(input: {
     if (!decision.shouldExit) continue;
     const exitIntentId = `${position.intentId}:exit`;
     if (input.activeExitIntentIds?.has(exitIntentId)) continue;
-    submissions.push(await input.submitter.submitExit({ assetClass: position.assetClass, clientOrderId: buildPositionExitClientOrderId(position.intentId, decision.reason ?? "unknown"), decision, quantity: position.quantity, timeInForce: position.assetClass === "crypto" ? "gtc" : "day", type: "market" }));
-    submitted += 1;
+    try {
+      submissions.push(await input.submitter.submitExit({ assetClass: position.assetClass, clientOrderId: buildPositionExitClientOrderId(position.intentId, decision.reason ?? "unknown"), decision, quantity: position.quantity, timeInForce: position.assetClass === "crypto" ? "gtc" : "day", type: "market" }));
+      submitted += 1;
+    } catch (error) {
+      failures.push({ assetClass: position.assetClass, error: error instanceof Error ? error.message.slice(0, 240) : "position_exit_submission_failed", symbol: position.symbol });
+    }
   }
-  return { decisions, submitted, submissions };
+  return { decisions, failures, submitted, submissions };
 }
 
 export { createPaperExitOrderSubmitter };

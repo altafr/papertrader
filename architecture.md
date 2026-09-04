@@ -11,6 +11,8 @@ The hosted database audit on 2026-09-04 confirms the end-to-end paper loop is ac
 
 A read-only provider boundary check confirmed the paper account is active and Alpaca reports `BTC/USD` as an active, tradable, fractionable asset. Because the order endpoint still returns the separate entitlement-blocked 403, asset metadata is not treated as proof of order permission; the supervisor continues requiring a successful broker exit before declaring readiness.
 
+Position-exit submission failures are isolated per managed position: the runner continues evaluating other positions, persists and cools down each failed exit alert, then marks the overall supervisor degraded. This prevents one provider entitlement failure from silently suppressing unrelated deterministic exits.
+
 The `tech_solver` operations agent records bounded runtime failure diagnoses and remediation attempts in PostgreSQL (`tech_solver_cases`) for durable institutional memory. It has no order, risk-policy, credential, or deployment authority; repeated failures remain fail-closed and Telegram notifications are durably cooled down to one per error category per 24 hours.
 
 The Alpaca research source applies a bounded timeframe-aware historical lookback when no explicit start is supplied. This prevents UTC-boundary requests from returning fewer than the two finalized bars required by momentum research; explicit caller ranges remain authoritative and validation still fails closed.
