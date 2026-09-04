@@ -23,6 +23,8 @@ Telegram infrastructure replies expose the same bounded position-management fail
 
 Railway deployment `2a6f4ad4-2b1c-4f3b-b7a6-a347d7899af4` verified the Telegram observability update in production; the assistant remains read-only and the broker entitlement issue remains fail-closed.
 
+The deployed `phase-6-10-operator-health` branch is synchronized to the GitHub origin, preserving the exact source history used for Railway and Vercel rollouts.
+
 The `tech_solver` operations agent records bounded runtime failure diagnoses and remediation attempts in PostgreSQL (`tech_solver_cases`) for durable institutional memory. It has no order, risk-policy, credential, or deployment authority; repeated failures remain fail-closed and Telegram notifications are durably cooled down to one per error category per 24 hours.
 
 The Alpaca research source applies a bounded timeframe-aware historical lookback when no explicit start is supplied. This prevents UTC-boundary requests from returning fewer than the two finalized bars required by momentum research; explicit caller ranges remain authoritative and validation still fails closed.
