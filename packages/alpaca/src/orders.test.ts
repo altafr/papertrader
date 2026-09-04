@@ -21,6 +21,12 @@ describe("paper order submitter", () => {
     expect(classifyPaperOrderFailure("crypto", 429, true)).toBe("paper_exit_http_429");
   });
 
+  it("retains a bounded provider request ID for support without exposing the response body", async () => {
+    const submitter = createPaperExitOrderSubmitter({ apiKey: "key", brokerConnectionEnabled: true, secretKey: "secret", fetchImpl: async (_url, init) => init?.method === "POST" ? new Response(JSON.stringify({ error: "private detail" }), { status: 403, headers: { "x-request-id": "request-123" } }) : response(404, {}) });
+    await expect(submitter.submitExit({ assetClass: "crypto", clientOrderId: "intent-1-exit-stop_loss", decision: { exitPrice: "95", reason: "stop_loss", shouldExit: true, symbol: "BTC/USD" }, quantity: "1", timeInForce: "gtc", type: "market" })).rejects.toThrow("request_id=request-123");
+    await expect(submitter.submitExit({ assetClass: "crypto", clientOrderId: "intent-1-exit-stop_loss", decision: { exitPrice: "95", reason: "stop_loss", shouldExit: true, symbol: "BTC/USD" }, quantity: "1", timeInForce: "gtc", type: "market" })).rejects.not.toThrow("private detail");
+  });
+
   it("looks up by client ID before posting and submits only approved paper orders", async () => {
     const calls: string[] = [];
     const submitter = createPaperOrderSubmitter({ apiKey: "key", brokerConnectionEnabled: true, secretKey: "secret", fetchImpl: async (url, init) => { calls.push(`${init?.method}:${url}`); return calls.length === 1 ? response(404, {}) : response(201, order); } });

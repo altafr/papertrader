@@ -29,6 +29,8 @@ The Alpaca adapter classifies crypto HTTP 403 responses from bounded provider fi
 
 Deployment `bfd15eed-1d65-4edd-8626-9de3391ee6d9` confirmed the hosted provider hint resolves to `crypto_order_entitlement_blocked`; the account/asset metadata check is therefore not sufficient to grant order permission.
 
+Rejected paper orders retain only a validated, bounded Alpaca `X-Request-ID` in server-side diagnostics, which can be supplied to Alpaca support without exposing response bodies or credentials.
+
 The `tech_solver` operations agent records bounded runtime failure diagnoses and remediation attempts in PostgreSQL (`tech_solver_cases`) for durable institutional memory. It has no order, risk-policy, credential, or deployment authority; repeated failures remain fail-closed and Telegram notifications are durably cooled down to one per error category per 24 hours.
 
 The Alpaca research source applies a bounded timeframe-aware historical lookback when no explicit start is supplied. This prevents UTC-boundary requests from returning fewer than the two finalized bars required by momentum research; explicit caller ranges remain authoritative and validation still fails closed.
