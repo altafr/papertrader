@@ -20,7 +20,9 @@
 - Fixed the Worker scheduler alert key to use the stable classified failure code instead of the changing Alpaca request ID.
 - Repeated entitlement failures now produce at most one `position_management_failed` Telegram alert per 24 hours; `tech_solver` continues recording each attempt and its redacted request ID for diagnosis.
 - Full regression remains green: 100 test files / 472 tests; workspace typecheck passes.
-- **Next smallest unit:** deploy the Worker and verify the production alert ledger contains one stable cooldown key despite repeated broker retries.
+- Railway Worker deployment `421fbd66-7a4f-4d87-95d2-2d4f09640093` reached `SUCCESS`.
+- Production health continues to expose the bounded entitlement failure code and changing request ID for diagnostics, while no new repeated Telegram alert rows were created after rollout; prior request-ID-keyed rows are historical.
+- **Next smallest unit:** resolve the Alpaca crypto-order entitlement so position exits can be exercised; alert deduplication is complete.
 
 ### Phase 6.821 — tech_solver diagnostic persistence corrected (2026-09-04)
 
