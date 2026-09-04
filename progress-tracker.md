@@ -2,11 +2,17 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.811 — dashboard broker failure visibility.
+- **Phase:** Phase 6.812 — dashboard broker failure visibility deployed.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, scheduled research, complete exit-plan coverage for all three live paper positions, and zero unmanaged positions. The signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections. Position management is currently degraded only because Alpaca rejects crypto exits with HTTP 403 (`crypto_order_entitlement_blocked`); the system remains fail-closed.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit confirms complete position coverage and Telegram delivery from a persisted sent test.
 - **Last updated:** 2026-09-04.
+
+### Phase 6.812 — dashboard broker failure visibility deployed (2026-09-04)
+
+- Vercel production deployment `76XSLE8dj2vpUX2o1VS7VMPBvNBG` completed successfully; the canonical dashboard returned HTTP 200 after rollout.
+- The authenticated dashboard now receives and displays the bounded Worker position-management `failureCode`, making the Alpaca crypto permission blocker visible without exposing secrets.
+- **Next smallest unit:** after Alpaca entitlement recovery, verify the successful crypto exit and full hosted contract; no further web deployment is required for that check.
 
 ### Phase 6.811 — dashboard broker failure visibility (2026-09-04)
 
