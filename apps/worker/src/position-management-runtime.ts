@@ -7,7 +7,7 @@ import { createAccountStateRepository, createDatabase, createPaperOrderRepositor
 
 import { reconcilePaperAccount } from "./reconcile.js";
 import { runPaperPositionManagementOnce } from "./position-management-runner.js";
-import { createPositionManagementScheduler, setPositionManagementUnmanagedCount, type PositionManagementSchedulerStatus } from "./position-management-scheduler.js";
+import { createPositionManagementScheduler, getPositionManagementFailureCooldownKey, setPositionManagementUnmanagedCount, type PositionManagementSchedulerStatus } from "./position-management-scheduler.js";
 import { createRuntimeAlertNotifier } from "./telegram-events.js";
 import { runTechSolverOnce } from "./tech-solver.js";
 
@@ -304,8 +304,7 @@ export function createPositionManagementSchedulerFromEnvironment(environment: No
   if (readiness.status !== "ready") throw new Error(`POSITION_MANAGEMENT_SCHEDULER_ENABLED=true requires position-management readiness: ${readiness.blockedReasons.join(",")}.`);
   const scheduler = createPositionManagementScheduler({ intervalSeconds: getPositionManagementIntervalSeconds(environment), onFailure: (error) => {
     void runTechSolverOnce(environment, error).catch(() => undefined);
-    const detail = (error instanceof Error ? error.message : "position_management_failed").replace(/[^A-Za-z0-9._-]+/g, "_").slice(0, 64) || "position_management_failed";
-    const cooldownKey = `position_management_failed:${detail}`;
+    const cooldownKey = getPositionManagementFailureCooldownKey(error);
     return alertNotifier.notify({ code: "position_management_failed", cooldownKey, cooldownMs: 86_400_000, dedupeKey: `${cooldownKey}:${new Date().toISOString().slice(0, 10)}`, message: "Position-management pass failed closed; no further action was taken by the scheduler.", severity: "critical" });
   }, run: async () => { await runPositionManagementCycle(environment); } });
   return scheduler;

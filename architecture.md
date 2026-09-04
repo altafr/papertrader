@@ -2,12 +2,14 @@
 
 ## Status
 
-- **Stage:** Phase 6.806 explicit hosted position-management failure classification; continuous Paper Autopilot remains paper-only and fail-closed when broker permissions or market data are incomplete.
+- **Stage:** Phase 6.823 stable Telegram failure cooldowns; continuous Paper Autopilot remains paper-only and fail-closed when broker permissions or market data are incomplete.
 - **Current hosted state:** Worker is deployed in Paper Autopilot with fresh crypto data, scheduled research, deterministic risk/execution gates, two-percent minimum sizing, equity bracket entries, ratcheting position stops, restart-safe synthetic crypto protection explicitly enabled, and the read-only Telegram operations assistant enabled with polling. Worker health exposes assistant readiness without secrets. All three paper positions have complete exit-plan coverage and zero unmanaged positions. Position management is degraded because Alpaca returns `HTTP 403 (crypto_order_entitlement_blocked)` for crypto exits; the system does not bypass that provider restriction. The 30-consecutive-calendar-day evidence gate remains required for release readiness after runtime recovery.
 
 The Worker health contract also exposes a stable non-secret `positionManagement.failureCode` when a supervisor pass fails (for example, `crypto_order_entitlement_blocked`), allowing dashboards and Telegram operations to distinguish broker permissions from generic connectivity without parsing provider text.
 
 The hosted database audit on 2026-09-04 confirms the end-to-end paper loop is active: 698 successful crypto-research runs, 113 successful stock-research runs, 21 filled paper orders, and 141 deterministic risk-dry-run rejections. Crypto exit submission remains blocked by Alpaca entitlement and is intentionally fail-closed.
+
+Position-management alert cooldowns use the deterministic failure classification (`crypto_order_entitlement_blocked`, connectivity, stale data, or generic failure), never the broker request ID. This prevents a changing support/request identifier from generating a new Telegram error every scheduler pass; each category is limited to one alert per 24 hours while every solver attempt remains persisted for diagnostics.
 
 A read-only provider boundary check confirmed the paper account is active and Alpaca reports `BTC/USD` as an active, tradable, fractionable asset. Because the order endpoint still returns the separate entitlement-blocked 403, asset metadata is not treated as proof of order permission; the supervisor continues requiring a successful broker exit before declaring readiness.
 

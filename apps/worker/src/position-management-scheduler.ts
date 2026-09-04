@@ -16,6 +16,11 @@ export function classifyPositionManagementFailure(error: unknown): string {
   return "position_management_failed";
 }
 
+/** Build a stable alert key so provider request IDs cannot defeat deduplication. */
+export function getPositionManagementFailureCooldownKey(error: unknown): string {
+  return `position_management_failed:${classifyPositionManagementFailure(error)}`;
+}
+
 export function getPositionManagementHealth() { return { ...(failureCode ? { failureCode } : {}), ...(lastError ? { lastError } : {}), ...(lastRunAt ? { lastRunAt } : {}), ...(unmanagedCount === undefined ? {} : { unmanagedCount }), status }; }
 
 /** Record the bounded count of broker positions lacking a complete exit plan. */

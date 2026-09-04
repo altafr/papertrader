@@ -1,10 +1,16 @@
 import { describe, expect, it, vi } from "vitest";
-import { classifyPositionManagementFailure, createPositionManagementScheduler, getPositionManagementHealth, setPositionManagementUnmanagedCount } from "./position-management-scheduler.js";
+import { classifyPositionManagementFailure, createPositionManagementScheduler, getPositionManagementFailureCooldownKey, getPositionManagementHealth, setPositionManagementUnmanagedCount } from "./position-management-scheduler.js";
 
 describe("position management scheduler", () => {
   it("classifies provider entitlement failures without exposing response details", () => {
     expect(classifyPositionManagementFailure(new Error("Paper exit submission failed with HTTP 403 (crypto_order_entitlement_blocked)."))).toBe("crypto_order_entitlement_blocked");
     expect(classifyPositionManagementFailure(new Error("provider network timeout"))).toBe("provider_connectivity");
+  });
+  it("keeps cooldown keys stable when broker request IDs change", () => {
+    const first = getPositionManagementFailureCooldownKey(new Error("crypto_order_entitlement_blocked request_id=abc123"));
+    const second = getPositionManagementFailureCooldownKey(new Error("crypto_order_entitlement_blocked request_id=xyz789"));
+    expect(first).toBe("position_management_failed:crypto_order_entitlement_blocked");
+    expect(second).toBe(first);
   });
   it("records a bounded unmanaged-position count for operator health", () => {
     setPositionManagementUnmanagedCount(3.9);
