@@ -2,11 +2,17 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.815 — deployed branch synchronized to GitHub.
+- **Phase:** Phase 6.816 — accurate crypto restriction classification.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, scheduled research, complete exit-plan coverage for all three live paper positions, and zero unmanaged positions. The signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections. Position management is currently degraded only because Alpaca rejects crypto exits with HTTP 403 (`crypto_order_entitlement_blocked`); the system remains fail-closed.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit confirms complete position coverage and Telegram delivery from a persisted sent test.
 - **Last updated:** 2026-09-04.
+
+### Phase 6.816 — accurate crypto restriction classification (2026-09-04)
+
+- The Alpaca adapter now reads only bounded provider error fields (`code`, `message`, or `error`) and distinguishes entitlement, wash-trade, and generic crypto restrictions; it no longer labels every HTTP 403 as entitlement.
+- Provider hints never enter logs or user-facing messages, and all unknown 403s remain fail-closed for manual review. Regression coverage, 468 tests, typechecks, and lint pass.
+- **Next smallest unit:** deploy this adapter revision and inspect the resulting stable restriction code in Worker health/tech_solver; use that evidence to resolve the exact Alpaca account condition.
 
 ### Phase 6.815 — deployed branch synchronized to GitHub (2026-09-04)
 

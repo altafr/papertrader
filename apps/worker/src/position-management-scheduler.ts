@@ -9,6 +9,8 @@ let unmanagedCount: number | undefined;
 export function classifyPositionManagementFailure(error: unknown): string {
   const message = (error instanceof Error ? error.message : String(error)).toLowerCase();
   if (message.includes("crypto_order_entitlement_blocked") || (message.includes("entitlement") && message.includes("403"))) return "crypto_order_entitlement_blocked";
+  if (message.includes("crypto_order_wash_trade_blocked")) return "crypto_order_wash_trade_blocked";
+  if (message.includes("crypto_order_restricted")) return "crypto_order_restricted";
   if (message.includes("market_data") || message.includes("stale")) return "market_data_unavailable";
   if (message.includes("network") || message.includes("fetch") || message.includes("http ")) return "provider_connectivity";
   return "position_management_failed";

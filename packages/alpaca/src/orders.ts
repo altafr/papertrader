@@ -83,9 +83,22 @@ export interface PaperOrderSubmitterOptions {
 }
 
 /** Classify provider failures without exposing response bodies or credentials. */
-export function classifyPaperOrderFailure(assetClass: "crypto" | "us_equity", status: number, exit = false): string {
-  if (assetClass === "crypto" && status === 403) return "crypto_order_entitlement_blocked";
+export function classifyPaperOrderFailure(assetClass: "crypto" | "us_equity", status: number, exit = false, providerHint = ""): string {
+  if (assetClass === "crypto" && status === 403) {
+    const hint = providerHint.toLowerCase();
+    if (hint.includes("entitlement") || hint.includes("not enabled")) return "crypto_order_entitlement_blocked";
+    if (hint.includes("wash")) return "crypto_order_wash_trade_blocked";
+    if (hint.includes("liquidat") || hint.includes("restrict")) return "crypto_order_restricted";
+    return "crypto_order_restricted";
+  }
   return `${exit ? "paper_exit" : "paper_entry"}_http_${status}`;
+}
+
+async function getProviderFailureHint(response: Response): Promise<string> {
+  try {
+    const body = await response.clone().json() as Record<string, unknown>;
+    return [body.code, body.message, body.error].filter((value): value is string => typeof value === "string").join(" ").slice(0, 240);
+  } catch { return ""; }
 }
 
 /** Alpaca's crypto trading API uses slash-delimited symbols (for example BTC/USD). */
@@ -125,7 +138,7 @@ export function createPaperOrderSubmitter(options: PaperOrderSubmitterOptions): 
       const bracket = request.assetClass === "us_equity" && request.plannedStopPrice && request.plannedTargetPrice;
       const body = { client_order_id: request.clientOrderId, limit_price: request.limitPrice, order_class: bracket ? "bracket" : "simple", ...(bracket ? { take_profit: { limit_price: request.plannedTargetPrice }, stop_loss: { stop_price: request.plannedStopPrice } } : {}), qty: request.quantity, side: request.side, symbol: normalizeAlpacaOrderSymbol(request.assetClass, request.symbol), time_in_force: request.assetClass === "crypto" ? "gtc" : request.timeInForce, type: request.type };
       const response = await requestJson("/v2/orders", { body: JSON.stringify(body), method: "POST" });
-      if (!response.ok) throw new Error(`Paper order submission failed with HTTP ${response.status} (${classifyPaperOrderFailure(request.assetClass, response.status)}).`);
+      if (!response.ok) throw new Error(`Paper order submission failed with HTTP ${response.status} (${classifyPaperOrderFailure(request.assetClass, response.status, false, await getProviderFailureHint(response))}).`);
       return normalizeOrder(orderSchema.parse(await response.json()), request);
     },
   };
@@ -150,7 +163,7 @@ export function createPaperExitOrderSubmitter(options: PaperOrderSubmitterOption
       if (existingResponse.ok) return normalizeOrder(orderSchema.parse(await existingResponse.json()), { approval: { approvalId: request.clientOrderId, intentId: request.clientOrderId, status: "approved" }, assetClass: request.assetClass, clientOrderId: request.clientOrderId, quantity: request.quantity, side: "buy", symbol: request.decision.symbol, timeInForce: request.timeInForce, type: request.type });
       if (existingResponse.status !== 404) throw new Error("Paper exit idempotency lookup failed.");
       const response = await requestJson("/v2/orders", { body: JSON.stringify({ client_order_id: request.clientOrderId, order_class: "simple", qty: request.quantity, side: "sell", symbol: normalizeAlpacaOrderSymbol(request.assetClass, request.decision.symbol), time_in_force: request.assetClass === "crypto" ? "gtc" : request.timeInForce, type: request.type }), method: "POST" });
-      if (!response.ok) throw new Error(`Paper exit submission failed with HTTP ${response.status} (${classifyPaperOrderFailure(request.assetClass, response.status, true)}).`);
+      if (!response.ok) throw new Error(`Paper exit submission failed with HTTP ${response.status} (${classifyPaperOrderFailure(request.assetClass, response.status, true, await getProviderFailureHint(response))}).`);
       return normalizeOrder(orderSchema.parse(await response.json()), { approval: { approvalId: request.clientOrderId, intentId: request.clientOrderId, status: "approved" }, assetClass: request.assetClass, clientOrderId: request.clientOrderId, quantity: request.quantity, side: "buy", symbol: request.decision.symbol, timeInForce: request.timeInForce, type: request.type });
     },
   };

@@ -13,8 +13,10 @@ describe("paper order submitter", () => {
     expect(normalizeAlpacaOrderSymbol("crypto", "BTC/USD")).toBe("BTC/USD");
     expect(normalizeAlpacaOrderSymbol("us_equity", "AAPL")).toBe("AAPL");
   });
-  it("classifies crypto entitlement failures without exposing provider response bodies", () => {
-    expect(classifyPaperOrderFailure("crypto", 403)).toBe("crypto_order_entitlement_blocked");
+  it("classifies crypto restrictions from bounded provider hints without exposing response bodies", () => {
+    expect(classifyPaperOrderFailure("crypto", 403)).toBe("crypto_order_restricted");
+    expect(classifyPaperOrderFailure("crypto", 403, true, "crypto entitlement not enabled")).toBe("crypto_order_entitlement_blocked");
+    expect(classifyPaperOrderFailure("crypto", 403, true, "wash trade protection")).toBe("crypto_order_wash_trade_blocked");
     expect(classifyPaperOrderFailure("us_equity", 403)).toBe("paper_entry_http_403");
     expect(classifyPaperOrderFailure("crypto", 429, true)).toBe("paper_exit_http_429");
   });

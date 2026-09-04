@@ -6,6 +6,10 @@ describe("tech_solver", () => {
     expect(diagnoseTechSolverError(new Error("Paper exit submission failed with HTTP 403 (crypto_order_entitlement_blocked)."))).toMatchObject({ category: "broker_entitlement", fingerprint: "broker_entitlement_blocked", status: "manual_review" });
   });
 
+  it("keeps generic crypto restrictions distinct from entitlement failures", () => {
+    expect(diagnoseTechSolverError(new Error("Paper exit submission failed with HTTP 403 (crypto_order_restricted)."))).toMatchObject({ category: "broker_crypto_restriction", fingerprint: "broker_crypto_restriction", status: "manual_review" });
+  });
+
   it("redacts secrets and keeps unknown remediation fail-closed", () => {
     const result = diagnoseTechSolverError(new Error("fetch failed api_key=secret-value"));
     expect(result.problem).not.toContain("secret-value");
