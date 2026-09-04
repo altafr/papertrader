@@ -2,11 +2,17 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.807 — hosted end-to-end paper activity verified.
+- **Phase:** Phase 6.808 — Alpaca crypto entitlement boundary isolated.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, scheduled research, complete exit-plan coverage for all three live paper positions, and zero unmanaged positions. The signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections. Position management is currently degraded only because Alpaca rejects crypto exits with HTTP 403 (`crypto_order_entitlement_blocked`); the system remains fail-closed.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit confirms complete position coverage and Telegram delivery from a persisted sent test.
 - **Last updated:** 2026-09-04.
+
+### Phase 6.808 — Alpaca crypto entitlement boundary isolated (2026-09-04)
+
+- Read-only Alpaca checks from Railway returned HTTP 200 for the paper account and the `BTC/USD` asset (`active`, `tradable:true`, `fractionable:true`).
+- The order API still returns the distinct `crypto_order_entitlement_blocked` HTTP 403 on exits, so the remaining issue is an order permission boundary not visible in the public asset metadata. No order was submitted, cancelled, or modified during this check.
+- **Next smallest unit:** review crypto trading permissions with Alpaca support/account settings; then rerun one deterministic exit and the hosted contract. Keep the current fail-closed supervisor behavior until that succeeds.
 
 ### Phase 6.807 — hosted end-to-end paper activity verified (2026-09-04)
 
