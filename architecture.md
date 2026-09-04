@@ -33,6 +33,8 @@ Rejected paper orders retain only a validated, bounded Alpaca `X-Request-ID` in 
 
 The position supervisor preserves one such request ID when combining independent exit failures, so the diagnostic survives the per-position isolation boundary while Telegram and dashboard messages continue to expose only stable failure codes.
 
+Railway deployment `c3779000-c755-4aa4-a48a-5b9500c656ce` verified this propagation in production; Worker health now includes a bounded request ID for the current Alpaca entitlement rejection.
+
 The `tech_solver` operations agent records bounded runtime failure diagnoses and remediation attempts in PostgreSQL (`tech_solver_cases`) for durable institutional memory. It has no order, risk-policy, credential, or deployment authority; repeated failures remain fail-closed and Telegram notifications are durably cooled down to one per error category per 24 hours.
 
 The Alpaca research source applies a bounded timeframe-aware historical lookback when no explicit start is supplied. This prevents UTC-boundary requests from returning fewer than the two finalized bars required by momentum research; explicit caller ranges remain authoritative and validation still fails closed.

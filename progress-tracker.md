@@ -2,11 +2,18 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.819 — request-ID propagation through position supervision.
+- **Phase:** Phase 6.820 — hosted request-ID diagnostic verified.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, scheduled research, complete exit-plan coverage for all three live paper positions, and zero unmanaged positions. The signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections. Position management is currently degraded only because Alpaca rejects crypto exits with HTTP 403 (`crypto_order_entitlement_blocked`); the system remains fail-closed.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit confirms complete position coverage and Telegram delivery from a persisted sent test.
 - **Last updated:** 2026-09-04.
+
+### Phase 6.820 — hosted request-ID diagnostic verified (2026-09-04)
+
+- Railway deployment `c3779000-c755-4aa4-a48a-5b9500c656ce` reached `SUCCESS`.
+- Live Worker health now reports the stable `crypto_order_entitlement_blocked` code plus a bounded Alpaca request ID (`3ae435e17191bd2e444e5ff620a54650`) for support escalation. The request ID is not a credential and no response body was exposed.
+- Market data remains fresh, research remains scheduled, and the supervisor remains fail-closed with zero unmanaged positions.
+- **Next smallest unit:** provide this request ID to Alpaca support/account administration, then rerun the deterministic crypto exit and hosted contract after permission is corrected.
 
 ### Phase 6.819 — request-ID propagation through position supervision (2026-09-04)
 
