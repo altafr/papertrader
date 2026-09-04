@@ -2,11 +2,18 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.809 — independent position-exit failure isolation.
+- **Phase:** Phase 6.810 — independent exit isolation deployed and verified.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, scheduled research, complete exit-plan coverage for all three live paper positions, and zero unmanaged positions. The signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections. Position management is currently degraded only because Alpaca rejects crypto exits with HTTP 403 (`crypto_order_entitlement_blocked`); the system remains fail-closed.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit confirms complete position coverage and Telegram delivery from a persisted sent test.
 - **Last updated:** 2026-09-04.
+
+### Phase 6.810 — independent exit isolation deployed and verified (2026-09-04)
+
+- Railway deployment `63990d56-cd99-44bf-a54d-8ee1356ea9d3` reached `SUCCESS`.
+- Live health confirms the Worker still runs scheduled paper research with fresh market data and zero unmanaged positions; the crypto entitlement failure is explicitly classified and keeps the supervisor degraded.
+- The runner now evaluates independent positions after a rejected exit and records each failed symbol for durable alerting before returning a degraded result. No broker order was created by this deployment verification.
+- **Next smallest unit:** after Alpaca entitlement review, observe a successful crypto exit and confirm the Worker returns to healthy position management.
 
 ### Phase 6.809 — independent position-exit failure isolation (2026-09-04)
 
