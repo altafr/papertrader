@@ -2,11 +2,19 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.799 — hosted tech-solver diagnosis refinement.
+- **Phase:** Phase 6.800 — hosted tech-solver and Telegram deduplication verified.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, scheduled research, healthy position management, and complete exit-plan coverage for all three live paper positions. The signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit confirms complete position coverage and Telegram delivery from a persisted sent test.
 - **Last updated:** 2026-09-02.
+
+### Phase 6.800 — hosted tech-solver and Telegram deduplication verified (2026-09-04)
+
+- Railway deployment `5e373249-ad43-4a5b-9043-27f8004c66e8` reached `SUCCESS`; migration `0018` is applied through the hosted Worker image.
+- Hosted PostgreSQL contains distinct durable solver cases: `broker_entitlement_blocked` (`manual_review`, attempt `1`) and the earlier connectivity case (`2` attempts), proving long-lived case memory and category refinement.
+- Repeated position-management failures produced one persisted `position_management_failed` alert for the UTC day despite subsequent retries; Telegram noise is now durably cooled down while the solver continues recording attempts.
+- Position management remains fail-closed because Alpaca is returning a crypto entitlement `HTTP 403`; no risk or trading gate was bypassed.
+- **Next smallest unit:** resolve or explicitly review the Alpaca crypto entitlement, then verify position-management recovery without changing paper-only controls.
 
 ### Phase 6.799 — hosted tech-solver diagnosis refinement (2026-09-04)
 
