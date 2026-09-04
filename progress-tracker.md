@@ -2,11 +2,18 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.816 — accurate crypto restriction classification.
+- **Phase:** Phase 6.817 — provider-aware crypto restriction deployed.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, scheduled research, complete exit-plan coverage for all three live paper positions, and zero unmanaged positions. The signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections. Position management is currently degraded only because Alpaca rejects crypto exits with HTTP 403 (`crypto_order_entitlement_blocked`); the system remains fail-closed.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit confirms complete position coverage and Telegram delivery from a persisted sent test.
 - **Last updated:** 2026-09-04.
+
+### Phase 6.817 — provider-aware crypto restriction deployed (2026-09-04)
+
+- Railway deployment `bfd15eed-1d65-4edd-8626-9de3391ee6d9` reached `SUCCESS`.
+- The live Worker continues to report `crypto_order_entitlement_blocked`, confirming Alpaca's returned provider hint is specifically entitlement-related even though account and asset metadata are active. Unknown 403s would remain generic and fail-closed.
+- No order was submitted by the deployment check; paper research, scheduling, and risk gates remain active.
+- **Next smallest unit:** resolve the confirmed Alpaca crypto order entitlement, then verify one deterministic exit and rerun the hosted contract.
 
 ### Phase 6.816 — accurate crypto restriction classification (2026-09-04)
 

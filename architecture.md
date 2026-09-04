@@ -27,6 +27,8 @@ The deployed `phase-6-10-operator-health` branch is synchronized to the GitHub o
 
 The Alpaca adapter classifies crypto HTTP 403 responses from bounded provider fields when available (`crypto_order_entitlement_blocked`, `crypto_order_wash_trade_blocked`, or `crypto_order_restricted`). Unknown restrictions remain fail-closed and are never treated as proof of entitlement failure.
 
+Deployment `bfd15eed-1d65-4edd-8626-9de3391ee6d9` confirmed the hosted provider hint resolves to `crypto_order_entitlement_blocked`; the account/asset metadata check is therefore not sufficient to grant order permission.
+
 The `tech_solver` operations agent records bounded runtime failure diagnoses and remediation attempts in PostgreSQL (`tech_solver_cases`) for durable institutional memory. It has no order, risk-policy, credential, or deployment authority; repeated failures remain fail-closed and Telegram notifications are durably cooled down to one per error category per 24 hours.
 
 The Alpaca research source applies a bounded timeframe-aware historical lookback when no explicit start is supplied. This prevents UTC-boundary requests from returning fewer than the two finalized bars required by momentum research; explicit caller ranges remain authoritative and validation still fails closed.
