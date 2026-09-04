@@ -2,11 +2,18 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.804 — hosted crypto entitlement diagnosis confirmed.
-- **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, scheduled research, healthy position management, and complete exit-plan coverage for all three live paper positions. The signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections.
+- **Phase:** Phase 6.805 — hosted contract recheck and blocker recorded.
+- **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, scheduled research, complete exit-plan coverage for all three live paper positions, and zero unmanaged positions. The signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections. Position management is currently degraded only because Alpaca rejects crypto exits with HTTP 403 (`crypto_order_entitlement_blocked`); the system remains fail-closed.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit confirms complete position coverage and Telegram delivery from a persisted sent test.
-- **Last updated:** 2026-09-02.
+- **Last updated:** 2026-09-04.
+
+### Phase 6.805 — hosted contract recheck and blocker recorded (2026-09-04)
+
+- Repository verification passed: 465 tests, all workspace typechecks, and ESLint with zero warnings.
+- The hosted contract recheck confirms paper mode, approved order submission, connected/fresh market data, scheduled research, durable scheduling, Telegram assistant readiness, and zero unmanaged positions. The only failed runtime gate is position management because Alpaca returns `HTTP 403 (crypto_order_entitlement_blocked)` when submitting a crypto exit.
+- No credentials, broker settings, risk thresholds, or safety gates were changed. `tech_solver` continues to persist the manual-review case and alert delivery remains durably cooled down.
+- **Next smallest unit:** review or enable crypto trading entitlement in Alpaca, then rerun the hosted position-management and full contract checks.
 
 ### Phase 6.804 — hosted crypto entitlement diagnosis confirmed (2026-09-04)
 
