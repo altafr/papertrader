@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.834 dashboard evidence-gate ETA; continuous Paper Autopilot remains paper-only and fail-closed when broker permissions or market data are incomplete.
+- **Stage:** Phase 6.836 autonomous evidence-gate transition alert; continuous Paper Autopilot remains paper-only and fail-closed when broker permissions or market data are incomplete.
 - **Current hosted state:** Worker is deployed in Paper Autopilot with fresh crypto data, scheduled research, deterministic risk/execution gates, two-percent minimum sizing, equity bracket entries, ratcheting position stops, restart-safe synthetic crypto protection explicitly enabled, and the read-only Telegram operations assistant enabled with polling. Runtime, reconciliation, position coverage, and Telegram configuration remain ready; the top-level Worker is healthy. The latest audit recorded 15,746 account snapshots, with 14 consecutive evidence days and 16 remaining; full readiness remains intentionally blocked until the required 30-day paper history exists.
 
 The Worker health contract also exposes a stable non-secret `positionManagement.failureCode` when a supervisor pass fails (for example, `crypto_order_entitlement_blocked`), allowing dashboards and Telegram operations to distinguish broker permissions from generic connectivity without parsing provider text.
@@ -24,6 +24,8 @@ Paper evidence reports now include an optional estimated eligibility timestamp w
 The daily server-side reconciliation also checks the persisted evidence report and emits one permanently deduplicated, review-only Telegram event when 30 consecutive calendar days are genuinely satisfied. This notification cannot change operating mode, risk policy, or live eligibility; a failed telemetry check is isolated from trading and logged as degraded.
 
 The authenticated API and dashboard expose the same optional ETA alongside days remaining, preserving a single operator-facing evidence contract across Worker, Telegram, and web surfaces.
+
+The Worker daily reconciliation now emits a single permanently deduplicated Telegram notice when the actual 30-day paper-evidence gate clears. This is a review signal only and cannot promote the account, alter risk, or switch operating mode.
 
 Railway API deployment `a8d9bb53-5472-49a2-ad39-72bdcedf3db3` and Vercel production deployment `papertrader-n6u48cv0l-altafrs-projects.vercel.app` verified the dashboard/API rollout; the public web surface responds HTTP 200.
 

@@ -23,7 +23,9 @@
 - The server-side daily reconciliation now checks the bounded persisted paper-performance history and emits one permanently deduplicated `paper_evidence_gate_ready` Telegram event when 30 consecutive calendar days are actually satisfied.
 - The event is explicitly review-only: it cannot change mode, enable live trading, loosen risk, or bypass any readiness gate. A failed evidence telemetry query is isolated and logged without stopping reconciliation or trading loops.
 - Added regression coverage for ready and incomplete evidence reports. Deployment and hosted verification remain pending until the focused checks pass.
-- **Next smallest unit:** run the full checks, deploy the Worker, and verify the new readiness transition path remains dormant while the current evidence window is 14/30.
+- Railway Worker deployment `c9316997-cae3-467c-8852-204f81bfd9eb` reached `SUCCESS`. Live health remains healthy with fresh market data, ready position management, zero unmanaged positions, and Telegram assistant readiness.
+- A post-deploy database check found no `paper_evidence_gate_ready` or repeated research-failure alert rows after rollout, as expected while the evidence window remains incomplete.
+- **Next smallest unit:** continue uninterrupted Paper Autopilot and re-run the guarded readiness audit after the next evidence-day boundary; the transition notice will remain dormant until the real 30-day gate is satisfied.
 
 ### Phase 6.822 — hosted solver request-ID persistence verified (2026-09-04)
 
