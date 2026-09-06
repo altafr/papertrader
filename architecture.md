@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.839 full workspace regression; continuous Paper Autopilot remains paper-only and fail-closed when broker permissions or market data are incomplete.
+- **Stage:** Phase 6.841 workspace typecheck and lint; continuous Paper Autopilot remains paper-only and fail-closed when broker permissions or market data are incomplete.
 - **Current hosted state:** Worker is deployed in Paper Autopilot with fresh crypto data, scheduled research, deterministic risk/execution gates, two-percent minimum sizing, equity bracket entries, ratcheting position stops, restart-safe synthetic crypto protection explicitly enabled, and the read-only Telegram operations assistant enabled with polling. Runtime, reconciliation, position coverage, and Telegram configuration remain ready; the top-level Worker is healthy. The latest audit recorded 15,821 account snapshots, with 14 consecutive evidence days and 16 remaining; full readiness remains intentionally blocked until the required 30-day paper history exists.
 
 The Worker health contract also exposes a stable non-secret `positionManagement.failureCode` when a supervisor pass fails (for example, `crypto_order_entitlement_blocked`), allowing dashboards and Telegram operations to distinguish broker permissions from generic connectivity without parsing provider text.

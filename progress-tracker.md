@@ -2,11 +2,19 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.840 — hosted evidence-window refresh.
+- **Phase:** Phase 6.841 — workspace typecheck and lint.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, scheduled research, complete exit-plan coverage for the two current paper positions, and zero unmanaged positions. The signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections. The latest live health is healthy; intermittent Alpaca crypto-exit entitlement responses remain fail-closed when they occur.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit confirms complete position coverage and Telegram delivery from a persisted sent test.
 - **Last updated:** 2026-09-06.
+
+### Phase 6.841 — workspace typecheck and lint (2026-09-06)
+
+- All eight checked workspace packages and applications pass TypeScript `--noEmit` typechecking.
+- ESLint passes across `apps` and `packages` with `--max-warnings=0`.
+- Together with Phase 6.839’s `101` test files / `479` tests, the synchronized source is regression-clean before the next hosted evidence audit.
+- No credentials, broker state, risk limits, operating mode, or deployment configuration changed.
+- **Next smallest unit:** continue uninterrupted Paper Autopilot and rerun the guarded readiness audit at the next UTC evidence boundary.
 
 ### Phase 6.840 — hosted evidence-window refresh (2026-09-06)
 
