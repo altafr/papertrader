@@ -12,7 +12,7 @@ type AssistantHealth = { readonly status?: string; readonly operatingMode?: stri
 type AssistantModel = { readonly snapshot?: { readonly capturedAt: Date; readonly cash: string; readonly equity: string; readonly buyingPower: string; readonly lastEquity?: string | null }; readonly positions: readonly { readonly symbol: string; readonly assetClass: string; readonly quantity: string; readonly marketValue: string; readonly unrealizedPl: string }[]; readonly orders: readonly { readonly symbol: string; readonly status: string; readonly side: string; readonly filledQuantity?: string | null; readonly updatedAt?: Date | null }[] } | undefined;
 type AssistantRun = { readonly agentType: string; readonly status: string; readonly runId: string; readonly createdAt: Date; readonly artifactRationale?: string | null };
 type AssistantSubmission = { readonly symbol: string; readonly status: string; readonly assetClass: string; readonly quantity: string; readonly filledQuantity?: string | null; readonly entryPrice?: string | null; readonly plannedStopPrice?: string | null; readonly trailingStopPrice?: string | null; readonly plannedTargetPrice?: string | null; readonly strategyKey?: string | null; readonly strategyVersion?: string | null; readonly timeStopAt?: Date | null; readonly alpacaOrderId?: string | null; readonly riskDecision?: { readonly approvalStatus?: string; readonly reasons?: readonly string[] } | null; readonly updatedAt?: Date | null };
-type AssistantEvidence = { readonly calendarDays: number; readonly consecutiveCalendarDays: number; readonly daysRemaining: number; readonly requiredConsecutiveCalendarDays: number };
+type AssistantEvidence = { readonly calendarDays: number; readonly consecutiveCalendarDays: number; readonly daysRemaining: number; readonly requiredConsecutiveCalendarDays: number; readonly estimatedReadyAt?: string };
 type AssistantTechSolverCase = { readonly category: string; readonly fingerprint: string; readonly attempts: number; readonly status: string; readonly problem: string; readonly solution: string; readonly updatedAt: Date };
 export type FirecrawlSource = { readonly title: string; readonly url: string; readonly description: string };
 
@@ -74,7 +74,7 @@ export async function buildTelegramOpsAssistantReply(question: string, data: Tel
   if (/(?:readiness|evidence|autonomous)/i.test(normalized)) {
     if (!data.getEvidence) return "Autonomous readiness is monitored by the Worker. Ask for infrastructure status to see runtime health and position coverage.";
     const evidence = await data.getEvidence();
-    return `Paper Autopilot readiness\nRuntime and position controls are server-side and read-only here. Evidence: ${evidence.consecutiveCalendarDays}/${evidence.requiredConsecutiveCalendarDays} consecutive days; ${evidence.daysRemaining} days remaining. Calendar days observed: ${evidence.calendarDays}.`;
+    return `Paper Autopilot readiness\nRuntime and position controls are server-side and read-only here. Evidence: ${evidence.consecutiveCalendarDays}/${evidence.requiredConsecutiveCalendarDays} consecutive days; ${evidence.daysRemaining} days remaining${evidence.estimatedReadyAt ? `; estimated eligible date ${utc(new Date(evidence.estimatedReadyAt))}` : ""}. Calendar days observed: ${evidence.calendarDays}.`;
   }
   if (isResearchQuestion(question)) {
     if (!data.askResearch) return "The research route is not available in this deployment. Trading and risk controls are unaffected.";
@@ -237,7 +237,7 @@ export function createTelegramOpsAssistantData(environment: NodeJS.ProcessEnv, h
     getEvidence: async () => {
       const result = await pool.query<{ readonly captured_at: Date; readonly equity: string }>("SELECT captured_at, equity FROM account_snapshots ORDER BY captured_at DESC LIMIT $1", [PAPER_EVIDENCE_SNAPSHOT_LIMIT]);
       const report = buildPaperPerformanceReport(result.rows.map((row) => ({ capturedAt: row.captured_at.toISOString(), equity: String(row.equity) })));
-      return { calendarDays: report.calendarDays, consecutiveCalendarDays: report.consecutiveCalendarDays, daysRemaining: Math.max(0, 30 - report.consecutiveCalendarDays), requiredConsecutiveCalendarDays: 30 };
+      return { calendarDays: report.calendarDays, consecutiveCalendarDays: report.consecutiveCalendarDays, daysRemaining: Math.max(0, 30 - report.consecutiveCalendarDays), requiredConsecutiveCalendarDays: 30, ...(report.estimatedReadyAt ? { estimatedReadyAt: report.estimatedReadyAt } : {}) };
     },
     askResearch,
   } };

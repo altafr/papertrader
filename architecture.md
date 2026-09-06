@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Phase 6.832 hosted continuity audit; continuous Paper Autopilot remains paper-only and fail-closed when broker permissions or market data are incomplete.
+- **Stage:** Phase 6.833 evidence-gate ETA visibility; continuous Paper Autopilot remains paper-only and fail-closed when broker permissions or market data are incomplete.
 - **Current hosted state:** Worker is deployed in Paper Autopilot with fresh crypto data, scheduled research, deterministic risk/execution gates, two-percent minimum sizing, equity bracket entries, ratcheting position stops, restart-safe synthetic crypto protection explicitly enabled, and the read-only Telegram operations assistant enabled with polling. Runtime, reconciliation, position coverage, and Telegram configuration remain ready; the top-level Worker is healthy. The latest audit recorded 15,746 account snapshots, with 14 consecutive evidence days and 16 remaining; full readiness remains intentionally blocked until the required 30-day paper history exists.
 
 The Worker health contract also exposes a stable non-secret `positionManagement.failureCode` when a supervisor pass fails (for example, `crypto_order_entitlement_blocked`), allowing dashboards and Telegram operations to distinguish broker permissions from generic connectivity without parsing provider text.
@@ -16,6 +16,8 @@ The shared Telegram notifier also applies a one-day cooldown to error-like event
 A read-only provider boundary check confirmed the paper account is active and Alpaca reports `BTC/USD` as an active, tradable, fractionable asset. Because the order endpoint still returns the separate entitlement-blocked 403, asset metadata is not treated as proof of order permission; the supervisor continues requiring a successful broker exit before declaring readiness.
 
 The Worker includes a guarded `alpaca-entitlement-audit` command that calls only read-only paper account and asset endpoints and emits bounded metadata. It explicitly reports `orderPathTested=false`, so a metadata-ready result can never be mistaken for order authorization or used to bypass the deterministic exit gate.
+
+Paper evidence reports now include an optional estimated eligibility timestamp while the 30-day gate is incomplete. The estimate is informational, derived from the latest captured timestamp and remaining consecutive days, and is never used to mark readiness early.
 
 Railway deployment `9deb2cfa-e25d-40e0-871e-3b8fcfdc9b2f` verified the audit in production: account and both requested assets returned HTTP 200 and expected active/tradable metadata, with no blocked reasons. The intermittent order-path 403 remains a separate provider-side condition.
 

@@ -1,8 +1,12 @@
 import { describe, expect, it } from "vitest";
 
-import { buildPaperPerformanceReport, PAPER_EVIDENCE_SNAPSHOT_LIMIT } from "./paper-performance-report.js";
+import { buildPaperPerformanceReport, estimatePaperEvidenceReadyAt, PAPER_EVIDENCE_SNAPSHOT_LIMIT } from "./paper-performance-report.js";
 
 describe("paper performance report", () => {
+  it("estimates evidence eligibility without changing the gate", () => {
+    expect(estimatePaperEvidenceReadyAt("2026-09-01T12:00:00.000Z", 14)).toBe("2026-09-17T12:00:00.000Z");
+    expect(estimatePaperEvidenceReadyAt("2026-09-01T12:00:00.000Z", 30)).toBeUndefined();
+  });
   it("retains enough bounded history for the evidence window", () => {
     expect(PAPER_EVIDENCE_SNAPSHOT_LIMIT).toBeGreaterThanOrEqual(30_000);
   });

@@ -32,6 +32,7 @@ export interface FullPaperAutonomousReadiness {
     readonly consecutiveCalendarDays: number;
     readonly daysRemaining: number;
     readonly requiredConsecutiveCalendarDays: 30;
+    readonly estimatedReadyAt?: string;
   };
   readonly status: "blocked" | "ready";
 }
@@ -58,7 +59,7 @@ export function combineFullPaperAutonomousReadiness(input: FullPaperAutonomousRe
     positionCoverage: input.positionCoverage,
     alerts: input.alerts,
     performance: input.performance,
-    evidence: { calendarDays: input.performance.calendarDays, consecutiveCalendarDays, daysRemaining: Math.max(0, 30 - consecutiveCalendarDays), requiredConsecutiveCalendarDays: 30 },
+    evidence: { calendarDays: input.performance.calendarDays, consecutiveCalendarDays, daysRemaining: Math.max(0, 30 - consecutiveCalendarDays), requiredConsecutiveCalendarDays: 30, ...(input.performance.estimatedReadyAt ? { estimatedReadyAt: input.performance.estimatedReadyAt } : {}) },
     status: blockedReasons.length === 0 ? "ready" : "blocked",
   };
 }
