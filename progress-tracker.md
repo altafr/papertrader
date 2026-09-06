@@ -2,7 +2,7 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.827 — hosted entitlement-regression audit.
+- **Phase:** Phase 6.828 — account-metadata entitlement audit.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, scheduled research, complete exit-plan coverage for all three live paper positions, and zero unmanaged positions. The signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections. Position management is currently degraded only because Alpaca rejects crypto exits with HTTP 403 (`crypto_order_entitlement_blocked`); the system remains fail-closed.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit confirms complete position coverage and Telegram delivery from a persisted sent test.
@@ -55,6 +55,13 @@
 - The notification cooldown continues to suppress repeated Telegram error alerts; the changing broker request ID is retained only in bounded health/solver diagnostics.
 - The readiness audit remains blocked by the evidence duration (`14/30` consecutive days) plus the active broker entitlement failure.
 - **Next smallest unit:** use the persisted latest request ID with Alpaca support/account administration, then rerun the guarded exit and readiness audit after the entitlement is consistently restored.
+
+### Phase 6.828 — account-metadata entitlement audit (2026-09-06)
+
+- Read-only Alpaca paper endpoints report account `ACTIVE`, `crypto_status=ACTIVE`, `account_blocked=false`, `trading_blocked=false`, and `BTC/USD` `active/tradable/fractionable`.
+- The Worker still receives an order-path `crypto_order_entitlement_blocked` 403 for the deterministic crypto exit; no order was placed by this audit and no risk or permission gate was bypassed.
+- This narrows the external escalation to Alpaca’s crypto order entitlement/path while preserving fail-closed supervision and Telegram cooldown behavior.
+- **Next smallest unit:** provide the persisted request ID and this metadata comparison to Alpaca support, then rerun one supervised exit and the full readiness audit after provider confirmation.
 
 ### Phase 6.821 — tech_solver diagnostic persistence corrected (2026-09-04)
 
