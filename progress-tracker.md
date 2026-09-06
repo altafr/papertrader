@@ -106,7 +106,8 @@
 - Extended the authenticated API and dashboard paper-performance model with the same informational `estimatedReadyAt` field exposed by the Worker and Telegram readiness paths.
 - The dashboard displays the estimate as informational context and continues to show the underlying blocked stability gate until 30 consecutive days are actually verified.
 - Full regression remains green: 101 test files / 476 tests; typecheck and lint pass.
-- **Next smallest unit:** deploy API/web surfaces and verify the production dashboard renders the evidence ETA.
+- Railway API deployment `a8d9bb53-5472-49a2-ad39-72bdcedf3db3` reached `SUCCESS`; Vercel production `/` returned HTTP 200 after the dashboard build.
+- **Next smallest unit:** continue the evidence window and verify the authenticated dashboard performance card displays the informational ETA for the operator session.
 
 ### Phase 6.821 — tech_solver diagnostic persistence corrected (2026-09-04)
 

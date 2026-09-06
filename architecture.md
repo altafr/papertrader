@@ -21,6 +21,8 @@ Paper evidence reports now include an optional estimated eligibility timestamp w
 
 The authenticated API and dashboard expose the same optional ETA alongside days remaining, preserving a single operator-facing evidence contract across Worker, Telegram, and web surfaces.
 
+Railway API deployment `a8d9bb53-5472-49a2-ad39-72bdcedf3db3` and Vercel production deployment `papertrader-n6u48cv0l-altafrs-projects.vercel.app` verified the dashboard/API rollout; the public web surface responds HTTP 200.
+
 Railway deployment `bf6d643e-114f-4e4d-b7b4-55bd9494a1f6` verified the estimate in the hosted readiness command; the current estimate is 2026-09-22T05:55:59.968Z and the readiness status remains blocked until the actual 30-day window is complete.
 
 Railway deployment `9deb2cfa-e25d-40e0-871e-3b8fcfdc9b2f` verified the audit in production: account and both requested assets returned HTTP 200 and expected active/tradable metadata, with no blocked reasons. The intermittent order-path 403 remains a separate provider-side condition.
