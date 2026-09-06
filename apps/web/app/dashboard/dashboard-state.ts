@@ -45,6 +45,7 @@ export type PaperPerformance = {
   readonly calendarDays: number;
   readonly consecutiveCalendarDays: number;
   readonly daysRemaining?: number;
+  readonly estimatedReadyAt?: string;
   readonly firstCapturedAt?: string;
   readonly equityCurve?: readonly { readonly capturedAt: string; readonly drawdownPercent: string; readonly equity: string; readonly returnPercent: string }[];
   readonly lastCapturedAt?: string;
@@ -93,6 +94,7 @@ export function parsePaperPerformance(value: unknown): PaperPerformance | undefi
     calendarDays: value.calendarDays,
     consecutiveCalendarDays: value.consecutiveCalendarDays,
     ...(typeof value.daysRemaining === "number" ? { daysRemaining: value.daysRemaining } : {}),
+    ...(typeof value.estimatedReadyAt === "string" ? { estimatedReadyAt: value.estimatedReadyAt } : {}),
     ...(typeof value.firstCapturedAt === "string" ? { firstCapturedAt: value.firstCapturedAt } : {}),
     ...(Array.isArray(equityCurve) ? { equityCurve: equityCurve.map((point) => ({ capturedAt: point.capturedAt as string, drawdownPercent: point.drawdownPercent as string, equity: point.equity as string, returnPercent: point.returnPercent as string })) } : {}),
     ...(typeof value.lastCapturedAt === "string" ? { lastCapturedAt: value.lastCapturedAt } : {}),

@@ -2,7 +2,7 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.833 — evidence-gate ETA visibility.
+- **Phase:** Phase 6.834 — dashboard evidence-gate ETA.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, scheduled research, complete exit-plan coverage for the two current paper positions, and zero unmanaged positions. The signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections. The latest live health is healthy; intermittent Alpaca crypto-exit entitlement responses remain fail-closed when they occur.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit confirms complete position coverage and Telegram delivery from a persisted sent test.
@@ -100,6 +100,13 @@
 - Railway Worker deployment `bf6d643e-114f-4e4d-b7b4-55bd9494a1f6` reached `SUCCESS`.
 - Hosted readiness now reports `estimatedReadyAt=2026-09-22T05:55:59.968Z` alongside `14/30` days and `16` remaining; status remains correctly blocked until actual continuity is proven.
 - **Next smallest unit:** continue the always-on Worker through the estimated date and rerun the guarded readiness audit.
+
+### Phase 6.834 — dashboard evidence-gate ETA (2026-09-06)
+
+- Extended the authenticated API and dashboard paper-performance model with the same informational `estimatedReadyAt` field exposed by the Worker and Telegram readiness paths.
+- The dashboard displays the estimate as informational context and continues to show the underlying blocked stability gate until 30 consecutive days are actually verified.
+- Full regression remains green: 101 test files / 476 tests; typecheck and lint pass.
+- **Next smallest unit:** deploy API/web surfaces and verify the production dashboard renders the evidence ETA.
 
 ### Phase 6.821 — tech_solver diagnostic persistence corrected (2026-09-04)
 
