@@ -2,11 +2,19 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.845 — cross-surface smoke verification.
+- **Phase:** Phase 6.846 — guarded readiness refresh.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, scheduled research, complete exit-plan coverage for the two current paper positions, and zero unmanaged positions. The signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections. The latest live health is healthy; intermittent Alpaca crypto-exit entitlement responses remain fail-closed when they occur.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit confirms complete position coverage and Telegram delivery from a persisted sent test.
 - **Last updated:** 2026-09-06.
+
+### Phase 6.846 — guarded readiness refresh (2026-09-06)
+
+- The Railway full-readiness command completed its read-only audit with runtime, reconciliation, complete exit-plan coverage (`2` positions / `0` unmanaged), verified Telegram delivery, and paper order submission ready.
+- The only blocked gate remains the required paper-history duration: `14/30` consecutive calendar days (`16` remaining). The report contains `15,867` snapshots and an informational eligibility estimate around `2026-09-22T07:35:09Z`.
+- Observed paper metrics are equity `99927.24`, total P/L `537.03`, return `0.54%`, and maximum drawdown `1.33%`; these are descriptive observations, not guarantees.
+- The command exited non-zero intentionally because the evidence gate is incomplete; no broker mutation, credential change, risk-policy change, or deployment occurred.
+- **Next smallest unit:** continue uninterrupted Paper Autopilot and rerun the guarded audit after the next evidence boundary.
 
 ### Phase 6.842 — scheduled cycle verification (2026-09-06)
 
