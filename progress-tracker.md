@@ -2,7 +2,7 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.828 — account-metadata entitlement audit.
+- **Phase:** Phase 6.829 — reusable Alpaca entitlement audit.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, scheduled research, complete exit-plan coverage for all three live paper positions, and zero unmanaged positions. The signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections. Position management is currently degraded only because Alpaca rejects crypto exits with HTTP 403 (`crypto_order_entitlement_blocked`); the system remains fail-closed.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit confirms complete position coverage and Telegram delivery from a persisted sent test.
@@ -62,6 +62,13 @@
 - The Worker still receives an order-path `crypto_order_entitlement_blocked` 403 for the deterministic crypto exit; no order was placed by this audit and no risk or permission gate was bypassed.
 - This narrows the external escalation to Alpaca’s crypto order entitlement/path while preserving fail-closed supervision and Telegram cooldown behavior.
 - **Next smallest unit:** provide the persisted request ID and this metadata comparison to Alpaca support, then rerun one supervised exit and the full readiness audit after provider confirmation.
+
+### Phase 6.829 — reusable Alpaca entitlement audit (2026-09-06)
+
+- Added guarded Worker command `alpaca-entitlement-audit`, which reads only `/v2/account` and bounded asset metadata for `BTC/USD` and `PFD`.
+- The command reports account/asset readiness and always labels `orderPathTested=false`; it cannot place, cancel, or modify an order and cannot override risk gates.
+- Added regression coverage; 101 test files / 475 tests, typecheck, and lint pass.
+- **Next smallest unit:** deploy the command and run it on Railway to capture current provider metadata for the entitlement escalation.
 
 ### Phase 6.821 — tech_solver diagnostic persistence corrected (2026-09-04)
 
