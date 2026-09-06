@@ -2,7 +2,7 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.843 — scheduled cycle execution verification.
+- **Phase:** Phase 6.844 — guarded full-readiness audit.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, scheduled research, complete exit-plan coverage for the two current paper positions, and zero unmanaged positions. The signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections. The latest live health is healthy; intermittent Alpaca crypto-exit entitlement responses remain fail-closed when they occur.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit confirms complete position coverage and Telegram delivery from a persisted sent test.
@@ -22,6 +22,14 @@
 - Worker health remained `healthy`; the crypto stream was `fresh`, position supervision remained `ready`, and the next scheduled cycle advanced to `07:30 UTC`.
 - No broker mutation, risk-policy change, credential change, or deployment was performed during this verification.
 - **Next smallest unit:** continue uninterrupted Paper Autopilot through the next scheduled cycle and preserve the 30-day evidence window.
+
+### Phase 6.844 — guarded full-readiness audit (2026-09-06)
+
+- The read-only Railway full-readiness command confirmed runtime, fresh reconciliation, complete exit-plan coverage (`2` positions / `0` unmanaged), verified Telegram delivery, and enabled paper order submission.
+- The only blocked gate remains the genuine paper-history requirement: `14/30` consecutive calendar days (`16` remaining). The audit now contains `15,847` snapshots and estimates eligibility around `2026-09-22T07:15:58Z`; the estimate is informational and cannot authorize earlier promotion.
+- Descriptive paper metrics are `99884.48` equity, `494.27` total P/L, `0.50%` return, and `1.33%` maximum drawdown. These values are observations, not guarantees.
+- The command exited non-zero intentionally because the evidence gate is not yet satisfied; no broker mutation, configuration change, or deployment occurred.
+- **Next smallest unit:** continue uninterrupted Paper Autopilot and repeat the guarded audit after the next evidence boundary.
 
 ### Phase 6.841 — workspace typecheck and lint (2026-09-06)
 
