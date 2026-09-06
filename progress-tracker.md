@@ -2,11 +2,19 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.837 — production build verification.
+- **Phase:** Phase 6.838 — post-deploy alert-noise audit.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, scheduled research, complete exit-plan coverage for the two current paper positions, and zero unmanaged positions. The signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections. The latest live health is healthy; intermittent Alpaca crypto-exit entitlement responses remain fail-closed when they occur.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit confirms complete position coverage and Telegram delivery from a persisted sent test.
 - **Last updated:** 2026-09-06.
+
+### Phase 6.838 — post-deploy alert-noise audit (2026-09-06)
+
+- Rechecked the live Worker after deployment `c9316997-cae3-467c-8852-204f81bfd9eb`: health is healthy, the crypto stream is fresh, position management is ready with `0` unmanaged positions, and the read-only Telegram assistant is ready with Firecrawl configured.
+- The guarded full-readiness command reports runtime, exit-plan coverage, Telegram delivery, and reconciliation ready. The only remaining release gate is the genuine paper-evidence window: `14/30` consecutive calendar days, `16` days remaining, with an informational estimate around `2026-09-22T06:46:43Z`.
+- A bounded database query found no alert rows for any code after the current deployment timestamp. Historical `research_preparation_failed` rows (created before the deterministic persistence-key rollout) remain preserved for audit and are not evidence of current repeated sends.
+- The deployed source remains clean and synchronized; no credentials, broker state, risk limits, or order behavior were changed by this audit.
+- **Next smallest unit:** keep the always-on Worker running through the next UTC evidence boundary and repeat the guarded readiness audit; no new deployment is required unless a new defect is observed.
 
 ### Phase 6.835 — deterministic error-alert persistence deduplication (2026-09-06)
 
