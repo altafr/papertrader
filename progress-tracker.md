@@ -2,7 +2,7 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.825 — hosted full-readiness recovery audit.
+- **Phase:** Phase 6.826 — hosted continuous-loop evidence audit.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, scheduled research, complete exit-plan coverage for all three live paper positions, and zero unmanaged positions. The signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections. Position management is currently degraded only because Alpaca rejects crypto exits with HTTP 403 (`crypto_order_entitlement_blocked`); the system remains fail-closed.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit confirms complete position coverage and Telegram delivery from a persisted sent test.
@@ -39,6 +39,14 @@
 - Paper evidence has `14` consecutive calendar days complete (`15` calendar days observed), with `16` days remaining to satisfy the required 30-day release gate.
 - Current observed paper performance is positive (`totalPnl=568.31`, `totalReturnPercent=0.57%`, `maxDrawdownPercent=1.33%`); these are observations, not guarantees.
 - **Next smallest unit:** keep the Worker running through the remaining evidence window and re-run the guarded readiness audit after each material recovery or configuration change.
+
+### Phase 6.826 — hosted continuous-loop evidence audit (2026-09-06)
+
+- Live Worker health remains healthy: crypto market stream connected/fresh, position management ready, and Telegram assistant ready with Firecrawl configured.
+- Hosted database audit found `15,731` account snapshots, `30` filled paper orders, and the two current positions (`BTCUSD`, `PFD`) with zero unmanaged positions.
+- Historical error-alert rows remain visible for audit, but no new repeated error rows were produced after the centralized cooldown deployment.
+- Full readiness remains blocked only by the required evidence duration (`14/30` consecutive days; `16` remaining), not by runtime, broker, position coverage, or Telegram configuration.
+- **Next smallest unit:** continue the always-on Worker and periodically re-run the guarded readiness audit; no manual trading action is required while the evidence window accumulates.
 
 ### Phase 6.821 — tech_solver diagnostic persistence corrected (2026-09-04)
 
