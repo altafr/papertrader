@@ -21,6 +21,8 @@ The Worker includes a guarded `alpaca-entitlement-audit` command that calls only
 
 Paper evidence reports now include an optional estimated eligibility timestamp while the 30-day gate is incomplete. The estimate is informational, derived from the latest captured timestamp and remaining consecutive days, and is never used to mark readiness early.
 
+The daily server-side reconciliation also checks the persisted evidence report and emits one permanently deduplicated, review-only Telegram event when 30 consecutive calendar days are genuinely satisfied. This notification cannot change operating mode, risk policy, or live eligibility; a failed telemetry check is isolated from trading and logged as degraded.
+
 The authenticated API and dashboard expose the same optional ETA alongside days remaining, preserving a single operator-facing evidence contract across Worker, Telegram, and web surfaces.
 
 Railway API deployment `a8d9bb53-5472-49a2-ad39-72bdcedf3db3` and Vercel production deployment `papertrader-n6u48cv0l-altafrs-projects.vercel.app` verified the dashboard/API rollout; the public web surface responds HTTP 200.

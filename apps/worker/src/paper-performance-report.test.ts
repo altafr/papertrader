@@ -1,8 +1,18 @@
 import { describe, expect, it } from "vitest";
 
-import { buildPaperPerformanceReport, estimatePaperEvidenceReadyAt, PAPER_EVIDENCE_SNAPSHOT_LIMIT } from "./paper-performance-report.js";
+import { buildPaperEvidenceReadyAlert, buildPaperPerformanceReport, estimatePaperEvidenceReadyAt, PAPER_EVIDENCE_SNAPSHOT_LIMIT } from "./paper-performance-report.js";
 
 describe("paper performance report", () => {
+  it("builds one review-only alert when the evidence gate is genuinely ready", () => {
+    const report = buildPaperPerformanceReport(Array.from({ length: 30 }, (_, index) => ({ capturedAt: `2026-08-${String(index + 1).padStart(2, "0")}T12:00:00.000Z`, equity: "100000" })));
+    expect(buildPaperEvidenceReadyAlert(report, "2026-09-01T12:00:00.000Z")).toEqual(expect.objectContaining({ code: "paper_evidence_gate_ready", dedupeKey: "paper_evidence_gate_ready", severity: "info" }));
+  });
+
+  it("does not alert while the evidence gate is incomplete", () => {
+    const report = buildPaperPerformanceReport([{ capturedAt: "2026-08-25T00:00:00.000Z", equity: "100000" }]);
+    expect(buildPaperEvidenceReadyAlert(report, "2026-08-25T00:00:00.000Z")).toBeUndefined();
+  });
+
   it("estimates evidence eligibility without changing the gate", () => {
     expect(estimatePaperEvidenceReadyAt("2026-09-01T12:00:00.000Z", 14)).toBe("2026-09-17T12:00:00.000Z");
     expect(estimatePaperEvidenceReadyAt("2026-09-01T12:00:00.000Z", 30)).toBeUndefined();

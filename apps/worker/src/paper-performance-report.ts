@@ -23,6 +23,18 @@ export interface PaperPerformanceReport {
   readonly status: "insufficient_history" | "ready";
 }
 
+/** Build the single operator alert emitted when the real evidence gate clears. */
+export function buildPaperEvidenceReadyAlert(report: PaperPerformanceReport, occurredAt: string) {
+  if (report.stability.status !== "ready" || report.consecutiveCalendarDays < 30) return undefined;
+  return {
+    code: "paper_evidence_gate_ready",
+    dedupeKey: "paper_evidence_gate_ready",
+    message: "Paper evidence gate satisfied: 30 consecutive calendar days are recorded. Live-readiness review is still required; no mode or risk setting changed.",
+    occurredAt,
+    severity: "info" as const,
+  };
+}
+
 /** Estimate the first eligible date after the required consecutive evidence window. */
 export function estimatePaperEvidenceReadyAt(lastCapturedAt: string | undefined, consecutiveCalendarDays: number, requiredConsecutiveCalendarDays = 30): string | undefined {
   if (!lastCapturedAt || consecutiveCalendarDays >= requiredConsecutiveCalendarDays) return undefined;

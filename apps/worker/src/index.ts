@@ -21,6 +21,7 @@ import { createRuntimeAlertNotifier } from "./telegram-events.js";
 import { getDailyNotificationDedupeKey } from "./notification-dedupe.js";
 import { attachPositionProtection, countUnmanagedPositions, formatDailyPortfolioSummary } from "./daily-summary.js";
 import { createTelegramOpsAssistant, createTelegramOpsAssistantData } from "./telegram-ops-assistant.js";
+import { buildPaperEvidenceReadyAlert, buildPaperPerformanceReport, PAPER_EVIDENCE_SNAPSHOT_LIMIT } from "./paper-performance-report.js";
 
 const streamEnabled = process.env.MARKET_STREAM_ENABLED;
 if (streamEnabled !== undefined && streamEnabled !== "true" && streamEnabled !== "false") {
@@ -122,6 +123,16 @@ if (durableConfiguration.enabled) {
       );
       const model = await accountRepository.getLatestReadModel(snapshot.accountId);
       const account = model?.snapshot;
+      if (account) {
+        try {
+          const performanceRows = await pool.query<{ readonly captured_at: Date; readonly equity: string }>("SELECT captured_at, equity FROM account_snapshots ORDER BY captured_at DESC LIMIT $1", [PAPER_EVIDENCE_SNAPSHOT_LIMIT]);
+          const report = buildPaperPerformanceReport(performanceRows.rows.map((row) => ({ capturedAt: row.captured_at.toISOString(), equity: row.equity })));
+          const evidenceAlert = buildPaperEvidenceReadyAlert(report, account.capturedAt.toISOString());
+          if (evidenceAlert) await runtimeAlertNotifier.notify(evidenceAlert);
+        } catch {
+          console.warn(JSON.stringify({ event: "paper_evidence_readiness_check_failed", status: "degraded" }));
+        }
+      }
       if (account && !marketCloseSummaryEnabled) {
         const plans = (await createPaperOrderRepository(db).listExitPlans()).filter((plan) => isCompleteExitPlan(plan));
         await createRuntimeAlertNotifier(process.env, createTelegramAlertRepository(db)).notify({ code: "daily_portfolio_summary", cooldownKey: "daily_portfolio_summary:portfolio", cooldownMs: 86_400_000, dedupeKey: getDailyNotificationDedupeKey("daily_portfolio_summary", "portfolio", account.capturedAt), message: formatDailyPortfolioSummary({ buyingPower: account.buyingPower, cash: account.cash, equity: account.equity, ...(account.lastEquity == null ? {} : { lastEquity: account.lastEquity }), orders: model?.orders.length ?? 0, unmanagedPositions: countUnmanagedPositions(model?.positions ?? [], plans), positions: attachPositionProtection(model?.positions ?? [], plans) }), occurredAt: account.capturedAt.toISOString(), severity: "info" });

@@ -2,7 +2,7 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.835 — deterministic error-alert persistence deduplication.
+- **Phase:** Phase 6.836 — autonomous evidence-gate transition alert.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, scheduled research, complete exit-plan coverage for the two current paper positions, and zero unmanaged positions. The signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections. The latest live health is healthy; intermittent Alpaca crypto-exit entitlement responses remain fail-closed when they occur.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit confirms complete position coverage and Telegram delivery from a persisted sent test.
@@ -17,6 +17,13 @@
 - A post-deploy database query found zero new `position_management_failed`, `research_preparation_failed`, or `paper_risk_cycle_failed` rows after the deployment timestamp. Historical rows remain available for audit and were not deleted.
 - The post-deploy full-readiness audit remains correctly blocked only by `minimum_30_consecutive_calendar_days_not_met` (`14/30`, `16` remaining); runtime, exit-plan coverage, Telegram delivery, and reconciliation are ready. The informational estimate is `2026-09-22T06:31:57.660Z` and does not authorize earlier promotion.
 - **Next smallest unit:** continue uninterrupted Paper Autopilot and re-run the guarded full-readiness audit after the next evidence-day boundary; the remaining release gate is the actual 30-day paper history.
+
+### Phase 6.836 — autonomous evidence-gate transition alert (2026-09-06)
+
+- The server-side daily reconciliation now checks the bounded persisted paper-performance history and emits one permanently deduplicated `paper_evidence_gate_ready` Telegram event when 30 consecutive calendar days are actually satisfied.
+- The event is explicitly review-only: it cannot change mode, enable live trading, loosen risk, or bypass any readiness gate. A failed evidence telemetry query is isolated and logged without stopping reconciliation or trading loops.
+- Added regression coverage for ready and incomplete evidence reports. Deployment and hosted verification remain pending until the focused checks pass.
+- **Next smallest unit:** run the full checks, deploy the Worker, and verify the new readiness transition path remains dormant while the current evidence window is 14/30.
 
 ### Phase 6.822 — hosted solver request-ID persistence verified (2026-09-04)
 
