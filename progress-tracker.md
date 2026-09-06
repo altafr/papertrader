@@ -2,7 +2,7 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.836 — autonomous evidence-gate transition alert.
+- **Phase:** Phase 6.837 — production build verification.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, scheduled research, complete exit-plan coverage for the two current paper positions, and zero unmanaged positions. The signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections. The latest live health is healthy; intermittent Alpaca crypto-exit entitlement responses remain fail-closed when they occur.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit confirms complete position coverage and Telegram delivery from a persisted sent test.
@@ -26,6 +26,12 @@
 - Railway Worker deployment `c9316997-cae3-467c-8852-204f81bfd9eb` reached `SUCCESS`. Live health remains healthy with fresh market data, ready position management, zero unmanaged positions, and Telegram assistant readiness.
 - A post-deploy database check found no `paper_evidence_gate_ready` or repeated research-failure alert rows after rollout, as expected while the evidence window remains incomplete.
 - **Next smallest unit:** continue uninterrupted Paper Autopilot and re-run the guarded readiness audit after the next evidence-day boundary; the transition notice will remain dormant until the real 30-day gate is satisfied.
+
+### Phase 6.837 — production build verification (2026-09-06)
+
+- The complete workspace production build passed for all deployable surfaces: shared packages, Railway API, Railway Worker, and the Vercel Web app (including `/dashboard` and `/telegram` routes).
+- This verification introduced no source, configuration, broker, or database changes. The hosted Worker remains on the verified evidence-alert deployment and continues paper-only operation.
+- **Next smallest unit:** continue the evidence window and rerun the guarded full-readiness audit after the next UTC calendar boundary.
 
 ### Phase 6.822 — hosted solver request-ID persistence verified (2026-09-04)
 
