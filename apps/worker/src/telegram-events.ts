@@ -17,6 +17,18 @@ export function isRepeatedErrorAlertCode(code: string): boolean {
   return /(?:^|_)(?:failed|error|unavailable|stale|disconnected)(?:$|_)/i.test(code);
 }
 
+/**
+ * Build a deterministic persistence key for an error cooldown window.  Callers
+ * often include a changing request/run ID in their diagnostic key; that must
+ * never be allowed to turn one incident into an unbounded Telegram stream.
+ */
+export function getStableErrorDedupeKey(code: string, occurredAt: string, cooldownMs = DEFAULT_ERROR_COOLDOWN_MS): string | undefined {
+  if (!isRepeatedErrorAlertCode(code) || !Number.isFinite(cooldownMs) || cooldownMs <= 0) return undefined;
+  const timestamp = Date.parse(occurredAt);
+  if (!Number.isFinite(timestamp)) return undefined;
+  return `${code}:${Math.floor(timestamp / cooldownMs)}`;
+}
+
 /** Best-effort operational alerting; notification failure never changes trading state. */
 export function createRuntimeAlertNotifier(environment: NodeJS.ProcessEnv = process.env, persistence?: RuntimeAlertPersistence) {
   const config = getTelegramNotificationConfig(environment);
@@ -47,7 +59,9 @@ export function createRuntimeAlertNotifier(environment: NodeJS.ProcessEnv = proc
           const occurredAtDate = new Date(occurredAt);
           if (await persistence.hasRecent(alert.code, effectiveCooldownKey, new Date(occurredAtDate.getTime() - effectiveCooldownMs))) return;
         }
-        const event = persistence ? await persistence.enqueue({ code: alert.code, dedupeKey: alert.dedupeKey ?? `${alert.code}:${alert.message}`, message: alert.message, occurredAt: new Date(occurredAt), severity: alert.severity }) : undefined;
+        const stableErrorDedupeKey = !alert.cooldownKey && effectiveCooldownMs ? getStableErrorDedupeKey(alert.code, occurredAt, effectiveCooldownMs) : undefined;
+        const dedupeKey = stableErrorDedupeKey ?? alert.dedupeKey ?? `${alert.code}:${alert.message}`;
+        const event = persistence ? await persistence.enqueue({ code: alert.code, dedupeKey, message: alert.message, occurredAt: new Date(occurredAt), severity: alert.severity }) : undefined;
         if (persistence && !event) return;
         try {
           await sendTelegramAlert(config, { ...alert, occurredAt });

@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { createRuntimeAlertNotifier, isRepeatedErrorAlertCode } from "./telegram-events.js";
+import { createRuntimeAlertNotifier, getStableErrorDedupeKey, isRepeatedErrorAlertCode } from "./telegram-events.js";
 
 describe("runtime Telegram event notifier", () => {
   it("does not record delivery when Telegram is explicitly disabled", async () => {
@@ -62,5 +62,20 @@ describe("runtime Telegram event notifier", () => {
     await notifier.notify({ code: "market_stream_message_failed", dedupeKey: "market_stream_message_failed:reconnect-42", message: "stream failed", severity: "critical", occurredAt: "2026-09-06T00:01:00.000Z" });
     expect(hasRecent).toHaveBeenCalledWith("market_stream_message_failed", "market_stream_message_failed", new Date("2026-09-05T00:01:00.000Z"));
     expect(enqueue).not.toHaveBeenCalled();
+  });
+
+  it("canonicalizes changing error keys before persistence", async () => {
+    const enqueue = vi.fn(async (input: { readonly dedupeKey: string }) => { void input; return { eventId: "event-5" }; });
+    const markSent = vi.fn(async () => undefined);
+    const original = globalThis.fetch;
+    globalThis.fetch = vi.fn(async () => new Response(JSON.stringify({ ok: true }), { status: 200 })) as typeof fetch;
+    try {
+      const notifier = createRuntimeAlertNotifier({ TELEGRAM_ALERTS_ENABLED: "true", TELEGRAM_BOT_TOKEN: "123456:ABC_def-123", TELEGRAM_CHAT_ID: "123" }, { enqueue, markSent, markFailed: vi.fn() });
+      await notifier.notify({ code: "research_preparation_failed", dedupeKey: "research_preparation_failed:run-a", message: "failed", severity: "critical", occurredAt: "2026-09-06T06:01:00.000Z" });
+      expect(enqueue).toHaveBeenCalledWith(expect.objectContaining({ dedupeKey: getStableErrorDedupeKey("research_preparation_failed", "2026-09-06T06:01:00.000Z") }));
+      expect(enqueue.mock.calls[0]?.[0].dedupeKey).not.toBe("research_preparation_failed:run-a");
+    } finally {
+      globalThis.fetch = original;
+    }
   });
 });

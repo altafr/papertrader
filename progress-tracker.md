@@ -2,11 +2,18 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.834 — dashboard evidence-gate ETA.
+- **Phase:** Phase 6.835 — deterministic error-alert persistence deduplication.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, scheduled research, complete exit-plan coverage for the two current paper positions, and zero unmanaged positions. The signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections. The latest live health is healthy; intermittent Alpaca crypto-exit entitlement responses remain fail-closed when they occur.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit confirms complete position coverage and Telegram delivery from a persisted sent test.
 - **Last updated:** 2026-09-06.
+
+### Phase 6.835 — deterministic error-alert persistence deduplication (2026-09-06)
+
+- A live database audit found 12 `research_preparation_failed` rows in the preceding 24 hours despite the shared cooldown guard; the rows carried changing run IDs. The Worker source already had the lookup guard, but persistence still accepted volatile keys when concurrent/restarted paths raced.
+- Error-like alerts without an explicit stable cooldown key now use a deterministic UTC cooldown-window key before enqueue. This prevents duplicate Telegram sends and rows for the same incident window while preserving every technical diagnostic in `tech_solver` and leaving trade/lifecycle alerts unchanged.
+- Focused notifier tests (6), full regression (101 files / 477 tests), workspace typecheck, and lint all pass. No credentials, broker calls, risk limits, or order behavior changed.
+- **Next smallest unit:** deploy the Worker revision, verify the active deployment uses the new source, and confirm no new repeated error rows are created during the next scheduled cycles.
 
 ### Phase 6.822 — hosted solver request-ID persistence verified (2026-09-04)
 

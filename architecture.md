@@ -13,6 +13,8 @@ Position-management alert cooldowns use the deterministic failure classification
 
 The shared Telegram notifier also applies a one-day cooldown to error-like event codes (`failed`, `error`, `unavailable`, `stale`, and `disconnected`) when a caller does not provide one. This covers reconnect/error paths with volatile event IDs without suppressing ordinary lifecycle, trade-decision, or daily-summary notifications.
 
+Error-like alerts without an explicit stable cooldown key now also receive a deterministic persistence key derived from their UTC cooldown window. This closes the race where changing run/request IDs could create multiple database rows before a cooldown lookup observed the first row; diagnostics remain persisted separately and ordinary lifecycle alerts are unchanged.
+
 A read-only provider boundary check confirmed the paper account is active and Alpaca reports `BTC/USD` as an active, tradable, fractionable asset. Because the order endpoint still returns the separate entitlement-blocked 403, asset metadata is not treated as proof of order permission; the supervisor continues requiring a successful broker exit before declaring readiness.
 
 The Worker includes a guarded `alpaca-entitlement-audit` command that calls only read-only paper account and asset endpoints and emits bounded metadata. It explicitly reports `orderPathTested=false`, so a metadata-ready result can never be mistaken for order authorization or used to bypass the deterministic exit gate.
