@@ -2,11 +2,18 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.838 — post-deploy alert-noise audit.
+- **Phase:** Phase 6.839 — full workspace regression.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, scheduled research, complete exit-plan coverage for the two current paper positions, and zero unmanaged positions. The signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections. The latest live health is healthy; intermittent Alpaca crypto-exit entitlement responses remain fail-closed when they occur.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit confirms complete position coverage and Telegram delivery from a persisted sent test.
 - **Last updated:** 2026-09-06.
+
+### Phase 6.839 — full workspace regression (2026-09-06)
+
+- The current source passed the complete Vitest workspace regression: `101` test files and `479` tests passed.
+- This confirms the alert cooldown, paper-evidence transition, position supervision, Telegram assistant, risk gates, and dashboard/API contracts remain covered together after the latest production audit.
+- No credentials, broker state, risk limits, operating mode, or deployment configuration changed during this verification.
+- **Next smallest unit:** continue uninterrupted Paper Autopilot evidence collection; rerun the guarded full-readiness audit after the next UTC evidence boundary.
 
 ### Phase 6.838 — post-deploy alert-noise audit (2026-09-06)
 
