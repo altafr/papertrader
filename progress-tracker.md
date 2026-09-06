@@ -29,7 +29,8 @@
 - Hardened the shared notifier so error-like codes (`failed`, `error`, `unavailable`, `stale`, `disconnected`) receive a stable one-day cooldown even when a caller supplies a volatile event key.
 - Ordinary lifecycle, trade-decision, position, and daily-summary alerts retain their existing behavior; durable solver diagnostics remain unchanged.
 - Focused regression, workspace typecheck, and lint pass: 100 test files / 473 tests.
-- **Next smallest unit:** deploy this shared notification guard and confirm the hosted Worker remains quiet for repeated infrastructure errors.
+- Railway Worker deployment `8cfcc5b5-d72d-44f4-82b2-d43b10c7e8cb` reached `SUCCESS`; the shared guard is active in production.
+- **Next smallest unit:** resolve the external Alpaca crypto-order entitlement; notification suppression is complete and does not require further deployment changes.
 
 ### Phase 6.821 — tech_solver diagnostic persistence corrected (2026-09-04)
 
