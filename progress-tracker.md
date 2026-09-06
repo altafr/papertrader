@@ -2,7 +2,7 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.823 — stable Telegram failure cooldowns.
+- **Phase:** Phase 6.824 — centralized repeated-error Telegram cooldowns.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, scheduled research, complete exit-plan coverage for all three live paper positions, and zero unmanaged positions. The signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections. Position management is currently degraded only because Alpaca rejects crypto exits with HTTP 403 (`crypto_order_entitlement_blocked`); the system remains fail-closed.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit confirms complete position coverage and Telegram delivery from a persisted sent test.
@@ -23,6 +23,13 @@
 - Railway Worker deployment `421fbd66-7a4f-4d87-95d2-2d4f09640093` reached `SUCCESS`.
 - Production health continues to expose the bounded entitlement failure code and changing request ID for diagnostics, while no new repeated Telegram alert rows were created after rollout; prior request-ID-keyed rows are historical.
 - **Next smallest unit:** resolve the Alpaca crypto-order entitlement so position exits can be exercised; alert deduplication is complete.
+
+### Phase 6.824 — centralized repeated-error Telegram cooldowns (2026-09-06)
+
+- Hardened the shared notifier so error-like codes (`failed`, `error`, `unavailable`, `stale`, `disconnected`) receive a stable one-day cooldown even when a caller supplies a volatile event key.
+- Ordinary lifecycle, trade-decision, position, and daily-summary alerts retain their existing behavior; durable solver diagnostics remain unchanged.
+- Focused regression, workspace typecheck, and lint pass: 100 test files / 473 tests.
+- **Next smallest unit:** deploy this shared notification guard and confirm the hosted Worker remains quiet for repeated infrastructure errors.
 
 ### Phase 6.821 — tech_solver diagnostic persistence corrected (2026-09-04)
 

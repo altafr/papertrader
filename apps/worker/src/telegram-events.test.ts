@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { createRuntimeAlertNotifier } from "./telegram-events.js";
+import { createRuntimeAlertNotifier, isRepeatedErrorAlertCode } from "./telegram-events.js";
 
 describe("runtime Telegram event notifier", () => {
   it("does not record delivery when Telegram is explicitly disabled", async () => {
@@ -51,6 +51,16 @@ describe("runtime Telegram event notifier", () => {
     const notifier = createRuntimeAlertNotifier({ TELEGRAM_ALERTS_ENABLED: "true", TELEGRAM_BOT_TOKEN: "123456:ABC_def-123", TELEGRAM_CHAT_ID: "123" }, { enqueue, hasRecent, markSent: vi.fn(), markFailed: vi.fn() });
     await notifier.notify({ code: "daily_portfolio_summary", cooldownKey: "daily_portfolio_summary:portfolio", cooldownMs: 86_400_000, dedupeKey: "daily_portfolio_summary:portfolio:2026-08-29", message: "summary", occurredAt: "2026-08-29T00:01:00.000Z", severity: "info" });
     expect(hasRecent).toHaveBeenCalledWith("daily_portfolio_summary", "daily_portfolio_summary:portfolio", new Date("2026-08-28T00:01:00.000Z"));
+    expect(enqueue).not.toHaveBeenCalled();
+  });
+
+  it("defaults changing error event keys to one stable daily cooldown", async () => {
+    expect(isRepeatedErrorAlertCode("market_stream_message_failed")).toBe(true);
+    const enqueue = vi.fn(async () => ({ eventId: "event-4" }));
+    const hasRecent = vi.fn(async () => true);
+    const notifier = createRuntimeAlertNotifier({ TELEGRAM_ALERTS_ENABLED: "true", TELEGRAM_BOT_TOKEN: "123456:ABC_def-123", TELEGRAM_CHAT_ID: "123" }, { enqueue, hasRecent, markSent: vi.fn(), markFailed: vi.fn() });
+    await notifier.notify({ code: "market_stream_message_failed", dedupeKey: "market_stream_message_failed:reconnect-42", message: "stream failed", severity: "critical", occurredAt: "2026-09-06T00:01:00.000Z" });
+    expect(hasRecent).toHaveBeenCalledWith("market_stream_message_failed", "market_stream_message_failed", new Date("2026-09-05T00:01:00.000Z"));
     expect(enqueue).not.toHaveBeenCalled();
   });
 });

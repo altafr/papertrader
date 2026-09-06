@@ -10,6 +10,13 @@ export interface RuntimeAlertPersistence {
 
 export type RuntimeAlert = Omit<TelegramAlert, "occurredAt"> & { readonly cooldownKey?: string; readonly cooldownMs?: number; readonly occurredAt?: string; readonly dedupeKey?: string };
 
+const DEFAULT_ERROR_COOLDOWN_MS = 86_400_000;
+
+/** Error-like events are operator-important but should not become a per-tick notification stream. */
+export function isRepeatedErrorAlertCode(code: string): boolean {
+  return /(?:^|_)(?:failed|error|unavailable|stale|disconnected)(?:$|_)/i.test(code);
+}
+
 /** Best-effort operational alerting; notification failure never changes trading state. */
 export function createRuntimeAlertNotifier(environment: NodeJS.ProcessEnv = process.env, persistence?: RuntimeAlertPersistence) {
   const config = getTelegramNotificationConfig(environment);
@@ -34,9 +41,11 @@ export function createRuntimeAlertNotifier(environment: NodeJS.ProcessEnv = proc
       const occurredAt = alert.occurredAt ?? new Date().toISOString();
       return (async () => {
         if (!config.enabled) return;
-        if (persistence?.hasRecent && alert.cooldownKey && alert.cooldownMs && alert.cooldownMs > 0) {
+        const effectiveCooldownKey = alert.cooldownKey ?? (isRepeatedErrorAlertCode(alert.code) ? alert.code : undefined);
+        const effectiveCooldownMs = alert.cooldownMs ?? (effectiveCooldownKey ? DEFAULT_ERROR_COOLDOWN_MS : undefined);
+        if (persistence?.hasRecent && effectiveCooldownKey && effectiveCooldownMs && effectiveCooldownMs > 0) {
           const occurredAtDate = new Date(occurredAt);
-          if (await persistence.hasRecent(alert.code, alert.cooldownKey, new Date(occurredAtDate.getTime() - alert.cooldownMs))) return;
+          if (await persistence.hasRecent(alert.code, effectiveCooldownKey, new Date(occurredAtDate.getTime() - effectiveCooldownMs))) return;
         }
         const event = persistence ? await persistence.enqueue({ code: alert.code, dedupeKey: alert.dedupeKey ?? `${alert.code}:${alert.message}`, message: alert.message, occurredAt: new Date(occurredAt), severity: alert.severity }) : undefined;
         if (persistence && !event) return;
