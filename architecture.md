@@ -2,8 +2,8 @@
 
 ## Status
 
-- **Stage:** Phase 6.826 hosted continuous-loop evidence audit; continuous Paper Autopilot remains paper-only and fail-closed when broker permissions or market data are incomplete.
-- **Current hosted state:** Worker is deployed in Paper Autopilot with fresh crypto data, scheduled research, deterministic risk/execution gates, two-percent minimum sizing, equity bracket entries, ratcheting position stops, restart-safe synthetic crypto protection explicitly enabled, and the read-only Telegram operations assistant enabled with polling. Worker health is ready, Alpaca crypto exits are permitted again, the two current paper positions have complete exit-plan coverage, and Telegram delivery is verified. The only full-readiness blocker remains the 30-consecutive-calendar-day evidence gate: 14 days complete, 16 remaining. The hosted database currently contains 15,731 account snapshots and 30 filled paper orders.
+- **Stage:** Phase 6.827 hosted entitlement-regression audit; continuous Paper Autopilot remains paper-only and fail-closed when broker permissions or market data are incomplete.
+- **Current hosted state:** Worker is deployed in Paper Autopilot with fresh crypto data, scheduled research, deterministic risk/execution gates, two-percent minimum sizing, equity bracket entries, ratcheting position stops, restart-safe synthetic crypto protection explicitly enabled, and the read-only Telegram operations assistant enabled with polling. Runtime, reconciliation, position coverage, and Telegram configuration remain ready, but the latest crypto exit pass again returned the bounded `crypto_order_entitlement_blocked` failure, so the top-level Worker is degraded and remains fail-closed. The evidence window is 14 consecutive days with 16 remaining. The hosted database currently contains 15,732 account snapshots and 30 filled paper orders.
 
 The Worker health contract also exposes a stable non-secret `positionManagement.failureCode` when a supervisor pass fails (for example, `crypto_order_entitlement_blocked`), allowing dashboards and Telegram operations to distinguish broker permissions from generic connectivity without parsing provider text.
 

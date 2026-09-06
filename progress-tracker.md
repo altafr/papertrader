@@ -2,7 +2,7 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.826 — hosted continuous-loop evidence audit.
+- **Phase:** Phase 6.827 — hosted entitlement-regression audit.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, scheduled research, complete exit-plan coverage for all three live paper positions, and zero unmanaged positions. The signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections. Position management is currently degraded only because Alpaca rejects crypto exits with HTTP 403 (`crypto_order_entitlement_blocked`); the system remains fail-closed.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit confirms complete position coverage and Telegram delivery from a persisted sent test.
@@ -47,6 +47,14 @@
 - Historical error-alert rows remain visible for audit, but no new repeated error rows were produced after the centralized cooldown deployment.
 - Full readiness remains blocked only by the required evidence duration (`14/30` consecutive days; `16` remaining), not by runtime, broker, position coverage, or Telegram configuration.
 - **Next smallest unit:** continue the always-on Worker and periodically re-run the guarded readiness audit; no manual trading action is required while the evidence window accumulates.
+
+### Phase 6.827 — hosted entitlement-regression audit (2026-09-06)
+
+- A subsequent live pass returned `crypto_order_entitlement_blocked` again after an earlier successful exit-management pass; the Worker correctly degraded and remained fail-closed.
+- Market data remains fresh, reconciliation remains fresh, Telegram assistant remains ready, and exit-plan coverage remains complete (`0` unmanaged).
+- The notification cooldown continues to suppress repeated Telegram error alerts; the changing broker request ID is retained only in bounded health/solver diagnostics.
+- The readiness audit remains blocked by the evidence duration (`14/30` consecutive days) plus the active broker entitlement failure.
+- **Next smallest unit:** use the persisted latest request ID with Alpaca support/account administration, then rerun the guarded exit and readiness audit after the entitlement is consistently restored.
 
 ### Phase 6.821 — tech_solver diagnostic persistence corrected (2026-09-04)
 
