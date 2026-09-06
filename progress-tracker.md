@@ -2,7 +2,7 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.831 — hosted runtime recovery observed.
+- **Phase:** Phase 6.832 — hosted continuity audit.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, scheduled research, complete exit-plan coverage for the two current paper positions, and zero unmanaged positions. The signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections. The latest live health is healthy; intermittent Alpaca crypto-exit entitlement responses remain fail-closed when they occur.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit confirms complete position coverage and Telegram delivery from a persisted sent test.
@@ -83,6 +83,13 @@
 - Full readiness now reports only `minimum_30_consecutive_calendar_days_not_met`: `14/30` consecutive days, `16` remaining.
 - Current observed paper performance is `totalPnl=573.49`, `totalReturnPercent=0.58%`, and `maxDrawdownPercent=1.33%`; these are observations, not guarantees.
 - **Next smallest unit:** keep the always-on Worker running and periodically verify the evidence window; no configuration change or manual order is required.
+
+### Phase 6.832 — hosted continuity audit (2026-09-06)
+
+- Live health remains `healthy`: market stream connected/fresh, reconciliation fresh, position management ready, and Telegram assistant ready.
+- Full readiness remains blocked only by the evidence duration (`14/30` consecutive days; `16` remaining), with all runtime, broker, position, and alert gates ready.
+- The latest audit observed `15,746` account snapshots and paper P&L of `+$561.21` (`0.56%` return); performance figures are descriptive observations, not guarantees.
+- **Next smallest unit:** continue uninterrupted paper operation and rerun the guarded audit as the evidence window advances.
 
 ### Phase 6.821 — tech_solver diagnostic persistence corrected (2026-09-04)
 
