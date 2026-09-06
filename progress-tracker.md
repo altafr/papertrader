@@ -13,7 +13,9 @@
 - A live database audit found 12 `research_preparation_failed` rows in the preceding 24 hours despite the shared cooldown guard; the rows carried changing run IDs. The Worker source already had the lookup guard, but persistence still accepted volatile keys when concurrent/restarted paths raced.
 - Error-like alerts without an explicit stable cooldown key now use a deterministic UTC cooldown-window key before enqueue. This prevents duplicate Telegram sends and rows for the same incident window while preserving every technical diagnostic in `tech_solver` and leaving trade/lifecycle alerts unchanged.
 - Focused notifier tests (6), full regression (101 files / 477 tests), workspace typecheck, and lint all pass. No credentials, broker calls, risk limits, or order behavior changed.
-- **Next smallest unit:** deploy the Worker revision, verify the active deployment uses the new source, and confirm no new repeated error rows are created during the next scheduled cycles.
+- Railway Worker deployment `b7b3dfbf-1617-4089-a8e6-bee96f1c5c83` reached `SUCCESS`; the live health endpoint is healthy with fresh market data, ready position management, zero unmanaged positions, and the read-only Telegram assistant ready.
+- A post-deploy database query found zero new `position_management_failed`, `research_preparation_failed`, or `paper_risk_cycle_failed` rows after the deployment timestamp. Historical rows remain available for audit and were not deleted.
+- **Next smallest unit:** continue uninterrupted Paper Autopilot and re-run the guarded full-readiness audit after the next evidence-day boundary; the remaining release gate is the actual 30-day paper history.
 
 ### Phase 6.822 — hosted solver request-ID persistence verified (2026-09-04)
 
