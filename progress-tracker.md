@@ -2,11 +2,19 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.841 — workspace typecheck and lint.
+- **Phase:** Phase 6.842 — scheduled cycle verification.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, scheduled research, complete exit-plan coverage for the two current paper positions, and zero unmanaged positions. The signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections. The latest live health is healthy; intermittent Alpaca crypto-exit entitlement responses remain fail-closed when they occur.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit confirms complete position coverage and Telegram delivery from a persisted sent test.
 - **Last updated:** 2026-09-06.
+
+### Phase 6.842 — scheduled cycle verification (2026-09-06)
+
+- The Railway research scheduler completed its scheduled cycle at `2026-09-06T07:00:10Z`; Worker health advanced the next run to `07:15 UTC` and remained healthy.
+- The risk cycle completed with one deterministic decision and preserved all safety gates. No unmanaged positions were introduced and no gate was loosened.
+- The guarded readiness report confirms runtime, fresh reconciliation, complete exit-plan coverage (`2` positions / `0` unmanaged), verified Telegram delivery, and paper order submission are ready.
+- Paper evidence now contains `15,830` snapshots but remains correctly blocked at `14/30` consecutive days (`16` remaining). Observed equity is `99907.79`, total P/L `517.58`, return `0.52%`, and maximum drawdown `1.33%`; these are descriptive observations, not guarantees.
+- **Next smallest unit:** continue the 15-minute crypto cadence and rerun the readiness audit after the next evidence boundary.
 
 ### Phase 6.841 — workspace typecheck and lint (2026-09-06)
 
