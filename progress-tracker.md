@@ -2,11 +2,19 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.839 — full workspace regression.
+- **Phase:** Phase 6.840 — hosted evidence-window refresh.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, scheduled research, complete exit-plan coverage for the two current paper positions, and zero unmanaged positions. The signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections. The latest live health is healthy; intermittent Alpaca crypto-exit entitlement responses remain fail-closed when they occur.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit confirms complete position coverage and Telegram delivery from a persisted sent test.
 - **Last updated:** 2026-09-06.
+
+### Phase 6.840 — hosted evidence-window refresh (2026-09-06)
+
+- Guarded Railway full-readiness audit confirms runtime, reconciliation, complete exit-plan coverage (`2` positions / `0` unmanaged), Telegram delivery, and paper order submission remain ready.
+- The only blocked gate remains the genuine paper-history requirement: `14/30` consecutive calendar days, `16` days remaining. The current bounded report contains `15,821` snapshots and estimates eligibility around `2026-09-22T06:51:46Z`; the estimate is informational only.
+- Observed paper equity is `99914.06`, total P/L is `523.85`, return is `0.53%`, and maximum drawdown is `1.33%`. These are descriptive observations, not performance guarantees.
+- No broker state, credentials, risk policy, operating mode, or deployment configuration changed during this audit.
+- **Next smallest unit:** leave the Worker running through the next UTC evidence boundary and repeat the guarded readiness audit.
 
 ### Phase 6.839 — full workspace regression (2026-09-06)
 
