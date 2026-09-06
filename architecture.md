@@ -19,6 +19,8 @@ The Worker includes a guarded `alpaca-entitlement-audit` command that calls only
 
 Paper evidence reports now include an optional estimated eligibility timestamp while the 30-day gate is incomplete. The estimate is informational, derived from the latest captured timestamp and remaining consecutive days, and is never used to mark readiness early.
 
+Railway deployment `bf6d643e-114f-4e4d-b7b4-55bd9494a1f6` verified the estimate in the hosted readiness command; the current estimate is 2026-09-22T05:55:59.968Z and the readiness status remains blocked until the actual 30-day window is complete.
+
 Railway deployment `9deb2cfa-e25d-40e0-871e-3b8fcfdc9b2f` verified the audit in production: account and both requested assets returned HTTP 200 and expected active/tradable metadata, with no blocked reasons. The intermittent order-path 403 remains a separate provider-side condition.
 
 Position-exit submission failures are isolated per managed position: the runner continues evaluating other positions, persists and cools down each failed exit alert, then marks the overall supervisor degraded. This prevents one provider entitlement failure from silently suppressing unrelated deterministic exits.

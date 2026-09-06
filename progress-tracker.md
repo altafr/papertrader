@@ -97,7 +97,9 @@
 - Telegram readiness responses now include the estimated eligible date when present; the field is omitted once ready or when timestamps are invalid.
 - The estimate cannot change gate status or authorize orders; it only improves operator planning while the Worker runs continuously.
 - Full regression remains green: 101 test files / 476 tests; typecheck and lint pass.
-- **Next smallest unit:** deploy and verify the estimated date in the hosted readiness command and Telegram readiness path.
+- Railway Worker deployment `bf6d643e-114f-4e4d-b7b4-55bd9494a1f6` reached `SUCCESS`.
+- Hosted readiness now reports `estimatedReadyAt=2026-09-22T05:55:59.968Z` alongside `14/30` days and `16` remaining; status remains correctly blocked until actual continuity is proven.
+- **Next smallest unit:** continue the always-on Worker through the estimated date and rerun the guarded readiness audit.
 
 ### Phase 6.821 — tech_solver diagnostic persistence corrected (2026-09-04)
 
