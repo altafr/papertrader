@@ -2,7 +2,7 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.824 — centralized repeated-error Telegram cooldowns.
+- **Phase:** Phase 6.825 — hosted full-readiness recovery audit.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, scheduled research, complete exit-plan coverage for all three live paper positions, and zero unmanaged positions. The signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections. Position management is currently degraded only because Alpaca rejects crypto exits with HTTP 403 (`crypto_order_entitlement_blocked`); the system remains fail-closed.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit confirms complete position coverage and Telegram delivery from a persisted sent test.
@@ -31,6 +31,14 @@
 - Focused regression, workspace typecheck, and lint pass: 100 test files / 473 tests.
 - Railway Worker deployment `8cfcc5b5-d72d-44f4-82b2-d43b10c7e8cb` reached `SUCCESS`; the shared guard is active in production.
 - **Next smallest unit:** resolve the external Alpaca crypto-order entitlement; notification suppression is complete and does not require further deployment changes.
+
+### Phase 6.825 — hosted full-readiness recovery audit (2026-09-06)
+
+- Hosted `full-paper-autonomous-readiness` now reports runtime `ready`, complete exit-plan coverage (`2` positions, `0` unmanaged), configured and verified Telegram delivery, and active paper order submission.
+- Alpaca crypto exits are no longer returning the prior entitlement blocker; position supervision is healthy and reconciled.
+- Paper evidence has `14` consecutive calendar days complete (`15` calendar days observed), with `16` days remaining to satisfy the required 30-day release gate.
+- Current observed paper performance is positive (`totalPnl=568.31`, `totalReturnPercent=0.57%`, `maxDrawdownPercent=1.33%`); these are observations, not guarantees.
+- **Next smallest unit:** keep the Worker running through the remaining evidence window and re-run the guarded readiness audit after each material recovery or configuration change.
 
 ### Phase 6.821 — tech_solver diagnostic persistence corrected (2026-09-04)
 

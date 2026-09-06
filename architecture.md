@@ -2,8 +2,8 @@
 
 ## Status
 
-- **Stage:** Phase 6.824 centralized repeated-error Telegram cooldowns; continuous Paper Autopilot remains paper-only and fail-closed when broker permissions or market data are incomplete.
-- **Current hosted state:** Worker is deployed in Paper Autopilot with fresh crypto data, scheduled research, deterministic risk/execution gates, two-percent minimum sizing, equity bracket entries, ratcheting position stops, restart-safe synthetic crypto protection explicitly enabled, and the read-only Telegram operations assistant enabled with polling. Worker health exposes assistant readiness without secrets. All three paper positions have complete exit-plan coverage and zero unmanaged positions. Position management is degraded because Alpaca returns `HTTP 403 (crypto_order_entitlement_blocked)` for crypto exits; the system does not bypass that provider restriction. The 30-consecutive-calendar-day evidence gate remains required for release readiness after runtime recovery.
+- **Stage:** Phase 6.825 hosted full-readiness recovery; continuous Paper Autopilot remains paper-only and fail-closed when broker permissions or market data are incomplete.
+- **Current hosted state:** Worker is deployed in Paper Autopilot with fresh crypto data, scheduled research, deterministic risk/execution gates, two-percent minimum sizing, equity bracket entries, ratcheting position stops, restart-safe synthetic crypto protection explicitly enabled, and the read-only Telegram operations assistant enabled with polling. Worker health is ready, Alpaca crypto exits are permitted again, all two current paper positions have complete exit-plan coverage, and Telegram delivery is verified. The only full-readiness blocker is the 30-consecutive-calendar-day evidence gate: 14 days complete, 16 remaining.
 
 The Worker health contract also exposes a stable non-secret `positionManagement.failureCode` when a supervisor pass fails (for example, `crypto_order_entitlement_blocked`), allowing dashboards and Telegram operations to distinguish broker permissions from generic connectivity without parsing provider text.
 
