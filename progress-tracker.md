@@ -2,7 +2,7 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.830 — hosted Alpaca entitlement audit verified.
+- **Phase:** Phase 6.831 — hosted runtime recovery observed.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, scheduled research, complete exit-plan coverage for all three live paper positions, and zero unmanaged positions. The signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections. Position management is currently degraded only because Alpaca rejects crypto exits with HTTP 403 (`crypto_order_entitlement_blocked`); the system remains fail-closed.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit confirms complete position coverage and Telegram delivery from a persisted sent test.
@@ -76,6 +76,13 @@
 - Production `alpaca-entitlement-audit` returned HTTP 200 for `/v2/account`, `BTC/USD`, and `PFD`; account and asset metadata passed with `blockedReasons=[]`.
 - The command reports `orderPathTested=false` and made no trading mutation; the remaining intermittent order-path 403 is isolated for provider support.
 - **Next smallest unit:** keep autonomous paper trading running and re-run the audit/readiness command after Alpaca confirms the order entitlement.
+
+### Phase 6.831 — hosted runtime recovery observed (2026-09-06)
+
+- Live Worker health returned to `healthy`; position management is `ready`, market data is connected/fresh, and reconciliation is fresh.
+- Full readiness now reports only `minimum_30_consecutive_calendar_days_not_met`: `14/30` consecutive days, `16` remaining.
+- Current observed paper performance is `totalPnl=573.49`, `totalReturnPercent=0.58%`, and `maxDrawdownPercent=1.33%`; these are observations, not guarantees.
+- **Next smallest unit:** keep the always-on Worker running and periodically verify the evidence window; no configuration change or manual order is required.
 
 ### Phase 6.821 — tech_solver diagnostic persistence corrected (2026-09-04)
 
