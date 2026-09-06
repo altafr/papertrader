@@ -2,7 +2,7 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.829 — reusable Alpaca entitlement audit.
+- **Phase:** Phase 6.830 — hosted Alpaca entitlement audit verified.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, scheduled research, complete exit-plan coverage for all three live paper positions, and zero unmanaged positions. The signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections. Position management is currently degraded only because Alpaca rejects crypto exits with HTTP 403 (`crypto_order_entitlement_blocked`); the system remains fail-closed.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit confirms complete position coverage and Telegram delivery from a persisted sent test.
@@ -69,6 +69,13 @@
 - The command reports account/asset readiness and always labels `orderPathTested=false`; it cannot place, cancel, or modify an order and cannot override risk gates.
 - Added regression coverage; 101 test files / 475 tests, typecheck, and lint pass.
 - **Next smallest unit:** deploy the command and run it on Railway to capture current provider metadata for the entitlement escalation.
+
+### Phase 6.830 — hosted Alpaca entitlement audit verified (2026-09-06)
+
+- Railway deployment `9deb2cfa-e25d-40e0-871e-3b8fcfdc9b2f` reached `SUCCESS`.
+- Production `alpaca-entitlement-audit` returned HTTP 200 for `/v2/account`, `BTC/USD`, and `PFD`; account and asset metadata passed with `blockedReasons=[]`.
+- The command reports `orderPathTested=false` and made no trading mutation; the remaining intermittent order-path 403 is isolated for provider support.
+- **Next smallest unit:** keep autonomous paper trading running and re-run the audit/readiness command after Alpaca confirms the order entitlement.
 
 ### Phase 6.821 — tech_solver diagnostic persistence corrected (2026-09-04)
 
