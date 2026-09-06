@@ -15,6 +15,7 @@
 - Focused notifier tests (6), full regression (101 files / 477 tests), workspace typecheck, and lint all pass. No credentials, broker calls, risk limits, or order behavior changed.
 - Railway Worker deployment `b7b3dfbf-1617-4089-a8e6-bee96f1c5c83` reached `SUCCESS`; the live health endpoint is healthy with fresh market data, ready position management, zero unmanaged positions, and the read-only Telegram assistant ready.
 - A post-deploy database query found zero new `position_management_failed`, `research_preparation_failed`, or `paper_risk_cycle_failed` rows after the deployment timestamp. Historical rows remain available for audit and were not deleted.
+- The post-deploy full-readiness audit remains correctly blocked only by `minimum_30_consecutive_calendar_days_not_met` (`14/30`, `16` remaining); runtime, exit-plan coverage, Telegram delivery, and reconciliation are ready. The informational estimate is `2026-09-22T06:31:57.660Z` and does not authorize earlier promotion.
 - **Next smallest unit:** continue uninterrupted Paper Autopilot and re-run the guarded full-readiness audit after the next evidence-day boundary; the remaining release gate is the actual 30-day paper history.
 
 ### Phase 6.822 — hosted solver request-ID persistence verified (2026-09-04)
