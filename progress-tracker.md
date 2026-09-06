@@ -2,7 +2,7 @@
 
 ## Snapshot
 
-- **Phase:** Phase 6.844 — guarded full-readiness audit.
+- **Phase:** Phase 6.845 — cross-surface smoke verification.
 - **Status:** The hosted Worker is running Paper Autopilot with broker connectivity, paper order submission enabled, scheduled research, complete exit-plan coverage for the two current paper positions, and zero unmanaged positions. The signed Telegram Mini App is deployed on Vercel and the API reports portfolio, order, alert, P/L, freshness, and unmanaged-position projections. The latest live health is healthy; intermittent Alpaca crypto-exit entitlement responses remain fail-closed when they occur.
 - **Current operating mode:** Paper Autopilot; continuous order submission enabled behind deterministic risk, freshness, reconciliation, and kill-switch gates.
 - **Current goal:** Continue durable paper trading and accumulate the 30-day evidence gate without loosening risk controls. The hosted full-readiness audit confirms complete position coverage and Telegram delivery from a persisted sent test.
@@ -30,6 +30,13 @@
 - Descriptive paper metrics are `99884.48` equity, `494.27` total P/L, `0.50%` return, and `1.33%` maximum drawdown. These values are observations, not guarantees.
 - The command exited non-zero intentionally because the evidence gate is not yet satisfied; no broker mutation, configuration change, or deployment occurred.
 - **Next smallest unit:** continue uninterrupted Paper Autopilot and repeat the guarded audit after the next evidence boundary.
+
+### Phase 6.845 — cross-surface smoke verification (2026-09-06)
+
+- The production dashboard, Railway API health endpoint, and Railway Worker health endpoint each returned HTTP `200`.
+- This confirms the deployed operator surfaces remain reachable while the server-side paper loop continues independently of the browser.
+- No credentials, broker state, risk policy, or deployment configuration changed during this read-only check.
+- **Next smallest unit:** continue the paper-evidence window and repeat the guarded readiness audit after the next evidence boundary.
 
 ### Phase 6.841 — workspace typecheck and lint (2026-09-06)
 
