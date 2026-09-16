@@ -4,6 +4,13 @@
 
 ## Phase 6.848 — stock confirmation and bracket policy (2026-09-16)
 
+## Phase 6.849 — alternate market/sector trend confirmation (2026-09-16)
+
+- Added a server-side Yahoo Finance chart source as an alternate web data source. It classifies SPY broad-market direction and a mapped sector ETF direction using finalized daily closes, 20/50-day averages, and a five-day return.
+- Scheduled stock candidates now pass the deterministic risk engine only when market and sector directions are both non-neutral and aligned. Unavailable, stale, malformed, or ambiguous web data fails closed and produces no order.
+- No browser credentials or Alpaca secrets are used by this source; the web result is bounded advisory evidence and cannot bypass risk, freshness, mode, or kill-switch gates.
+- Added mocked confirmation/filter coverage.
+
 - Updated paper stock sizing to use the greater of 2% of equity or USD 2,000 minimum notional.
 - Updated enabled momentum strategy defaults to a 2% stop and 6% profit target (within the requested 5–7% range); Alpaca equity entries continue to use bracket orders.
 - Railway configuration is being set to run position management hourly and stock-only mode remains enabled.

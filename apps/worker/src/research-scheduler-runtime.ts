@@ -14,6 +14,7 @@ import { reconcilePaperAccount } from "./reconcile.js";
 import { getPaperAutopilotQuantityForCandidate } from "./paper-quantity.js";
 import { attachPositionProtection, countUnmanagedPositions, formatDailyPortfolioSummary } from "./daily-summary.js";
 import { getDailyNotificationDedupeKey } from "./notification-dedupe.js";
+import { filterByMarketAndSector } from "./market-sector-context.js";
 
 /** Bounded, credential-free error detail for diagnosing failed scheduled cycles. */
 function getResearchSchedulerFailureDetail(error: unknown): string | undefined {
@@ -127,7 +128,8 @@ export function createResearchSchedulerFromEnvironment(environment: NodeJS.Proce
         console.log(JSON.stringify(buildResearchCycleLog(result)));
       },
       onBatchResult: async (results) => {
-        const candidates = dedupeResearchCandidates(results.flatMap((result) => result.candidates ?? []));
+          const researchedCandidates = dedupeResearchCandidates(results.flatMap((result) => result.candidates ?? []));
+          const candidates = await filterByMarketAndSector(researchedCandidates);
         const notifier = createRuntimeAlertNotifier(environment, alertRepository);
         try {
           const accountRepository = createAccountStateRepository(db);
