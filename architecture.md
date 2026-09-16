@@ -2,6 +2,8 @@
 
 ## Status
 
+Short-selling provision: the market/sector confirmation layer already classifies bearish conditions, so a future short strategy can use the same aligned-downtrend signal. Short order submission is deliberately not implemented: current intents and Alpaca adapter are long-only (`buy` entries), and the release has no borrow/locate, margin, buy-to-cover, gap-risk, or short exposure policy. Bearish observations therefore remain research evidence and cannot create orders.
+
 - **Stage:** Phase 6.846 guarded readiness refresh; continuous Paper Autopilot remains paper-only and fail-closed when broker permissions or market data are incomplete.
 - **Current hosted state:** Worker is deployed in Paper Autopilot with fresh crypto data, scheduled research, deterministic risk/execution gates, two-percent minimum sizing, equity bracket entries, ratcheting position stops, restart-safe synthetic crypto protection explicitly enabled, and the read-only Telegram operations assistant enabled with polling. Runtime, reconciliation, position coverage, and Telegram configuration remain ready; the top-level Worker is healthy. The latest scheduled cycle completed at `2026-09-06T07:30:38Z` with one deterministic risk decision and advanced the next cycle to `07:45 UTC`. The dashboard, API, and Worker health surfaces each returned HTTP `200` in the latest smoke check. The guarded readiness audit contains `15,867` snapshots, with 14 consecutive evidence days and 16 remaining; full readiness remains intentionally blocked until the required 30-day paper history exists.
 

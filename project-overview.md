@@ -28,7 +28,7 @@ The production system is intended to be self-running and server-resident: specia
 
 ## Non-Goals for Version 1
 
-- Options, futures, forex, short selling, margin, or leveraged crypto.
+- Options, futures, forex, margin, or leveraged crypto. Short selling is reserved as a future, explicitly disabled paper feature until borrow, locate, margin, buy-to-cover, and short-specific risk controls pass review.
 - High-frequency, market-making, latency-arbitrage, or co-located trading.
 - Managing other users' money, copy trading, social signals, or public investment advice.
 - Multiple brokerages or exchanges.
@@ -148,7 +148,7 @@ Each asset class receives separate parameters, tests, allocation caps, and perfo
 These are conservative engineering defaults for validation, not recommendations. They remain server-controlled and configurable only by an authenticated operator:
 
 - Initial paper-account equity baseline: `USD 100,000`, matching Alpaca's current default paper-account balance. Autopilot remains paused if the configured starting baseline has not been verified against the Alpaca paper account.
-- Long-only; no leverage or short selling.
+- Long-only in the current release. A future bearish mode may propose short positions when both the broad market and sector are bearish, but it remains disabled until its safety gates are implemented and explicitly activated.
 - Maximum planned loss at the stop per trade: `5%` of the position's invested notional, inclusive of estimated fees and slippage.
 - Minimum invested notional for every new trade: `2%` of current portfolio equity; deterministic sizing rounds up to the supported asset precision and rejects undersized overrides.
 - Maximum adverse entry-to-stop distance: `5%` for long positions; the position must be exited at or before this threshold.

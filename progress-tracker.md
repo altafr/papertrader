@@ -6,6 +6,12 @@
 
 ## Phase 6.849 — alternate market/sector trend confirmation (2026-09-16)
 
+## Phase 6.850 — disabled short-selling provision (2026-09-16)
+
+- Documented a future bearish-mode provision: aligned down market and sector trends can feed a future short strategy.
+- Kept current execution explicitly long-only. No short order path, margin, borrow/locate, buy-to-cover, or short-specific risk gate was enabled.
+- Added `docs/short-selling-provision.md` with the implementation and evidence gates required before activation.
+
 - Added a server-side Yahoo Finance chart source as an alternate web data source. It classifies SPY broad-market direction and a mapped sector ETF direction using finalized daily closes, 20/50-day averages, and a five-day return.
 - Scheduled stock candidates now pass the deterministic risk engine only when market and sector directions are both non-neutral and aligned. Unavailable, stale, malformed, or ambiguous web data fails closed and produces no order.
 - No browser credentials or Alpaca secrets are used by this source; the web result is bounded advisory evidence and cannot bypass risk, freshness, mode, or kill-switch gates.
