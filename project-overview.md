@@ -60,6 +60,18 @@ In Paper Autopilot, “no approval required” means no operator confirmation is
 
 ## Core Workflows
 
+### Directional execution plan
+
+The system evaluates both directions:
+
+1. Confirm broad-market and sector direction.
+2. If both are bullish, evaluate long candidates (buy, protective stop below entry, profit target above entry).
+3. If both are bearish, evaluate short candidates (sell short, protective stop above entry, buy-to-cover target below entry).
+4. Send either direction through the same deterministic sizing, exposure, freshness, kill-switch, and reconciliation gates.
+5. Record the direction, evidence, rationale, bracket levels, exit reason, and realized result in the trade journal.
+
+Short execution remains feature-flagged off until borrow/locate, margin, buy-to-cover, and short-specific gap-risk gates are validated.
+
 ### Daily US Stock Preparation
 
 1. Confirm market calendar, account health, buying power, data entitlement, and service health.

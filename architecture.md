@@ -2,7 +2,7 @@
 
 ## Status
 
-Short-selling provision: the market/sector confirmation layer already classifies bearish conditions, so a future short strategy can use the same aligned-downtrend signal. Short order submission is deliberately not implemented: current intents and Alpaca adapter are long-only (`buy` entries), and the release has no borrow/locate, margin, buy-to-cover, gap-risk, or short exposure policy. Bearish observations therefore remain research evidence and cannot create orders.
+Directional execution plan: the strategy layer supports two planned directions. Aligned bullish market/sector conditions feed long candidates; aligned bearish conditions feed short candidates. Both directions must use deterministic sizing, freshness, exposure, kill-switch, bracket, execution, and reconciliation gates. The short path is currently feature-flagged off because borrow/locate, margin, buy-to-cover, gap-risk, and short exposure controls still require implementation and validation.
 
 - **Stage:** Phase 6.846 guarded readiness refresh; continuous Paper Autopilot remains paper-only and fail-closed when broker permissions or market data are incomplete.
 - **Current hosted state:** Worker is deployed in Paper Autopilot with fresh crypto data, scheduled research, deterministic risk/execution gates, two-percent minimum sizing, equity bracket entries, ratcheting position stops, restart-safe synthetic crypto protection explicitly enabled, and the read-only Telegram operations assistant enabled with polling. Runtime, reconciliation, position coverage, and Telegram configuration remain ready; the top-level Worker is healthy. The latest scheduled cycle completed at `2026-09-06T07:30:38Z` with one deterministic risk decision and advanced the next cycle to `07:45 UTC`. The dashboard, API, and Worker health surfaces each returned HTTP `200` in the latest smoke check. The guarded readiness audit contains `15,867` snapshots, with 14 consecutive evidence days and 16 remaining; full readiness remains intentionally blocked until the required 30-day paper history exists.
@@ -890,7 +890,7 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 
 ### Phase 3.1 Versioned Strategy Plug-in Contract
 
-- `packages/domain` defines a versioned, typed strategy plug-in contract with owner, semantic version, asset class, required lookback, bounded parameter validation, deterministic evaluation inputs, and structured long-only signal candidates.
+- `packages/domain` defines a versioned, typed strategy plug-in contract with owner, semantic version, asset class, required lookback, bounded parameter validation, deterministic evaluation inputs, and a planned extension for structured directional signal candidates (long or short); the current enabled implementation remains long-only.
 - Strategy lifecycle advancement is sequential: `disabled → replay → shadow → paper → eligible_live`. New registry entries must be disabled and semantic-versioned; duplicate keys and invalid lookbacks fail closed.
 - Strategy evaluation returns proposals only. It cannot submit, cancel, replace, approve risk, change policy, or access credentials. Financial values remain decimal strings and input market data must be fresh Alpaca data.
 - This unit adds no concrete momentum strategy, signal generation in production, persistence, broker request, or order behavior.
@@ -912,7 +912,7 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 ### Phase 3.4 Initial Momentum Research Plug-ins
 
 - Added three deterministic, versioned, disabled-by-default research plug-ins: cross-sectional momentum, volume-confirmed breakout, and intraday trend continuation.
-- Each plug-in validates bounded lookbacks and decimal parameters, evaluates only the supplied fresh bars, emits long-only proposal candidates with explicit entry/stop/target/time-stop fields, and has no sizing, risk approval, persistence, broker, or order authority.
+- Each plug-in validates bounded lookbacks and decimal parameters, evaluates only the supplied fresh bars, emits proposal candidates with explicit entry/stop/target/time-stop fields (directional fields are pending the short-path build), and has no sizing, risk approval, persistence, broker, or order authority.
 - Failure regimes are fail-closed: insufficient history produces no candidate; negative/invalid parameters are rejected; breakout requires both a range break and relative-volume confirmation; trend continuation requires aligned fast and slow returns.
 - These candidates remain research artifacts until replay evidence, shadow monitoring, operator-approved parameters, and the sequential lifecycle gates are completed.
 

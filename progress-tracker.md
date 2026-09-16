@@ -8,6 +8,12 @@
 
 ## Phase 6.850 — disabled short-selling provision (2026-09-16)
 
+## Phase 6.851 — two-direction execution plan (2026-09-16)
+
+- Revised the product and architecture execution plan to cover both bullish long trades and bearish short trades.
+- Both directions share deterministic risk, bracket, exposure, freshness, kill-switch, reconciliation, and trade-journal requirements.
+- Short execution remains explicitly feature-flagged off until borrow/locate, margin, buy-to-cover, gap-risk, and short-specific tests are complete.
+
 - Documented a future bearish-mode provision: aligned down market and sector trends can feed a future short strategy.
 - Kept current execution explicitly long-only. No short order path, margin, borrow/locate, buy-to-cover, or short-specific risk gate was enabled.
 - Added `docs/short-selling-provision.md` with the implementation and evidence gates required before activation.
