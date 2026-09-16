@@ -1,5 +1,6 @@
 import type { ResearchWatchlistCandidate } from "@momentum/domain";
 import type { PaperOrderSubmissionRequest } from "@momentum/alpaca";
+import { createPaperAssetReader } from "@momentum/alpaca";
 import { isGlobalKillSwitchActive } from "@momentum/config";
 import { createAccountStateRepository, createPaperOrderRepository, type Database, type PersistedPaperOrderSubmission } from "@momentum/db";
 
@@ -94,6 +95,7 @@ export async function runPaperAutopilotRiskCycle(input: {
   const completePlans = (await repository.listExitPlans()).filter((plan) => isCompleteExitPlan(plan));
   const unmanagedPositions = getUnmanagedPositionSymbols(model.positions, completePlans);
   const accountFresh = Math.floor((now.getTime() - model.freshness.capturedAt.getTime()) / 1000) <= 172_800;
+  let shortableSymbols: string[] = [];
   const baseState = {
     accountBaselineVerified: baselineVerified,
     accountFresh,
@@ -102,6 +104,8 @@ export async function runPaperAutopilotRiskCycle(input: {
     submittedEntriesLast24Hours: model.orders.filter((order) => order.side.toLowerCase() === "buy" && order.submittedAt && now.getTime() - order.submittedAt.getTime() <= 86_400_000).length,
     cryptoSyntheticBracketEnabled: (input.environment ?? process.env).CRYPTO_SYNTHETIC_BRACKET_ENABLED === "true" && (input.environment ?? process.env).POSITION_MANAGEMENT_SCHEDULER_ENABLED === "true",
     positionManagementHealthy: (input.environment ?? process.env).POSITION_MANAGEMENT_SCHEDULER_ENABLED === "true",
+    buyingPower: snapshot.buyingPower,
+    shortableSymbols,
     ...(unmanagedPositions.length > 0 ? { unmanagedPositions } : {}),
   };
   const results: PaperAutopilotRiskCycleResult[] = [];
@@ -109,10 +113,18 @@ export async function runPaperAutopilotRiskCycle(input: {
   // A broker-enabled cycle evaluates a bounded candidate set but submits at
   // most one entry. The next cycle re-reconciles before considering another.
   const candidates = selectPaperAutopilotCandidates(input.candidates, Boolean(input.executeApproved));
+  const shortCandidates = candidates.filter((candidate) => candidate.side === "short");
+  if (shortCandidates.length > 0 && (input.environment ?? process.env).SHORT_TRADING_ENABLED === "true") {
+    const environment = input.environment ?? process.env;
+    const assets = environment.ALPACA_API_KEY?.trim() && environment.ALPACA_SECRET_KEY?.trim()
+      ? await createPaperAssetReader({ apiKey: environment.ALPACA_API_KEY, secretKey: environment.ALPACA_SECRET_KEY }).readEligibleAssets()
+      : [];
+    shortableSymbols = assets.filter((asset) => asset.assetClass === "us_equity" && asset.tradable && asset.shortable === true && asset.easyToBorrow !== false).map((asset) => asset.symbol);
+  }
   for (const candidate of candidates) {
     const quantity = input.quantityForCandidate?.(candidate, snapshot.equity) ?? defaultQuantity;
     const candidateAge = now.getTime() - Date.parse(candidate.dataAsOf);
-    const state = { ...baseState, dataFresh: Number.isFinite(candidateAge) && candidateAge >= 0 && candidateAge <= 172_800_000 };
+    const state = { ...baseState, shortableSymbols, dataFresh: Number.isFinite(candidateAge) && candidateAge >= 0 && candidateAge <= 172_800_000 };
     const { approval, intentId } = assessResearchCandidateRisk({ candidate, currentAt: now.toISOString(), equity: snapshot.equity, quantity, state });
     const riskCandidate = buildRiskCandidate(candidate, now);
     const persisted: PersistedPaperOrderSubmission = {
