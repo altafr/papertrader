@@ -26,7 +26,7 @@ describe("Alpaca research input source", () => {
     const reader: PaperMarketDataReader = { readHistoricalBars: async () => ({ bars: [bar, { ...bar, timestamp: "2026-08-23T01:30:00.000Z" }] }), readSnapshots: async () => [] };
     const source = createAlpacaResearchInputSource(reader);
     await expect(source.read({ assetClass: "crypto", limit: 1_001, maxCandidates: 3, symbols: ["BTC/USD"], timeframe: "1Day" })).rejects.toThrow("limit");
-    await expect(source.read({ assetClass: "crypto", limit: 20, maxCandidates: 3, symbols: Array.from({ length: 11 }, (_, i) => `A${i}`), timeframe: "1Day" })).rejects.toThrow("1 to 10");
+    await expect(source.read({ assetClass: "crypto", limit: 20, maxCandidates: 3, symbols: Array.from({ length: 101 }, (_, i) => `A${i}`), timeframe: "1Day" })).rejects.toThrow("1 to 100");
   });
 
   it("rejects future, unrequested, out-of-order, and inconsistent bars", () => {

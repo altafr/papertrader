@@ -75,7 +75,7 @@ export function createAlpacaResearchInputSource(reader: PaperMarketDataReader, c
       readonly symbols: readonly string[];
       readonly timeframe: MarketBarTimeframe;
     }): Promise<ResearchAgentInput> {
-      if (input.symbols.length < 1 || input.symbols.length > 10) throw new Error("Research source supports 1 to 10 symbols.");
+      if (input.symbols.length < 1 || input.symbols.length > 100) throw new Error("Research source supports 1 to 100 symbols.");
       if (!Number.isSafeInteger(input.limit) || input.limit < 2 || input.limit > 1_000) throw new Error("Research source limit must be an integer from 2 to 1000.");
       if (!Number.isSafeInteger(input.maxCandidates) || input.maxCandidates < 1 || input.maxCandidates > 20) throw new Error("Research source maxCandidates must be an integer from 1 to 20.");
       if (!allowedTimeframes.includes(input.timeframe)) throw new Error("Research source timeframe is not supported.");

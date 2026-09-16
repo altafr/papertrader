@@ -4,6 +4,7 @@ import { createCryptoResearchAgent, createStockResearchAgent } from "@momentum/d
 import { executeResearchRun, type ResearchRunPersistence } from "./research-runner.js";
 import { getResearchScheduleReadiness, type ResearchPreparationJob } from "./research-scheduler.js";
 import { getDailyNotificationDedupeKey } from "./notification-dedupe.js";
+import { getDefaultUsStockUniverse } from "./trading-universe.js";
 
 export interface ResearchPreparationInputPlan {
   readonly agentType: "crypto_research" | "stock_research";
@@ -67,9 +68,9 @@ function parseBoundedInteger(name: string, value: string | undefined, defaultVal
   return result;
 }
 
-function parseSymbols(name: string, value: string | undefined): readonly string[] {
-  const symbols = (value ?? "").split(",").map((symbol) => symbol.trim().toUpperCase()).filter(Boolean);
-  if (symbols.length < 1 || symbols.length > 10) throw new Error(`${name} must contain 1 to 10 symbols.`);
+function parseSymbols(name: string, value: string | undefined, defaultValue?: readonly string[]): readonly string[] {
+  const symbols = (value === undefined ? (defaultValue ?? []) : value.split(",")).map((symbol) => symbol.trim().toUpperCase()).filter(Boolean);
+  if (symbols.length < 1 || symbols.length > 100) throw new Error(`${name} must contain 1 to 100 symbols.`);
   if (new Set(symbols).size !== symbols.length) throw new Error(`${name} must not contain duplicate symbols.`);
   if (symbols.some((symbol) => !/^[A-Z0-9][A-Z0-9._/-]{0,19}$/.test(symbol))) throw new Error(`${name} contains an invalid symbol.`);
   return Object.freeze(symbols);
@@ -104,7 +105,7 @@ export function getResearchPreparationConfig(environment: NodeJS.ProcessEnv = pr
     cryptoSymbols: parseSymbols("RESEARCH_CRYPTO_SYMBOLS", environment.RESEARCH_CRYPTO_SYMBOLS ?? environment.RESEARCH_SYMBOLS),
     limit: parseBoundedInteger("RESEARCH_LIMIT", environment.RESEARCH_LIMIT, 100, 2, 1_000),
     maxCandidates: parseBoundedInteger("RESEARCH_MAX_CANDIDATES", environment.RESEARCH_MAX_CANDIDATES, 10, 1, 20),
-    stockSymbols: parseSymbols("RESEARCH_STOCK_SYMBOLS", environment.RESEARCH_STOCK_SYMBOLS ?? environment.RESEARCH_SYMBOLS),
+    stockSymbols: parseSymbols("RESEARCH_STOCK_SYMBOLS", environment.RESEARCH_STOCK_SYMBOLS ?? environment.RESEARCH_SYMBOLS, getDefaultUsStockUniverse()),
     stockTimeframe: stockTimeframe as ResearchPreparationInputPlan["timeframe"],
     stockWindowOnly: parseBoolean("RESEARCH_STOCK_WINDOW_ONLY", environment.RESEARCH_STOCK_WINDOW_ONLY, false),
   };

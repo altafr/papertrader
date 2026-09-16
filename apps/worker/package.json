@@ -53,6 +53,7 @@
     "research-preparation-once": "tsx src/research-preparation-once-command.ts",
     "paper-order-preflight": "tsx src/paper-order-preflight-command.ts",
     "position-management-once": "tsx src/position-management-once-command.ts",
+    "close-crypto-positions-once": "tsx src/close-crypto-positions-command.ts",
     "exit-plan-backfill": "tsx src/exit-plan-backfill-command.ts",
     "exit-plan-review": "tsx src/exit-plan-review-command.ts",
     "exit-plan-broker-review": "tsx src/exit-plan-broker-review-command.ts",

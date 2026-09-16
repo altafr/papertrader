@@ -1,5 +1,14 @@
 # Progress Tracker
 
+## Phase 6.847 — bounded US universe and Telegram agent view (2026-09-16)
+
+- Imported the attached `swing_trading_watchlist.xlsx` as a versioned, server-side 36-symbol US-equity universe: 23 Core Momentum names and 13 High Volatility names. Research defaults now use this universe, and the research source accepts the full bounded list (up to 100 symbols); crypto is not part of the stock universe.
+- Added `us_universe_refresh` proposal logic for quarterly liquidity/momentum reviews. It is explicitly review-required and cannot place orders or make pending symbols tradable by itself.
+- Added a paper-only, command-scoped `close-crypto-positions-once` worker command. It reads broker truth, targets only positive crypto positions, submits idempotent market exits through the existing exit adapter, and refuses live/non-paper runtime.
+- Extended the signed Telegram Mini App payload with the current agent catalog and recent run summaries, plus a filterable Agents tab. Portfolio and Alerts tabs remain read-only.
+- Worker/API/Web typechecks and focused research/Telegram tests pass (10 tests).
+- **Next smallest unit:** run the guarded crypto liquidation command in Railway with command-scoped `CLOSE_CRYPTO_POSITIONS_ONCE=true`, reconcile, and verify zero crypto positions; then set the deployed stock-research symbol configuration to the versioned universe and schedule the quarterly proposal job.
+
 ## Snapshot
 
 - **Phase:** Phase 6.846 — guarded readiness refresh.

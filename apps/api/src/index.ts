@@ -243,6 +243,20 @@ async function readTelegramMiniApp(request: IncomingMessage) {
   const model = await telegramMiniAppRepository.getLatestReadModel();
   if (!model) return { body: { error: "read_model_not_available" }, status: 404, origin } as const;
   const alerts = await telegramMiniAppPool.query<{ readonly event_id: string; readonly code: string; readonly severity: string; readonly message: string; readonly occurred_at: Date; readonly delivery_status: string }>("SELECT event_id, code, severity, message, occurred_at, delivery_status FROM telegram_alert_events ORDER BY occurred_at DESC LIMIT 50");
+  const agentRuns = await telegramMiniAppPool.query<{ readonly run_id: string; readonly agent_type: string; readonly task: string; readonly status: string; readonly created_at: Date; readonly finished_at: Date | null; readonly error_code: string | null }>("SELECT run_id, agent_type, task, status, created_at, finished_at, error_code FROM agent_runs ORDER BY created_at DESC LIMIT 100");
+  const agentCatalog = [
+    ["orchestrator", "Coordinates durable schedules and agent hand-offs."],
+    ["stock_research", "Ranks momentum stocks using finalized bars and standard indicators."],
+    ["us_universe_refresh", "Quarterly liquidity/momentum review; proposes bounded additions for operator review."],
+    ["macro_advisory", "Summarizes market regime and scheduled macro risk."],
+    ["strategy", "Produces versioned momentum signals from research evidence."],
+    ["risk", "Applies deterministic sizing, stop, freshness, and exposure gates."],
+    ["execution", "Submits approved paper orders idempotently."],
+    ["position_management", "Monitors bracket exits and ratchets protective stops."],
+    ["reconciliation", "Reconciles broker orders, positions, fills, and P/L."],
+    ["tech_solver", "Persists bounded infrastructure diagnoses and remediation attempts."],
+    ["telegram_assistant", "Answers read-only portfolio, trade, and infrastructure questions."],
+  ] as const;
   const positionMetadata = await telegramMiniAppPool.query<{ readonly symbol: string; readonly asset_class: string; readonly planned_stop_price: string | null; readonly trailing_stop_price: string | null; readonly planned_target_price: string | null }>("SELECT DISTINCT ON (s.asset_class, replace(s.symbol, '/', '')) s.symbol, s.asset_class, s.planned_stop_price, s.trailing_stop_price, s.planned_target_price FROM paper_order_submissions s JOIN positions p ON p.asset_class = s.asset_class AND replace(p.symbol, '/', '') = replace(s.symbol, '/', '') JOIN account_snapshots a ON a.id = p.account_snapshot_id WHERE a.id = (SELECT id FROM account_snapshots ORDER BY captured_at DESC, id DESC LIMIT 1) AND s.entry_price IS NOT NULL AND s.planned_stop_price IS NOT NULL AND s.strategy_key IS NOT NULL AND s.strategy_version IS NOT NULL AND (s.planned_target_price IS NOT NULL OR s.time_stop_at IS NOT NULL) AND (s.risk_decision->>'approvalStatus' = 'approved' OR s.alpaca_order_id IS NOT NULL) ORDER BY s.asset_class, replace(s.symbol, '/', ''), COALESCE(s.updated_at, s.created_at) DESC");
   const metadataByPosition = new Map(positionMetadata.rows.map((row) => [`${row.asset_class}:${row.symbol.replaceAll('/', '').toUpperCase()}`, row]));
   const projectedPositions = model.positions.map((position) => {
@@ -254,7 +268,7 @@ async function readTelegramMiniApp(request: IncomingMessage) {
   const unmanagedPositions = unmanaged.rows.map((row) => ({ assetClass: row.asset_class, missingFields: getExitPlanMissingFields({ alpacaOrderId: row.alpaca_order_id, entryPrice: row.entry_price, plannedStopPrice: row.planned_stop_price, plannedTargetPrice: row.planned_target_price, timeStopAt: row.time_stop_at, strategyKey: row.strategy_key, strategyVersion: row.strategy_version }), symbol: row.symbol })).filter((row) => row.missingFields.length > 0).slice(0, 100);
   const unrealizedPl = model.positions.reduce((total, position) => addDecimalStrings(total, position.unrealizedPl), "0");
   const dayPnl = model.snapshot.lastEquity ? subtractDecimalStrings(model.snapshot.equity, model.snapshot.lastEquity) : undefined;
-  return { body: { asOf: model.freshness.capturedAt, userId: auth.userId, portfolio: { metrics: { unrealizedPl, ...(dayPnl ? { dayPnl } : {}) }, snapshot: model.snapshot, positions: projectedPositions.slice(0, 100), orders: model.orders.slice(0, 100) }, unmanagedPositions, alerts: alerts.rows.map((row) => ({ code: bounded(row.code, 128), deliveryStatus: bounded(row.delivery_status, 32), eventId: bounded(row.event_id, 128), message: bounded(row.message, 1_000), occurredAt: row.occurred_at, severity: bounded(row.severity, 16) })) }, status: 200, origin } as const;
+  return { body: { asOf: model.freshness.capturedAt, userId: auth.userId, portfolio: { metrics: { unrealizedPl, ...(dayPnl ? { dayPnl } : {}) }, snapshot: model.snapshot, positions: projectedPositions.slice(0, 100), orders: model.orders.slice(0, 100) }, unmanagedPositions, alerts: alerts.rows.map((row) => ({ code: bounded(row.code, 128), deliveryStatus: bounded(row.delivery_status, 32), eventId: bounded(row.event_id, 128), message: bounded(row.message, 1_000), occurredAt: row.occurred_at, severity: bounded(row.severity, 16) })), agents: agentCatalog.map(([agentType, description]) => ({ agentType, description, runs: agentRuns.rows.filter((run) => run.agent_type === agentType).slice(0, 25).map((run) => ({ createdAt: run.created_at, errorCode: run.error_code, finishedAt: run.finished_at, runId: run.run_id, status: run.status, task: run.task })) })) }, status: 200, origin } as const;
 }
 
 async function readEligibleAssets(request: IncomingMessage) {

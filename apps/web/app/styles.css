@@ -125,6 +125,11 @@ main {
 .mini-list article strong { font-size: .85rem; }
 .mini-list article small { margin-top: .2rem; }
 .mini-muted, .mini-error, .mini-foot { color: var(--muted); font-size: .75rem; }
+.mini-agent-toolbar { align-items: center; display: flex; justify-content: space-between; gap: .5rem; }
+.mini-agent-toolbar input { background: var(--card); border: 1px solid var(--border); border-radius: .35rem; color: var(--foreground); font: inherit; font-size: .72rem; padding: .4rem .5rem; width: 9rem; }
+.mini-agent { background: var(--card); border: 1px solid var(--border); border-radius: .5rem; display: grid; gap: .25rem; margin: .45rem 0; padding: .65rem; }
+.mini-agent > div { display: flex; justify-content: space-between; gap: .5rem; }
+.mini-agent > span { color: var(--muted); font-size: .7rem; }
 .mini-error { background: rgb(241 109 118 / 10%); border: 1px solid rgb(241 109 118 / 35%); border-radius: .5rem; color: var(--negative); margin-top: 1rem; padding: .8rem; }
 .positive { color: var(--positive); } .negative { color: var(--negative); } .warning { color: var(--warning); }
 @media (max-width: 520px) {
