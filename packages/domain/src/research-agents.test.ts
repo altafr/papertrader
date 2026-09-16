@@ -32,4 +32,10 @@ describe("read-only research agents", () => {
     expect(() => runStockResearch({ ...input, maxCandidates: 21 })).toThrow("maxCandidates");
     expect(() => runStockResearch({ ...input, bars: [{ ...input.bars[0]!, close: "0" }, input.bars[1]!] })).toThrow("close");
   });
+
+  it("labels negative momentum as a short candidate", () => {
+    const artifact = runStockResearch({ ...input, bars: bars("BEAR").map((bar, index) => ({ ...bar, close: index === 0 ? "110" : "100" })) });
+    const payload = artifact.payload as unknown as ResearchWatchlistPayload;
+    expect(payload.candidates[0]).toMatchObject({ symbol: "BEAR", side: "short", momentumReturn: "-0.09090909" });
+  });
 });

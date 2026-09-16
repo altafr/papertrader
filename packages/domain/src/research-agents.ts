@@ -78,12 +78,14 @@ function buildWatchlist(input: ResearchAgentInput): ResearchWatchlistPayload {
     const latest = parse(bars[bars.length - 1]!.close, "close");
     const averageVolume = bars.reduce((sum, bar) => sum.plus(parse(bar.volume, "volume")), new Decimal("0")).div(String(bars.length));
     const marketSnapshot = computeMarketIndicatorSnapshot({ bars, asOf: bars[bars.length - 1]!.timestamp });
+    const momentumReturn = output(latest.div(first).minus("1"));
     candidates.push({
       assetClass: input.assetClass,
       averageVolume: output(averageVolume),
       dataAsOf: bars[bars.length - 1]!.timestamp,
-      momentumReturn: output(latest.div(first).minus("1")),
+      momentumReturn,
       symbol,
+      side: momentumReturn.startsWith("-") ? "short" : "long",
       ...(marketSnapshot ? { marketSnapshot } : {}),
     });
   }

@@ -8651,3 +8651,10 @@
 - Buying power is passed into deterministic risk assessment for short orders; missing credentials or broker metadata fails closed.
 - `SHORT_TRADING_ENABLED=true` now requires a bounded `SHORT_TRADING_APPROVAL_REFERENCE`; the default remains disabled.
 - Focused readiness tests and Worker typecheck pass. Hosted short trading is still not enabled pending a real broker asset smoke test and full entry-to-buy-to-cover reconciliation.
+
+### Phase 6.620 — Bearish research direction (2026-09-16)
+
+- Stock research now labels negative point-in-time momentum candidates as `short`; positive momentum remains `long`.
+- This gives the execution plan an explicit direction while the existing market/sector alignment gate and deterministic risk engine remain authoritative.
+- Regression coverage confirms bearish candidates are emitted with the correct side and all focused tests pass.
+- **Next smallest unit:** add a hosted paper-only broker asset smoke command and validate a short candidate through risk approval without submitting an order.
