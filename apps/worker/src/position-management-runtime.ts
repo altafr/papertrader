@@ -248,7 +248,7 @@ export async function runPositionManagementCycle(environment: NodeJS.ProcessEnv 
       const mark = marks.find((item) => item.assetClass === (position.assetClass === "crypto" ? "crypto" : "us_equity") && canonicalSymbol(item.mark.symbol) === canonicalSymbol(position.symbol))?.mark;
       const currentPrice = mark ? getFreshPositionMark(mark) : undefined;
       if (!plan || !currentPrice) return [];
-      return [{ assetClass: position.assetClass === "crypto" ? "crypto" as const : "us_equity" as const, currentPrice, entryPrice: plan.entryPrice!, plannedStopPrice: plan.plannedStopPrice!, ...(plan.trailingStopPrice ? { effectiveStopPrice: plan.trailingStopPrice } : {}), ...(plan.plannedTargetPrice ? { plannedTargetPrice: plan.plannedTargetPrice } : {}), quantity: position.quantity, strategyKey: plan.strategyKey!, strategyVersion: plan.strategyVersion!, symbol: position.symbol, ...(plan.timeStopAt ? { timeStopAt: plan.timeStopAt.toISOString() } : {}), intentId: plan.intentId }];
+      return [{ assetClass: position.assetClass === "crypto" ? "crypto" as const : "us_equity" as const, currentPrice, entryPrice: plan.entryPrice!, plannedStopPrice: plan.plannedStopPrice!, ...(plan.trailingStopPrice ? { effectiveStopPrice: plan.trailingStopPrice } : {}), ...(plan.plannedTargetPrice ? { plannedTargetPrice: plan.plannedTargetPrice } : {}), quantity: position.quantity, side: plan.side === "sell" ? "short" as const : "long" as const, strategyKey: plan.strategyKey!, strategyVersion: plan.strategyVersion!, symbol: position.symbol, ...(plan.timeStopAt ? { timeStopAt: plan.timeStopAt.toISOString() } : {}), intentId: plan.intentId }];
     });
     for (const position of managedPositions) {
       const mark = marks.find((item) => item.assetClass === (position.assetClass === "crypto" ? "crypto" : "us_equity") && canonicalSymbol(item.mark.symbol) === canonicalSymbol(position.symbol))?.mark;
@@ -262,7 +262,7 @@ export async function runPositionManagementCycle(environment: NodeJS.ProcessEnv 
         const intentId = getPositionExitIntentId(request.clientOrderId);
         const sourceIntentId = intentId.replace(/:exit$/, "");
         const source = managed.find((position) => position.intentId === sourceIntentId);
-        await orderRepository.recordSubmission({ approvalId: `${intentId}:approval`, assetClass: request.assetClass, clientOrderId: request.clientOrderId, intentId, quantity: request.quantity, status: "pending", symbol: request.decision.symbol, ...(source?.strategyKey ? { strategyKey: source.strategyKey } : {}), ...(source?.strategyVersion ? { strategyVersion: source.strategyVersion } : {}) });
+        await orderRepository.recordSubmission({ approvalId: `${intentId}:approval`, assetClass: request.assetClass, clientOrderId: request.clientOrderId, intentId, quantity: request.quantity, side: request.closingSide ?? "sell", status: "pending", symbol: request.decision.symbol, ...(source?.strategyKey ? { strategyKey: source.strategyKey } : {}), ...(source?.strategyVersion ? { strategyVersion: source.strategyVersion } : {}) });
         try {
           const brokerOrder = await brokerExitSubmitter.submitExit(request);
           await orderRepository.reconcile({ alpacaOrderId: brokerOrder.alpacaOrderId, ...(brokerOrder.filledQuantity ? { filledQuantity: brokerOrder.filledQuantity } : {}), intentId, status: brokerOrder.status, ...(brokerOrder.submittedAt ? { submittedAt: new Date(brokerOrder.submittedAt) } : {}), ...(brokerOrder.updatedAt ? { updatedAt: new Date(brokerOrder.updatedAt) } : {}) });

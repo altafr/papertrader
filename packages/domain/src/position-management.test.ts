@@ -8,6 +8,8 @@ describe("paper position management", () => {
   it("exits at a reached profit target", () => expect(evaluatePaperPositionExit({ ...base, currentPrice: "104" }, "2026-08-27T00:00:00Z")).toMatchObject({ shouldExit: true, reason: "profit_target" }));
   it("exits at a time stop when price thresholds are not reached", () => expect(evaluatePaperPositionExit({ ...base, timeStopAt: "2026-08-27T00:00:00Z" }, "2026-08-27T00:00:01Z")).toMatchObject({ shouldExit: true, reason: "time_stop" }));
   it("holds a position when no exit rule is triggered", () => expect(evaluatePaperPositionExit(base, "2026-08-27T00:00:00Z")).toMatchObject({ shouldExit: false }));
+  it("uses inverse stop and target semantics for a short", () => expect(evaluatePaperPositionExit({ ...base, side: "short", plannedStopPrice: "105", plannedTargetPrice: "94", currentPrice: "105" }, "2026-08-27T00:00:00Z")).toMatchObject({ shouldExit: true, reason: "stop_loss" }));
+  it("takes profit when a short reaches the lower target", () => expect(evaluatePaperPositionExit({ ...base, side: "short", plannedStopPrice: "105", plannedTargetPrice: "94", currentPrice: "94" }, "2026-08-27T00:00:00Z")).toMatchObject({ shouldExit: true, reason: "profit_target" }));
   it("ratchets the stop upward only after a favorable move", () => {
     expect(calculateTrailingStopPrice({ currentPrice: "120", entryPrice: "100", plannedStopPrice: "95" })).toBe("114.00000000");
     expect(calculateTrailingStopPrice({ currentPrice: "100", entryPrice: "100", plannedStopPrice: "95" })).toBe("95.00000000");

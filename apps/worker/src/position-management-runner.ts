@@ -44,7 +44,7 @@ export async function runPaperPositionManagementOnce(input: {
     const exitIntentId = `${position.intentId}:exit`;
     if (input.activeExitIntentIds?.has(exitIntentId)) continue;
     try {
-      submissions.push(await input.submitter.submitExit({ assetClass: position.assetClass, clientOrderId: buildPositionExitClientOrderId(position.intentId, decision.reason ?? "unknown"), decision, quantity: position.quantity, timeInForce: position.assetClass === "crypto" ? "gtc" : "day", type: "market" }));
+      submissions.push(await input.submitter.submitExit({ assetClass: position.assetClass, clientOrderId: buildPositionExitClientOrderId(position.intentId, decision.reason ?? "unknown"), closingSide: position.side === "short" ? "buy" : "sell", decision, quantity: position.quantity, timeInForce: position.assetClass === "crypto" ? "gtc" : "day", type: "market" }));
       submitted += 1;
     } catch (error) {
       failures.push({ assetClass: position.assetClass, error: error instanceof Error ? error.message.slice(0, 240) : "position_exit_submission_failed", symbol: position.symbol });

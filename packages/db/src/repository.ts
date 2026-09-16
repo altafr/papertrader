@@ -50,6 +50,7 @@ export interface PersistedPaperOrderSubmission {
   readonly intentId: string;
   readonly marketSnapshot?: Readonly<Record<string, string | null>>;
   readonly riskDecision?: Readonly<{ readonly approvalStatus?: "approved" | "rejected"; readonly estimatedLoss?: string; readonly estimatedLossPercent?: string; readonly policyVersion?: string; readonly reasons?: readonly string[] }>;
+  readonly side?: "buy" | "sell";
   readonly quantity: string;
   readonly entryPrice?: string;
   readonly exitPlanReference?: string;
@@ -562,6 +563,7 @@ export function createPaperOrderRepository(db: Database) {
               approvalId: submission.approvalId,
               assetClass: submission.assetClass,
               quantity: submission.quantity,
+              ...(submission.side ? { side: submission.side } : {}),
               status: submission.status,
               symbol: submission.symbol,
               ...(submission.entryPrice ? { entryPrice: submission.entryPrice } : {}),
@@ -586,6 +588,7 @@ export function createPaperOrderRepository(db: Database) {
           clientOrderId: submission.clientOrderId,
           intentId: submission.intentId,
           quantity: submission.quantity,
+          side: submission.side ?? "buy",
           status: submission.status,
           symbol: submission.symbol,
           ...(submission.entryPrice ? { entryPrice: submission.entryPrice } : {}),
@@ -615,6 +618,7 @@ export function createPaperOrderRepository(db: Database) {
         clientOrderId: submission.clientOrderId,
         intentId: submission.intentId,
         quantity: submission.quantity,
+        side: submission.side ?? "buy",
         status: submission.status,
         symbol: submission.symbol,
         ...(submission.entryPrice ? { entryPrice: submission.entryPrice } : {}),

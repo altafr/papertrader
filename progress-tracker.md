@@ -8636,3 +8636,11 @@
 - Live health confirms Paper Autopilot, fresh crypto stream, position supervisor readiness, and Telegram assistant `enabled=true`, `mode=read_only`, `status=ready`, polling every 20 seconds.
 - Firecrawl remains optional and unset; no secret was added or exposed. The known degraded state remains limited to two unmanaged legacy positions, which continue to pause new entries.
 - **Next smallest unit:** send an authorized Telegram company question and confirm the queued research run in the dashboard/audit log; add `FIRECRAWL_API_KEY` only through Railway secret variables if current web sources are desired.
+
+### Phase 6.618 — Short lifecycle controls foundation (2026-09-16)
+
+- Paper order direction is now persisted (`buy`/`sell`) with a database migration, so short entries and buy-to-cover exits can be reconciled without inference.
+- Deterministic risk now requires an explicit short feature gate, broker-confirmed shortable/borrowable symbols, available buying power, and separate short position/gross-exposure caps.
+- Position management now applies inverse short stop/target semantics, ratchets a short stop downward, and submits `buy` buy-to-cover exits; legacy rows remain long-compatible by default.
+- Focused directional lifecycle tests and domain/db/worker typechecks pass. Short trading remains disabled until strategy generation, broker asset verification wiring, persisted direction on all entry paths, and hosted end-to-end reconciliation are completed.
+- **Next smallest unit:** wire the Alpaca shortable/borrowable asset check into the risk cycle and add the explicit `SHORT_TRADING_ENABLED` readiness contract; do not enable the hosted flag yet.

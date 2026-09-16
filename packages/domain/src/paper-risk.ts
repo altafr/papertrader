@@ -44,6 +44,10 @@ export interface PaperRiskState {
   readonly unmanagedPositions?: readonly string[];
   /** Explicit paper-only short feature gate; defaults to disabled. */
   readonly shortTradingEnabled?: boolean;
+  /** Broker-confirmed borrow/shortable symbols for this risk pass. */
+  readonly shortableSymbols?: readonly string[];
+  /** Current broker buying power available for margin-backed shorts. */
+  readonly buyingPower?: DecimalString;
 }
 
 export interface PaperRiskPolicy {
@@ -55,6 +59,8 @@ export interface PaperRiskPolicy {
   readonly maxOpenPositions: number;
   readonly maxSubmittedEntriesLast24Hours: number;
   readonly maxStockPositionPercent: DecimalString;
+  readonly maxShortPositionPercent: DecimalString;
+  readonly maxShortGrossExposurePercent: DecimalString;
 }
 
 /** Alpaca's default paper account starts at USD 100,000; verify this baseline before activation. */
@@ -85,6 +91,8 @@ export const DEFAULT_PAPER_RISK_POLICY: PaperRiskPolicy = {
   maxOpenPositions: 10,
   maxSubmittedEntriesLast24Hours: 20,
   maxStockPositionPercent: "5",
+  maxShortPositionPercent: "5",
+  maxShortGrossExposurePercent: "25",
 };
 
 export interface PaperRiskAssessment {
@@ -133,6 +141,7 @@ export function assessPaperRisk(input: {
   const risk = calculateTradeRisk({ entryPrice: candidate.proposedEntryPrice, equity: input.equity, estimatedFees: input.estimatedFees, estimatedSlippage: input.estimatedSlippage, quantity: input.quantity, stopPrice: candidate.plannedStopPrice });
   const reasons: string[] = [];
   if (candidate.side === "short" && input.state.shortTradingEnabled !== true) reasons.push("Short paper trading is not enabled.");
+  if (candidate.side === "short" && !(input.state.shortableSymbols ?? []).map((symbol) => symbol.replaceAll("/", "").toUpperCase()).includes(candidate.symbol.replaceAll("/", "").toUpperCase())) reasons.push("Broker has not confirmed this symbol is shortable and borrowable.");
   const adverseStopPercent = (candidate.side === "short" ? stop.minus(entry) : entry.minus(stop)).div(entry).times("100");
   if (candidate.side === "long" && !stop.lessThan(entry)) reasons.push("Long protective stop must be below entry.");
   if (candidate.side === "short" && !stop.greaterThan(entry)) reasons.push("Short protective stop must be above entry.");
@@ -147,14 +156,17 @@ export function assessPaperRisk(input: {
   if (candidate.assetClass === "crypto" && (input.state.cryptoSyntheticBracketEnabled !== true || input.state.positionManagementHealthy !== true)) reasons.push("Synthetic crypto bracket protection is not healthy; entry rejected until the position supervisor is ready.");
   if (!risk.passes) reasons.push("Estimated planned-stop loss exceeds 5% of invested notional.");
   const notional = entry.times(quantity);
+  if (candidate.side === "short" && input.state.buyingPower !== undefined && notional.greaterThan(new Decimal(input.state.buyingPower))) reasons.push("Short order exceeds available buying power.");
   if (notional.lessThan(equity.times(policy.minPositionPercent).div("100"))) {
     reasons.push(`Proposed position is below the minimum ${policy.minPositionPercent}% of portfolio investment.`);
   }
   const maxPositionPercent = candidate.assetClass === "crypto" ? policy.maxCryptoPositionPercent : policy.maxStockPositionPercent;
-  if (notional.greaterThan(equity.times(maxPositionPercent).div("100"))) {
+  const directionalMaxPositionPercent = candidate.side === "short" ? policy.maxShortPositionPercent : maxPositionPercent;
+  if (notional.greaterThan(equity.times(directionalMaxPositionPercent).div("100"))) {
     reasons.push("Proposed position exceeds the asset-class position cap.");
   }
   const grossExposure = input.state.openPositions.reduce((total, position) => total.plus(decimal(position.marketValue, "position market value").abs()), new Decimal("0")).plus(notional);
   if (grossExposure.greaterThan(equity.times(policy.maxGrossExposurePercent).div("100"))) reasons.push("Proposed position exceeds the gross-exposure cap.");
+  if (candidate.side === "short" && notional.greaterThan(equity.times(policy.maxShortGrossExposurePercent).div("100"))) reasons.push("Proposed short exposure exceeds the short gross-exposure cap.");
   return { estimatedLoss: risk.estimatedLoss, estimatedLossPercent: risk.estimatedLossPercent, passes: reasons.length === 0, reasons, risk };
 }

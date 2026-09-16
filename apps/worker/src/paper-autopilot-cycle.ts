@@ -117,7 +117,8 @@ export async function runPaperAutopilotRiskCycle(input: {
     const riskCandidate = buildRiskCandidate(candidate, now);
     const persisted: PersistedPaperOrderSubmission = {
       approvalId: approval.approvalId,
-      assetClass: riskCandidate.assetClass,
+    assetClass: riskCandidate.assetClass,
+      side: riskCandidate.side === "short" ? "sell" : "buy",
       clientOrderId: `${intentId}:scheduled-risk`,
       intentId,
       entryPrice: riskCandidate.proposedEntryPrice,

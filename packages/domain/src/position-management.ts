@@ -4,6 +4,7 @@ interface DecimalValue {
   greaterThan(value: string): boolean;
   isZero(): boolean;
   lessThanOrEqualTo(value: string): boolean;
+  lessThan(value: string): boolean;
   greaterThanOrEqualTo(value: string): boolean;
   times(value: string): DecimalValue;
   toDecimalPlaces(decimalPlaces: number): DecimalValue;
@@ -26,6 +27,8 @@ export interface ManagedPaperPosition {
   readonly strategyKey: string;
   readonly strategyVersion: string;
   readonly symbol: string;
+  /** Direction of the open position; omitted legacy rows are treated as long. */
+  readonly side?: "long" | "short";
   readonly timeStopAt?: string;
 }
 
@@ -46,6 +49,14 @@ export function calculateTrailingStopPrice(input: { readonly currentPrice: strin
   return (planned.greaterThan(trailing.toFixed(8)) ? planned : trailing).toDecimalPlaces(8).toFixed(8);
 }
 
+export function calculateDirectionalTrailingStopPrice(input: { readonly side?: "long" | "short"; readonly currentPrice: string; readonly entryPrice: string; readonly plannedStopPrice: string; readonly effectiveStopPrice?: string }): string {
+  if (input.side !== "short") return calculateTrailingStopPrice(input);
+  const current = new Decimal(input.currentPrice);
+  const planned = new Decimal(input.effectiveStopPrice ?? input.plannedStopPrice);
+  const trailing = current.lessThan(input.entryPrice) ? current.times("1.05") : planned;
+  return (planned.lessThan(trailing.toFixed(8)) ? planned : trailing).toDecimalPlaces(8).toFixed(8);
+}
+
 /** Evaluate one long paper position using its immutable entry/exit plan. No broker access or mutation. */
 export function evaluatePaperPositionExit(position: ManagedPaperPosition, now: string): PositionExitDecision {
   if (!position.symbol.trim() || !position.strategyKey.trim() || !position.strategyVersion.trim()) throw new Error("Position identity is required.");
@@ -53,12 +64,13 @@ export function evaluatePaperPositionExit(position: ManagedPaperPosition, now: s
   const entry = new Decimal(position.entryPrice);
   const stop = new Decimal(position.plannedStopPrice);
   if (current.isZero() || entry.isZero() || stop.isZero()) throw new Error("Position prices must be greater than zero.");
-  const effectiveStopPrice = calculateTrailingStopPrice(position);
-  if (current.lessThanOrEqualTo(effectiveStopPrice)) return { effectiveStopPrice, exitPrice: position.currentPrice, reason: "stop_loss", shouldExit: true, symbol: position.symbol };
+  const short = position.side === "short";
+  const effectiveStopPrice = calculateDirectionalTrailingStopPrice(position);
+  if ((short && current.greaterThanOrEqualTo(effectiveStopPrice)) || (!short && current.lessThanOrEqualTo(effectiveStopPrice))) return { effectiveStopPrice, exitPrice: position.currentPrice, reason: "stop_loss", shouldExit: true, symbol: position.symbol };
   if (position.plannedTargetPrice) {
     const target = new Decimal(position.plannedTargetPrice);
     if (target.isZero()) throw new Error("Position target price must be greater than zero.");
-    if (current.greaterThanOrEqualTo(position.plannedTargetPrice)) return { effectiveStopPrice, exitPrice: position.currentPrice, reason: "profit_target", shouldExit: true, symbol: position.symbol };
+    if ((short && current.lessThanOrEqualTo(position.plannedTargetPrice)) || (!short && current.greaterThanOrEqualTo(position.plannedTargetPrice))) return { effectiveStopPrice, exitPrice: position.currentPrice, reason: "profit_target", shouldExit: true, symbol: position.symbol };
   }
   if (position.timeStopAt) {
     const nowMs = Date.parse(now);

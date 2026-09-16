@@ -137,6 +137,7 @@ export const paperOrderSubmissions = pgTable(
     intentId: text("intent_id").primaryKey(),
     marketSnapshot: jsonb("market_snapshot").$type<Readonly<Record<string, string | null>>>(),
     riskDecision: jsonb("risk_decision").$type<Readonly<{ readonly approvalStatus?: "approved" | "rejected"; readonly estimatedLoss?: string; readonly estimatedLossPercent?: string; readonly policyVersion?: string; readonly reasons?: readonly string[] }>>(),
+    side: text("side").notNull().default("buy"),
     quantity: numeric("quantity", { precision: 20, scale: 8 }).notNull(),
     plannedStopPrice: numeric("planned_stop_price", { precision: 20, scale: 8 }),
     plannedTargetPrice: numeric("planned_target_price", { precision: 20, scale: 8 }),
@@ -154,6 +155,7 @@ export const paperOrderSubmissions = pgTable(
     index("paper_order_submissions_status_updated_idx").on(table.status, table.updatedAt),
     check("paper_order_submissions_non_empty_text", sql`length(${table.intentId}) > 0 AND length(${table.approvalId}) > 0 AND length(${table.clientOrderId}) > 0 AND length(${table.symbol}) > 0`),
     check("paper_order_submissions_quantity_positive", sql`${table.quantity} > 0`),
+    check("paper_order_submissions_side_valid", sql`${table.side} IN ('buy', 'sell')`),
   ],
 );
 

@@ -62,6 +62,9 @@ const assetPayloadSchema = z.array(
     name: z.string().min(1),
     status: z.string().min(1),
     tradable: z.boolean(),
+    shortable: z.boolean().optional(),
+    easy_to_borrow: z.boolean().optional(),
+    maintenance_margin_requirement: decimalValue.optional(),
   }),
 );
 const marketBarPayloadSchema = z.object({
@@ -159,6 +162,9 @@ export interface PaperAsset {
   readonly status: string;
   readonly symbol: string;
   readonly tradable: boolean;
+  readonly shortable?: boolean;
+  readonly easyToBorrow?: boolean;
+  readonly maintenanceMarginRequirement?: string;
 }
 
 export interface PaperAssetReader {
@@ -338,7 +344,7 @@ export function createPaperAssetReader(options: AlpacaAccountReaderOptions): Pap
         throw new Error(`Alpaca asset read failed with HTTP ${response.status}.`);
       }
       const assets = assetPayloadSchema.parse(await response.json());
-      return assets
+        return assets
         .filter((asset) => asset.class === "us_equity" || asset.class === "crypto")
         .map((asset) => ({
           assetClass: asset.class,
@@ -348,6 +354,9 @@ export function createPaperAssetReader(options: AlpacaAccountReaderOptions): Pap
           status: asset.status,
           symbol: asset.symbol,
           tradable: asset.tradable,
+          ...(asset.shortable !== undefined ? { shortable: asset.shortable } : {}),
+          ...(asset.easy_to_borrow !== undefined ? { easyToBorrow: asset.easy_to_borrow } : {}),
+          ...(asset.maintenance_margin_requirement ? { maintenanceMarginRequirement: asset.maintenance_margin_requirement } : {}),
         } satisfies PaperAsset));
     },
   };
