@@ -16,6 +16,12 @@
 
 ## Phase 6.854 — after-close plus pre-market preparation (2026-09-16)
 
+## Phase 6.855 — short-path foundation (2026-09-16)
+
+- Extended directional candidate/risk contracts to represent short signals, validate stops above entry, and reject shorts unless the explicit short paper gate is enabled.
+- Extended the Alpaca paper entry adapter to accept a short-side equity order while retaining bracket fields.
+- The short path remains disabled: buy-to-cover lifecycle, persisted position direction, borrow/shortable verification, margin limits, and short reconciliation are still required before activation.
+
 - Added a second durable weekday preparation schedule at 17:00 America/New_York after the close, while retaining the 08:30 America/New_York pre-market refresh.
 - The after-close run prepares the next session; the pre-market run aligns and refreshes that plan. Either run can produce zero trades.
 

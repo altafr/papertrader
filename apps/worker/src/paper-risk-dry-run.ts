@@ -17,7 +17,7 @@ export function isPaperBaselineVerified(equity: string | number | undefined, bas
   return classifyPaperBaseline(equity, String(baseline), String(tolerance)) === "within_tolerance";
 }
 
-export type RiskCandidate = ResearchWatchlistCandidate & { readonly expiresAt: string; readonly plannedExitPrice: string; readonly plannedStopPrice: string; readonly proposedEntryPrice: string; readonly rationale: string; readonly score: string; readonly signalTime: string; readonly side: "long"; readonly strategyKey: string; readonly strategyVersion: string; readonly timeStopAt?: string };
+export type RiskCandidate = ResearchWatchlistCandidate & { readonly expiresAt: string; readonly plannedExitPrice: string; readonly plannedStopPrice: string; readonly proposedEntryPrice: string; readonly rationale: string; readonly score: string; readonly signalTime: string; readonly side: "long" | "short"; readonly strategyKey: string; readonly strategyVersion: string; readonly timeStopAt?: string };
 
 export function buildRiskCandidate(input: ResearchWatchlistCandidate, now = new Date()): RiskCandidate {
   let close: DecimalValue;
@@ -35,16 +35,16 @@ export function buildRiskCandidate(input: ResearchWatchlistCandidate, now = new 
   return {
     ...input,
     expiresAt: new Date(Math.max(signalExpiry, minimumFutureExpiry)).toISOString(),
-    plannedExitPrice: close.times("1.04").toDecimalPlaces(8).toFixed(8),
+    plannedExitPrice: close.times(input.side === "short" ? "0.94" : "1.06").toDecimalPlaces(8).toFixed(8),
     // Keep the planned stop strictly inside the 5% maximum. Using 95% and
     // then rounding can produce a tiny over-limit distance for some prices,
     // causing every generated research candidate to fail closed.
-    plannedStopPrice: close.times("0.9501").toDecimalPlaces(8).toFixed(8),
+    plannedStopPrice: close.times(input.side === "short" ? "1.0499" : "0.9501").toDecimalPlaces(8).toFixed(8),
     proposedEntryPrice: close.toDecimalPlaces(8).toFixed(8),
     rationale: "Research candidate passed to the deterministic paper-risk engine for a non-submitting dry run.",
     score: input.momentumReturn,
     signalTime,
-    side: "long",
+    side: input.side ?? "long",
     strategyKey: "research-watchlist",
     strategyVersion: "1.0.0",
   };

@@ -39,7 +39,7 @@ export interface PaperOrderSubmissionRequest {
   readonly strategyKey?: string;
   readonly strategyVersion?: string;
   readonly timeStopAt?: string;
-  readonly side: "buy";
+  readonly side: "buy" | "sell";
   readonly symbol: string;
   readonly timeInForce: "day" | "gtc";
   readonly type: "limit" | "market";
@@ -69,6 +69,7 @@ export interface PaperExitOrderRequest {
   readonly quantity: string;
   readonly timeInForce: "day" | "gtc";
   readonly type: "market" | "limit";
+  readonly closingSide?: "buy" | "sell";
 }
 
 export interface PaperExitOrderSubmitter {
@@ -172,7 +173,7 @@ export function createPaperExitOrderSubmitter(options: PaperOrderSubmitterOption
       const existingResponse = await requestJson(`/v2/orders:by_client_order_id?client_order_id=${encodeURIComponent(request.clientOrderId)}`, { method: "GET" });
       if (existingResponse.ok) return normalizeOrder(orderSchema.parse(await existingResponse.json()), { approval: { approvalId: request.clientOrderId, intentId: request.clientOrderId, status: "approved" }, assetClass: request.assetClass, clientOrderId: request.clientOrderId, quantity: request.quantity, side: "buy", symbol: request.decision.symbol, timeInForce: request.timeInForce, type: request.type });
       if (existingResponse.status !== 404) throw new Error("Paper exit idempotency lookup failed.");
-      const response = await requestJson("/v2/orders", { body: JSON.stringify({ client_order_id: request.clientOrderId, order_class: "simple", qty: request.quantity, side: "sell", symbol: normalizeAlpacaOrderSymbol(request.assetClass, request.decision.symbol), time_in_force: request.assetClass === "crypto" ? "gtc" : request.timeInForce, type: request.type }), method: "POST" });
+      const response = await requestJson("/v2/orders", { body: JSON.stringify({ client_order_id: request.clientOrderId, order_class: "simple", qty: request.quantity, side: request.closingSide ?? "sell", symbol: normalizeAlpacaOrderSymbol(request.assetClass, request.decision.symbol), time_in_force: request.assetClass === "crypto" ? "gtc" : request.timeInForce, type: request.type }), method: "POST" });
       if (!response.ok) throw new Error(formatProviderFailure("Paper exit submission failed", response, classifyPaperOrderFailure(request.assetClass, response.status, true, await getProviderFailureHint(response))));
       return normalizeOrder(orderSchema.parse(await response.json()), { approval: { approvalId: request.clientOrderId, intentId: request.clientOrderId, status: "approved" }, assetClass: request.assetClass, clientOrderId: request.clientOrderId, quantity: request.quantity, side: "buy", symbol: request.decision.symbol, timeInForce: request.timeInForce, type: request.type });
     },

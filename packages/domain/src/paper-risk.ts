@@ -42,6 +42,8 @@ export interface PaperRiskState {
   readonly positionManagementHealthy?: boolean;
   /** Symbols that cannot be automatically managed because their exit plan is incomplete. */
   readonly unmanagedPositions?: readonly string[];
+  /** Explicit paper-only short feature gate; defaults to disabled. */
+  readonly shortTradingEnabled?: boolean;
 }
 
 export interface PaperRiskPolicy {
@@ -107,7 +109,7 @@ export function createImmutablePaperSignal(input: { readonly candidate: Strategy
   if (!input.signalId.trim()) throw new Error("Paper signal ID is required.");
   if (!input.createdAt || Number.isNaN(Date.parse(input.createdAt)) || Number.isNaN(Date.parse(input.candidate.signalTime))) throw new Error("Paper signal timestamps must be valid.");
   if (Date.parse(input.createdAt) < Date.parse(input.candidate.signalTime)) throw new Error("Paper signal creation cannot precede the signal time.");
-  if (input.candidate.side !== "long") throw new Error("Only long paper signals are supported.");
+  if (input.candidate.side === "short" && input.candidate.assetClass !== "us_equity") throw new Error("Short signals are supported for US equities only.");
   return Object.freeze({ candidate: Object.freeze({ ...input.candidate }), createdAt: input.createdAt, signalId: input.signalId });
 }
 
@@ -130,7 +132,10 @@ export function assessPaperRisk(input: {
   if (entry.isNegative() || entry.toFixed() === "0") throw new Error("entry price must be greater than zero.");
   const risk = calculateTradeRisk({ entryPrice: candidate.proposedEntryPrice, equity: input.equity, estimatedFees: input.estimatedFees, estimatedSlippage: input.estimatedSlippage, quantity: input.quantity, stopPrice: candidate.plannedStopPrice });
   const reasons: string[] = [];
-  const adverseStopPercent = entry.minus(stop).div(entry).times("100");
+  if (candidate.side === "short" && input.state.shortTradingEnabled !== true) reasons.push("Short paper trading is not enabled.");
+  const adverseStopPercent = (candidate.side === "short" ? stop.minus(entry) : entry.minus(stop)).div(entry).times("100");
+  if (candidate.side === "long" && !stop.lessThan(entry)) reasons.push("Long protective stop must be below entry.");
+  if (candidate.side === "short" && !stop.greaterThan(entry)) reasons.push("Short protective stop must be above entry.");
   if (adverseStopPercent.greaterThan(MAX_SINGLE_TRADE_STOP_LOSS_PERCENT)) reasons.push("Planned stop exceeds the maximum 5% adverse-loss distance.");
   if (!input.state.accountBaselineVerified) reasons.push("Starting paper-equity baseline has not been verified.");
   if (!input.state.accountFresh) reasons.push("Account state is stale.");

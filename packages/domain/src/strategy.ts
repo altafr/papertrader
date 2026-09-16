@@ -39,7 +39,7 @@ export interface StrategySignalCandidate {
   readonly recommendedNotional?: string;
   readonly score: string;
   readonly signalTime: string;
-  readonly side: "long";
+  readonly side: "long" | "short";
   readonly symbol: string;
   readonly strategyKey: string;
   readonly strategyVersion: string;

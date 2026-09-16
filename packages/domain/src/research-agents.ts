@@ -30,6 +30,7 @@ export interface ResearchWatchlistCandidate {
   readonly dataAsOf: string;
   readonly momentumReturn: string;
   readonly symbol: string;
+  readonly side?: "long" | "short";
   readonly marketSnapshot?: MarketIndicatorSnapshot;
 }
 
