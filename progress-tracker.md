@@ -8644,3 +8644,10 @@
 - Position management now applies inverse short stop/target semantics, ratchets a short stop downward, and submits `buy` buy-to-cover exits; legacy rows remain long-compatible by default.
 - Focused directional lifecycle tests and domain/db/worker typechecks pass. Short trading remains disabled until strategy generation, broker asset verification wiring, persisted direction on all entry paths, and hosted end-to-end reconciliation are completed.
 - **Next smallest unit:** wire the Alpaca shortable/borrowable asset check into the risk cycle and add the explicit `SHORT_TRADING_ENABLED` readiness contract; do not enable the hosted flag yet.
+
+### Phase 6.619 — Shortable broker verification wired (2026-09-16)
+
+- The risk cycle now reads Alpaca paper assets when short candidates are present and accepts only active, tradable, shortable, easy-to-borrow US equities.
+- Buying power is passed into deterministic risk assessment for short orders; missing credentials or broker metadata fails closed.
+- `SHORT_TRADING_ENABLED=true` now requires a bounded `SHORT_TRADING_APPROVAL_REFERENCE`; the default remains disabled.
+- Focused readiness tests and Worker typecheck pass. Hosted short trading is still not enabled pending a real broker asset smoke test and full entry-to-buy-to-cover reconciliation.
