@@ -8658,3 +8658,9 @@
 - This gives the execution plan an explicit direction while the existing market/sector alignment gate and deterministic risk engine remain authoritative.
 - Regression coverage confirms bearish candidates are emitted with the correct side and all focused tests pass.
 - **Next smallest unit:** add a hosted paper-only broker asset smoke command and validate a short candidate through risk approval without submitting an order.
+
+### Phase 6.621 — 30-minute live-session supervision (2026-09-16)
+
+- Railway Worker `POSITION_MANAGEMENT_INTERVAL_SECONDS` is now set to `1800` and a redeploy was triggered.
+- Position management continues to rely on broker-native brackets for immediate stop/target execution; the 30-minute loop handles reconciliation and trailing-stop updates.
+- **Next smallest unit:** verify the new deployment reports `intervalSeconds=1800` and remains healthy.
