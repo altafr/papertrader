@@ -2,12 +2,24 @@
 
 ## Phase 6.847 — bounded US universe and Telegram agent view (2026-09-16)
 
+## Phase 6.848 — stock confirmation and bracket policy (2026-09-16)
+
+- Updated paper stock sizing to use the greater of 2% of equity or USD 2,000 minimum notional.
+- Updated enabled momentum strategy defaults to a 2% stop and 6% profit target (within the requested 5–7% range); Alpaca equity entries continue to use bracket orders.
+- Railway configuration is being set to run position management hourly and stock-only mode remains enabled.
+- Broad-market and sector-direction confirmation is the next strategy-data unit: the current Alpaca bar contract does not yet carry benchmark/sector ETF inputs, so no unsupported confirmation is being inferred.
+
 - Imported the attached `swing_trading_watchlist.xlsx` as a versioned, server-side 36-symbol US-equity universe: 23 Core Momentum names and 13 High Volatility names. Research defaults now use this universe, and the research source accepts the full bounded list (up to 100 symbols); crypto is not part of the stock universe.
 - Added `us_universe_refresh` proposal logic for quarterly liquidity/momentum reviews. It is explicitly review-required and cannot place orders or make pending symbols tradable by itself.
 - Added a paper-only, command-scoped `close-crypto-positions-once` worker command. It reads broker truth, targets only positive crypto positions, submits idempotent market exits through the existing exit adapter, and refuses live/non-paper runtime.
 - Extended the signed Telegram Mini App payload with the current agent catalog and recent run summaries, plus a filterable Agents tab. Portfolio and Alerts tabs remain read-only.
 - Worker/API/Web typechecks and focused research/Telegram tests pass (10 tests).
 - **Next smallest unit:** run the guarded crypto liquidation command in Railway with command-scoped `CLOSE_CRYPTO_POSITIONS_ONCE=true`, reconcile, and verify zero crypto positions; then set the deployed stock-research symbol configuration to the versioned universe and schedule the quarterly proposal job.
+
+- Railway paper liquidation completed for `BTCUSD`; the hosted supervisor subsequently reported `managed=0 positions=0`, confirming the paper account has no crypto position in reconciled runtime state.
+- Set `TRADING_US_STOCKS_ONLY=true` on the Railway Worker and deployed the gate. Future scheduled research/risk cycles now omit crypto entirely and admit only the versioned US-stock universe.
+- Published the Telegram Agents tab build to a Vercel production deployment (`papertrader-pwa31ajgg-altafrs-projects.vercel.app`; deployment URL returned while building). The branch preview is also available at `papertrader-j127utnlu-altafrs-projects.vercel.app`.
+- **Next smallest unit:** verify the new Worker deployment is healthy and confirm the Vercel production deployment reaches Ready; then wire quarterly refresh proposals into a durable scheduled job and add explicit operator approval UI if additions are to become active.
 
 ## Snapshot
 

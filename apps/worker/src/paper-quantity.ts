@@ -2,7 +2,7 @@ import * as DecimalModule from "decimal.js";
 
 import type { ResearchWatchlistCandidate } from "@momentum/domain";
 
-interface DecimalValue { div(value: DecimalValue | string): DecimalValue; isNegative(): boolean; isZero(): boolean; plus(value: DecimalValue | string): DecimalValue; times(value: DecimalValue | string): DecimalValue; toDecimalPlaces(decimalPlaces: number): DecimalValue; toFixed(decimalPlaces?: number): string; }
+interface DecimalValue { div(value: DecimalValue | string): DecimalValue; greaterThan(value: DecimalValue | string): boolean; isNegative(): boolean; isZero(): boolean; plus(value: DecimalValue | string): DecimalValue; times(value: DecimalValue | string): DecimalValue; toDecimalPlaces(decimalPlaces: number): DecimalValue; toFixed(decimalPlaces?: number): string; }
 interface DecimalConstructor { new (value: string): DecimalValue; }
 const Decimal = (DecimalModule as unknown as { readonly default: DecimalConstructor }).default;
 
@@ -33,7 +33,10 @@ export function getPaperAutopilotQuantityForCandidate(candidate: { readonly asse
     const accountEquity = new Decimal(equity);
     if (price.isNegative() || price.isZero() || accountEquity.isNegative() || accountEquity.isZero()) throw new Error("invalid sizing values");
     const increment = candidate.assetClass === "crypto" ? "0.00000001" : "1";
-    target = accountEquity.times("0.02").div(price).toDecimalPlaces(candidate.assetClass === "crypto" ? 8 : 0).plus(increment);
+    const minimumNotional = candidate.assetClass === "us_equity" ? (environment.MIN_STOCK_TRADE_NOTIONAL?.trim() || "2000") : "0";
+    const minimumQuantity = new Decimal(minimumNotional).div(price);
+    const portfolioQuantity = accountEquity.times("0.02").div(price);
+    target = (portfolioQuantity.greaterThan(minimumQuantity) ? portfolioQuantity : minimumQuantity).toDecimalPlaces(candidate.assetClass === "crypto" ? 8 : 0).plus(increment);
     return target.toFixed(candidate.assetClass === "crypto" ? 8 : 0);
   } catch {
     throw new Error("Unable to derive a positive two-percent portfolio quantity.");
