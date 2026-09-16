@@ -60,6 +60,7 @@ try {
     submittedEntriesLast24Hours: model.orders.filter((order) => order.side.toLowerCase() === "buy" && order.submittedAt && now.getTime() - order.submittedAt.getTime() <= 86_400_000).length,
     cryptoSyntheticBracketEnabled: process.env.CRYPTO_SYNTHETIC_BRACKET_ENABLED === "true" && process.env.POSITION_MANAGEMENT_SCHEDULER_ENABLED === "true",
     positionManagementHealthy: process.env.POSITION_MANAGEMENT_SCHEDULER_ENABLED === "true",
+    shortTradingEnabled: process.env.SHORT_TRADING_ENABLED === "true" && Boolean(process.env.SHORT_TRADING_APPROVAL_REFERENCE?.trim()),
   };
   const quantity = getPaperAutopilotQuantityForCandidate(candidate, snapshot.equity, process.env, process.env.PAPER_ORDER_QUANTITY);
   stage = "risk_gate";
