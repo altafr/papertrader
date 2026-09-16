@@ -70,6 +70,8 @@ The system evaluates both directions:
 4. Send either direction through the same deterministic sizing, exposure, freshness, kill-switch, and reconciliation gates.
 5. Record the direction, evidence, rationale, bracket levels, exit reason, and realized result in the trade journal.
 
+Bracket stops and profit targets are submitted with the entry and remain broker-active immediately; they may execute before the hourly supervisor check. The hourly position manager is responsible for reconciliation, health checks, and favorable-move stop ratcheting, not for delaying bracket exits.
+
 Short execution remains feature-flagged off until borrow/locate, margin, buy-to-cover, and short-specific gap-risk gates are validated.
 
 ### Daily US Stock Preparation

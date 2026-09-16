@@ -10,6 +10,11 @@
 
 ## Phase 6.851 — two-direction execution plan (2026-09-16)
 
+## Phase 6.852 — intrahour bracket execution invariant (2026-09-16)
+
+- Recorded the requirement that bracket stops and profit targets are broker-active immediately with the entry and may execute before the hourly position-management pass.
+- Hourly management is reserved for reconciliation, health checks, and favorable-move stop ratcheting; it never delays or replaces bracket protection.
+
 - Revised the product and architecture execution plan to cover both bullish long trades and bearish short trades.
 - Both directions share deterministic risk, bracket, exposure, freshness, kill-switch, reconciliation, and trade-journal requirements.
 - Short execution remains explicitly feature-flagged off until borrow/locate, margin, buy-to-cover, gap-risk, and short-specific tests are complete.
