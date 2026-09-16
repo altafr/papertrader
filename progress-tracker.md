@@ -12,6 +12,16 @@
 
 ## Phase 6.852 — intrahour bracket execution invariant (2026-09-16)
 
+## Phase 6.853 — daily pre-market stock preparation (2026-09-16)
+
+## Phase 6.854 — after-close plus pre-market preparation (2026-09-16)
+
+- Added a second durable weekday preparation schedule at 17:00 America/New_York after the close, while retaining the 08:30 America/New_York pre-market refresh.
+- The after-close run prepares the next session; the pre-market run aligns and refreshes that plan. Either run can produce zero trades.
+
+- Changed the default research schedule to weekdays at 08:30 America/New_York, one hour before the US regular-session open.
+- Pre-market preparation covers market/sector context, news/events, liquidity, and the approved stock universe; it may correctly produce no trade.
+
 - Recorded the requirement that bracket stops and profit targets are broker-active immediately with the entry and may execute before the hourly position-management pass.
 - Hourly management is reserved for reconciliation, health checks, and favorable-move stop ratcheting; it never delays or replaces bracket protection.
 

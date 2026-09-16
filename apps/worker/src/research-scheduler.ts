@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 
 export const RESEARCH_PREPARATION_QUEUE = "momentum.research-preparation";
 export const RESEARCH_PREPARATION_DEAD_LETTER_QUEUE = "momentum.research-preparation.dead-letter";
-export const RESEARCH_PREPARATION_CRON = "30 0 * * *";
+export const RESEARCH_PREPARATION_CRON = "30 8 * * 1-5";
 
 export interface ResearchScheduleConfig {
   readonly cron: string;
@@ -10,6 +10,7 @@ export interface ResearchScheduleConfig {
   readonly handlerEnabled: boolean;
   readonly retryDelaySeconds: number;
   readonly retryLimit: number;
+  readonly timezone?: string;
 }
 
 export interface ResearchScheduleReadiness {
@@ -137,6 +138,7 @@ export function getResearchScheduleConfig(environment: NodeJS.ProcessEnv = proce
     handlerEnabled: parseBoolean("RESEARCH_HANDLER_ENABLED", environment.RESEARCH_HANDLER_ENABLED, false),
     retryDelaySeconds: parseBoundedInteger("RESEARCH_RETRY_DELAY_SECONDS", environment.RESEARCH_RETRY_DELAY_SECONDS, 300, 1, 86_400),
     retryLimit: parseBoundedInteger("RESEARCH_RETRY_LIMIT", environment.RESEARCH_RETRY_LIMIT, 2, 0, 10),
+    ...(environment.RESEARCH_PREPARATION_TIMEZONE?.trim() ? { timezone: environment.RESEARCH_PREPARATION_TIMEZONE.trim() } : {}),
   };
 }
 
@@ -289,7 +291,8 @@ export function createResearchScheduler(input: {
         client = input.clientFactory();
         await client.start();
         await provisionResearchQueues(client, input.config);
-        await client.schedule(RESEARCH_PREPARATION_QUEUE, input.config.cron, { kind: "research_preparation", version: 1 }, { key: "research-preparation", tz: "UTC" });
+        await client.schedule(RESEARCH_PREPARATION_QUEUE, input.config.cron, { kind: "research_preparation", version: 1 }, { key: "research-preparation", tz: input.config.timezone ?? "UTC" });
+        if (environment.RESEARCH_AFTER_CLOSE_ENABLED === "true") await client.schedule(RESEARCH_PREPARATION_QUEUE, "0 17 * * 1-5", { kind: "research_preparation", version: 1 }, { key: "research-preparation-after-close", tz: input.config.timezone ?? "UTC" });
         await client.work<ResearchPreparationJob>(RESEARCH_PREPARATION_QUEUE, async (jobs) => {
           if (jobs.length === 0) return;
           schedulerHealth = { ...schedulerHealth, status: "running" };

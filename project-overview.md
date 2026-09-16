@@ -76,6 +76,8 @@ Short execution remains feature-flagged off until borrow/locate, margin, buy-to-
 
 ### Daily US Stock Preparation
 
+The stock preparation job runs each weekday after the close at 17:00 America/New_York and again at 08:30 America/New_York (one hour before the 09:30 regular-session open). The after-close run prepares the next session; the pre-market run refreshes that work with current news, events, market trend, sector strength, liquidity, and the approved universe. Either run may correctly produce zero trade candidates; there is never a requirement to open a position.
+
 1. Confirm market calendar, account health, buying power, data entitlement, and service health.
 2. Load the eligible stock universe and exclude non-tradable, illiquid, halted, or policy-blocked assets.
 3. Compute enabled momentum features using finalized bars only.

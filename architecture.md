@@ -4,6 +4,8 @@
 
 Directional execution plan: the strategy layer supports two planned directions. Aligned bullish market/sector conditions feed long candidates; aligned bearish conditions feed short candidates. Both directions must use deterministic sizing, freshness, exposure, kill-switch, bracket, execution, and reconciliation gates. The short path is currently feature-flagged off because borrow/locate, margin, buy-to-cover, gap-risk, and short exposure controls still require implementation and validation.
 
+US stock preparation cadence: two durable weekday runs: 17:00 America/New_York after the close to prepare the next session, then 08:30 America/New_York to refresh the plan one hour before the open. Preparation is research-only until deterministic gates approve a candidate; zero trades is a valid outcome.
+
 Bracket timing invariant: every supported entry submits its protective stop and profit target as part of the broker order. Alpaca can execute either bracket leg immediately when its price is reached, including between hourly supervisor passes. The hourly position-management loop performs reconciliation and trailing-stop adjustments; it must never be treated as the trigger clock for an already-submitted bracket.
 
 - **Stage:** Phase 6.846 guarded readiness refresh; continuous Paper Autopilot remains paper-only and fail-closed when broker permissions or market data are incomplete.
