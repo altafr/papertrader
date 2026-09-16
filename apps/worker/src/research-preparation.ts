@@ -23,6 +23,7 @@ export interface ResearchPreparationConfig {
   readonly stockTimeframe: ResearchPreparationInputPlan["timeframe"];
   readonly cryptoSymbols: readonly string[];
   readonly stockWindowOnly: boolean;
+  readonly usStocksOnly: boolean;
 }
 
 export interface ResearchPreparationSource {
@@ -108,6 +109,7 @@ export function getResearchPreparationConfig(environment: NodeJS.ProcessEnv = pr
     stockSymbols: parseSymbols("RESEARCH_STOCK_SYMBOLS", environment.RESEARCH_STOCK_SYMBOLS ?? environment.RESEARCH_SYMBOLS, getDefaultUsStockUniverse()),
     stockTimeframe: stockTimeframe as ResearchPreparationInputPlan["timeframe"],
     stockWindowOnly: parseBoolean("RESEARCH_STOCK_WINDOW_ONLY", environment.RESEARCH_STOCK_WINDOW_ONLY, false),
+    usStocksOnly: parseBoolean("TRADING_US_STOCKS_ONLY", environment.TRADING_US_STOCKS_ONLY, false),
   };
 }
 
@@ -169,7 +171,7 @@ export function createResearchPreparationQueueHandler(input: {
     const readiness = getResearchScheduleReadiness(environment);
     if (readiness.status !== "ready") throw new Error(`Research preparation is not ready: ${readiness.status}.`);
     const preparationConfig = getResearchPreparationConfig(environment);
-    const plans = createResearchPreparationPlan(preparationConfig).filter((plan) => !preparationConfig.stockWindowOnly || plan.assetClass === "crypto" || isUsStockResearchWindow(input.clock?.() ?? new Date()));
+    const plans = createResearchPreparationPlan(preparationConfig).filter((plan) => !preparationConfig.usStocksOnly || plan.assetClass === "us_equity").filter((plan) => !preparationConfig.stockWindowOnly || plan.assetClass === "crypto" || isUsStockResearchWindow(input.clock?.() ?? new Date()));
     if (plans.length === 0) return [];
     const results: ResearchPreparationResult[] = [];
     for (const preparation of plans) {
