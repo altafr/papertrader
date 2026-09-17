@@ -1,6 +1,7 @@
+import { getNewYorkSessionTime, isStockSessionAllowed } from "./stock-research-session.js";
 import { PgBoss } from "pg-boss";
 
-import { createPaperAccountReader, createPaperMarketDataReader, createPaperOrderSubmitter } from "@momentum/alpaca";
+import { createPaperCalendarReader, createPaperAccountReader, createPaperMarketDataReader, createPaperOrderSubmitter } from "@momentum/alpaca";
 import { createAccountStateRepository, createAgentRunRepository, createDatabase, createPaperOrderRepository, createTelegramAlertRepository, type PersistedAgentRun } from "@momentum/db";
 import { isCompleteExitPlan, type AgentRunRequest, type ResearchWatchlistCandidate } from "@momentum/domain";
 
@@ -118,7 +119,9 @@ export function createResearchSchedulerFromEnvironment(environment: NodeJS.Proce
     start: repository.start,
     succeed: repository.succeed,
   };
+  const readCalendar = createPaperCalendarReader({ apiKey, secretKey });
   const handler = createResearchPreparationQueueHandler({
+    stockSessionAllowed: async (session, now) => isStockSessionAllowed(session, now, await readCalendar(getNewYorkSessionTime(now).date)),
     environment,
     persistence,
     source: createAlpacaResearchInputSource(createPaperMarketDataReader({ apiKey, secretKey })),

@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import * as DecimalModule from "decimal.js";
 
 import { createPaperAccountReader, createPaperMarketDataReader, createPaperExitOrderSubmitter, type PaperMarketSnapshot } from "@momentum/alpaca";
@@ -291,6 +292,15 @@ export async function runPositionManagementCycle(environment: NodeJS.ProcessEnv 
       await notifier.notify({ code: "paper_exit_submission_failed", cooldownKey: `paper_exit_submission_failed:${failure.assetClass}:${failure.symbol}`, cooldownMs: POSITION_DETECTED_COOLDOWN_MS, dedupeKey: `paper_exit_submission_failed:${failure.assetClass}:${failure.symbol}`, message: `Paper exit for ${failure.symbol} was rejected; the position remains open and will be retried after broker reconciliation.`, severity: "critical" });
     }
     console.log(JSON.stringify(buildPositionManagementLog({ managed: managed.length, positions: positions.length, submitted: result.submitted, symbols: managed.map((position) => position.symbol) })));
+    // Reporting telemetry is isolated from execution and never authorizes an order.
+    try {
+      const at = new Date();
+      const payload = { ...buildPositionManagementLog({ managed: managed.length, positions: positions.length, submitted: result.submitted }), decisions: result.decisions.map((decision) => {
+        const source = managed.find((position) => position.symbol === decision.symbol);
+        return { symbol: decision.symbol, shouldExit: decision.shouldExit, submitted: result.submissions.some((order) => order.symbol === decision.symbol), reason: decision.reason, effectiveStopPrice: decision.effectiveStopPrice, previousStopPrice: source?.effectiveStopPrice ?? source?.plannedStopPrice, plannedTargetPrice: source?.plannedTargetPrice };
+      }) };
+      await pool.query({ text: "INSERT INTO agent_runs (run_id,agent_type,task,status,prompt_version,input_refs,created_at,started_at,finished_at,artifact_type,artifact_schema_version,artifact_rationale,artifact_payload) VALUES ($1,'position_management_telemetry','Record deterministic supervision decisions','succeeded','position-telemetry-v1','[]'::jsonb,$2,$2,$2,'position_management_pass','1','Observed deterministic decisions; not order authority',$3::jsonb)", values: [`position-telemetry:${randomUUID()}`, at, JSON.stringify(payload)] });
+    } catch { console.warn(JSON.stringify({ event: "position_telemetry_unavailable" })); }
     if (result.failures.length > 0) throw buildPositionManagementFailureError(result.failures);
     return { managed: managed.length, submitted: result.submitted };
   } finally {

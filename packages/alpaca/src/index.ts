@@ -201,6 +201,7 @@ export interface PaperMarketDataReader {
     readonly end?: string;
     readonly limit: number;
     readonly start?: string;
+    readonly pageToken?: string;
     readonly symbols: readonly string[];
     readonly timeframe: MarketBarTimeframe;
   }): Promise<{ readonly bars: readonly PaperMarketBar[]; readonly nextPageToken?: string }>;
@@ -418,6 +419,7 @@ export function createPaperMarketDataReader(options: AlpacaMarketDataReaderOptio
         symbols,
         timeframe: request.timeframe,
       });
+      if (request.pageToken) query.set("page_token", request.pageToken);
       if (request.start) query.set("start", request.start);
       if (request.end) query.set("end", request.end);
       const parsed = await requestJson(`${path}?${query.toString()}`, barsPayloadSchema);
@@ -460,3 +462,5 @@ export function createPaperMarketDataReader(options: AlpacaMarketDataReaderOptio
 }
 
 export * from "./stream.js";
+
+export { createPaperCalendarReader } from "./calendar.js";

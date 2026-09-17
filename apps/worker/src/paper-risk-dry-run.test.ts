@@ -26,7 +26,7 @@ describe("paper risk dry run", () => {
     const result = buildRiskCandidate({ ...candidate, marketSnapshot: { ...candidate.marketSnapshot, close: "0.29" } }, new Date("2026-08-26T00:00:00.000Z"));
     expect(result.proposedEntryPrice).toBe("0.29000000");
     expect(result.plannedStopPrice).toBe("0.27552900");
-    expect(result.plannedExitPrice).toBe("0.30160000");
+    expect(result.plannedExitPrice).toBe("0.30740000");
   });
 
   it("keeps a stale or killed candidate rejected", () => {

@@ -147,7 +147,7 @@ The target architecture is a continuously running server-side system. Railway's 
 
 The Telegram assistant can open the Vercel `/telegram` Mini App with a compact Portfolio tab and Alerts tab. Telegram Web App `initData` is validated in the Railway API using the bot token and an explicit operator user-ID allowlist; invalid, expired, or non-operator sessions fail closed. The API returns only the latest reconciled paper read model and bounded Telegram alert history. The Mini App is read-only and has no order or risk-control authority.
 
-The research cadence is asset-aware: crypto preparation may run every 15 minutes for 24/7 markets, while stock preparation is admitted only during 09:30–11:30 ET and 14:00–16:00 ET on regular weekdays. A scheduler tick outside those stock windows skips stock work but never skips crypto monitoring or deterministic safety checks.
+The research cadence is asset-aware: crypto preparation may run every 15 minutes for 24/7 markets, while stock preparation runs before market open at 08:30 ET, every 30 minutes during the regular session (09:30–15:30 ET), and after close at 17:00 ET on trading weekdays. A scheduler tick outside those stock windows skips stock work but never skips crypto monitoring or deterministic safety checks.
 
 ### Portfolio sizing and bracket protection (Phase 6.589)
 
@@ -1979,3 +1979,9 @@ Live modes remain unavailable until all are documented as passed:
 - Secrets, access control, audit logging, dependency review, backup, and recovery checks pass.
 - Paper/live environment isolation is verified.
 - A limited-capital live rollout and rollback plan is approved.
+
+### 2026-09-17 — Overnight reporting and full-session stock scans
+
+The Worker registers four durable pg-boss schedules in America/New_York: 08:30 preparation, 09:30 opening scan, 10:00–15:30 half-hour scans, and 17:00 after-close preparation. Session-tagged stock jobs consult the read-only Alpaca calendar to skip holidays, honor early closes and reject expired preparation jobs. Pre/post-market research is allowed outside the regular-session filter; execution still requires all existing market/risk gates. Full-universe bar pagination is bounded and fails closed on incomplete pagination. Production uses the operator's versioned 36-symbol universe. Existing strategy timeframes and parameters are preserved.
+
+An independent Worker reporting loop publishes an immutable overnight_report artifact in agent_runs at 09:05 Hong Kong time for the closed 18:00–09:00 window. It catches up the latest completed window after restart, uses a deterministic daily ID and ON CONFLICT DO NOTHING, and never calls a broker or changes trading configuration. Historical report data remains in PostgreSQL; the existing signed Mini App endpoint returns the latest 31 schema-validated reports after operator authentication. Position-management telemetry artifacts capture observed decisions and stop changes after the execution pass; reporting failures cannot authorize or block orders. The exact September 16–17 operator report is archived with its original 08:37 cutoff.

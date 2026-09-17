@@ -30,7 +30,7 @@ describe("research schedule boundary", () => {
   });
 
   it("is disabled by default with bounded configuration", () => {
-    expect(getResearchScheduleConfig()).toEqual({ cron: RESEARCH_PREPARATION_CRON, enabled: false, handlerEnabled: false, retryDelaySeconds: 300, retryLimit: 2 });
+    expect(getResearchScheduleConfig()).toEqual({ cron: RESEARCH_PREPARATION_CRON, enabled: false, handlerEnabled: false, retryDelaySeconds: 300, retryLimit: 2, timezone: "America/New_York" });
     expect(RESEARCH_PREPARATION_QUEUE).toContain("research-preparation");
     expect(() => getResearchScheduleConfig({ RESEARCH_RETRY_LIMIT: "11" })).toThrow("integer");
   });
@@ -95,7 +95,7 @@ describe("research schedule boundary", () => {
     expect(getResearchSchedulerHealth()).toMatchObject({ enabled: true, status: "degraded" });
   });
 
-  it("registers a ready scheduler with UTC scheduling and dispatches validated jobs", async () => {
+  it("registers a ready scheduler with New York scheduling and dispatches validated jobs", async () => {
     const calls: string[] = [];
     let workerHandler: ((jobs: readonly { readonly data: unknown }[]) => Promise<unknown>) | undefined;
     const client = {
@@ -109,10 +109,10 @@ describe("research schedule boundary", () => {
     const runPreparation = vi.fn(async () => { calls.push("run"); });
     const scheduler = createResearchScheduler({ clientFactory: () => client, config: { cron: RESEARCH_PREPARATION_CRON, enabled: true, handlerEnabled: true, retryDelaySeconds: 1, retryLimit: 1 }, environment: { ALPACA_API_KEY: "key", ALPACA_SECRET_KEY: "secret", ALPACA_PAPER_TRADE: "true", BROKER_CONNECTION_ENABLED: "true", DATABASE_URL: "postgres://private", RESEARCH_HANDLER_ENABLED: "true", RESEARCH_SCHEDULER_ENABLED: "true", TRADING_MODE: "paper" }, now: () => new Date("2026-08-23T01:00:00.000Z"), runPreparation });
     await scheduler.start();
-    expect(calls).toEqual(["start", `queue:${RESEARCH_PREPARATION_DEAD_LETTER_QUEUE}`, `queue:${RESEARCH_PREPARATION_QUEUE}`, `schedule:${RESEARCH_PREPARATION_QUEUE}:${RESEARCH_PREPARATION_CRON}:UTC`, "work"]);
+    expect(calls).toEqual(["start", `queue:${RESEARCH_PREPARATION_DEAD_LETTER_QUEUE}`, `queue:${RESEARCH_PREPARATION_QUEUE}`, `schedule:${RESEARCH_PREPARATION_QUEUE}:${RESEARCH_PREPARATION_CRON}:America/New_York`, "work"]);
     await workerHandler?.([{ data: { kind: "research_preparation", version: 1 } }]);
     expect(runPreparation).toHaveBeenCalledTimes(1);
-    expect(getResearchSchedulerHealth()).toMatchObject({ enabled: true, handlerEnabled: true, status: "scheduled", lastRunAt: "2026-08-23T01:00:00.000Z", nextRunAt: "2026-08-24T00:00:00.000Z" });
+    expect(getResearchSchedulerHealth()).toMatchObject({ enabled: true, handlerEnabled: true, status: "scheduled", lastRunAt: "2026-08-23T01:00:00.000Z", nextRunAt: "2026-08-24T12:30:00.000Z" });
     await scheduler.stop();
     expect(calls.at(-1)).toBe("stop");
   });
@@ -155,6 +155,21 @@ describe("research schedule boundary", () => {
     await scheduler.start();
     await workerHandler?.([{ data: { kind: "research_preparation", version: 1 } }]);
     expect(getResearchSchedulerHealth()).toMatchObject({ lastRiskApprovedCount: 1, lastRiskCycleAt: "2026-08-23T01:00:05.000Z", lastRiskCycleStatus: "completed", lastRiskDecisionCount: 2 });
+    await scheduler.stop();
+  });
+});
+
+describe("complete stock scan cadence", () => {
+  it("registers pre-market, open, half-hourly and after-close jobs in exchange time", async () => {
+    const schedule = vi.fn(async () => {});
+    const client = { start: async () => {}, stop: async () => {}, createQueue: async () => {}, send: async () => null, schedule, work: async () => "worker" };
+    const environment = { ALPACA_API_KEY: "test", ALPACA_SECRET_KEY: "test", DATABASE_URL: "postgres://test", BROKER_CONNECTION_ENABLED: "true", RESEARCH_HANDLER_ENABLED: "true", RESEARCH_SCHEDULER_ENABLED: "true", RESEARCH_AFTER_CLOSE_ENABLED: "true", RESEARCH_INTRADAY_STOCK_ENABLED: "true" };
+    const scheduler = createResearchScheduler({ clientFactory: () => client, config: getResearchScheduleConfig(environment), environment, now: () => new Date("2026-09-17T13:31:00Z"), runPreparation: async () => {} });
+    await scheduler.start();
+    expect(schedule).toHaveBeenCalledTimes(4);
+    expect(schedule).toHaveBeenCalledWith(RESEARCH_PREPARATION_QUEUE, "30 8 * * 1-5", expect.objectContaining({ session: "pre_market" }), expect.objectContaining({ tz: "America/New_York" }));
+    expect(schedule).toHaveBeenCalledWith(RESEARCH_PREPARATION_QUEUE, "0,30 10-15 * * 1-5", expect.objectContaining({ session: "intraday" }), expect.objectContaining({ tz: "America/New_York" }));
+    expect(getResearchSchedulerHealth().nextRunAt).toBe("2026-09-17T14:00:00.000Z");
     await scheduler.stop();
   });
 });

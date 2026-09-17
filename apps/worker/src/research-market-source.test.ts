@@ -45,3 +45,21 @@ describe("Alpaca research input source", () => {
     expect(() => validateResearchBars({ bars: [{ ...bar, open: large, high, low, close: large, volume: large }, { ...bar, open: large, high, low, close: large, volume: large, timestamp: "2026-08-23T01:30:00.000Z" }], now: new Date("2026-08-23T02:00:00.000Z"), symbols: ["AAA"] })).not.toThrow();
   });
 });
+
+describe("full-universe pagination", () => {
+  it("reads later symbols from subsequent pages", async () => {
+    const tokens: (string | undefined)[] = [];
+    const reader: PaperMarketDataReader = { readSnapshots: async () => [], readHistoricalBars: async (request) => {
+      tokens.push(request.pageToken);
+      const bars = [bar, { ...bar, timestamp: "2026-08-23T01:30:00.000Z" }];
+      return request.pageToken ? { bars: bars.map((row) => ({ ...row, symbol: "BBB" })) } : { bars, nextPageToken: "page-two" };
+    } };
+    const result = await createAlpacaResearchInputSource(reader, () => new Date("2026-08-23T02:00:00Z"), async () => {}).read({ assetClass: "us_equity", limit: 20, maxCandidates: 3, symbols: ["AAA", "BBB"], timeframe: "1Day" });
+    expect(tokens).toEqual([undefined, "page-two"]);
+    expect(new Set(result.bars.map((row) => row.symbol))).toEqual(new Set(["AAA", "BBB"]));
+  });
+  it("never accepts the partial first page when pagination fails", async () => {
+    const reader: PaperMarketDataReader = { readSnapshots: async () => [], readHistoricalBars: async () => ({ bars: [bar, { ...bar, timestamp: "2026-08-23T01:30:00.000Z" }], nextPageToken: "repeated" }) };
+    await expect(createAlpacaResearchInputSource(reader, () => new Date("2026-08-23T02:00:00Z"), async () => {}).read({ assetClass: "us_equity", limit: 20, maxCandidates: 3, symbols: ["AAA"], timeframe: "1Day" })).rejects.toThrow("pagination");
+  });
+});

@@ -1,5 +1,18 @@
 # Progress Tracker
 
+## Phase 6.856 — verified Telegram overnight reports and full-universe scans (2026-09-17)
+
+- Added authenticated Overnight tab with report archive, agent/process decisions, trades, historical account snapshot, operational concerns and explicit evidence limitations. Saved the exact operator-requested September 16–17 report in PostgreSQL (original 08:37 HKT cutoff); private account values are not embedded in browser source.
+- Added independent daily report generation at 09:05 HKT for the closed 18:00–09:00 window, idempotent immutable daily report artifacts, latest-window restart catch-up and latest-31 archive projection. The Worker generated the previous closed window successfully. Future morning trigger timing is covered by tests; the next natural 09:05 report has not yet been observed.
+- Added best-effort persisted supervision decisions and stop adjustments for future report evidence. No database migration, trading-policy change or broker mutation was performed by this implementation/verification.
+- Fixed research timezone/next-run calculation, pre/post-market admission and midday coverage. Deployed four durable schedules: 08:30 pre-market; 09:30 open; half-hour scans 10:00–15:30; 17:00 after close, America/New_York. Read-only Alpaca calendar checks skip holidays, honor early closes and reject expired session jobs.
+- Found hosted research still configured for AAPL/MSFT only; restored the supplied 36-symbol versioned universe and enabled the intraday stock schedule. Fixed bounded historical-bar pagination so later symbols are not silently omitted. Hosted read-only verification returned 324 bars across 36/36 symbols and confirmed the September 17 calendar (09:30–16:00). Strategy timeframe remains 1Day; stock-only mode and all risk/execution gates are preserved.
+- Verification: `pnpm typecheck`, `pnpm lint`, `pnpm test` (106 files / 496 tests), `pnpm build` passed; two additional pagination tests passed in the focused source suite (7 tests). Corrected two pre-existing stale test expectations for the already-implemented 6% target and default buy side; no policy change.
+- Browser QA: Playwright mobile 390px and desktop 1280px with explicit fixture responses; original report rendering, archive selection, keyboard focus and screenshots verified. The hosted signed Telegram API independently returned HTTP 200, two valid reports and the original report, while unsigned access returned 401. Native Telegram-client interaction was not automated.
+- Deployment: Railway API `8465bd32-0370-4c43-aa56-fe1ea80867ca` SUCCESS; Worker `13425d91-9e8f-4f76-8b52-ed412cd720a9` SUCCESS; Vercel `dpl_8PUhh9iZQLSFRvQ5W973ymfFNMDM` Ready, alias `papertrader-web.vercel.app`. Worker healthy, Paper Autopilot, zero unmanaged positions, 30-minute supervision, next stock scan 2026-09-17T12:30:00Z.
+- Next verification: observe the first natural pre-market/intraday scan and the next newly dated 09:05 HKT report. Quarterly universe refresh remains an unscheduled proposal capability; macro research is on-demand.
+
+
 ## Phase 6.847 — bounded US universe and Telegram agent view (2026-09-16)
 
 ## Phase 6.848 — stock confirmation and bracket policy (2026-09-16)

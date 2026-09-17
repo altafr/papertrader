@@ -181,3 +181,7 @@ Stale values remain visible when useful but are visibly marked and never present
 - Do not announce every price tick; summarize meaningful changes to avoid assistive-technology overload.
 - Respect reduced motion; price updates may briefly tint but must not flash.
 - Charts include accessible summaries or data-table alternatives.
+
+## Telegram overnight reports
+
+The read-only Telegram Mini App includes an Overnight tab with a dated report selector, headline, agent/process activity and decisions, trades, account snapshot, operational concerns and evidence limitations. Show Hong Kong time explicitly. Saved reports are historical and immutable, separate from live portfolio freshness. A missing report is an empty state, and archive failures are explicit. Mobile uses stacked decision cards and horizontally scrollable navigation.

@@ -21,12 +21,12 @@ describe("research preparation", () => {
     expect(isUsStockResearchWindow(new Date("2026-08-28T13:30:00.000Z"))).toBe(true); // 09:30 ET
     expect(isUsStockResearchWindow(new Date("2026-08-28T14:00:00.000Z"))).toBe(true); // 10:00 ET
     expect(isUsStockResearchWindow(new Date("2026-08-28T15:29:00.000Z"))).toBe(true); // 11:29 ET
-    expect(isUsStockResearchWindow(new Date("2026-08-28T15:30:00.000Z"))).toBe(false); // 11:30 ET
+    expect(isUsStockResearchWindow(new Date("2026-08-28T15:30:00.000Z"))).toBe(true); // 11:30 ET
     expect(isUsStockResearchWindow(new Date("2026-08-28T18:00:00.000Z"))).toBe(true); // 14:00 ET
     expect(isUsStockResearchWindow(new Date("2026-08-28T18:30:00.000Z"))).toBe(true); // 14:30 ET
     expect(isUsStockResearchWindow(new Date("2026-08-28T19:59:00.000Z"))).toBe(true); // 15:59 ET
     expect(isUsStockResearchWindow(new Date("2026-08-28T20:00:00.000Z"))).toBe(false); // 16:00 ET
-    expect(isUsStockResearchWindow(new Date("2026-08-28T16:00:00.000Z"))).toBe(false); // 12:00 ET
+    expect(isUsStockResearchWindow(new Date("2026-08-28T16:00:00.000Z"))).toBe(true); // 12:00 ET
     expect(isUsStockResearchWindow(new Date("2026-08-29T14:00:00.000Z"))).toBe(false); // Saturday
   });
   it("uses one recommendation notification bucket per agent and UTC day", () => {
@@ -109,7 +109,7 @@ describe("research preparation", () => {
   it("keeps crypto running outside stock windows when stock-window mode is enabled", async () => {
     const source = { read: vi.fn(async (plan) => input(plan.assetClass)) };
     const handler = createResearchPreparationQueueHandler({
-      clock: () => new Date("2026-08-28T16:00:00.000Z"),
+      clock: () => new Date("2026-08-28T21:00:00.000Z"),
       environment: { ALPACA_API_KEY: "paper-key", ALPACA_SECRET_KEY: "paper-secret", ALPACA_PAPER_TRADE: "true", BROKER_CONNECTION_ENABLED: "true", DATABASE_URL: "postgres://private", RESEARCH_CRYPTO_SYMBOLS: "BTC/USD", RESEARCH_HANDLER_ENABLED: "true", RESEARCH_SCHEDULER_ENABLED: "true", RESEARCH_STOCK_SYMBOLS: "AAPL", RESEARCH_STOCK_WINDOW_ONLY: "true", TRADING_MODE: "paper" },
       persistence: { enqueue: async () => {}, start: async () => {}, succeed: async () => {}, fail: async () => {} },
       source,

@@ -137,7 +137,7 @@ describe("paper order submission repository", () => {
       { alpacaOrderId: "order-2", approvalId: "review-1", assetClass: "crypto", clientOrderId: "legacy-2", entryPrice: "100", exitPlanReference: "review-1", filledQuantity: "0.001", intentId: "legacy-2", plannedStopPrice: "95", plannedTargetPrice: "104", quantity: "0.001", status: "filled", strategyKey: "momentum", strategyVersion: "1.0.0", symbol: "BTC/USD" },
     ];
     await expect(createPaperOrderRepository(database).recordSubmissionsAtomically(submissions)).resolves.toHaveLength(2);
-    expect(stored).toEqual(submissions);
+    expect(stored).toEqual(submissions.map((submission) => ({ ...submission, side: "buy" })));
   });
 });
 

@@ -40,3 +40,11 @@ Before configuration, `GET /v1/telegram-mini-app` must return `telegram_mini_app
 Send `/dashboard` in the authorized chat and tap **Open portfolio & alerts**. The Portfolio tab shows reconciled paper equity, cash, buying power, and positions. The Alerts tab shows recent persisted Telegram alerts. The view refreshes automatically every 60 seconds and has a manual Refresh action.
 
 If the app reports an unavailable session, open it from the Telegram button rather than a normal browser tab; the signed Telegram Web App session is required.
+
+## Overnight reports
+
+Open **Overnight** to read the latest saved report and select previous dates. Reports are generated server-side at approximately 09:05 Asia/Hong_Kong, covering the previous 18:00 through 09:00; the five-minute delay allows reconciliation to settle. The original September 16–17 report keeps its original 08:37 cutoff. The latest 31 reports are returned by the signed API; older artifacts remain retained in PostgreSQL.
+
+Reports separate recorded work, decisions, broker orders/fills, historical account snapshots and operational concerns. Missing evidence is labelled explicitly. A report never submits an order. To verify, use the existing signed API verifier and check `overnightReports`, `overnightReportsUnavailable`, the report IDs and cutoff dates without printing session signatures or server secrets.
+
+Stock scans run at 08:30 and 17:00 America/New_York, plus 09:30–15:30 every 30 minutes on trading days. The paper broker calendar excludes holidays and early-closed sessions. The Worker must have `RESEARCH_INTRADAY_STOCK_ENABLED=true`, `RESEARCH_AFTER_CLOSE_ENABLED=true`, `RESEARCH_PREPARATION_CRON=30 8 * * 1-5`, and `RESEARCH_PREPARATION_TIMEZONE=America/New_York`. Its `RESEARCH_STOCK_SYMBOLS` must match `watchlist-2026-09-16` (36 stocks). These scans retain the existing strategy timeframe and all deterministic execution gates.

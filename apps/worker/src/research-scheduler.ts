@@ -29,6 +29,7 @@ export interface ResearchScheduleReadiness {
 export interface ResearchPreparationJob {
   readonly kind: "research_preparation";
   readonly version: 1;
+  readonly session?: "pre_market" | "intraday" | "after_close";
 }
 
 export interface ResearchQueueSender {
@@ -138,7 +139,7 @@ export function getResearchScheduleConfig(environment: NodeJS.ProcessEnv = proce
     handlerEnabled: parseBoolean("RESEARCH_HANDLER_ENABLED", environment.RESEARCH_HANDLER_ENABLED, false),
     retryDelaySeconds: parseBoundedInteger("RESEARCH_RETRY_DELAY_SECONDS", environment.RESEARCH_RETRY_DELAY_SECONDS, 300, 1, 86_400),
     retryLimit: parseBoundedInteger("RESEARCH_RETRY_LIMIT", environment.RESEARCH_RETRY_LIMIT, 2, 0, 10),
-    ...(environment.RESEARCH_PREPARATION_TIMEZONE?.trim() ? { timezone: environment.RESEARCH_PREPARATION_TIMEZONE.trim() } : {}),
+    timezone: environment.RESEARCH_PREPARATION_TIMEZONE?.trim() || "America/New_York",
   };
 }
 
@@ -191,8 +192,8 @@ export async function provisionResearchQueues(client: ResearchQueueClient, confi
 
 export function isResearchPreparationJob(value: unknown): value is ResearchPreparationJob {
   if (!value || typeof value !== "object") return false;
-  const candidate = value as { readonly kind?: unknown; readonly version?: unknown };
-  return candidate.kind === "research_preparation" && candidate.version === 1;
+  const candidate = value as { readonly kind?: unknown; readonly version?: unknown; readonly session?: unknown };
+  return candidate.kind === "research_preparation" && candidate.version === 1 && (candidate.session === undefined || ["pre_market", "intraday", "after_close"].includes(String(candidate.session)));
 }
 
 export async function runResearchPreparationJob(input: {
@@ -203,7 +204,7 @@ export async function runResearchPreparationJob(input: {
   await input.run(input.job);
 }
 
-export function getNextResearchRunAt(now: Date, cron: string): string | undefined {
+export function getNextResearchRunAt(now: Date, cron: string, timezone = "America/New_York"): string | undefined {
   const intervalMatch = /^\*\/(\d+) \* \* \* \*$/.exec(cron);
   if (intervalMatch) {
     const intervalMinutes = Number(intervalMatch[1]);
@@ -214,10 +215,22 @@ export function getNextResearchRunAt(now: Date, cron: string): string | undefine
       return next.toISOString();
     }
   }
-  if (cron !== RESEARCH_PREPARATION_CRON) return undefined;
+  const schedules: Record<string, readonly number[]> = {
+    "30 8 * * 1-5": [510], "0 17 * * 1-5": [1020], "30 9 * * 1-5": [570],
+    "0,30 10-15 * * 1-5": Array.from({ length: 12 }, (_, index) => 600 + index * 30),
+  };
+  const minutes = schedules[cron];
+  if (!minutes || !Number.isFinite(now.getTime())) return undefined;
+  const formatter = new Intl.DateTimeFormat("en-US", { timeZone: timezone, weekday: "short", hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
   const next = new Date(now);
-  next.setUTCHours(24, 0, 0, 0);
-  return next.toISOString();
+  next.setUTCSeconds(0, 0);
+  next.setUTCMinutes(Math.floor(next.getUTCMinutes() / 30) * 30 + 30);
+  for (let step = 0; step < 8 * 48; step++, next.setUTCMinutes(next.getUTCMinutes() + 30)) {
+    const parts = formatter.formatToParts(next);
+    const part = (type: string) => parts.find((item) => item.type === type)?.value;
+    if (["Mon", "Tue", "Wed", "Thu", "Fri"].includes(part("weekday") ?? "") && minutes.includes(Number(part("hour")) * 60 + Number(part("minute")))) return next.toISOString();
+  }
+  return undefined;
 }
 
 /**
@@ -257,6 +270,8 @@ export function createResearchScheduler(input: {
 }) {
   const environment = input.environment ?? process.env;
   const now = input.now ?? (() => new Date());
+  const intraday = environment.RESEARCH_INTRADAY_STOCK_ENABLED === "true";
+  const nextScheduled = () => [input.config.cron, ...(environment.RESEARCH_AFTER_CLOSE_ENABLED === "true" ? ["0 17 * * 1-5"] : []), ...(intraday ? ["30 9 * * 1-5", "0,30 10-15 * * 1-5"] : [])].flatMap((cron) => getNextResearchRunAt(now(), cron, input.config.timezone ?? "America/New_York") ?? []).sort()[0];
   let client: ResearchSchedulerClient | undefined;
   let started = false;
   let watchdogTimer: ReturnType<typeof setInterval> | undefined;
@@ -270,7 +285,10 @@ export function createResearchScheduler(input: {
     const recoveryId = `research-recovery-${(health.nextRunAt ?? now().toISOString()).replace(/[^0-9A-Za-z]/g, "").slice(0, 32)}`;
     void (async () => {
       try {
-        const queued = await client?.send(RESEARCH_PREPARATION_QUEUE, { kind: "research_preparation", version: 1 }, { id: getResearchPgBossJobId(recoveryId) });
+        const due = new Date(health.nextRunAt ?? now());
+        const hour = new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", hour: "numeric", hourCycle: "h23" }).format(due);
+        const session = hour === "08" || hour === "8" ? "pre_market" : hour === "17" ? "after_close" : "intraday";
+        const queued = await client?.send(RESEARCH_PREPARATION_QUEUE, { kind: "research_preparation", version: 1, ...(intraday ? { session } : {}) }, { id: getResearchPgBossJobId(recoveryId) });
         if (queued) return;
       } catch {
         // Preserve the degraded state and emit the incident below.
@@ -291,14 +309,18 @@ export function createResearchScheduler(input: {
         client = input.clientFactory();
         await client.start();
         await provisionResearchQueues(client, input.config);
-        await client.schedule(RESEARCH_PREPARATION_QUEUE, input.config.cron, { kind: "research_preparation", version: 1 }, { key: "research-preparation", tz: input.config.timezone ?? "UTC" });
-        if (environment.RESEARCH_AFTER_CLOSE_ENABLED === "true") await client.schedule(RESEARCH_PREPARATION_QUEUE, "0 17 * * 1-5", { kind: "research_preparation", version: 1 }, { key: "research-preparation-after-close", tz: input.config.timezone ?? "UTC" });
+        await client.schedule(RESEARCH_PREPARATION_QUEUE, input.config.cron, { kind: "research_preparation", version: 1, ...(intraday ? { session: "pre_market" } : {}) }, { key: "research-preparation", tz: input.config.timezone ?? "America/New_York" });
+        if (environment.RESEARCH_AFTER_CLOSE_ENABLED === "true") await client.schedule(RESEARCH_PREPARATION_QUEUE, "0 17 * * 1-5", { kind: "research_preparation", version: 1, session: "after_close" }, { key: "research-preparation-after-close", tz: input.config.timezone ?? "America/New_York" });
+        if (intraday) {
+          await client.schedule(RESEARCH_PREPARATION_QUEUE, "30 9 * * 1-5", { kind: "research_preparation", version: 1, session: "intraday" }, { key: "research-preparation-market-open", tz: "America/New_York" });
+          await client.schedule(RESEARCH_PREPARATION_QUEUE, "0,30 10-15 * * 1-5", { kind: "research_preparation", version: 1, session: "intraday" }, { key: "research-preparation-intraday", tz: "America/New_York" });
+        }
         await client.work<ResearchPreparationJob>(RESEARCH_PREPARATION_QUEUE, async (jobs) => {
           if (jobs.length === 0) return;
           schedulerHealth = { ...schedulerHealth, status: "running" };
           try {
             for (const job of jobs) await runResearchPreparationJob({ job: job.data, run: input.runPreparation });
-            const nextRunAt = getNextResearchRunAt(now(), input.config.cron);
+            const nextRunAt = nextScheduled();
             schedulerHealth = { ...schedulerHealth, enabled: true, handlerEnabled: input.config.handlerEnabled, lastRunAt: now().toISOString(), ...(nextRunAt ? { nextRunAt } : {}), status: "scheduled" };
             staleAlerted = false;
           } catch (error) {
@@ -306,7 +328,7 @@ export function createResearchScheduler(input: {
             throw error;
           }
         });
-        const nextRunAt = getNextResearchRunAt(now(), input.config.cron);
+        const nextRunAt = nextScheduled();
         schedulerHealth = { enabled: true, handlerEnabled: input.config.handlerEnabled, ...(nextRunAt ? { nextRunAt } : {}), status: "scheduled" };
         const startupCatchupId = getResearchStartupCatchupJobId(now(), input.config.cron);
         if (startupCatchupId) {

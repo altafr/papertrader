@@ -87,9 +87,17 @@ export function createAlpacaResearchInputSource(reader: PaperMarketDataReader, c
       for (let attempt = 1; attempt <= 2; attempt += 1) {
         try {
           result = await reader.readHistoricalBars(request);
+          const seenTokens = new Set<string>();
+          while (result.nextPageToken) {
+            if (seenTokens.has(result.nextPageToken) || seenTokens.size >= 100) throw new Error("Research pagination did not complete within the bounded page limit.");
+            seenTokens.add(result.nextPageToken);
+            const page = await reader.readHistoricalBars({ ...request, pageToken: result.nextPageToken });
+            result = { bars: [...result.bars, ...page.bars], ...(page.nextPageToken ? { nextPageToken: page.nextPageToken } : {}) };
+          }
           if (result.bars.length >= 2) break;
           lastError = new Error("Research source returned fewer than 2 bars.");
         } catch (error: unknown) {
+          result = undefined;
           lastError = error;
         }
         if (attempt < 2) await sleep(500);

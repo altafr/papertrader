@@ -85,7 +85,7 @@ The stock preparation job runs each weekday after the close at 17:00 America/New
 5. Produce a ranked watchlist, scenario plan, risk budget, and reasons for exclusions.
 6. Persist the plan before the session opens.
 
-When the continuous research cadence is enabled, crypto preparation runs every configured interval (15 minutes in production), while stock preparation is admitted only during the first two hours (09:30–11:30 ET) and last two hours (14:00–16:00 ET) of regular weekday trading. This scheduling filter does not bypass any risk, freshness, exposure, or paper-mode gate.
+When the continuous research cadence is enabled, crypto preparation runs every configured interval (15 minutes in production), while stock preparation scans the approved universe every 30 minutes throughout regular trading (09:30–15:30 ET), in addition to 08:30 pre-market and 17:00 after-close preparation; the broker calendar excludes holidays and early-closed sessions. This scheduling filter does not bypass any risk, freshness, exposure, or paper-mode gate.
 
 ### Continuous Crypto Preparation
 
@@ -230,3 +230,7 @@ Changing a risk limit requires an audit entry. Loosening a limit in live modes r
 6. Risk invariants and permissions are enforced server-side.
 7. Dashboard calculations reconcile to broker truth within documented tolerances.
 8. No live credential is present and no live endpoint is enabled in the Version 1 release.
+
+### Overnight operator report
+
+The Telegram Mini App provides a fresh saved overnight report each morning at 09:05 Hong Kong time, covering 18:00–09:00. Reports show actual recorded agent work, decisions, orders/fills, account evidence and operational concerns, distinguishing missing records from proven inactivity. The latest 31 reports are selectable; older reports remain retained in the database.

@@ -895,3 +895,21 @@ tbody th {
     grid-column: auto;
   }
 }
+
+.mini-tabs { overflow-x: auto; }
+.mini-tabs button { flex-shrink: 0; }
+.mini-tabs button:focus-visible, .mini-report select:focus-visible { outline: 2px solid var(--primary); outline-offset: -2px; }
+.mini-report { font-size: .9rem; line-height: 1.6; overflow-wrap: anywhere; }
+.mini-report h2 { font-size: 1.2rem; }
+.mini-report h3 { font-size: 1rem; margin: 1.4rem 0 .6rem; }
+.mini-report h4 { font-size: .9rem; margin: 0; }
+.mini-report p { margin: .5rem 0; }
+.mini-report ul { padding-left: 1.25rem; }
+.mini-report li + li { margin-top: .6rem; }
+.mini-report-period { color: var(--muted); font-size: .8rem; }
+.mini-report-selector { display: grid; gap: .4rem; margin: 1rem 0; }
+.mini-report-selector label { font-size: .75rem; color: var(--muted); }
+.mini-report-selector select { width: 100%; min-height: 44px; font: inherit; color: var(--foreground); background: var(--card); border: 1px solid var(--border); border-radius: .5rem; padding: .6rem; }
+.mini-report-processes { display: grid; gap: .6rem; }
+.mini-report-processes article { padding: .8rem; background: var(--card); border: 1px solid var(--border); border-radius: .5rem; }
+.mini-report-concerns { border-left: 3px solid var(--warning); margin-left: 0; padding-left: 1.5rem !important; }

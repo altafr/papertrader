@@ -84,8 +84,7 @@ function parseBoolean(name: string, value: string | undefined, defaultValue: boo
   throw new Error(`${name} must be exactly true or false.`);
 }
 
-/** Stock research is admitted only during the first and last two hours of the
- * regular New York session. Crypto remains eligible at every scheduler tick. */
+/** Legacy helper retained for callers that need to identify regular-session windows. */
 export function isUsStockResearchWindow(now: Date): boolean {
   const parts = new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", hour: "2-digit", minute: "2-digit", hourCycle: "h23", weekday: "short" }).formatToParts(now);
   const weekday = parts.find((part) => part.type === "weekday")?.value;
@@ -93,7 +92,7 @@ export function isUsStockResearchWindow(now: Date): boolean {
   const minute = Number(parts.find((part) => part.type === "minute")?.value ?? "-1");
   if (!["Mon", "Tue", "Wed", "Thu", "Fri"].includes(weekday ?? "")) return false;
   const totalMinutes = hour * 60 + minute;
-  return (totalMinutes >= 570 && totalMinutes < 690) || (totalMinutes >= 840 && totalMinutes < 960);
+  return totalMinutes >= 570 && totalMinutes < 960;
 }
 
 export function getResearchPreparationConfig(environment: NodeJS.ProcessEnv = process.env): ResearchPreparationConfig {
@@ -134,10 +133,10 @@ export async function executeResearchPreparation(input: {
   const request: AgentRunRequest = {
     agentType: input.preparation.agentType,
     createdAt: marketInput.capturedAt,
-    inputRefs: [`alpaca-market:${marketInput.assetClass}:${marketInput.capturedAt}`],
+    inputRefs: [`alpaca-market:${marketInput.assetClass}:${marketInput.capturedAt}`, `symbols:${input.preparation.symbols.join(",")}`],
     promptVersion: "research-preparation@1",
     runId: runIdFor(input.preparation, marketInput.capturedAt),
-    task: `Prepare ${input.preparation.assetClass} research evidence.`,
+    task: `Scan ${input.preparation.symbols.length} ${input.preparation.assetClass} symbols using ${input.preparation.timeframe} finalized bars.`,
   };
   const handler = input.preparation.agentType === "stock_research" ? createStockResearchAgent(marketInput) : createCryptoResearchAgent(marketInput);
   const result = await executeResearchRun({ ...(input.clock ? { clock: input.clock } : {}), handler, persistence: input.persistence, request });
@@ -161,17 +160,25 @@ export function createResearchPreparationQueueHandler(input: {
   readonly environment?: NodeJS.ProcessEnv;
   readonly persistence: ResearchRunPersistence;
   readonly source: ResearchPreparationSource;
+  readonly stockSessionAllowed?: (session: NonNullable<ResearchPreparationJob["session"]>, now: Date) => Promise<boolean>;
   readonly onResult?: (result: ResearchPreparationResult) => Promise<void> | void;
   readonly onBatchResult?: (results: readonly ResearchPreparationResult[]) => Promise<void> | void;
   readonly notify?: (alert: { readonly code: string; readonly cooldownKey?: string; readonly cooldownMs?: number; readonly dedupeKey?: string; readonly message: string; readonly severity: "critical" | "info" | "warning" }) => Promise<void> | void;
 }) {
   const environment = input.environment ?? process.env;
   return async (job: ResearchPreparationJob): Promise<readonly ResearchPreparationResult[]> => {
-    void job;
+    const now = input.clock?.() ?? new Date();
+    if (job.session) {
+      if (!input.stockSessionAllowed) throw new Error("stock_calendar_not_configured");
+      if (!(await input.stockSessionAllowed(job.session, now))) {
+        console.log(JSON.stringify({ event: "stock_research_calendar_skip", session: job.session, at: now.toISOString() }));
+        return [];
+      }
+    }
     const readiness = getResearchScheduleReadiness(environment);
     if (readiness.status !== "ready") throw new Error(`Research preparation is not ready: ${readiness.status}.`);
     const preparationConfig = getResearchPreparationConfig(environment);
-    const plans = createResearchPreparationPlan(preparationConfig).filter((plan) => !preparationConfig.usStocksOnly || plan.assetClass === "us_equity").filter((plan) => !preparationConfig.stockWindowOnly || plan.assetClass === "crypto" || isUsStockResearchWindow(input.clock?.() ?? new Date()));
+    const plans = createResearchPreparationPlan(preparationConfig).filter((plan) => !preparationConfig.usStocksOnly || plan.assetClass === "us_equity").filter((plan) => job.session ? plan.assetClass === "us_equity" : !preparationConfig.stockWindowOnly || plan.assetClass === "crypto" || isUsStockResearchWindow(now));
     if (plans.length === 0) return [];
     const results: ResearchPreparationResult[] = [];
     for (const preparation of plans) {
@@ -187,6 +194,9 @@ export function createResearchPreparationQueueHandler(input: {
         const failedRunId = `research-preparation-${preparation.agentType}-failed-${Date.now()}`;
         const detail = getResearchPreparationFailureDetail(error);
         console.error(JSON.stringify(buildResearchPreparationFailureLog({ agentType: preparation.agentType, ...(detail ? { detail } : {}) })));
+        const failedAt = (input.clock?.() ?? new Date()).toISOString();
+        await input.persistence.enqueue({ agentType: preparation.agentType, createdAt: failedAt, inputRefs: ["scheduled-research-source"], promptVersion: "research-preparation@1", runId: failedRunId, task: "Scheduled research could not complete." });
+        await input.persistence.fail(failedRunId, new Date(failedAt), "research_preparation_failed");
         results.push({ agentType: preparation.agentType, runId: failedRunId, status: "failed" });
         await input.notify?.({ code: "research_preparation_failed", dedupeKey: `research_preparation_failed:${failedRunId}`, message: `${preparation.agentType} research preparation failed closed; no trade was proposed from this run.`, severity: "critical" });
       }

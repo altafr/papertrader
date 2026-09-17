@@ -141,3 +141,5 @@ export * from "./research-agents.js";
 export * from "./macro-advisory.js";
 export * from "./position-management.js";
 export * from "./exit-plan.js";
+
+export { getOvernightWindow, isOvernightReport, type OvernightReport } from "./overnight-report.js";

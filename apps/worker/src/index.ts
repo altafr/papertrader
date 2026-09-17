@@ -23,6 +23,8 @@ import { attachPositionProtection, countUnmanagedPositions, formatDailyPortfolio
 import { createTelegramOpsAssistant, createTelegramOpsAssistantData } from "./telegram-ops-assistant.js";
 import { buildPaperEvidenceReadyAlert, buildPaperPerformanceReport, PAPER_EVIDENCE_SNAPSHOT_LIMIT } from "./paper-performance-report.js";
 
+import { startOvernightReports } from "./overnight-report.js";
+
 const streamEnabled = process.env.MARKET_STREAM_ENABLED;
 if (streamEnabled !== undefined && streamEnabled !== "true" && streamEnabled !== "false") {
   throw new Error("MARKET_STREAM_ENABLED must be exactly true or false.");
@@ -40,6 +42,7 @@ const server = createServer((request, response) => {
 });
 
 getPaperOnlyRuntimeConfig();
+startOvernightReports();
 getPaperOperatingMode();
 if (getResearchScheduleReadiness().status === "blocked" && process.env.RESEARCH_SCHEDULER_ENABLED === "true") {
   throw new Error("RESEARCH_SCHEDULER_ENABLED=true requires paper database, broker, credentials, and handler gates.");

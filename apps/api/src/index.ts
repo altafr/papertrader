@@ -1,3 +1,4 @@
+import { isOvernightReport, type OvernightReport } from "@momentum/domain";
 import { createServer, type IncomingMessage } from "node:http";
 
 import { isOperatorHistoryQueryError, normalizeOperatorHistoryDate } from "./operator-history.js";
@@ -245,6 +246,13 @@ async function readTelegramMiniApp(request: IncomingMessage) {
   const alerts = await telegramMiniAppPool.query<{ readonly event_id: string; readonly code: string; readonly severity: string; readonly message: string; readonly occurred_at: Date; readonly delivery_status: string }>("SELECT event_id, code, severity, message, occurred_at, delivery_status FROM telegram_alert_events ORDER BY occurred_at DESC LIMIT 50");
   const agentRuns = await telegramMiniAppPool.query<{ readonly run_id: string; readonly agent_type: string; readonly task: string; readonly status: string; readonly created_at: Date; readonly finished_at: Date | null; readonly error_code: string | null }>("SELECT run_id, agent_type, task, status, created_at, finished_at, error_code FROM agent_runs ORDER BY created_at DESC LIMIT 100");
   const tradeJournal = await telegramMiniAppPool.query<{ readonly intent_id: string; readonly symbol: string; readonly asset_class: string; readonly status: string; readonly quantity: string; readonly entry_price: string | null; readonly planned_stop_price: string | null; readonly planned_target_price: string | null; readonly created_at: Date; readonly updated_at: Date | null; readonly risk_decision: { readonly reasons?: readonly string[] } | null; readonly market_snapshot: Record<string, string | null> | null }>("SELECT intent_id, symbol, asset_class, status, quantity, entry_price, planned_stop_price, planned_target_price, created_at, updated_at, risk_decision, market_snapshot FROM paper_order_submissions WHERE status NOT IN ('risk_dry_run_approved', 'risk_dry_run_rejected') ORDER BY created_at DESC LIMIT 100");
+  let overnightReports: OvernightReport[] = [];
+  let overnightReportsUnavailable = false;
+  try {
+    const reports = await telegramMiniAppPool.query<{ artifact_payload: unknown }>("SELECT artifact_payload FROM agent_runs WHERE agent_type='overnight_report' AND status='succeeded' AND artifact_type='overnight_report' ORDER BY artifact_payload->>'periodEnd' DESC, created_at DESC LIMIT 31");
+    overnightReports = reports.rows.map((row) => row.artifact_payload).filter(isOvernightReport);
+    overnightReportsUnavailable = overnightReports.length !== reports.rows.length;
+  } catch { overnightReportsUnavailable = true; }
   const agentCatalog = [
     ["orchestrator", "Coordinates durable schedules and agent hand-offs."],
     ["stock_research", "Ranks momentum stocks using finalized bars and standard indicators."],
@@ -269,7 +277,7 @@ async function readTelegramMiniApp(request: IncomingMessage) {
   const unmanagedPositions = unmanaged.rows.map((row) => ({ assetClass: row.asset_class, missingFields: getExitPlanMissingFields({ alpacaOrderId: row.alpaca_order_id, entryPrice: row.entry_price, plannedStopPrice: row.planned_stop_price, plannedTargetPrice: row.planned_target_price, timeStopAt: row.time_stop_at, strategyKey: row.strategy_key, strategyVersion: row.strategy_version }), symbol: row.symbol })).filter((row) => row.missingFields.length > 0).slice(0, 100);
   const unrealizedPl = model.positions.reduce((total, position) => addDecimalStrings(total, position.unrealizedPl), "0");
   const dayPnl = model.snapshot.lastEquity ? subtractDecimalStrings(model.snapshot.equity, model.snapshot.lastEquity) : undefined;
-  return { body: { asOf: model.freshness.capturedAt, userId: auth.userId, portfolio: { metrics: { unrealizedPl, ...(dayPnl ? { dayPnl } : {}) }, snapshot: model.snapshot, positions: projectedPositions.slice(0, 100), orders: model.orders.slice(0, 100) }, unmanagedPositions, alerts: alerts.rows.map((row) => ({ code: bounded(row.code, 128), deliveryStatus: bounded(row.delivery_status, 32), eventId: bounded(row.event_id, 128), message: bounded(row.message, 1_000), occurredAt: row.occurred_at, severity: bounded(row.severity, 16) })), agents: agentCatalog.map(([agentType, description]) => ({ agentType, description, runs: agentRuns.rows.filter((run) => run.agent_type === agentType).slice(0, 25).map((run) => ({ createdAt: run.created_at, errorCode: run.error_code, finishedAt: run.finished_at, runId: run.run_id, status: run.status, task: run.task })) })), tradeJournal: tradeJournal.rows.map((row) => ({ intentId: row.intent_id, symbol: row.symbol, assetClass: row.asset_class, status: row.status, quantity: row.quantity, entryPrice: row.entry_price, plannedStopPrice: row.planned_stop_price, plannedTargetPrice: row.planned_target_price, selectedAt: row.created_at, updatedAt: row.updated_at, rationale: row.risk_decision?.reasons?.join("; ") || "Selected by the versioned momentum signal and deterministic risk engine.", marketSnapshot: row.market_snapshot, finalResult: ["filled", "partially_filled"].includes(row.status) ? "Open or reconciled; final exit result is recorded when the position closes." : row.status })) }, status: 200, origin } as const;
+  return { body: { overnightReports, overnightReportsUnavailable, asOf: model.freshness.capturedAt, userId: auth.userId, portfolio: { metrics: { unrealizedPl, ...(dayPnl ? { dayPnl } : {}) }, snapshot: model.snapshot, positions: projectedPositions.slice(0, 100), orders: model.orders.slice(0, 100) }, unmanagedPositions, alerts: alerts.rows.map((row) => ({ code: bounded(row.code, 128), deliveryStatus: bounded(row.delivery_status, 32), eventId: bounded(row.event_id, 128), message: bounded(row.message, 1_000), occurredAt: row.occurred_at, severity: bounded(row.severity, 16) })), agents: agentCatalog.map(([agentType, description]) => ({ agentType, description, runs: agentRuns.rows.filter((run) => run.agent_type === agentType).slice(0, 25).map((run) => ({ createdAt: run.created_at, errorCode: run.error_code, finishedAt: run.finished_at, runId: run.run_id, status: run.status, task: run.task })) })), tradeJournal: tradeJournal.rows.map((row) => ({ intentId: row.intent_id, symbol: row.symbol, assetClass: row.asset_class, status: row.status, quantity: row.quantity, entryPrice: row.entry_price, plannedStopPrice: row.planned_stop_price, plannedTargetPrice: row.planned_target_price, selectedAt: row.created_at, updatedAt: row.updated_at, rationale: row.risk_decision?.reasons?.join("; ") || "Selected by the versioned momentum signal and deterministic risk engine.", marketSnapshot: row.market_snapshot, finalResult: ["filled", "partially_filled"].includes(row.status) ? "Open or reconciled; final exit result is recorded when the position closes." : row.status })) }, status: 200, origin } as const;
 }
 
 async function readEligibleAssets(request: IncomingMessage) {
@@ -461,10 +469,11 @@ async function readOperationsHealth(request: IncomingMessage) {
           timezone: DAILY_PREPARATION_TIMEZONE,
         },
         researchSchedule: {
-          cron: process.env.RESEARCH_PREPARATION_CRON ?? "30 0 * * *",
+          cron: process.env.RESEARCH_PREPARATION_CRON ?? "30 8 * * 1-5",
           enabled: researchSchedulerEnabled,
           handlerEnabled: researchHandlerEnabled,
           stockWindowOnly: process.env.RESEARCH_STOCK_WINDOW_ONLY === "true",
+          timezone: process.env.RESEARCH_PREPARATION_TIMEZONE ?? "America/New_York",
           status: assessResearchScheduleActivation({ brokerConnectionEnabled, databaseConfigured: true, handlerEnabled: researchHandlerEnabled, paperCredentialsConfigured, paperMode, schedulerEnabled: researchSchedulerEnabled }),
         },
         riskCycle: {
