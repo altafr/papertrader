@@ -4,6 +4,7 @@
 
 - Replaced the daily 20/50-day market and sector trend check with a server-side five-minute regular-session classifier. The first two bars (opening 5–10 minutes) establish the reference; each 30-minute stock scan compares the latest session close with that reference and keeps neutral/fail-closed behavior for missing or insufficient data.
 - Added production telemetry field `basis=opening_window_5m` and focused coverage for bullish, bearish, and insufficient-opening-window cases. Existing paper-only, deterministic risk, execution, and schedule gates are unchanged.
+- Verification: Railway Worker deployment `ad46b9a2-6f35-49e9-b893-edd5e1f68435` reached `SUCCESS`; hosted `/health` remains paper-autopilot with the research schedule enabled, and the deployed bundle contains the opening-window basis and five-minute Yahoo chart query.
 
 ## Phase 6.856 — verified Telegram overnight reports and full-universe scans (2026-09-17)
 
