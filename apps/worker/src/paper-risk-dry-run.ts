@@ -32,15 +32,16 @@ export function buildRiskCandidate(input: ResearchWatchlistCandidate, now = new 
   // evaluate it.
   const signalExpiry = Date.parse(signalTime) + 86_400_000;
   const minimumFutureExpiry = now.getTime() + 3_600_000;
+  const priceDecimals = input.assetClass === "us_equity" ? 2 : 8;
   return {
     ...input,
     expiresAt: new Date(Math.max(signalExpiry, minimumFutureExpiry)).toISOString(),
-    plannedExitPrice: close.times(input.side === "short" ? "0.94" : "1.06").toDecimalPlaces(8).toFixed(8),
+    plannedExitPrice: close.times(input.side === "short" ? "0.94" : "1.06").toDecimalPlaces(priceDecimals).toFixed(priceDecimals),
     // Keep the planned stop strictly inside the 5% maximum. Using 95% and
     // then rounding can produce a tiny over-limit distance for some prices,
     // causing every generated research candidate to fail closed.
-    plannedStopPrice: close.times(input.side === "short" ? "1.0499" : "0.9501").toDecimalPlaces(8).toFixed(8),
-    proposedEntryPrice: close.toDecimalPlaces(8).toFixed(8),
+    plannedStopPrice: close.times(input.side === "short" ? "1.0499" : "0.9501").toDecimalPlaces(priceDecimals).toFixed(priceDecimals),
+    proposedEntryPrice: close.toDecimalPlaces(priceDecimals).toFixed(priceDecimals),
     rationale: "Research candidate passed to the deterministic paper-risk engine for a non-submitting dry run.",
     score: input.momentumReturn,
     signalTime,

@@ -11,7 +11,7 @@ describe("paper risk dry run", () => {
   });
 
   it("builds a 5% stop candidate and approves a bounded one-share intent", () => {
-    expect(buildRiskCandidate(candidate, new Date("2026-08-26T00:00:00.000Z"))).toMatchObject({ plannedStopPrice: "95.01000000", side: "long" });
+    expect(buildRiskCandidate(candidate, new Date("2026-08-26T00:00:00.000Z"))).toMatchObject({ plannedStopPrice: "95.01", side: "long" });
     const result = assessResearchCandidateRisk({ candidate, currentAt: "2026-08-26T00:00:00.000Z", equity: "100000", quantity: "20", state });
     expect(result.approval.status).toBe("approved");
     expect(result.approval.assessment.estimatedLossPercent).toBe("4.99000000");
@@ -23,7 +23,7 @@ describe("paper risk dry run", () => {
   });
 
   it("calculates prices without binary floating-point drift", () => {
-    const result = buildRiskCandidate({ ...candidate, marketSnapshot: { ...candidate.marketSnapshot, close: "0.29" } }, new Date("2026-08-26T00:00:00.000Z"));
+    const result = buildRiskCandidate({ ...candidate, assetClass: "crypto", symbol: "BTC/USD", marketSnapshot: { ...candidate.marketSnapshot, close: "0.29" } }, new Date("2026-08-26T00:00:00.000Z"));
     expect(result.proposedEntryPrice).toBe("0.29000000");
     expect(result.plannedStopPrice).toBe("0.27552900");
     expect(result.plannedExitPrice).toBe("0.30740000");
