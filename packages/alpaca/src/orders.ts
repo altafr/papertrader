@@ -107,9 +107,10 @@ function getProviderRequestId(response: Response): string | undefined {
   return value && /^[A-Za-z0-9._:-]{1,128}$/.test(value) ? value : undefined;
 }
 
-function formatProviderFailure(prefix: string, response: Response, code: string): string {
+function formatProviderFailure(prefix: string, response: Response, code: string, providerHint = ""): string {
   const requestId = getProviderRequestId(response);
-  return `${prefix} with HTTP ${response.status} (${code})${requestId ? ` request_id=${requestId}` : ""}.`;
+  const hint = providerHint.replace(/[^A-Za-z0-9_.:-]+/g, "_").slice(0, 160);
+  return `${prefix} with HTTP ${response.status} (${code})${hint ? ` detail=${hint}` : ""}${requestId ? ` request_id=${requestId}` : ""}.`;
 }
 
 /** Alpaca's crypto trading API uses slash-delimited symbols (for example BTC/USD). */
@@ -149,7 +150,7 @@ export function createPaperOrderSubmitter(options: PaperOrderSubmitterOptions): 
       const bracket = request.assetClass === "us_equity" && request.plannedStopPrice && request.plannedTargetPrice;
       const body = { client_order_id: request.clientOrderId, limit_price: request.limitPrice, order_class: bracket ? "bracket" : "simple", ...(bracket ? { take_profit: { limit_price: request.plannedTargetPrice }, stop_loss: { stop_price: request.plannedStopPrice } } : {}), qty: request.quantity, side: request.side, symbol: normalizeAlpacaOrderSymbol(request.assetClass, request.symbol), time_in_force: request.assetClass === "crypto" ? "gtc" : request.timeInForce, type: request.type };
       const response = await requestJson("/v2/orders", { body: JSON.stringify(body), method: "POST" });
-      if (!response.ok) throw new Error(formatProviderFailure("Paper order submission failed", response, classifyPaperOrderFailure(request.assetClass, response.status, false, await getProviderFailureHint(response))));
+      if (!response.ok) { const hint = await getProviderFailureHint(response); throw new Error(formatProviderFailure("Paper order submission failed", response, classifyPaperOrderFailure(request.assetClass, response.status, false, hint), hint)); }
       return normalizeOrder(orderSchema.parse(await response.json()), request);
     },
   };
@@ -174,7 +175,7 @@ export function createPaperExitOrderSubmitter(options: PaperOrderSubmitterOption
       if (existingResponse.ok) return normalizeOrder(orderSchema.parse(await existingResponse.json()), { approval: { approvalId: request.clientOrderId, intentId: request.clientOrderId, status: "approved" }, assetClass: request.assetClass, clientOrderId: request.clientOrderId, quantity: request.quantity, side: "buy", symbol: request.decision.symbol, timeInForce: request.timeInForce, type: request.type });
       if (existingResponse.status !== 404) throw new Error("Paper exit idempotency lookup failed.");
       const response = await requestJson("/v2/orders", { body: JSON.stringify({ client_order_id: request.clientOrderId, order_class: "simple", qty: request.quantity, side: request.closingSide ?? "sell", symbol: normalizeAlpacaOrderSymbol(request.assetClass, request.decision.symbol), time_in_force: request.assetClass === "crypto" ? "gtc" : request.timeInForce, type: request.type }), method: "POST" });
-      if (!response.ok) throw new Error(formatProviderFailure("Paper exit submission failed", response, classifyPaperOrderFailure(request.assetClass, response.status, true, await getProviderFailureHint(response))));
+      if (!response.ok) { const hint = await getProviderFailureHint(response); throw new Error(formatProviderFailure("Paper exit submission failed", response, classifyPaperOrderFailure(request.assetClass, response.status, true, hint), hint)); }
       return normalizeOrder(orderSchema.parse(await response.json()), { approval: { approvalId: request.clientOrderId, intentId: request.clientOrderId, status: "approved" }, assetClass: request.assetClass, clientOrderId: request.clientOrderId, quantity: request.quantity, side: "buy", symbol: request.decision.symbol, timeInForce: request.timeInForce, type: request.type });
     },
   };
