@@ -5,7 +5,8 @@
 - Added a compact live dashboard above the Telegram tabs with connection state, reconciled position/order/alert counts, last reconciliation time, and a visible next-refresh countdown.
 - The dashboard uses the existing 15-second no-store polling path and stays read-only; no trading, risk, broker, or persistent financial behavior changed.
 - Verification: Telegram Mini App focused tests passed (6/6), Web typecheck passed, and `git diff --check` passed.
-- **Next smallest unit:** deploy the refreshed web bundle and verify the production page responds successfully.
+- Vercel production deployment `https://papertrader-8yfbd8wm4-altafrs-projects.vercel.app` completed successfully; the production page responds with HTTP `200`.
+- **Next smallest unit:** verify the live dashboard values against one new broker reconciliation.
 
 ## Phase 6.859 — Paper entry broker precision and first post-fix submission (2026-09-19)
 
