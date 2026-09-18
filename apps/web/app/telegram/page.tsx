@@ -47,6 +47,8 @@ export const getMiniAppFreshness = (asOf: string, now = Date.now()): "fresh" | "
   return now - captured <= 300_000 ? "fresh" : "stale";
 };
 
+export const MINI_APP_REFRESH_INTERVAL_MS = 15_000;
+
 export default function TelegramMiniAppPage() {
   const [tab, setTab] = useState<"portfolio" | "alerts" | "agents" | "trades" | "overnight">("portfolio");
   const [agentFilter, setAgentFilter] = useState("");
@@ -71,7 +73,7 @@ export default function TelegramMiniAppPage() {
       inFlight = controller;
       setRefreshing(true);
       try {
-        const response = await fetch(`${apiBaseUrl}/v1/telegram-mini-app`, { headers: { "x-telegram-init-data": initData }, signal: controller.signal });
+        const response = await fetch(`${apiBaseUrl}/v1/telegram-mini-app`, { cache: "no-store", headers: { "x-telegram-init-data": initData }, signal: controller.signal });
         const body: unknown = await response.json();
         if (!active || controller.signal.aborted) return;
         if (!response.ok || !isMiniAppData(body)) { setError(getMiniAppErrorMessage(response.status, isRecord(body) ? body.error : undefined)); return; }
@@ -83,8 +85,19 @@ export default function TelegramMiniAppPage() {
       }
     };
     void load();
-    const timer = window.setInterval(() => void load(), 60_000);
-    return () => { active = false; inFlight?.abort(); window.clearInterval(timer); };
+    const refreshWhenVisible = () => {
+      if (document.visibilityState === "visible") void load();
+    };
+    const timer = window.setInterval(() => void load(), MINI_APP_REFRESH_INTERVAL_MS);
+    window.addEventListener("focus", refreshWhenVisible);
+    document.addEventListener("visibilitychange", refreshWhenVisible);
+    return () => {
+      active = false;
+      inFlight?.abort();
+      window.clearInterval(timer);
+      window.removeEventListener("focus", refreshWhenVisible);
+      document.removeEventListener("visibilitychange", refreshWhenVisible);
+    };
   }, [refreshKey]);
 
   const snapshot = data?.portfolio.snapshot ?? {};

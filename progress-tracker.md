@@ -8694,3 +8694,10 @@
 - Railway Worker `POSITION_MANAGEMENT_INTERVAL_SECONDS` is now set to `1800` and a redeploy was triggered.
 - Position management continues to rely on broker-native brackets for immediate stop/target execution; the 30-minute loop handles reconciliation and trailing-stop updates.
 - **Next smallest unit:** verify the new deployment reports `intervalSeconds=1800` and remains healthy.
+
+### Phase 6.622 — Broker-confirmed position propagation to Telegram Mini App (2026-09-19)
+
+- The Telegram Mini App now refreshes the reconciled read model every 15 seconds while open and immediately on window focus or visibility return.
+- The browser request and API response both disable caching, so a broker-confirmed position or order status is surfaced without waiting for a stale cache entry.
+- The endpoint remains read-only and is backed by the latest reconciled broker model; no execution or risk boundary changed.
+- **Next smallest unit:** deploy the API and web changes, then verify the production Mini App response carries `cache-control: no-store` and the web bundle contains the 15-second refresh behavior.

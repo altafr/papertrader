@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { getMiniAppErrorMessage, getMiniAppFreshness, isMiniAppData } from "./page";
+import { getMiniAppErrorMessage, getMiniAppFreshness, isMiniAppData, MINI_APP_REFRESH_INTERVAL_MS } from "./page";
 
 describe("Telegram Mini App error messages", () => {
   it("turns disabled backend state into an actionable setup message", () => {
@@ -24,5 +24,9 @@ describe("Telegram Mini App error messages", () => {
     expect(getMiniAppFreshness("2026-08-31T23:55:01.000Z", now)).toBe("fresh");
     expect(getMiniAppFreshness("2026-08-31T23:54:59.000Z", now)).toBe("stale");
     expect(getMiniAppFreshness("invalid", now)).toBe("unknown");
+  });
+
+  it("refreshes often enough to surface broker-confirmed position changes promptly", () => {
+    expect(MINI_APP_REFRESH_INTERVAL_MS).toBe(15_000);
   });
 });

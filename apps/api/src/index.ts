@@ -820,11 +820,11 @@ const server = createServer((request, response) => {
     }
     readTelegramMiniApp(request)
       .then(({ body, status, origin }) => {
-        response.writeHead(status, { "access-control-allow-origin": origin, "content-type": "application/json", "vary": "Origin" });
+        response.writeHead(status, { "access-control-allow-origin": origin, "cache-control": "no-store, max-age=0", "content-type": "application/json", "vary": "Origin" });
         response.end(JSON.stringify(body));
       })
       .catch(() => {
-        response.writeHead(503, { "access-control-allow-origin": process.env.TELEGRAM_MINI_APP_ORIGIN?.trim() || "*", "content-type": "application/json", "vary": "Origin" });
+        response.writeHead(503, { "access-control-allow-origin": process.env.TELEGRAM_MINI_APP_ORIGIN?.trim() || "*", "cache-control": "no-store, max-age=0", "content-type": "application/json", "vary": "Origin" });
         response.end(JSON.stringify({ error: "telegram_mini_app_unavailable" }));
       });
     return;
