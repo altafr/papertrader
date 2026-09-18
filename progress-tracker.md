@@ -1,5 +1,10 @@
 # Progress Tracker
 
+## Phase 6.858 — Safe retry clearance for terminal paper failures (2026-09-19)
+
+- Fixed the retry blocker where a terminal paper provider failure reused the same deterministic intent and was treated as ambiguous in-flight state. Risk evidence may now refresh only when the existing record has no broker order ID and a terminal failure status; pending or broker-bound records remain fail-closed.
+- Verification: Railway Worker deployment `4061fa23-53ae-47df-a8ae-2474f4f8f3ea` reached `SUCCESS`; runtime readiness is `ready`, Alpaca account/asset entitlement metadata is active/tradable, reconciliation is fresh, the kill switch is off, and the latest position count/unmanaged count are both zero. Full-paper readiness remains blocked only by four remaining consecutive-evidence days.
+
 ## Phase 6.857 — Intraday opening-window market confirmation (2026-09-18)
 
 - Replaced the daily 20/50-day market and sector trend check with a server-side five-minute regular-session classifier. The first two bars (opening 5–10 minutes) establish the reference; each 30-minute stock scan compares the latest session close with that reference and keeps neutral/fail-closed behavior for missing or insufficient data.
