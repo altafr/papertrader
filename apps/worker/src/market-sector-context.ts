@@ -13,7 +13,7 @@ export interface IntradayBar {
   readonly close: number;
 }
 
-/** Classify the current regular session against its first 5–10 minutes. */
+/** Return the point-in-time sign of the current regular session against its first 5–10 minutes. */
 export function classifyIntradayDirection(bars: readonly IntradayBar[], timeZone = "America/New_York"): TrendDirection {
   const valid = bars.filter((bar) => Number.isFinite(bar.timestamp) && Number.isFinite(bar.open) && Number.isFinite(bar.close) && bar.open > 0 && bar.close > 0).sort((left, right) => left.timestamp - right.timestamp);
   if (valid.length === 0) return "neutral";

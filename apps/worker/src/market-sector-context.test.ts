@@ -15,6 +15,7 @@ describe("market and sector web confirmation", () => {
     const start = Date.parse("2026-09-17T13:30:00Z") / 1_000;
     expect(classifyIntradayDirection([{ timestamp: start, open: 100, close: 101 }, { timestamp: start + 300, open: 101, close: 102 }, { timestamp: start + 1_800, open: 102, close: 103 }])).toBe("bullish");
     expect(classifyIntradayDirection([{ timestamp: start, open: 100, close: 99 }, { timestamp: start + 300, open: 99, close: 98 }, { timestamp: start + 1_800, open: 98, close: 97 }])).toBe("bearish");
+    expect(classifyIntradayDirection([{ timestamp: start, open: 100, close: 99 }, { timestamp: start + 300, open: 99, close: 98 }, { timestamp: start + 1_800, open: 98, close: 99 }])).toBe("bullish");
   });
 
   it("fails closed when the opening window or regular-session data is missing", () => {

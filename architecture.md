@@ -151,7 +151,7 @@ The research cadence is asset-aware: crypto preparation may run every 15 minutes
 
 ### Intraday market and sector confirmation
 
-Stock opportunity scans use a server-side Yahoo Finance five-minute chart for SPY and the mapped sector ETF. Regular-session bars are filtered to 09:30–16:00 America/New_York; the first two bars (the opening 5–10 minutes) provide the reference price, and the latest available regular-session close is classified bullish, bearish, or neutral relative to that reference. This confirmation is refreshed on every 30-minute stock scan. Pre-market and after-close runs use the most recent available regular session. Missing, flat, malformed, or unavailable data is neutral and fails closed; it cannot bypass deterministic risk, freshness, market-mode, or kill-switch gates.
+Stock opportunity scans use a server-side Yahoo Finance five-minute chart for SPY and the mapped sector ETF. Regular-session bars are filtered to 09:30–16:00 America/New_York; the first two bars (the opening 5–10 minutes) provide the reference price, and each scan reads only the point-in-time sign of the latest regular-session close relative to that reference: positive, negative, or neutral. It is not a full-day trend forecast. This confirmation is refreshed on every 30-minute stock scan. Pre-market and after-close runs use the most recent available regular session. Missing, flat, malformed, or unavailable data is neutral and fails closed; it cannot bypass deterministic risk, freshness, market-mode, or kill-switch gates.
 
 ### Portfolio sizing and bracket protection (Phase 6.589)
 
