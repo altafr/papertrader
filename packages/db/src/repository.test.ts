@@ -126,6 +126,20 @@ describe("paper order submission repository", () => {
     await expect(repository.recordSubmission({ ...second, status: "risk_dry_run_rejected", approvalId: "approval-3" })).resolves.toMatchObject({ status: "filled", approvalId: "approval-2" });
   });
 
+  it("refreshes risk evidence after a terminal provider failure without clearing broker-bound state", async () => {
+    let stored: PersistedPaperOrderSubmission | undefined;
+    const transaction = {
+      insert: () => ({ values: (value: PersistedPaperOrderSubmission) => ({ returning: async () => { stored = value; return [value]; } }) }),
+      select: () => ({ from: (table: unknown) => ({ where: () => ({ limit: async () => table === paperOrderSubmissions && stored ? [stored] : [] }) }) }),
+      update: () => ({ set: (value: Partial<PersistedPaperOrderSubmission>) => ({ where: () => ({ returning: async () => { stored = { ...stored!, ...value }; return [stored]; } }) }) }),
+    };
+    const database = { select: transaction.select, transaction: async <T>(callback: (value: never) => Promise<T>) => callback(transaction as never) } as unknown as Database;
+    const repository = createPaperOrderRepository(database);
+    const failed: PersistedPaperOrderSubmission = { approvalId: "approval-1", assetClass: "us_equity", clientOrderId: "intent-1-paper", intentId: "intent-1", quantity: "1", status: "failed", symbol: "AAA" };
+    await repository.recordSubmission(failed);
+    await expect(repository.recordSubmission({ ...failed, approvalId: "approval-2", clientOrderId: "intent-1:scheduled-risk", riskDecision: { approvalStatus: "approved" }, status: "risk_dry_run_approved" })).resolves.toMatchObject({ approvalId: "approval-2", status: "risk_dry_run_approved" });
+  });
+
   it("writes aggregate legacy provenance submissions in one transaction", async () => {
     let stored: PersistedPaperOrderSubmission[] = [];
     const transaction = {

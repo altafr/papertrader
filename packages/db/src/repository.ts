@@ -558,7 +558,8 @@ export function createPaperOrderRepository(db: Database) {
           // mutate an order that has entered broker execution/reconciliation.
           const isRiskEvidence = submission.status === "risk_dry_run_approved" || submission.status === "risk_dry_run_rejected";
           const existingIsRiskEvidence = existingIntent.status === "risk_dry_run_approved" || existingIntent.status === "risk_dry_run_rejected";
-          if (isRiskEvidence && existingIsRiskEvidence) {
+          const existingTerminalFailureWithoutBroker = !existingIntent.alpacaOrderId && ["failed", "rejected", "canceled", "cancelled", "expired"].includes(existingIntent.status.toLowerCase());
+          if (isRiskEvidence && (existingIsRiskEvidence || existingTerminalFailureWithoutBroker)) {
             const [refreshed] = await transaction.update(paperOrderSubmissions).set({
               approvalId: submission.approvalId,
               assetClass: submission.assetClass,
