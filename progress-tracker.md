@@ -8700,4 +8700,7 @@
 - The Telegram Mini App now refreshes the reconciled read model every 15 seconds while open and immediately on window focus or visibility return.
 - The browser request and API response both disable caching, so a broker-confirmed position or order status is surfaced without waiting for a stale cache entry.
 - The endpoint remains read-only and is backed by the latest reconciled broker model; no execution or risk boundary changed.
-- **Next smallest unit:** deploy the API and web changes, then verify the production Mini App response carries `cache-control: no-store` and the web bundle contains the 15-second refresh behavior.
+- Railway API deployment `16f54741-b3bd-44de-af9a-1a237aa53dd5` reached `SUCCESS` with the no-store Mini App response change; API health is `200` and Telegram Mini App configuration is enabled.
+- Vercel production deployment `https://papertrader-2bpkl9dwv-altafrs-projects.vercel.app` is live and returns HTTP `200` with the 15-second refresh bundle.
+- The next confirmed broker reconciliation will therefore be visible in the open Telegram Mini App on its next poll (within 15 seconds), or immediately when the tab regains focus/visibility.
+- **Next smallest unit:** verify one confirmed order/position transition through the production Mini App read path.
