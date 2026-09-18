@@ -56,6 +56,7 @@ export default function TelegramMiniAppPage() {
   const [error, setError] = useState("Connecting to the paper portfolio…");
   const [refreshing, setRefreshing] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [secondsUntilRefresh, setSecondsUntilRefresh] = useState(MINI_APP_REFRESH_INTERVAL_MS / 1000);
 
   useEffect(() => {
     let active = true;
@@ -77,7 +78,8 @@ export default function TelegramMiniAppPage() {
         const body: unknown = await response.json();
         if (!active || controller.signal.aborted) return;
         if (!response.ok || !isMiniAppData(body)) { setError(getMiniAppErrorMessage(response.status, isRecord(body) ? body.error : undefined)); return; }
-        setData(body); setError("");
+      setData(body); setError("");
+        setSecondsUntilRefresh(MINI_APP_REFRESH_INTERVAL_MS / 1000);
       } catch (error) {
         if (active && !(error instanceof DOMException && error.name === "AbortError")) setError("Could not reach the paper portfolio service.");
       } finally {
@@ -89,12 +91,14 @@ export default function TelegramMiniAppPage() {
       if (document.visibilityState === "visible") void load();
     };
     const timer = window.setInterval(() => void load(), MINI_APP_REFRESH_INTERVAL_MS);
+    const countdown = window.setInterval(() => setSecondsUntilRefresh((seconds) => seconds > 1 ? seconds - 1 : MINI_APP_REFRESH_INTERVAL_MS / 1000), 1_000);
     window.addEventListener("focus", refreshWhenVisible);
     document.addEventListener("visibilitychange", refreshWhenVisible);
     return () => {
       active = false;
       inFlight?.abort();
       window.clearInterval(timer);
+      window.clearInterval(countdown);
       window.removeEventListener("focus", refreshWhenVisible);
       document.removeEventListener("visibilitychange", refreshWhenVisible);
     };
@@ -110,6 +114,15 @@ export default function TelegramMiniAppPage() {
     <main className="telegram-mini-app">
       {unmanagedPositions.length ? <p className="mini-error">Review required: {unmanagedPositions.map((position) => `${position.symbol} (${position.missingFields.join(", ")})`).join("; ")}.</p> : null}
       <header><div><p className="eyebrow">MOMENTUM AUTOPILOT</p><h1>Paper trading</h1></div><div className="mini-header-actions"><button className="mini-refresh" onClick={() => setRefreshKey((key) => key + 1)} disabled={refreshing}>{refreshing ? "Refreshing…" : "Refresh"}</button><span className="badge paper">PAPER</span></div></header>
+      <section className="mini-live-dashboard" aria-label="Live dashboard">
+        <div className="mini-live-heading"><div><span className="mini-live-dot" aria-hidden="true" /> <strong>{error ? "Connection needs attention" : freshness === "fresh" ? "Live reconciled view" : "Checking broker state"}</strong></div><span className="mini-countdown">Next refresh {secondsUntilRefresh}s</span></div>
+        <div className="mini-live-grid">
+          <div><span>Positions</span><strong>{data?.portfolio.positions.length ?? "—"}</strong></div>
+          <div><span>Orders</span><strong>{data?.portfolio.orders.length ?? "—"}</strong></div>
+          <div><span>Alerts</span><strong>{data?.alerts.length ?? "—"}</strong></div>
+          <div><span>Last reconciled</span><strong>{data?.asOf ? new Date(data.asOf).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "—"}</strong></div>
+        </div>
+      </section>
       <nav className="mini-tabs" aria-label="Mini App sections"><button className={tab === "portfolio" ? "active" : ""} onClick={() => setTab("portfolio")}>Portfolio</button><button className={tab === "trades" ? "active" : ""} onClick={() => setTab("trades")}>Trades</button><button className={tab === "alerts" ? "active" : ""} onClick={() => setTab("alerts")}>Alerts{data?.alerts.length ? ` (${data.alerts.length})` : ""}</button><button className={tab === "agents" ? "active" : ""} onClick={() => setTab("agents")}>Agents</button><button aria-pressed={tab === "overnight"} className={tab === "overnight" ? "active" : ""} onClick={() => setTab("overnight")}>Overnight</button></nav>
       {data && freshness !== "fresh" ? <p className="mini-error">Snapshot freshness: {freshness}. Verify the latest reconciliation before relying on values.</p> : null}
       {error ? <p className="mini-error">{error}</p> : tab === "overnight" ? <OvernightReports reports={data?.overnightReports ?? []} unavailable={data?.overnightReportsUnavailable ?? false} /> : tab === "portfolio" ? <section className="mini-section"><div className="mini-metrics"><div><span>Equity</span><strong>${money(snapshot.equity)}</strong></div><div><span>Cash</span><strong>${money(snapshot.cash)}</strong></div><div><span>Buying power</span><strong>${money(snapshot.buyingPower)}</strong></div><div><span>Day P/L</span><strong className={Number(metrics.dayPnl) < 0 ? "negative" : "positive"}>${money(metrics.dayPnl)}</strong></div><div><span>Unrealized P/L</span><strong className={Number(metrics.unrealizedPl) < 0 ? "negative" : "positive"}>${money(metrics.unrealizedPl)}</strong></div></div><h2>Open positions</h2>{data?.portfolio.positions.length ? <div className="mini-list">{data.portfolio.positions.map((position) => <article key={String(position.symbol)}><div><strong>{String(position.symbol ?? "—")}</strong><small>{money(position.quantity)} units · value ${money(position.marketValue)}</small><small>Active stop {money(position.effectiveStopPrice ?? position.plannedStopPrice)} · target {money(position.plannedTargetPrice)}</small></div><span className={Number(position.unrealizedPl) < 0 ? "negative" : "positive"}>{money(position.unrealizedPl)}</span></article>)}</div> : <p className="mini-muted">No open positions.</p>}<h2>Recent orders</h2>{orders.length ? <div className="mini-list">{orders.slice(0, 20).map((order, index) => <article key={String(order.id ?? order.clientOrderId ?? `${order.symbol ?? "order"}-${index}`)}><div><strong>{String(order.symbol ?? "—")}</strong><small>{String(order.side ?? "—").toUpperCase()} · {String(order.status ?? "—")} · {money(order.filledQuantity ?? order.quantity)} units</small><small>{order.updatedAt ? new Date(String(order.updatedAt)).toLocaleString() : "—"}</small></div></article>)}</div> : <p className="mini-muted">No recent orders.</p>}<p className="mini-foot">Updated {data?.asOf ? new Date(data.asOf).toLocaleString() : "—"}</p></section> : tab === "trades" ? <section className="mini-section"><h2>Trade journal</h2>{data?.tradeJournal?.length ? <div className="mini-list">{data.tradeJournal.map((trade) => <article key={trade.intentId}><div><strong>{trade.symbol} · {trade.status}</strong><small>Selected {new Date(trade.selectedAt).toLocaleString()} · Qty {money(trade.quantity)} · Entry {money(trade.entryPrice)}</small><small>Stop {money(trade.plannedStopPrice)} · Target {money(trade.plannedTargetPrice)}</small><small>Why: {trade.rationale}</small><small>Result: {trade.finalResult}</small></div></article>)}</div> : <p className="mini-muted">No executed trade journal entries.</p>}</section> : tab === "alerts" ? <section className="mini-section"><h2>Important alerts</h2>{data?.alerts.length ? <div className="mini-list">{data.alerts.map((alert) => <article key={alert.eventId}><div><strong className={alert.severity === "critical" ? "negative" : alert.severity === "warning" ? "warning" : ""}>{alert.code}</strong><small>{alert.message}</small><small>{new Date(alert.occurredAt).toLocaleString()} · {alert.deliveryStatus}</small></div></article>)}</div> : <p className="mini-muted">No alerts recorded.</p>}</section> : <section className="mini-section"><div className="mini-agent-toolbar"><h2>System agents</h2><input aria-label="Filter agents" value={agentFilter} onChange={(event) => setAgentFilter(event.target.value)} placeholder="Filter agents" /></div>{(data?.agents ?? []).filter((agent) => !agentFilter || `${agent.agentType} ${agent.description}`.toLowerCase().includes(agentFilter.toLowerCase())).map((agent) => <article className="mini-agent" key={agent.agentType}><div><strong>{agent.agentType}</strong><small>{agent.description}</small></div><span>{agent.runs.length} runs</span>{agent.runs.slice(0, 3).map((run) => <small key={run.runId} className={run.status === "failed" ? "negative" : ""}>{new Date(run.createdAt).toLocaleString()} · {run.status} · {run.task}</small>)}</article>)}</section>}

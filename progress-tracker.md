@@ -1,5 +1,12 @@
 # Progress Tracker
 
+## Phase 6.623 — Real-time Telegram Mini App dashboard (2026-09-19)
+
+- Added a compact live dashboard above the Telegram tabs with connection state, reconciled position/order/alert counts, last reconciliation time, and a visible next-refresh countdown.
+- The dashboard uses the existing 15-second no-store polling path and stays read-only; no trading, risk, broker, or persistent financial behavior changed.
+- Verification: Telegram Mini App focused tests passed (6/6), Web typecheck passed, and `git diff --check` passed.
+- **Next smallest unit:** deploy the refreshed web bundle and verify the production page responds successfully.
+
 ## Phase 6.859 — Paper entry broker precision and first post-fix submission (2026-09-19)
 
 - Stock bracket entry prices now use broker-valid two-decimal precision; crypto retains eight-decimal precision. Bounded Alpaca rejection details are included in server logs for future diagnosis without exposing credentials or response payloads.
