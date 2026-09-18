@@ -1,5 +1,10 @@
 # Progress Tracker
 
+## Phase 6.859 — Paper entry broker precision and first post-fix submission (2026-09-19)
+
+- Stock bracket entry prices now use broker-valid two-decimal precision; crypto retains eight-decimal precision. Bounded Alpaca rejection details are included in server logs for future diagnosis without exposing credentials or response payloads.
+- Verification: the next scheduled stock check selected CRWD, passed opening-window market confirmation and deterministic risk, and created paper order `9cdc6868-8ef1-4ebd-8f34-09edfaefdb61` for 9 shares at entry `237.40`, stop `225.55`, target `251.64`. Alpaca status is `pending_new` with zero filled quantity because the check ran after the regular session; the Worker health is healthy and the next scan is scheduled for 17:30 UTC.
+
 ## Phase 6.858 — Safe retry clearance for terminal paper failures (2026-09-19)
 
 - Fixed the retry blocker where a terminal paper provider failure reused the same deterministic intent and was treated as ambiguous in-flight state. Risk evidence may now refresh only when the existing record has no broker order ID and a terminal failure status; pending or broker-bound records remain fail-closed.
