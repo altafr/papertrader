@@ -149,6 +149,10 @@ The Telegram assistant can open the Vercel `/telegram` Mini App with a compact P
 
 The research cadence is asset-aware: crypto preparation may run every 15 minutes for 24/7 markets, while stock preparation runs before market open at 08:30 ET, every 30 minutes during the regular session (09:30–15:30 ET), and after close at 17:00 ET on trading weekdays. A scheduler tick outside those stock windows skips stock work but never skips crypto monitoring or deterministic safety checks.
 
+### Intraday market and sector confirmation
+
+Stock opportunity scans use a server-side Yahoo Finance five-minute chart for SPY and the mapped sector ETF. Regular-session bars are filtered to 09:30–16:00 America/New_York; the first two bars (the opening 5–10 minutes) provide the reference price, and the latest available regular-session close is classified bullish, bearish, or neutral relative to that reference. This confirmation is refreshed on every 30-minute stock scan. Pre-market and after-close runs use the most recent available regular session. Missing, flat, malformed, or unavailable data is neutral and fails closed; it cannot bypass deterministic risk, freshness, market-mode, or kill-switch gates.
+
 ### Portfolio sizing and bracket protection (Phase 6.589)
 
 Each new paper intent must invest at least 2% of current equity, while remaining below the asset-class and gross-exposure caps. Default quantities are derived from the point-in-time entry price; explicit overrides that are too small are rejected by deterministic risk code. US-equity entries are submitted as Alpaca bracket orders with both stop-loss and take-profit legs. Alpaca crypto order classes are simple-only, so crypto entries require `CRYPTO_SYNTHETIC_BRACKET_ENABLED=true` plus an active position manager; persisted exit plans are reloaded on restart and enforced by the Worker. Position monitoring ratchets a long stop to 5% below a favorable current mark and never moves protection downward.

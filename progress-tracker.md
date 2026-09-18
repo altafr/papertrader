@@ -1,5 +1,10 @@
 # Progress Tracker
 
+## Phase 6.857 — Intraday opening-window market confirmation (2026-09-18)
+
+- Replaced the daily 20/50-day market and sector trend check with a server-side five-minute regular-session classifier. The first two bars (opening 5–10 minutes) establish the reference; each 30-minute stock scan compares the latest session close with that reference and keeps neutral/fail-closed behavior for missing or insufficient data.
+- Added production telemetry field `basis=opening_window_5m` and focused coverage for bullish, bearish, and insufficient-opening-window cases. Existing paper-only, deterministic risk, execution, and schedule gates are unchanged.
+
 ## Phase 6.856 — verified Telegram overnight reports and full-universe scans (2026-09-17)
 
 - Added authenticated Overnight tab with report archive, agent/process decisions, trades, historical account snapshot, operational concerns and explicit evidence limitations. Saved the exact operator-requested September 16–17 report in PostgreSQL (original 08:37 HKT cutoff); private account values are not embedded in browser source.
