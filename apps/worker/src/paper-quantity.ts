@@ -19,7 +19,7 @@ export function getPaperAutopilotQuantity(assetClass: ResearchWatchlistCandidate
 
 /**
  * Resolve the default quantity so a new trade invests at least the configured
- * two-percent portfolio minimum. Explicit operator overrides remain intact,
+ * USD 10,000 or two-percent portfolio minimum, whichever is greater. Explicit operator overrides remain intact,
  * but the deterministic risk gate still rejects undersized overrides.
  */
 export function getPaperAutopilotQuantityForCandidate(candidate: { readonly assetClass: ResearchWatchlistCandidate["assetClass"]; readonly marketSnapshot?: { readonly close?: string } }, equity: string, environment: NodeJS.ProcessEnv = process.env, explicitOverride?: string): string {
@@ -33,12 +33,12 @@ export function getPaperAutopilotQuantityForCandidate(candidate: { readonly asse
     const accountEquity = new Decimal(equity);
     if (price.isNegative() || price.isZero() || accountEquity.isNegative() || accountEquity.isZero()) throw new Error("invalid sizing values");
     const increment = candidate.assetClass === "crypto" ? "0.00000001" : "1";
-    const minimumNotional = candidate.assetClass === "us_equity" ? (environment.MIN_STOCK_TRADE_NOTIONAL?.trim() || "2000") : "0";
+    const minimumNotional = environment.MIN_STOCK_TRADE_NOTIONAL?.trim() || "10000";
     const minimumQuantity = new Decimal(minimumNotional).div(price);
     const portfolioQuantity = accountEquity.times("0.02").div(price);
     target = (portfolioQuantity.greaterThan(minimumQuantity) ? portfolioQuantity : minimumQuantity).toDecimalPlaces(candidate.assetClass === "crypto" ? 8 : 0).plus(increment);
     return target.toFixed(candidate.assetClass === "crypto" ? 8 : 0);
   } catch {
-    throw new Error("Unable to derive a positive two-percent portfolio quantity.");
+    throw new Error("Unable to derive a positive USD 10,000-or-two-percent portfolio quantity.");
   }
 }

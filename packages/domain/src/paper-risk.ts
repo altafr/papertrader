@@ -54,6 +54,8 @@ export interface PaperRiskPolicy {
   readonly initialEquityBaseline: DecimalString;
   /** Minimum invested notional for every new trade as a percentage of equity. */
   readonly minPositionPercent: DecimalString;
+  /** Fixed minimum invested notional for every new trade, in USD. */
+  readonly minPositionNotionalUsd: DecimalString;
   readonly maxCryptoPositionPercent: DecimalString;
   readonly maxGrossExposurePercent: DecimalString;
   readonly maxOpenPositions: number;
@@ -86,11 +88,12 @@ export function classifyPaperBaseline(equity: string | number | undefined, basel
 export const DEFAULT_PAPER_RISK_POLICY: PaperRiskPolicy = {
   initialEquityBaseline: PAPER_INITIAL_EQUITY_BASELINE,
   minPositionPercent: "2",
-  maxCryptoPositionPercent: "3",
+  minPositionNotionalUsd: "10000",
+  maxCryptoPositionPercent: "10",
   maxGrossExposurePercent: "50",
   maxOpenPositions: 10,
   maxSubmittedEntriesLast24Hours: 20,
-  maxStockPositionPercent: "5",
+  maxStockPositionPercent: "10",
   maxShortPositionPercent: "5",
   maxShortGrossExposurePercent: "25",
 };
@@ -157,8 +160,11 @@ export function assessPaperRisk(input: {
   if (!risk.passes) reasons.push("Estimated planned-stop loss exceeds 5% of invested notional.");
   const notional = entry.times(quantity);
   if (candidate.side === "short" && input.state.buyingPower !== undefined && notional.greaterThan(new Decimal(input.state.buyingPower))) reasons.push("Short order exceeds available buying power.");
-  if (notional.lessThan(equity.times(policy.minPositionPercent).div("100"))) {
-    reasons.push(`Proposed position is below the minimum ${policy.minPositionPercent}% of portfolio investment.`);
+  const percentageMinimumNotional = equity.times(policy.minPositionPercent).div("100");
+  const fixedMinimumNotional = decimal(policy.minPositionNotionalUsd, "minimum position notional");
+  const minimumNotional = percentageMinimumNotional.greaterThan(fixedMinimumNotional) ? percentageMinimumNotional : fixedMinimumNotional;
+  if (notional.lessThan(minimumNotional)) {
+    reasons.push(`Proposed position is below the minimum USD ${policy.minPositionNotionalUsd} or ${policy.minPositionPercent}% of portfolio investment, whichever is greater.`);
   }
   const maxPositionPercent = candidate.assetClass === "crypto" ? policy.maxCryptoPositionPercent : policy.maxStockPositionPercent;
   const directionalMaxPositionPercent = candidate.side === "short" ? policy.maxShortPositionPercent : maxPositionPercent;

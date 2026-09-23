@@ -19,10 +19,10 @@ describe("paper quantity resolution", () => {
   it("accepts large decimal quantities without binary-number overflow", () => {
     expect(getPaperAutopilotQuantity("crypto", {}, "999999999999999999999999.00000001")).toBe("999999999999999999999999.00000001");
   });
-  it("sizes an unconfigured stock trade above the two-percent portfolio minimum", () => {
-    expect(getPaperAutopilotQuantityForCandidate({ assetClass: "us_equity", marketSnapshot: { close: "100" } }, "100000", {})).toBe("21");
+  it("sizes an unconfigured trade at the USD 10,000 minimum notional", () => {
+    expect(getPaperAutopilotQuantityForCandidate({ assetClass: "us_equity", marketSnapshot: { close: "100" } }, "100000", {})).toBe("101");
   });
   it("sizes an unconfigured crypto trade using eight-decimal precision", () => {
-    expect(getPaperAutopilotQuantityForCandidate({ assetClass: "crypto", marketSnapshot: { close: "100000" } }, "100000", {})).toBe("0.02000001");
+    expect(getPaperAutopilotQuantityForCandidate({ assetClass: "crypto", marketSnapshot: { close: "100000" } }, "100000", {})).toBe("0.10000001");
   });
 });

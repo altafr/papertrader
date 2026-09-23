@@ -166,10 +166,10 @@ These are conservative engineering defaults for validation, not recommendations.
 - Initial paper-account equity baseline: `USD 100,000`, matching Alpaca's current default paper-account balance. Autopilot remains paused if the configured starting baseline has not been verified against the Alpaca paper account.
 - Long-only in the current release. A future bearish mode may propose short positions when both the broad market and sector are bearish, but it remains disabled until its safety gates are implemented and explicitly activated.
 - Maximum planned loss at the stop per trade: `5%` of the position's invested notional, inclusive of estimated fees and slippage.
-- Minimum invested notional for every new trade: `2%` of current portfolio equity; deterministic sizing rounds up to the supported asset precision and rejects undersized overrides.
+- Minimum invested notional for every new trade: `USD 10,000` or `2%` of current portfolio equity, whichever is greater; deterministic sizing rounds up to the supported asset precision and rejects undersized overrides. The 10K allocation rule applies across positions and is enforced server-side in paper risk.
 - Maximum adverse entry-to-stop distance: `5%` for long positions; the position must be exited at or before this threshold.
-- Maximum single stock position: `5%` of equity.
-- Maximum single crypto position: `3%` of equity.
+- Maximum single stock position: `10%` of equity, so the USD 10,000 baseline allocation can pass at the USD 100,000 paper baseline.
+- Maximum single crypto position: `10%` of equity, so the same general allocation rule applies if crypto is explicitly re-enabled behind its existing protection gates.
 - Maximum total crypto exposure: `15%` of equity.
 - Maximum gross portfolio exposure: `50%` of equity.
 - Maximum open positions: `10`.

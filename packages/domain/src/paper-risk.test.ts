@@ -16,27 +16,30 @@ describe("paper signals and deterministic risk", () => {
     expect(PAPER_INITIAL_EQUITY_BASELINE).toBe("100000");
     expect(DEFAULT_PAPER_RISK_POLICY.initialEquityBaseline).toBe(PAPER_INITIAL_EQUITY_BASELINE);
     expect(DEFAULT_PAPER_RISK_POLICY.minPositionPercent).toBe("2");
+    expect(DEFAULT_PAPER_RISK_POLICY.minPositionNotionalUsd).toBe("10000");
+    expect(DEFAULT_PAPER_RISK_POLICY.maxStockPositionPercent).toBe("10");
+    expect(DEFAULT_PAPER_RISK_POLICY.maxCryptoPositionPercent).toBe("10");
   });
 
   it("rejects a trade below the two-percent portfolio minimum", () => {
     const result = assessPaperRisk({ estimatedFees: "0", estimatedSlippage: "0", equity: "1000", quantity: "0.01", signal, state });
     expect(result.passes).toBe(false);
-    expect(result.reasons).toContain("Proposed position is below the minimum 2% of portfolio investment.");
+    expect(result.reasons).toContain("Proposed position is below the minimum USD 10000 or 2% of portfolio investment, whichever is greater.");
   });
 
   it("permits crypto only when restart-safe synthetic bracket protection is enabled", () => {
     const cryptoSignal = createImmutablePaperSignal({ candidate: { ...candidate, assetClass: "crypto" }, createdAt: "2026-01-10T00:01:00Z", signalId: "signal-crypto" });
-    const blocked = assessPaperRisk({ estimatedFees: "0", estimatedSlippage: "0", equity: "100000", quantity: "20", signal: cryptoSignal, state });
+    const blocked = assessPaperRisk({ estimatedFees: "0", estimatedSlippage: "0", equity: "100000", quantity: "100", signal: cryptoSignal, state });
     expect(blocked.reasons).toContain("Synthetic crypto bracket protection is not healthy; entry rejected until the position supervisor is ready.");
-    const allowed = assessPaperRisk({ estimatedFees: "0", estimatedSlippage: "0", equity: "100000", quantity: "20", signal: cryptoSignal, state: { ...state, cryptoSyntheticBracketEnabled: true, positionManagementHealthy: true } });
+    const allowed = assessPaperRisk({ estimatedFees: "0", estimatedSlippage: "0", equity: "100000", quantity: "100", signal: cryptoSignal, state: { ...state, cryptoSyntheticBracketEnabled: true, positionManagementHealthy: true } });
     expect(allowed.passes).toBe(true);
   });
 
   it("freezes a signal and passes a bounded low-risk proposal", () => {
     expect(Object.isFrozen(signal)).toBe(true);
-    const result = assessPaperRisk({ estimatedFees: "0.01", estimatedSlippage: "0.01", equity: "1000", quantity: "0.2", signal, state });
+    const result = assessPaperRisk({ estimatedFees: "0.01", estimatedSlippage: "0.01", equity: "100000", quantity: "100", signal, state });
     expect(result.passes).toBe(true);
-    expect(result.estimatedLoss).toBe("0.22000000");
+    expect(result.estimatedLoss).toBe("100.02000000");
   });
 
   it("rejects stale state, kill switch, risk, and exposure violations", () => {

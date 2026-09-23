@@ -1,5 +1,13 @@
 # Progress Tracker
 
+## Phase 6.628 — USD 10,000 position sizing rule (2026-09-23)
+
+- Changed the default paper position rule from the prior USD 2,000 stock floor to a server-enforced minimum of USD 10,000 or 2% of current equity, whichever is greater.
+- Updated dynamic paper quantity derivation and deterministic risk assessment so explicit undersized overrides are rejected under the same rule.
+- Raised the single-stock and single-crypto caps to 10% of equity so a USD 10,000 position can pass at the USD 100,000 paper baseline; gross exposure, stop-loss, freshness, baseline, kill-switch, paper-mode, and crypto supervisor gates remain unchanged.
+- Added focused regression coverage for the new notional floor and documented the rule in the product overview and architecture.
+- **Next smallest unit:** run focused domain/worker tests and typechecks, then deploy the worker configuration with the new sizing rule.
+
 ## Phase 6.627 — Standard position tables across web and Telegram (2026-09-23)
 
 - Standardized the primary positions view in both the website dashboard and Telegram Mini App to show stock, current position, entry price, current price, and P/L in USD.
