@@ -5,7 +5,9 @@
 - Mirrored the website's live operations summary into the Telegram Mini App with mobile-first activity cards and a compact system log.
 - The log is derived from reconciled orders, alerts, and agent runs already returned by the authenticated read-only Mini App endpoint; it retains the 15-second refresh cadence.
 - No broker, risk, order, credential, or server boundary changed.
-- **Next smallest unit:** run the Telegram-focused tests and deploy the refreshed web bundle.
+- Verification: Telegram Mini App focused tests passed (6/6), Web typecheck passed, and `git diff --check` passed.
+- Vercel production deployment `https://papertrader-c1493khkz-altafrs-projects.vercel.app` completed successfully and returns HTTP `200`.
+- **Next smallest unit:** verify the authenticated Telegram tab on a phone-sized viewport against a new reconciled update.
 
 ## Phase 6.624 — Live website operations cards and activity log (2026-09-23)
 
