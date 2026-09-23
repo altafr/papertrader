@@ -27,12 +27,13 @@ describe("paper signals and deterministic risk", () => {
     expect(result.reasons).toContain("Proposed position is below the minimum USD 10000 or 2% of portfolio investment, whichever is greater.");
   });
 
-  it("permits crypto only when restart-safe synthetic bracket protection is enabled", () => {
+  it("rejects direct crypto entries even when synthetic protection is healthy", () => {
     const cryptoSignal = createImmutablePaperSignal({ candidate: { ...candidate, assetClass: "crypto" }, createdAt: "2026-01-10T00:01:00Z", signalId: "signal-crypto" });
     const blocked = assessPaperRisk({ estimatedFees: "0", estimatedSlippage: "0", equity: "100000", quantity: "100", signal: cryptoSignal, state });
     expect(blocked.reasons).toContain("Synthetic crypto bracket protection is not healthy; entry rejected until the position supervisor is ready.");
     const allowed = assessPaperRisk({ estimatedFees: "0", estimatedSlippage: "0", equity: "100000", quantity: "100", signal: cryptoSignal, state: { ...state, cryptoSyntheticBracketEnabled: true, positionManagementHealthy: true } });
-    expect(allowed.passes).toBe(true);
+    expect(allowed.passes).toBe(false);
+    expect(allowed.reasons).toContain("Direct crypto trading is disabled.");
   });
 
   it("freezes a signal and passes a bounded low-risk proposal", () => {

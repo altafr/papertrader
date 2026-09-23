@@ -1,5 +1,13 @@
 # Progress Tracker
 
+## Phase 6.629 — Disable direct crypto trading (2026-09-23)
+
+- Added a server-side rule that rejects every new crypto entry before approval and before broker submission.
+- Existing crypto-position monitoring and supervisor exits remain available for safe cleanup; stock paper trading is unchanged.
+- Added regression coverage for both the deterministic risk rejection and the execution-boundary rejection.
+- Documented the rule in the product overview and architecture.
+- **Next smallest unit:** run focused domain/Worker tests and deploy the crypto-entry block.
+
 ## Phase 6.628 — USD 10,000 position sizing rule (2026-09-23)
 
 - Changed the default paper position rule from the prior USD 2,000 stock floor to a server-enforced minimum of USD 10,000 or 2% of current equity, whichever is greater.

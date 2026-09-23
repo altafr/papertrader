@@ -1,6 +1,6 @@
 import type { PaperOrderSubmission, PaperOrderSubmissionRequest, PaperOrderSubmitter } from "@momentum/alpaca";
 import { getPaperAutopilotConfig, isGlobalKillSwitchActive, type PaperAutopilotConfig } from "@momentum/config";
-import { reconcilePaperOrder } from "@momentum/domain";
+import { PAPER_DIRECT_CRYPTO_TRADING_ENABLED, reconcilePaperOrder } from "@momentum/domain";
 
 export interface PaperSubmissionPersistence {
   getByClientOrderId?(clientOrderId: string): Promise<unknown>;
@@ -58,6 +58,7 @@ export async function executePaperAutopilotOrder(input: {
   const mode = input.autopilot ?? getPaperAutopilotConfig();
   if (!mode.enabled || mode.mode !== "paper_autopilot") throw new Error("Paper Autopilot mode is disabled.");
   if (isGlobalKillSwitchActive()) throw new Error("Paper order execution is blocked by the global kill switch.");
+  if (input.order.assetClass === "crypto" && !PAPER_DIRECT_CRYPTO_TRADING_ENABLED) throw new Error("Direct crypto trading is disabled.");
   if (input.order.approval.status !== "approved") throw new Error("A passing paper risk approval is required.");
   const intentId = input.order.approval.intentId;
   const existingByClientOrder = await input.persistence.getByClientOrderId?.(input.order.clientOrderId);

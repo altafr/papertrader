@@ -68,6 +68,9 @@ export interface PaperRiskPolicy {
 /** Alpaca's default paper account starts at USD 100,000; verify this baseline before activation. */
 export const PAPER_INITIAL_EQUITY_BASELINE = "100000";
 
+/** Direct crypto entries are disabled; crypto positions may only be observed or exited by the supervisor. */
+export const PAPER_DIRECT_CRYPTO_TRADING_ENABLED = false;
+
 export type PaperBaselineStatus = "above_baseline" | "below_baseline" | "unavailable" | "within_tolerance";
 
 /** Redacted baseline classification for operator health; never returns an account value. */
@@ -143,6 +146,7 @@ export function assessPaperRisk(input: {
   if (entry.isNegative() || entry.toFixed() === "0") throw new Error("entry price must be greater than zero.");
   const risk = calculateTradeRisk({ entryPrice: candidate.proposedEntryPrice, equity: input.equity, estimatedFees: input.estimatedFees, estimatedSlippage: input.estimatedSlippage, quantity: input.quantity, stopPrice: candidate.plannedStopPrice });
   const reasons: string[] = [];
+  if (candidate.assetClass === "crypto" && !PAPER_DIRECT_CRYPTO_TRADING_ENABLED) reasons.push("Direct crypto trading is disabled.");
   if (candidate.side === "short" && input.state.shortTradingEnabled !== true) reasons.push("Short paper trading is not enabled.");
   if (candidate.side === "short" && !(input.state.shortableSymbols ?? []).map((symbol) => symbol.replaceAll("/", "").toUpperCase()).includes(candidate.symbol.replaceAll("/", "").toUpperCase())) reasons.push("Broker has not confirmed this symbol is shortable and borrowable.");
   const adverseStopPercent = (candidate.side === "short" ? stop.minus(entry) : entry.minus(stop)).div(entry).times("100");
