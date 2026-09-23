@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 
 import { AuthProvider } from "./auth-provider";
+import { TimezoneProvider, TimezoneToggle } from "./timezone-preferences";
 
 import "./styles.css";
 
@@ -14,7 +15,7 @@ export default function RootLayout({ children }: Readonly<{ children: ReactNode 
   return (
     <html lang="en">
       <body>
-        <AuthProvider>{children}</AuthProvider>
+        <AuthProvider><TimezoneProvider><TimezoneToggle />{children}</TimezoneProvider></AuthProvider>
       </body>
     </html>
   );

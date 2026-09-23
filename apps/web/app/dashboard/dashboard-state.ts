@@ -60,10 +60,18 @@ export function buildDashboardHistoryParams(page: number, range: "7d" | "30d" | 
   return new URLSearchParams({ page: String(page), range, ...(from ? { from } : {}), ...(to ? { to } : {}) });
 }
 
-export function formatAuditDateRange(from?: string, to?: string): string {
+export type DisplayTimezone = "Asia/Hong_Kong" | "America/New_York";
+
+export const DEFAULT_DISPLAY_TIMEZONE: DisplayTimezone = "Asia/Hong_Kong";
+
+export function normalizeDisplayTimezone(value: string | undefined): DisplayTimezone {
+  return value === "America/New_York" ? "America/New_York" : DEFAULT_DISPLAY_TIMEZONE;
+}
+
+export function formatAuditDateRange(from?: string, to?: string, timezone: DisplayTimezone = DEFAULT_DISPLAY_TIMEZONE): string {
   const start = from?.slice(0, 10) ?? "Beginning";
   const end = to?.slice(0, 10) ?? "Now";
-  return `${start} → ${end} UTC`;
+  return `${start} → ${end} ${timezone === "America/New_York" ? "US/Eastern" : "HKT"}`;
 }
 
 export function auditPageCount(totals: { readonly agents: number; readonly filteredTrades: number; readonly lifecycle: number; readonly schedules: number; readonly submissions: number; readonly telegramAlerts: number }, limit: number): number {
@@ -277,8 +285,9 @@ export function getFreshnessLabel(state: FreshnessState): string {
   return "Stale";
 }
 
-export function formatUtc(value: string): string {
+export function formatUtc(value: string, timezone: DisplayTimezone = DEFAULT_DISPLAY_TIMEZONE): string {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return "Unavailable";
-  return `${date.toISOString().replace("T", " ").replace(".000Z", " UTC")}`;
+  const formatted = new Intl.DateTimeFormat("en-GB", { timeZone: timezone, year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit", hourCycle: "h23" }).format(date);
+  return `${formatted.replace(",", "")} ${timezone === "America/New_York" ? "US/Eastern" : "HKT"}`;
 }

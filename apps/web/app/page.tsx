@@ -1,5 +1,7 @@
 import { OPERATING_MODES } from "@momentum/domain";
 import Link from "next/link";
+import { cookies } from "next/headers";
+import { formatUtc, normalizeDisplayTimezone } from "./dashboard/dashboard-state";
 import { parsePublicHealth, type PublicHealth } from "./public-health";
 
 async function loadPublicHealth(): Promise<PublicHealth | undefined> {
@@ -21,13 +23,14 @@ const boundaries = [
   ["Background worker", "Railway", "Online; execution gated"],
 ] as const;
 
-function formatNextRun(value: string | undefined): string {
+function formatNextRun(value: string | undefined, timezone: ReturnType<typeof normalizeDisplayTimezone>): string {
   if (!value) return "Not scheduled";
   const timestamp = Date.parse(value);
-  return Number.isFinite(timestamp) ? new Date(timestamp).toISOString() : "Not reported";
+  return Number.isFinite(timestamp) ? formatUtc(value, timezone) : "Not reported";
 }
 
 export default async function Home() {
+  const timezone = normalizeDisplayTimezone((await cookies()).get("display_timezone")?.value);
   const health = await loadPublicHealth();
   const runtimeOnline = health?.status === "healthy";
   const mode = health?.operatingMode === "paper_autopilot" ? "Paper Autopilot" : health?.operatingMode ?? "Unavailable";
@@ -66,8 +69,8 @@ export default async function Home() {
             <div><span className="label">Mode</span><strong>{mode}</strong></div>
             <div><span className="label">Research scheduler</span><strong>{health?.researchSchedule?.status ?? "Unavailable"}</strong></div>
             <div><span className="label">Position management</span><strong>{health?.positionManagement?.readiness ?? "Unavailable"}</strong></div>
-            <div><span className="label">Crypto stream</span><strong>{health?.marketStream?.freshness ?? health?.marketStream?.status ?? "Unavailable"}</strong><small className="provenance">{health?.marketStream?.lastMessageAt ? `Last message ${formatNextRun(health.marketStream.lastMessageAt)}` : "Last message unavailable"}{health?.marketStream?.freshnessMaxAgeSeconds ? ` · freshness window ${health.marketStream.freshnessMaxAgeSeconds}s` : ""}</small></div>
-            <div><span className="label">Next research run</span><strong>{formatNextRun(health?.researchSchedule?.nextRunAt)}</strong></div>
+            <div><span className="label">Crypto stream</span><strong>{health?.marketStream?.freshness ?? health?.marketStream?.status ?? "Unavailable"}</strong><small className="provenance">{health?.marketStream?.lastMessageAt ? `Last message ${formatNextRun(health.marketStream.lastMessageAt, timezone)}` : "Last message unavailable"}{health?.marketStream?.freshnessMaxAgeSeconds ? ` · freshness window ${health.marketStream.freshnessMaxAgeSeconds}s` : ""}</small></div>
+            <div><span className="label">Next research run</span><strong>{formatNextRun(health?.researchSchedule?.nextRunAt, timezone)}</strong></div>
           </div>
           <p className="provenance">Read-only status from Railway. No account data, credentials, or order controls are exposed here{health?.release ? ` · release ${health.release.slice(0, 12)}` : ""}.</p>
         </article>

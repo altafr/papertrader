@@ -953,3 +953,4 @@ tbody th {
 .mini-report-processes { display: grid; gap: .6rem; }
 .mini-report-processes article { padding: .8rem; background: var(--card); border: 1px solid var(--border); border-radius: .5rem; }
 .mini-report-concerns { border-left: 3px solid var(--warning); margin-left: 0; padding-left: 1.5rem !important; }
+.timezone-toggle { position: fixed; top: 0.75rem; right: 0.75rem; z-index: 50; border: 1px solid rgba(148, 163, 184, 0.35); border-radius: 999px; background: rgba(15, 23, 42, 0.92); color: #e2e8f0; padding: 0.4rem 0.7rem; font: inherit; font-size: 0.75rem; cursor: pointer; box-shadow: 0 0.4rem 1.5rem rgba(15, 23, 42, 0.18); }

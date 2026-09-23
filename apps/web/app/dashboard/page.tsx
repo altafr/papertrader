@@ -1,9 +1,10 @@
 import { UserButton } from "@clerk/nextjs";
 import { auth } from "@clerk/nextjs/server";
+import { cookies } from "next/headers";
 import { assessMinimalSupervision, EXIT_PLAN_MISSING_FIELDS } from "@momentum/domain";
 import * as DecimalModule from "decimal.js";
 
-import { auditPageCount, buildDashboardHistoryParams, formatAuditDateRange, formatUtc, getDashboardSystemState, getFreshnessLabel, getFreshnessState, getPositionExitDisplayState, parseAgentRuns, parseOperatorOverview, parseOperationsHealth, parsePaperPerformance, type AgentRunSummary, type OperationsHealth, type OperatorOverview, type PaperPerformance } from "./dashboard-state";
+import { auditPageCount, buildDashboardHistoryParams, formatAuditDateRange, formatUtc, getDashboardSystemState, getFreshnessLabel, getFreshnessState, getPositionExitDisplayState, normalizeDisplayTimezone, parseAgentRuns, parseOperatorOverview, parseOperationsHealth, parsePaperPerformance, type AgentRunSummary, type DisplayTimezone, type OperationsHealth, type OperatorOverview, type PaperPerformance } from "./dashboard-state";
 import { DashboardRefresh } from "./dashboard-refresh";
 import { parsePublicHealth, type PublicHealth } from "../public-health";
 
@@ -213,10 +214,10 @@ function riskCycleAge(latestAt: string | undefined): string {
   return ageMinutes < 60 ? `${ageMinutes.toFixed(0)}m old` : `${(ageMinutes / 60).toFixed(1)}h old`;
 }
 
-function indicatorSummary(row: Record<string, unknown>) {
+function indicatorSummary(row: Record<string, unknown>, timezone: DisplayTimezone) {
   if (!isRecord(row.marketSnapshot)) return "Not captured";
   const snapshot = row.marketSnapshot;
-  return `RSI14 ${value(snapshot, "rsi14")} · EMA20 ${value(snapshot, "ema20")} · EMA50 ${value(snapshot, "ema50")} · ATR14 ${value(snapshot, "atr14")} · RV20 ${value(snapshot, "relativeVolume20")} · close ${value(snapshot, "close")} · volume ${value(snapshot, "volume")} · as of ${formatUtc(value(snapshot, "asOf"))}`;
+  return `RSI14 ${value(snapshot, "rsi14")} · EMA20 ${value(snapshot, "ema20")} · EMA50 ${value(snapshot, "ema50")} · ATR14 ${value(snapshot, "atr14")} · RV20 ${value(snapshot, "relativeVolume20")} · close ${value(snapshot, "close")} · volume ${value(snapshot, "volume")} · as of ${formatUtc(value(snapshot, "asOf"), timezone)}`;
 }
 
 function riskDecisionSummary(row: Record<string, unknown>) {
@@ -235,7 +236,7 @@ function StatusBadge({ state }: { readonly state: "degraded" | "delayed" | "fres
   return <span className={`state-badge ${state}`}>{label}</span>;
 }
 
-function OperationsHealthCard({ health }: { readonly health: OperationsHealth | undefined }) {
+function OperationsHealthCard({ health, timezone }: { readonly health: OperationsHealth | undefined; readonly timezone: DisplayTimezone }) {
   if (!health) return <article className="card full-width degraded-card"><p className="label">Operations health</p><h2>Unavailable</h2><p>The authenticated operations-health endpoint could not be read.</p></article>;
   const schedulerLabel = health.runtime.scheduler.status === "ready" ? "Ready" : health.runtime.scheduler.status === "blocked" ? "Blocked" : "Disabled";
   const researchScheduleLabel = health.runtime.researchSchedule.status === "ready" ? "Ready" : health.runtime.researchSchedule.status === "blocked" ? "Blocked" : "Disabled";
@@ -249,8 +250,8 @@ function OperationsHealthCard({ health }: { readonly health: OperationsHealth | 
       <div className="card-heading"><div><p className="label">Operations health</p><h2>Server-side safeguards</h2></div><span className={`state-badge ${health.reconciliation.status === "fresh" ? "fresh" : "degraded"}`}>{reconciliationLabel}</span></div>
       <div className="operations-health-grid">
         <div><span className="label">Reconciliation</span><strong>{health.reconciliation.ageSeconds === undefined ? "Unavailable" : `${health.reconciliation.ageSeconds}s old`}</strong></div>
-        <div><span className="label">Last daily run</span><strong>{health.runtime.dailyReconciliation.status === "completed" ? "Completed" : "Unavailable"}</strong><small className="provenance">{health.runtime.dailyReconciliation.capturedAt ? `Captured ${formatUtc(health.runtime.dailyReconciliation.capturedAt)}` : "No completed run"}</small></div>
-        <div><span className="label">Scheduler audit</span><strong>{health.runtime.schedulerAudit.status === "completed" ? "Completed" : health.runtime.schedulerAudit.status === "failed" ? "Failed" : health.runtime.schedulerAudit.status === "running" ? "Running" : "Unavailable"}</strong><small className="provenance">{health.runtime.schedulerAudit.runId ? `${health.runtime.schedulerAudit.runId}${health.runtime.schedulerAudit.completedAt ? ` · ${formatUtc(health.runtime.schedulerAudit.completedAt)}` : ""}` : "Audit gate not producing runs"}</small></div>
+        <div><span className="label">Last daily run</span><strong>{health.runtime.dailyReconciliation.status === "completed" ? "Completed" : "Unavailable"}</strong><small className="provenance">{health.runtime.dailyReconciliation.capturedAt ? `Captured ${formatUtc(health.runtime.dailyReconciliation.capturedAt, timezone)}` : "No completed run"}</small></div>
+        <div><span className="label">Scheduler audit</span><strong>{health.runtime.schedulerAudit.status === "completed" ? "Completed" : health.runtime.schedulerAudit.status === "failed" ? "Failed" : health.runtime.schedulerAudit.status === "running" ? "Running" : "Unavailable"}</strong><small className="provenance">{health.runtime.schedulerAudit.runId ? `${health.runtime.schedulerAudit.runId}${health.runtime.schedulerAudit.completedAt ? ` · ${formatUtc(health.runtime.schedulerAudit.completedAt, timezone)}` : ""}` : "Audit gate not producing runs"}</small></div>
         <div><span className="label">Audit write gate</span><strong>{health.runtime.schedulerAuditGate.status === "enabled" ? "Enabled" : health.runtime.schedulerAuditGate.status === "blocked" ? "Blocked" : "Disabled"}</strong><small className="provenance">{health.runtime.schedulerAuditGate.status === "blocked" ? "Reference or migration not ready" : health.runtime.schedulerAuditGate.status === "enabled" ? "Runtime may write audit rows" : "No audit writes"}</small></div>
         <div><span className="label">Recovery drill</span><strong>{health.runtime.recovery.status === "verified" ? "Verified" : "Unverified"}</strong><small className="provenance">Operator-recorded backup/PITR evidence</small></div>
         <div><span className="label">Operating mode</span><strong>{health.runtime.operatingMode === "paper_autopilot" ? "Paper Autopilot" : health.runtime.operatingMode === "recommend" ? "Recommend" : "Observe"}</strong></div>
@@ -260,7 +261,7 @@ function OperationsHealthCard({ health }: { readonly health: OperationsHealth | 
         <div><span className="label">Scheduler activation review</span><strong>{health.runtime.scheduler.activationApprovalReferencePresent ? "Recorded" : "Missing"}</strong></div>
         <div><span className="label">Research schedule</span><strong>{researchScheduleLabel}</strong></div>
         <div><span className="label">Research cadence</span><strong>{health.runtime.researchSchedule.cron ?? "Not reported"}</strong><small className="provenance">Crypto every 15 minutes; stocks {health.runtime.researchSchedule.stockWindowOnly ? "09:30–11:30 and 14:00–16:00 ET" : "on the configured schedule"}</small></div>
-        <div><span className="label">Risk-cycle evidence</span><strong>{health.runtime.riskCycle.decisions} decisions · {health.runtime.riskCycle.approved} approved</strong><small className="provenance">{health.runtime.riskCycle.latestAt ? `Latest ${formatUtc(health.runtime.riskCycle.latestAt)} · ${riskCycleAge(health.runtime.riskCycle.latestAt)}${health.runtime.riskCycle.latestStatus ? ` · ${health.runtime.riskCycle.latestStatus}` : ""}` : "No persisted risk-cycle decisions in the last 7 days"}</small></div>
+        <div><span className="label">Risk-cycle evidence</span><strong>{health.runtime.riskCycle.decisions} decisions · {health.runtime.riskCycle.approved} approved</strong><small className="provenance">{health.runtime.riskCycle.latestAt ? `Latest ${formatUtc(health.runtime.riskCycle.latestAt, timezone)} · ${riskCycleAge(health.runtime.riskCycle.latestAt)}${health.runtime.riskCycle.latestStatus ? ` · ${health.runtime.riskCycle.latestStatus}` : ""}` : "No persisted risk-cycle decisions in the last 7 days"}</small></div>
         <div><span className="label">Telegram alerts</span><strong>{telegramLabel}</strong><small className="provenance">Delivery {telegramDelivery} · routine digest every {health.runtime.telegramAlerts.routineCooldownHours}h</small></div>
         <div><span className="label">Risk decision alerts</span><strong>Approved only</strong><small className="provenance">Rejected candidates stay in audit history</small></div>
         <div><span className="label">Telegram test preflight</span><strong>{telegramTestLabel}</strong><small className="provenance">{health.runtime.telegramAlertTest.status === "ready" ? "Ready for one guarded message" : "Approval reference required · no message sent"}</small></div>
@@ -288,12 +289,12 @@ function operatingModeLabel(health: OperationsHealth | undefined): string {
   return "Observe";
 }
 
-function AgentRunsCard({ runs }: { readonly runs: readonly AgentRunSummary[] | undefined }) {
+function AgentRunsCard({ runs, timezone }: { readonly runs: readonly AgentRunSummary[] | undefined; readonly timezone: DisplayTimezone }) {
   return (
     <article className="card full-width agent-runs-card" aria-label="Agent run health">
       <div className="card-heading"><div><p className="label">Research agents</p><h2>Run health &amp; provenance</h2></div><span className={`state-badge ${runs ? "fresh" : "degraded"}`}>{runs ? `${runs.length} recent` : "Unavailable"}</span></div>
       {!runs ? <p className="empty-state">Authenticated agent-run metadata is currently unavailable.</p> : runs.length === 0 ? <p className="empty-state">No agent runs have been recorded.</p> : (
-        <div className="agent-runs-list">{runs.slice(0, 8).map((run) => <div className="agent-run-row" key={run.runId}><div><strong>{run.agentType}</strong><span>{run.task} · {formatUtc(run.createdAt)}</span>{run.artifact?.rationale && <small>{run.artifact.rationale}</small>}<small className="provenance">{run.artifact?.confidence ? `Confidence ${run.artifact.confidence}` : "Confidence not reported"}{run.artifact?.type ? ` · ${run.artifact.type}` : ""}{run.artifact?.evidenceRefs?.length ? ` · ${run.artifact.evidenceRefs.length} evidence refs` : " · No evidence refs"}</small>{run.artifact?.evidenceRefs?.length ? <small className="evidence-refs">Evidence: {run.artifact.evidenceRefs.join(" · ")}</small> : null}<a className="detail-link" href={`/dashboard/agents/${encodeURIComponent(run.runId)}`}>Open stored detail →</a></div><span className={`state-badge ${run.status === "succeeded" ? "fresh" : run.status === "failed" ? "degraded" : "delayed"}`}>{run.status}</span></div>)}</div>
+        <div className="agent-runs-list">{runs.slice(0, 8).map((run) => <div className="agent-run-row" key={run.runId}><div><strong>{run.agentType}</strong><span>{run.task} · {formatUtc(run.createdAt, timezone)}</span>{run.artifact?.rationale && <small>{run.artifact.rationale}</small>}<small className="provenance">{run.artifact?.confidence ? `Confidence ${run.artifact.confidence}` : "Confidence not reported"}{run.artifact?.type ? ` · ${run.artifact.type}` : ""}{run.artifact?.evidenceRefs?.length ? ` · ${run.artifact.evidenceRefs.length} evidence refs` : " · No evidence refs"}</small>{run.artifact?.evidenceRefs?.length ? <small className="evidence-refs">Evidence: {run.artifact.evidenceRefs.join(" · ")}</small> : null}<a className="detail-link" href={`/dashboard/agents/${encodeURIComponent(run.runId)}`}>Open stored detail →</a></div><span className={`state-badge ${run.status === "succeeded" ? "fresh" : run.status === "failed" ? "degraded" : "delayed"}`}>{run.status}</span></div>)}</div>
       )}
       <p className="provenance">Stored rationale and evidence are shown for audit context only. Agent output never authorizes risk or orders.</p>
     </article>
@@ -310,22 +311,22 @@ function latestRecord(rows: readonly Record<string, unknown>[], ...dateKeys: rea
   }, undefined);
 }
 
-function CycleStatusCard({ overview }: { readonly overview: OperatorOverview | undefined }) {
+function CycleStatusCard({ overview, timezone }: { readonly overview: OperatorOverview | undefined; readonly timezone: DisplayTimezone }) {
   const latestResearch = latestRecord((overview?.agents ?? []) as readonly Record<string, unknown>[], "createdAt");
   const latestDecision = latestRecord(overview?.tradeDecisions ?? [], "updatedAt", "createdAt");
   const latestAlert = latestRecord(overview?.telegramAlerts ?? [], "occurredAt");
   return <article className="card full-width cycle-status-card" id="cycle-status" aria-label="Latest hosted cycle status">
     <div className="card-heading"><div><p className="label">Hosted cycle status</p><h2>Latest agent → risk → alert hand-off</h2></div><span className={`state-badge ${latestDecision ? (value(latestDecision, "status").includes("rejected") ? "delayed" : "fresh") : "degraded"}`}>{latestDecision ? value(latestDecision, "status") : "No decision"}</span></div>
     <div className="cycle-status-grid">
-      <div><span className="label">Research</span><strong>{latestResearch ? `${value(latestResearch, "agentType")} · ${value(latestResearch, "status")}` : "Unavailable"}</strong><small className="provenance">{latestResearch ? `${value(latestResearch, "runId")} · ${formatUtc(value(latestResearch, "createdAt"))}` : "No persisted agent run"}</small></div>
+      <div><span className="label">Research</span><strong>{latestResearch ? `${value(latestResearch, "agentType")} · ${value(latestResearch, "status")}` : "Unavailable"}</strong><small className="provenance">{latestResearch ? `${value(latestResearch, "runId")} · ${formatUtc(value(latestResearch, "createdAt"), timezone)}` : "No persisted agent run"}</small></div>
       <div><span className="label">Risk decision</span><strong>{latestDecision ? `${value(latestDecision, "symbol")} · ${value(latestDecision, "status")}` : "Unavailable"}</strong><small className="provenance">{latestDecision ? riskDecisionSummary(latestDecision) : "No persisted risk decision"}</small></div>
-      <div><span className="label">Notification</span><strong>{latestAlert ? `${value(latestAlert, "code")} · ${value(latestAlert, "deliveryStatus")}` : "Unavailable"}</strong><small className="provenance">{latestAlert ? `${formatUtc(value(latestAlert, "occurredAt"))} · ${value(latestAlert, "severity")}` : "No persisted Telegram event"}</small></div>
+      <div><span className="label">Notification</span><strong>{latestAlert ? `${value(latestAlert, "code")} · ${value(latestAlert, "deliveryStatus")}` : "Unavailable"}</strong><small className="provenance">{latestAlert ? `${formatUtc(value(latestAlert, "occurredAt"), timezone)} · ${value(latestAlert, "severity")}` : "No persisted Telegram event"}</small></div>
     </div>
     <p className="provenance">Read-only summary of the newest persisted hosted artifacts. It reports what happened; it cannot approve, submit, or change an order.</p>
   </article>;
 }
 
-function LiveOperationsCard({ model, overview, operationsHealth, workerHealth }: { readonly model: ReadModel; readonly overview: OperatorOverview | undefined; readonly operationsHealth: OperationsHealth | undefined; readonly workerHealth: PublicHealth | undefined }) {
+function LiveOperationsCard({ model, overview, operationsHealth, workerHealth, timezone }: { readonly model: ReadModel; readonly overview: OperatorOverview | undefined; readonly operationsHealth: OperationsHealth | undefined; readonly workerHealth: PublicHealth | undefined; readonly timezone: DisplayTimezone }) {
   const logs = (overview?.auditTimeline ?? []).slice(0, 10);
   const lastResearch = workerHealth?.researchSchedule?.lastRunAt ?? workerHealth?.researchSchedule?.lastRiskCycleAt;
   const nextResearch = workerHealth?.researchSchedule?.nextRunAt;
@@ -334,25 +335,25 @@ function LiveOperationsCard({ model, overview, operationsHealth, workerHealth }:
     <div className="live-operations-cards">
       <div><span className="label">Runtime</span><strong>{workerHealth?.status ?? "Unavailable"}</strong><small>{workerHealth?.operatingMode === "paper_autopilot" ? "Paper Autopilot" : workerHealth?.operatingMode ?? "Mode unavailable"}</small></div>
       <div><span className="label">Reconciliation</span><strong>{operationsHealth?.reconciliation.status ?? "Unavailable"}</strong><small>{operationsHealth?.reconciliation.ageSeconds === undefined ? "Age unavailable" : `${operationsHealth.reconciliation.ageSeconds}s old`}</small></div>
-      <div><span className="label">Research</span><strong>{workerHealth?.researchSchedule?.status ?? "Unavailable"}</strong><small>{lastResearch ? `Last ${formatUtc(lastResearch)}` : "Last run unavailable"}{nextResearch ? ` · next ${formatUtc(nextResearch)}` : ""}</small></div>
-      <div><span className="label">Risk cycle</span><strong>{operationsHealth?.runtime.riskCycle.latestStatus ?? "Unavailable"}</strong><small>{operationsHealth?.runtime.riskCycle.latestAt ? formatUtc(operationsHealth.runtime.riskCycle.latestAt) : "No recent cycle"}</small></div>
+      <div><span className="label">Research</span><strong>{workerHealth?.researchSchedule?.status ?? "Unavailable"}</strong><small>{lastResearch ? `Last ${formatUtc(lastResearch, timezone)}` : "Last run unavailable"}{nextResearch ? ` · next ${formatUtc(nextResearch, timezone)}` : ""}</small></div>
+      <div><span className="label">Risk cycle</span><strong>{operationsHealth?.runtime.riskCycle.latestStatus ?? "Unavailable"}</strong><small>{operationsHealth?.runtime.riskCycle.latestAt ? formatUtc(operationsHealth.runtime.riskCycle.latestAt, timezone) : "No recent cycle"}</small></div>
       <div><span className="label">Open positions</span><strong>{model.positions.length}</strong><small>{workerHealth?.positionManagement?.unmanagedCount ? `${workerHealth.positionManagement.unmanagedCount} need review` : "All have managed status"}</small></div>
       <div><span className="label">Orders &amp; fills</span><strong>{model.orders.length}</strong><small>Latest reconciled broker records</small></div>
     </div>
-    <div className="live-activity-log"><div className="card-heading"><div><p className="label">Activity log</p><h3>{logs.length ? "Latest persisted events" : "No persisted events"}</h3></div><span className="provenance">Read-only · auto refresh 15s</span></div>{logs.length ? logs.map((event, index) => <div className="live-log-row" key={`${value(event, "category")}-${value(event, "reference")}-${index}`}><time>{formatUtc(value(event, "capturedAt"))}</time><strong>{value(event, "title")}</strong><span>{value(event, "detail")}</span><small>{value(event, "category")}</small></div>) : <p className="empty-state">The audit timeline has no events in the current history window.</p>}</div>
+    <div className="live-activity-log"><div className="card-heading"><div><p className="label">Activity log</p><h3>{logs.length ? "Latest persisted events" : "No persisted events"}</h3></div><span className="provenance">Read-only · auto refresh 15s</span></div>{logs.length ? logs.map((event, index) => <div className="live-log-row" key={`${value(event, "category")}-${value(event, "reference")}-${index}`}><time>{formatUtc(value(event, "capturedAt"), timezone)}</time><strong>{value(event, "title")}</strong><span>{value(event, "detail")}</span><small>{value(event, "category")}</small></div>) : <p className="empty-state">The audit timeline has no events in the current history window.</p>}</div>
     <p className="provenance">Cards and logs reflect persisted server state. They do not submit orders or override deterministic risk controls.</p>
   </article>;
 }
 
-function OperatorAuditCards({ historyQuery, overview }: { readonly historyQuery: string; readonly overview: OperatorOverview | undefined }) {
+function OperatorAuditCards({ historyQuery, overview, timezone }: { readonly historyQuery: string; readonly overview: OperatorOverview | undefined; readonly timezone: DisplayTimezone }) {
   const field = (row: Record<string, unknown>, key: string) => value(row, key);
   return <>
     <article className="card full-width" id="filtered-trades"><div className="card-heading"><div><p className="label">Filtered trades</p><h2>{overview ? overview.filteredTrades.length : "—"} signal decisions</h2></div><a className="export-link" href={`/dashboard/export?${historyQuery}`}>Export this audit page</a><span className="provenance">Shadow / rejected opportunity audit</span></div>
-      {!overview || overview.filteredTrades.length === 0 ? <p className="empty-state">No filtered or shadow decisions are persisted yet.</p> : <div className="responsive-table"><table><thead><tr><th>Symbol</th><th>Strategy</th><th>Score</th><th>Entry</th><th>Stop</th><th>Indicators at signal</th><th>State</th><th>Why / outcome</th></tr></thead><tbody>{overview.filteredTrades.map((row) => <tr key={field(row, "observationId")}><th scope="row">{field(row, "symbol")}</th><td>{field(row, "strategyKey")} {field(row, "strategyVersion")}</td><td>{field(row, "score")}</td><td>{field(row, "proposedEntryPrice")}</td><td>{field(row, "plannedStopPrice")}</td><td className="table-reason">{indicatorSummary(row)}</td><td>{field(row, "status")}</td><td className="table-reason">{field(row, "rationale")}{isRecord(row.outcome) ? ` · ${field(row.outcome, "reason")} ${field(row.outcome, "returnPercent")}%` : ""}</td></tr>)}</tbody></table></div>}
+      {!overview || overview.filteredTrades.length === 0 ? <p className="empty-state">No filtered or shadow decisions are persisted yet.</p> : <div className="responsive-table"><table><thead><tr><th>Symbol</th><th>Strategy</th><th>Score</th><th>Entry</th><th>Stop</th><th>Indicators at signal</th><th>State</th><th>Why / outcome</th></tr></thead><tbody>{overview.filteredTrades.map((row) => <tr key={field(row, "observationId")}><th scope="row">{field(row, "symbol")}</th><td>{field(row, "strategyKey")} {field(row, "strategyVersion")}</td><td>{field(row, "score")}</td><td>{field(row, "proposedEntryPrice")}</td><td>{field(row, "plannedStopPrice")}</td><td className="table-reason">{indicatorSummary(row, timezone)}</td><td>{field(row, "status")}</td><td className="table-reason">{field(row, "rationale")}{isRecord(row.outcome) ? ` · ${field(row.outcome, "reason")} ${field(row.outcome, "returnPercent")}%` : ""}</td></tr>)}</tbody></table></div>}
       <p className="provenance">RSI14, EMA20, ATR14, and relative volume are computed from finalized bars and stored with the signal. This is not a promise of execution or profitability.</p>
     </article>
     <article className="card full-width" id="decision-log"><div className="card-heading"><div><p className="label">Trade decision log</p><h2>{overview ? overview.tradeDecisions.length : "—"} execution decisions</h2></div><span className="provenance">Immutable paper submissions</span></div>
-      {!overview || overview.tradeDecisions.length === 0 ? <p className="empty-state">No paper execution decisions have been submitted.</p> : <div className="responsive-table"><table><thead><tr><th>Symbol</th><th>Intent</th><th>Status</th><th>Quantity</th><th>Filled</th><th>Risk decision</th><th>Indicators at approval</th></tr></thead><tbody>{overview.tradeDecisions.map((row) => <tr key={field(row, "intentId")}><th scope="row">{field(row, "symbol")}</th><td>{field(row, "intentId")}</td><td>{field(row, "status")}</td><td>{field(row, "quantity")}</td><td>{field(row, "filledQuantity")}</td><td className="table-reason">{field(row, "reason")} · {riskDecisionSummary(row)}</td><td className="table-reason">{indicatorSummary(row)}</td></tr>)}</tbody></table></div>}
+      {!overview || overview.tradeDecisions.length === 0 ? <p className="empty-state">No paper execution decisions have been submitted.</p> : <div className="responsive-table"><table><thead><tr><th>Symbol</th><th>Intent</th><th>Status</th><th>Quantity</th><th>Filled</th><th>Risk decision</th><th>Indicators at approval</th></tr></thead><tbody>{overview.tradeDecisions.map((row) => <tr key={field(row, "intentId")}><th scope="row">{field(row, "symbol")}</th><td>{field(row, "intentId")}</td><td>{field(row, "status")}</td><td>{field(row, "quantity")}</td><td>{field(row, "filledQuantity")}</td><td className="table-reason">{field(row, "reason")} · {riskDecisionSummary(row)}</td><td className="table-reason">{indicatorSummary(row, timezone)}</td></tr>)}</tbody></table></div>}
       <p className="provenance">Risk policy version, estimated loss, and deterministic rejection reasons are persisted with each submission when supplied by the approval engine.</p>
     </article>
   </>;
@@ -385,9 +386,9 @@ function StrategyPerformanceCard({ overview }: { readonly overview: OperatorOver
   return <article className="card full-width" id="strategy-performance"><div className="card-heading"><div><p className="label">Strategy performance</p><h2>{summaries.length ? `${summaries.length} strategies observed` : "No strategy outcomes yet"}</h2></div><span className="provenance">Shadow observations only</span></div>{summaries.length === 0 ? <p className="empty-state">Strategy-level metrics will appear after persisted signal outcomes are available.</p> : <div className="responsive-table"><table><thead><tr><th>Strategy</th><th>Total signals</th><th>Open</th><th>Closed</th><th>Wins</th><th>Losses</th><th>Avg observed return</th></tr></thead><tbody>{summaries.map((summary) => <tr key={summary.strategy}><th scope="row">{summary.strategy}</th><td>{summary.total}</td><td>{summary.open}</td><td>{summary.closed}</td><td>{summary.wins}</td><td>{summary.losses}</td><td>{summary.averageReturn === undefined ? "Not available" : `${summary.averageReturn}%`}</td></tr>)}</tbody></table></div>}<p className="provenance">These are descriptive shadow/research observations, not live-trade returns or a profitability claim.</p></article>;
 }
 
-function StrategyLifecycleCard({ overview }: { readonly overview: OperatorOverview | undefined }) {
+function StrategyLifecycleCard({ overview, timezone }: { readonly overview: OperatorOverview | undefined; readonly timezone: DisplayTimezone }) {
   const events = overview?.strategyLifecycle ?? [];
-  return <article className="card full-width" id="strategy-lifecycle"><div className="card-heading"><div><p className="label">Strategy lifecycle</p><h2>{events.length ? `${events.length} version events` : "No lifecycle events"}</h2></div><span className="provenance">Read-only approvals</span></div>{events.length === 0 ? <p className="empty-state">No persisted strategy stage transitions are available.</p> : <div className="responsive-table"><table><thead><tr><th>Strategy</th><th>Version</th><th>Transition</th><th>Revision</th><th>Reason</th><th>Evidence</th><th>Approved</th></tr></thead><tbody>{events.map((event) => <tr key={value(event, "eventId")}><th scope="row">{value(event, "strategyKey")}</th><td>{value(event, "strategyVersion")}</td><td>{value(event, "fromStage")} → {value(event, "toStage")}</td><td>{value(event, "revision")}</td><td className="table-reason">{value(event, "reason")}</td><td>{value(event, "evidenceKey")}</td><td>{formatUtc(value(event, "approvedAt"))}</td></tr>)}</tbody></table></div>}<p className="provenance">Lifecycle history records reviewed stage transitions; it does not itself enable trading or override deterministic gates.</p></article>;
+  return <article className="card full-width" id="strategy-lifecycle"><div className="card-heading"><div><p className="label">Strategy lifecycle</p><h2>{events.length ? `${events.length} version events` : "No lifecycle events"}</h2></div><span className="provenance">Read-only approvals</span></div>{events.length === 0 ? <p className="empty-state">No persisted strategy stage transitions are available.</p> : <div className="responsive-table"><table><thead><tr><th>Strategy</th><th>Version</th><th>Transition</th><th>Revision</th><th>Reason</th><th>Evidence</th><th>Approved</th></tr></thead><tbody>{events.map((event) => <tr key={value(event, "eventId")}><th scope="row">{value(event, "strategyKey")}</th><td>{value(event, "strategyVersion")}</td><td>{value(event, "fromStage")} → {value(event, "toStage")}</td><td>{value(event, "revision")}</td><td className="table-reason">{value(event, "reason")}</td><td>{value(event, "evidenceKey")}</td><td>{formatUtc(value(event, "approvedAt"), timezone)}</td></tr>)}</tbody></table></div>}<p className="provenance">Lifecycle history records reviewed stage transitions; it does not itself enable trading or override deterministic gates.</p></article>;
 }
 
 function StrategyCatalogCard({ overview }: { readonly overview: OperatorOverview | undefined }) {
@@ -395,17 +396,17 @@ function StrategyCatalogCard({ overview }: { readonly overview: OperatorOverview
   return <article className="card full-width" id="strategy-catalog"><div className="card-heading"><div><p className="label">Strategy catalog</p><h2>{strategies.length ? `${strategies.length} registered strategies` : "No strategy metadata"}</h2></div><span className="provenance">Versioned defaults</span></div>{strategies.length === 0 ? <p className="empty-state">No registered strategy metadata is available.</p> : <div className="responsive-table"><table><thead><tr><th>Strategy</th><th>Version</th><th>Asset class</th><th>Stage</th><th>Lookback</th><th>Description</th><th>Default parameters</th></tr></thead><tbody>{strategies.map((strategy) => <tr key={`${value(strategy, "key")}-${value(strategy, "version")}`}><th scope="row">{value(strategy, "key")}</th><td>{value(strategy, "version")}</td><td>{value(strategy, "assetClass")}</td><td>{value(strategy, "stage")}</td><td>{value(strategy, "requiredLookbackBars")} bars</td><td className="table-reason">{value(strategy, "description")}</td><td className="table-reason">{isRecord(strategy.defaultParameters) ? JSON.stringify(strategy.defaultParameters) : "Not reported"}</td></tr>)}</tbody></table></div>}<p className="provenance">Catalog metadata is descriptive and read-only; lifecycle approvals and deterministic gates remain authoritative.</p></article>;
 }
 
-function AuditTimelineCard({ overview }: { readonly overview: OperatorOverview | undefined }) {
+function AuditTimelineCard({ overview, timezone }: { readonly overview: OperatorOverview | undefined; readonly timezone: DisplayTimezone }) {
   const events = overview?.auditTimeline ?? [];
-  return <article className="card full-width" id="audit-timeline"><div className="card-heading"><div><p className="label">Audit timeline</p><h2>{events.length ? `${events.length} persisted events` : "No persisted events"}</h2></div><span className="provenance">Read-only unified view</span></div>{events.length === 0 ? <p className="empty-state">No agent, lifecycle, scheduler, execution, or Telegram events are available.</p> : <div className="audit-timeline-list">{events.map((event) => <div className="audit-timeline-row" key={`${value(event, "category")}-${value(event, "reference")}`}><span className="audit-timeline-time">{formatUtc(value(event, "capturedAt"))}</span><strong>{value(event, "title")}</strong><span>{value(event, "detail")}</span><small>{value(event, "category")}</small></div>)}</div>}<p className="provenance">This view combines immutable persisted records for orientation; it does not replace source records or authorize actions.</p></article>;
+  return <article className="card full-width" id="audit-timeline"><div className="card-heading"><div><p className="label">Audit timeline</p><h2>{events.length ? `${events.length} persisted events` : "No persisted events"}</h2></div><span className="provenance">Read-only unified view</span></div>{events.length === 0 ? <p className="empty-state">No agent, lifecycle, scheduler, execution, or Telegram events are available.</p> : <div className="audit-timeline-list">{events.map((event) => <div className="audit-timeline-row" key={`${value(event, "category")}-${value(event, "reference")}`}><span className="audit-timeline-time">{formatUtc(value(event, "capturedAt"), timezone)}</span><strong>{value(event, "title")}</strong><span>{value(event, "detail")}</span><small>{value(event, "category")}</small></div>)}</div>}<p className="provenance">This view combines immutable persisted records for orientation; it does not replace source records or authorize actions.</p></article>;
 }
 
-function TelegramAlertsCard({ overview }: { readonly overview: OperatorOverview | undefined }) {
+function TelegramAlertsCard({ overview, timezone }: { readonly overview: OperatorOverview | undefined; readonly timezone: DisplayTimezone }) {
   const alerts = overview?.telegramAlerts ?? [];
-  return <article className="card full-width" id="telegram-alerts"><div className="card-heading"><div><p className="label">Telegram delivery</p><h2>{alerts.length ? `${alerts.length} persisted alerts` : "No persisted alerts"}</h2></div><span className="provenance">Delivery provenance</span></div>{alerts.length === 0 ? <p className="empty-state">No Telegram alert events are available in the selected history window.</p> : <div className="responsive-table"><table><thead><tr><th>Occurred</th><th>Code</th><th>Severity</th><th>Delivery</th><th>Attempts</th><th>Message</th></tr></thead><tbody>{alerts.map((alert) => <tr key={value(alert, "eventId")}><th scope="row">{formatUtc(value(alert, "occurredAt"))}</th><td>{value(alert, "code")}</td><td>{value(alert, "severity")}</td><td>{value(alert, "deliveryStatus")}{value(alert, "deliveredAt") ? ` · ${formatUtc(value(alert, "deliveredAt"))}` : ""}</td><td>{value(alert, "attempts")}</td><td className="table-reason">{value(alert, "message")}</td></tr>)}</tbody></table></div>}<p className="provenance">A failed delivery is retried by the server with a bounded attempt ceiling. Alert state never changes order or risk decisions.</p></article>;
+  return <article className="card full-width" id="telegram-alerts"><div className="card-heading"><div><p className="label">Telegram delivery</p><h2>{alerts.length ? `${alerts.length} persisted alerts` : "No persisted alerts"}</h2></div><span className="provenance">Delivery provenance</span></div>{alerts.length === 0 ? <p className="empty-state">No Telegram alert events are available in the selected history window.</p> : <div className="responsive-table"><table><thead><tr><th>Occurred</th><th>Code</th><th>Severity</th><th>Delivery</th><th>Attempts</th><th>Message</th></tr></thead><tbody>{alerts.map((alert) => <tr key={value(alert, "eventId")}><th scope="row">{formatUtc(value(alert, "occurredAt"), timezone)}</th><td>{value(alert, "code")}</td><td>{value(alert, "severity")}</td><td>{value(alert, "deliveryStatus")}{value(alert, "deliveredAt") ? ` · ${formatUtc(value(alert, "deliveredAt"), timezone)}` : ""}</td><td>{value(alert, "attempts")}</td><td className="table-reason">{value(alert, "message")}</td></tr>)}</tbody></table></div>}<p className="provenance">A failed delivery is retried by the server with a bounded attempt ceiling. Alert state never changes order or risk decisions.</p></article>;
 }
 
-function PaperPerformanceCard({ historyFrom, historyTo, performance }: { readonly historyFrom: string | undefined; readonly historyTo: string | undefined; readonly performance: PaperPerformance | undefined }) {
+function PaperPerformanceCard({ historyFrom, historyTo, performance, timezone }: { readonly historyFrom: string | undefined; readonly historyTo: string | undefined; readonly performance: PaperPerformance | undefined; readonly timezone: DisplayTimezone }) {
   if (!performance) return <article className="card" id="performance"><p className="label">Performance</p><h2>Unavailable</h2><p>Authenticated performance data is currently unavailable.</p></article>;
   const metrics = performance.metrics;
   const curve = performance.equityCurve ?? [];
@@ -414,7 +415,7 @@ function PaperPerformanceCard({ historyFrom, historyTo, performance }: { readonl
   const maximum = numeric.reduce((high, point) => point.greaterThan(high) ? point : high, numeric[0] ?? new DisplayDecimal("0"));
   const span = maximum.minus(minimum);
   const points = curve.map((point, index) => { const equity = decimalValue(point as unknown as Record<string, unknown>, "equity"); const normalized = equity && !span.isZero() ? equity.minus(minimum).div(span) : new DisplayDecimal("0"); const x = ((index / Math.max(curve.length - 1, 1)) * 100).toFixed(4); const y = new DisplayDecimal("100").minus(normalized.times("88")).minus("6").toFixed(4); return `${x},${y}`; }).join(" ");
-  return <article className="card" id="performance"><div className="card-heading"><div><p className="label">Paper performance</p><h2>{metrics ? `${metrics.totalReturnPercent}% return` : "Insufficient history"}</h2></div><div className="range-links" aria-label="Performance time range">{(["7d", "30d", "all"] as const).map((range) => <a className={performance.performanceRange === range ? "active" : ""} href={`/dashboard?${buildDashboardHistoryParams(1, range, historyFrom, historyTo).toString()}#performance`} key={range}>{range === "all" ? "All" : range}</a>)}</div></div><p>{performance.snapshotCount} snapshots · {performance.calendarDays} calendar days · {performance.consecutiveCalendarDays} consecutive days{typeof performance.daysRemaining === "number" ? ` · ${performance.daysRemaining} days remaining` : ""}</p>{performance.estimatedReadyAt && <p className="provenance">Estimated eligibility: {formatUtc(performance.estimatedReadyAt)} (informational)</p>}{metrics && <p>Max drawdown {metrics.maxDrawdownPercent}% · P/L {metrics.totalPnl}</p>}{points && <div className="equity-chart" aria-label="Paper equity curve"><svg viewBox="0 0 100 100" role="img" aria-label="Equity curve"><polyline points={points} fill="none" stroke="currentColor" strokeWidth="2" vectorEffect="non-scaling-stroke" /></svg><span className="chart-caption">{performance.performanceRange === "all" ? "All history" : performance.performanceRange} · latest {formatUtc(curve[curve.length - 1]!.capturedAt)}</span></div>}{curve.length > 0 && <details className="snapshot-details"><summary>Show capture rows</summary><div className="responsive-table"><table><thead><tr><th>Captured</th><th>Equity</th><th>Return</th><th>Drawdown</th></tr></thead><tbody>{curve.map((point) => <tr key={point.capturedAt}><th scope="row">{formatUtc(point.capturedAt)}</th><td>{point.equity}</td><td>{point.returnPercent}%</td><td>{point.drawdownPercent}%</td></tr>)}</tbody></table></div></details>}<p className="provenance">Stability gate: {performance.stability.status === "ready" ? "Ready" : `Blocked · ${performance.stability.blockedReasons.join(", ")}`}</p></article>;
+  return <article className="card" id="performance"><div className="card-heading"><div><p className="label">Paper performance</p><h2>{metrics ? `${metrics.totalReturnPercent}% return` : "Insufficient history"}</h2></div><div className="range-links" aria-label="Performance time range">{(["7d", "30d", "all"] as const).map((range) => <a className={performance.performanceRange === range ? "active" : ""} href={`/dashboard?${buildDashboardHistoryParams(1, range, historyFrom, historyTo).toString()}#performance`} key={range}>{range === "all" ? "All" : range}</a>)}</div></div><p>{performance.snapshotCount} snapshots · {performance.calendarDays} calendar days · {performance.consecutiveCalendarDays} consecutive days{typeof performance.daysRemaining === "number" ? ` · ${performance.daysRemaining} days remaining` : ""}</p>{performance.estimatedReadyAt && <p className="provenance">Estimated eligibility: {formatUtc(performance.estimatedReadyAt, timezone)} (informational)</p>}{metrics && <p>Max drawdown {metrics.maxDrawdownPercent}% · P/L {metrics.totalPnl}</p>}{points && <div className="equity-chart" aria-label="Paper equity curve"><svg viewBox="0 0 100 100" role="img" aria-label="Equity curve"><polyline points={points} fill="none" stroke="currentColor" strokeWidth="2" vectorEffect="non-scaling-stroke" /></svg><span className="chart-caption">{performance.performanceRange === "all" ? "All history" : performance.performanceRange} · latest {formatUtc(curve[curve.length - 1]!.capturedAt, timezone)}</span></div>}{curve.length > 0 && <details className="snapshot-details"><summary>Show capture rows</summary><div className="responsive-table"><table><thead><tr><th>Captured</th><th>Equity</th><th>Return</th><th>Drawdown</th></tr></thead><tbody>{curve.map((point) => <tr key={point.capturedAt}><th scope="row">{formatUtc(point.capturedAt, timezone)}</th><td>{point.equity}</td><td>{point.returnPercent}%</td><td>{point.drawdownPercent}%</td></tr>)}</tbody></table></div></details>}<p className="provenance">Stability gate: {performance.stability.status === "ready" ? "Ready" : `Blocked · ${performance.stability.blockedReasons.join(", ")}`}</p></article>;
 }
 
 type AlertItem = { readonly detail: string; readonly severity: "critical" | "info" | "warning"; readonly title: string };
@@ -447,6 +448,8 @@ export default async function DashboardPage({ searchParams }: { readonly searchP
   if (!operatorUserId || userId !== operatorUserId) {
     return <main><h1>Access denied</h1><p>This account is not the configured single operator.</p></main>;
   }
+
+  const displayTimezone = normalizeDisplayTimezone((await cookies()).get("display_timezone")?.value);
 
   const requestedParams = await searchParams;
   const requestedRange = requestedParams?.range;
@@ -515,9 +518,9 @@ export default async function DashboardPage({ searchParams }: { readonly searchP
             <span className="label">System state</span>
             <StatusBadge state={systemState} />
             <span className="health-detail">Market stream: {workerHealth?.marketStream?.freshness ?? "not reported"}</span>
-            <span className="health-detail">Worker: {workerHealth?.status ?? "unavailable"}{workerHealth?.positionManagement?.failureCode ? ` · position manager ${workerHealth.positionManagement.failureCode}` : ""}{workerHealth?.positionManagement?.unmanagedCount ? ` · ${workerHealth.positionManagement.unmanagedCount} position(s) need exit plans` : ""}{workerHealth?.researchSchedule?.nextRunAt ? ` · next research ${formatUtc(workerHealth.researchSchedule.nextRunAt)}` : ""}{workerHealth?.researchSchedule?.lastCatchupStatus ? ` · catch-up ${workerHealth.researchSchedule.lastCatchupStatus}` : ""}</span>
+            <span className="health-detail">Worker: {workerHealth?.status ?? "unavailable"}{workerHealth?.positionManagement?.failureCode ? ` · position manager ${workerHealth.positionManagement.failureCode}` : ""}{workerHealth?.positionManagement?.unmanagedCount ? ` · ${workerHealth.positionManagement.unmanagedCount} position(s) need exit plans` : ""}{workerHealth?.researchSchedule?.nextRunAt ? ` · next research ${formatUtc(workerHealth.researchSchedule.nextRunAt, displayTimezone)}` : ""}{workerHealth?.researchSchedule?.lastCatchupStatus ? ` · catch-up ${workerHealth.researchSchedule.lastCatchupStatus}` : ""}</span>
             <span className="health-detail">Telegram research: {workerHealth?.telegramAssistant?.webResearch?.status ?? "not reported"}</span>
-            <span className="health-detail">Risk cycle: {workerHealth?.researchSchedule?.lastRiskCycleStatus ?? "not reported"}{workerHealth?.researchSchedule?.lastRiskDecisionCount !== undefined ? ` · ${workerHealth.researchSchedule.lastRiskDecisionCount} decisions` : ""}{workerHealth?.researchSchedule?.lastRiskCycleAt ? ` · ${formatUtc(workerHealth.researchSchedule.lastRiskCycleAt)}` : ""}</span>
+            <span className="health-detail">Risk cycle: {workerHealth?.researchSchedule?.lastRiskCycleStatus ?? "not reported"}{workerHealth?.researchSchedule?.lastRiskDecisionCount !== undefined ? ` · ${workerHealth.researchSchedule.lastRiskDecisionCount} decisions` : ""}{workerHealth?.researchSchedule?.lastRiskCycleAt ? ` · ${formatUtc(workerHealth.researchSchedule.lastRiskCycleAt, displayTimezone)}` : ""}</span>
             <span className="health-detail">Minimal supervision: {supervision.status === "ready" ? "ready" : `blocked · ${supervision.blockedReasons.join(", ")}`}</span>
           </div>
         </div>
@@ -541,8 +544,8 @@ export default async function DashboardPage({ searchParams }: { readonly searchP
 
       <section className="history-toolbar" aria-label="Audit history controls">
         <span className="label">Audit history</span>
-        <span className="history-window">{formatAuditDateRange(historyFrom, historyTo)}</span>
-        <span className="provenance">Latest persisted event: {operatorOverview?.history?.latestCapturedAt ? formatUtc(operatorOverview.history.latestCapturedAt) : "Not available"}</span>
+        <span className="history-window">{formatAuditDateRange(historyFrom, historyTo, displayTimezone)}</span>
+        <span className="provenance">Latest persisted event: {operatorOverview?.history?.latestCapturedAt ? formatUtc(operatorOverview.history.latestCapturedAt, displayTimezone) : "Not available"}</span>
         <span>Page {operatorOverview?.history?.page ?? safeHistoryPage}{totalAuditPages ? ` of ${totalAuditPages}` : ""}</span>
         {operatorOverview?.history?.totals && <span className="audit-coverage" aria-label="Audit record totals"><span>{operatorOverview.history.totals.filteredTrades} filtered</span><span>{operatorOverview.history.totals.submissions} execution</span><span>{operatorOverview.history.totals.agents} agents</span><span>{operatorOverview.history.totals.lifecycle} lifecycle</span><span>{operatorOverview.history.totals.schedules} scheduler</span><span>{operatorOverview.history.totals.telegramAlerts} Telegram</span></span>}
         {safeHistoryPage <= 1 ? <span className="disabled-control" aria-disabled="true">Previous</span> : <a href={`/dashboard?${buildDashboardHistoryParams(safeHistoryPage - 1, performanceRange, historyFrom, historyTo).toString()}`}>Previous</a>}
@@ -556,8 +559,8 @@ export default async function DashboardPage({ searchParams }: { readonly searchP
 
       {result.kind === "unavailable" ? (
         <section className="grid" aria-label="Dashboard unavailable state">
-          <OperationsHealthCard health={operationsHealth} />
-          <AgentRunsCard runs={operatorOverview?.agents ?? agentRuns} />
+          <OperationsHealthCard health={operationsHealth} timezone={displayTimezone} />
+          <AgentRunsCard runs={operatorOverview?.agents ?? agentRuns} timezone={displayTimezone} />
           <article className="card full-width alert-card degraded-card">
             <p className="label">Read model unavailable</p>
             <h2>Waiting for the first safe reconciliation.</h2>
@@ -569,10 +572,10 @@ export default async function DashboardPage({ searchParams }: { readonly searchP
         </section>
       ) : (
         <section className="grid" aria-label="Paper account dashboard">
-          <OperationsHealthCard health={operationsHealth} />
-          <AgentRunsCard runs={operatorOverview?.agents ?? agentRuns} />
-          <LiveOperationsCard model={result.model} overview={operatorOverview} operationsHealth={operationsHealth} workerHealth={workerHealth} />
-          <CycleStatusCard overview={operatorOverview} />
+          <OperationsHealthCard health={operationsHealth} timezone={displayTimezone} />
+          <AgentRunsCard runs={operatorOverview?.agents ?? agentRuns} timezone={displayTimezone} />
+          <LiveOperationsCard model={result.model} overview={operatorOverview} operationsHealth={operationsHealth} workerHealth={workerHealth} timezone={displayTimezone} />
+          <CycleStatusCard overview={operatorOverview} timezone={displayTimezone} />
           <article className="card primary-card" id="overview">
             <div className="card-heading"><div><p className="label">Account equity</p><h2>{value(result.model.snapshot, "currency")} {value(result.model.snapshot, "equity")}</h2></div><StatusBadge state={freshness} /></div>
             <dl className="facts">
@@ -583,13 +586,13 @@ export default async function DashboardPage({ searchParams }: { readonly searchP
               <div><dt>Unrealized P/L</dt><dd className={portfolioUnrealizedPl !== undefined && isNegativeDecimal(portfolioUnrealizedPl) ? "negative-value" : ""}>{portfolioUnrealizedPl === undefined ? "Not reported" : portfolioUnrealizedPl}</dd></div>
               <div><dt>Gross exposure</dt><dd>{grossExposurePercent === undefined ? "Not reported" : `${grossExposurePercent}%`}</dd></div>
             </dl>
-            <p className="provenance">Source: persisted Alpaca paper reconciliation · captured {formatUtc(result.model.freshness.capturedAt)}</p>
+            <p className="provenance">Source: persisted Alpaca paper reconciliation · captured {formatUtc(result.model.freshness.capturedAt, displayTimezone)}</p>
           </article>
 
           <article className="card freshness-card">
             <p className="label">Data health</p>
             <div className="card-heading"><h2>{result.model.freshness.ageSeconds}s old</h2><StatusBadge state={freshness} /></div>
-            <p>Last reconciliation: {formatUtc(result.model.freshness.capturedAt)}</p>
+            <p>Last reconciliation: {formatUtc(result.model.freshness.capturedAt, displayTimezone)}</p>
             <p>Market stream: <strong>Server-side</strong></p>
             <p>Trade stream: <strong>Server-side reconciliation</strong></p>
           </article>
@@ -606,22 +609,22 @@ export default async function DashboardPage({ searchParams }: { readonly searchP
 
           <article className="card full-width" id="orders">
             <div className="card-heading"><div><p className="label">Orders &amp; fills</p><h2>{result.model.orders.length} orders</h2></div><a className="export-link" href="/dashboard/account-export">Export account CSV</a><span className="provenance">Read-only broker reconciliation</span></div>
-            {result.model.orders.length === 0 ? <p className="empty-state">No orders recorded.</p> : <div className="responsive-table"><table><thead><tr><th>Symbol</th><th>Side/type</th><th>Status</th><th>Requested</th><th>Filled</th><th>Client order ID</th><th>Broker order ID</th><th>Submitted</th><th>Updated</th></tr></thead><tbody>{result.model.orders.map((order) => <tr key={value(order, "alpacaOrderId")}><th scope="row">{value(order, "symbol")}</th><td>{value(order, "side")} / {value(order, "type")}</td><td>{value(order, "status")}</td><td>{value(order, "quantity")}</td><td>{value(order, "filledQuantity")}</td><td className="table-reason">{value(order, "clientOrderId")}</td><td className="table-reason">{value(order, "alpacaOrderId")}</td><td>{value(order, "submittedAt")}</td><td>{value(order, "updatedAt")}</td></tr>)}</tbody></table></div>}
+            {result.model.orders.length === 0 ? <p className="empty-state">No orders recorded.</p> : <div className="responsive-table"><table><thead><tr><th>Symbol</th><th>Side/type</th><th>Status</th><th>Requested</th><th>Filled</th><th>Client order ID</th><th>Broker order ID</th><th>Submitted</th><th>Updated</th></tr></thead><tbody>{result.model.orders.map((order) => <tr key={value(order, "alpacaOrderId")}><th scope="row">{value(order, "symbol")}</th><td>{value(order, "side")} / {value(order, "type")}</td><td>{value(order, "status")}</td><td>{value(order, "quantity")}</td><td>{value(order, "filledQuantity")}</td><td className="table-reason">{value(order, "clientOrderId")}</td><td className="table-reason">{value(order, "alpacaOrderId")}</td><td>{formatUtc(value(order, "submittedAt"), displayTimezone)}</td><td>{formatUtc(value(order, "updatedAt"), displayTimezone)}</td></tr>)}</tbody></table></div>}
           </article>
 
-          <PaperPerformanceCard historyFrom={historyFrom} historyTo={historyTo} performance={paperPerformance} />
+          <PaperPerformanceCard historyFrom={historyFrom} historyTo={historyTo} performance={paperPerformance} timezone={displayTimezone} />
 
           <StrategyPerformanceCard overview={operatorOverview} />
 
-          <StrategyLifecycleCard overview={operatorOverview} />
+          <StrategyLifecycleCard overview={operatorOverview} timezone={displayTimezone} />
 
           <StrategyCatalogCard overview={operatorOverview} />
 
-          <AuditTimelineCard overview={operatorOverview} />
+          <AuditTimelineCard overview={operatorOverview} timezone={displayTimezone} />
 
-          <TelegramAlertsCard overview={operatorOverview} />
+          <TelegramAlertsCard overview={operatorOverview} timezone={displayTimezone} />
 
-          <OperatorAuditCards historyQuery={historyQuery} overview={operatorOverview} />
+          <OperatorAuditCards historyQuery={historyQuery} overview={operatorOverview} timezone={displayTimezone} />
 
           <AlertsCard health={operationsHealth} freshness={freshness} performance={paperPerformance} workerHealth={workerHealth} unmanagedCount={unmanagedKeys.size} />
 

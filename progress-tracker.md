@@ -1,5 +1,12 @@
 # Progress Tracker
 
+## Phase 6.630 — Global display timezone toggle (2026-09-23)
+
+- Added a global display preference that defaults all dashboard, Telegram Mini App, overnight-report, agent, audit, alert, order, and reconciliation timestamps to Hong Kong time (`Asia/Hong_Kong`, HKT).
+- Added a persistent `HKT` / `US/Eastern` toggle. It stores only the presentation preference in a browser cookie and reloads the current view; persisted timestamps, market schedules, and server execution timezones are unchanged.
+- Added timezone-aware formatting coverage for dashboard state and Telegram time displays.
+- **Next smallest unit:** deploy the Web app and verify the toggle on both the authenticated dashboard and Telegram Mini App.
+
 ## Phase 6.629 — Disable direct crypto trading (2026-09-23)
 
 - Added a server-side rule that rejects every new crypto entry before approval and before broker submission.

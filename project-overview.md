@@ -149,6 +149,7 @@ Each asset class receives separate parameters, tests, allocation caps, and perfo
 ## Dashboard Requirements
 
 - Live/paper mode, system status, Alpaca connectivity, last market update, last reconciliation, and active kill switches.
+- All displayed timestamps default to Hong Kong time (`Asia/Hong_Kong`, HKT), with a global toggle to switch presentation to US/Eastern. Stored timestamps and scheduler execution timezones remain unchanged.
 - Account equity, cash, buying power, day P/L, total P/L, realized/unrealized P/L, gross/net exposure, drawdown, and risk-budget use.
 - Equity curve and P/L charts with selectable time range and clear timezone.
 - Positions with asset class, quantity, average price, live mark, P/L, strategy, stop/exit state, and age.

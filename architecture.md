@@ -149,6 +149,10 @@ The Telegram assistant can open the Vercel `/telegram` Mini App with a compact P
 
 The research cadence is asset-aware: crypto preparation may run every 15 minutes for 24/7 markets, while stock preparation runs before market open at 08:30 ET, every 30 minutes during the regular session (09:30–15:30 ET), and after close at 17:00 ET on trading weekdays. A scheduler tick outside those stock windows skips stock work but never skips crypto monitoring or deterministic safety checks.
 
+### Display timezone
+
+Persisted timestamps remain UTC/ISO values and scheduler execution remains in its configured market timezone. The Web and Telegram presentation layer defaults to `Asia/Hong_Kong` (HKT) and stores an operator-only display preference in a browser cookie. The global toggle switches presentation to `America/New_York` (US/Eastern) without changing market windows, dedupe dates, persistence, risk decisions, or order behavior.
+
 ### Intraday market and sector confirmation
 
 Stock opportunity scans use a server-side Yahoo Finance five-minute chart for SPY and the mapped sector ETF. Regular-session bars are filtered to 09:30–16:00 America/New_York; the first two bars (the opening 5–10 minutes) provide the reference price, and each scan reads only the point-in-time sign of the latest regular-session close relative to that reference: positive, negative, or neutral. It is not a full-day trend forecast. This confirmation is refreshed on every 30-minute stock scan. Pre-market and after-close runs use the most recent available regular session. Missing, flat, malformed, or unavailable data is neutral and fails closed; it cannot bypass deterministic risk, freshness, market-mode, or kill-switch gates.

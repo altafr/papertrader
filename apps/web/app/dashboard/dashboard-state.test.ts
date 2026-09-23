@@ -18,7 +18,8 @@ describe("dashboard state", () => {
   });
 
   it("formats UTC capture timestamps without inventing local time", () => {
-    expect(formatUtc("2026-08-22T01:02:03.000Z")).toBe("2026-08-22 01:02:03 UTC");
+    expect(formatUtc("2026-08-22T01:02:03.000Z")).toBe("22/08/2026 09:02:03 HKT");
+    expect(formatUtc("2026-08-22T01:02:03.000Z", "America/New_York")).toBe("21/08/2026 21:02:03 US/Eastern");
     expect(formatUtc("not-a-date")).toBe("Unavailable");
   });
 
@@ -113,8 +114,8 @@ describe("dashboard state", () => {
   });
 
   it("labels the active audit window in UTC", () => {
-    expect(formatAuditDateRange()).toBe("Beginning → Now UTC");
-    expect(formatAuditDateRange("2026-08-01T00:00:00.000Z", "2026-08-26T23:59:59.999Z")).toBe("2026-08-01 → 2026-08-26 UTC");
+    expect(formatAuditDateRange()).toBe("Beginning → Now HKT");
+    expect(formatAuditDateRange("2026-08-01T00:00:00.000Z", "2026-08-26T23:59:59.999Z")).toBe("2026-08-01 → 2026-08-26 HKT");
   });
 
   it("calculates total audit pages from the largest category", () => {
