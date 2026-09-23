@@ -1,5 +1,19 @@
 # Progress Tracker
 
+## Phase 6.627 — Standard position tables across web and Telegram (2026-09-23)
+
+- Standardized the primary positions view in both the website dashboard and Telegram Mini App to show stock, current position, entry price, current price, and P/L in USD.
+- Current price is derived from the reconciled market value divided by the broker-reconciled quantity using decimal-safe arithmetic; the underlying snapshot timestamp remains visible.
+- Existing exit-plan and protection status remains available in the website's exit-state detail.
+- **Next smallest unit:** run Web and Worker tests/typechecks, then deploy the paired web/Worker changes.
+
+## Phase 6.626 — Persistent Telegram Dashboard button (2026-09-23)
+
+- The Worker now configures Telegram's chat menu with a `Dashboard` Web App button at assistant startup, while `/dashboard` continues to return the inline launch button.
+- The button uses the existing bounded HTTPS `TELEGRAM_MINI_APP_URL`; setup failure is isolated and cannot affect polling, trading, risk, or reconciliation.
+- Added focused coverage for the bounded persistent menu-button payload.
+- **Next smallest unit:** deploy the Worker and verify the Telegram chat menu exposes the Dashboard button.
+
 ## Phase 6.625 — Mobile Telegram operations mirror (2026-09-23)
 
 - Mirrored the website's live operations summary into the Telegram Mini App with mobile-first activity cards and a compact system log.

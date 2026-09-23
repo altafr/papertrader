@@ -149,6 +149,11 @@ export function buildTelegramMiniAppReplyMarkup(environment: NodeJS.ProcessEnv, 
   const url = environment.TELEGRAM_MINI_APP_URL?.trim();
   return open && url && /^https:\/\//i.test(url) && url.length <= 2_000 ? { inline_keyboard: [[{ text: "Open portfolio & alerts", web_app: { url } }]] } : undefined;
 }
+export type TelegramMiniAppMenuButton = { readonly type: "web_app"; readonly text: string; readonly web_app: { readonly url: string } };
+export function buildTelegramMiniAppMenuButton(environment: NodeJS.ProcessEnv): TelegramMiniAppMenuButton | undefined {
+  const url = environment.TELEGRAM_MINI_APP_URL?.trim();
+  return url && /^https:\/\//i.test(url) && url.length <= 2_000 ? { type: "web_app", text: "Dashboard", web_app: { url } } : undefined;
+}
 
 export function createTelegramOpsAssistant(environment: NodeJS.ProcessEnv, data: TelegramOpsAssistantData, fetcher: typeof fetch = fetch) {
   const enabledRaw = environment.TELEGRAM_ASSISTANT_ENABLED ?? "false";
@@ -165,6 +170,12 @@ export function createTelegramOpsAssistant(environment: NodeJS.ProcessEnv, data:
   const send = async (chatId: string, text: string, openMiniApp = false) => {
     const replyMarkup = buildTelegramMiniAppReplyMarkup(environment, openMiniApp);
     await fetcher(`${api}/sendMessage`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ chat_id: chatId, disable_web_page_preview: true, text: limit(text), ...(replyMarkup ? { reply_markup: replyMarkup } : {}) }) });
+  };
+  const configureMenuButton = async () => {
+    const menuButton = buildTelegramMiniAppMenuButton(environment);
+    if (!menuButton) return;
+    const response = await fetcher(`${api}/setChatMenuButton`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ chat_id: authorizedChatId, menu_button: menuButton }) });
+    if (!response.ok) throw new Error("telegram_assistant_menu_button_failed");
   };
   const poll = async () => {
     const response = await fetcher(`${api}/getUpdates?timeout=${pollSeconds}&offset=${offset}&allowed_updates=%5B%22message%22%5D`, { headers: { accept: "application/json" } });
@@ -187,6 +198,7 @@ export function createTelegramOpsAssistant(environment: NodeJS.ProcessEnv, data:
     async start() {
       if (running) return;
       running = true;
+      try { await configureMenuButton(); } catch { /* menu-button setup must never affect read-only polling or trading loops */ }
       while (running) {
         try { await poll(); } catch { await new Promise((resolve) => setTimeout(resolve, 5_000)); }
       }

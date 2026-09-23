@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { buildTelegramMiniAppReplyMarkup, buildTelegramOpsAssistantReply, fetchFirecrawlSources, getTelegramResearchAgentType, getTelegramUserIdReply, isResearchQuestion } from "./telegram-ops-assistant.js";
+import { buildTelegramMiniAppMenuButton, buildTelegramMiniAppReplyMarkup, buildTelegramOpsAssistantReply, fetchFirecrawlSources, getTelegramResearchAgentType, getTelegramUserIdReply, isResearchQuestion } from "./telegram-ops-assistant.js";
 
 const data = {
   getHealth: () => ({ status: "degraded", operatingMode: "paper_autopilot", marketStream: { status: "connected", freshness: "fresh" }, researchSchedule: { status: "scheduled", nextRunAt: "2026-08-31T01:15:00Z", lastRiskCycleStatus: "completed" }, positionManagement: { failureCode: "crypto_order_entitlement_blocked", status: "degraded", unmanagedCount: 2 }, durableScheduler: { status: "scheduled", nextRunAt: "2026-09-01T00:00:00Z" } }),
@@ -92,6 +92,11 @@ describe("Telegram operations assistant", () => {
     expect(buildTelegramMiniAppReplyMarkup({ TELEGRAM_MINI_APP_URL: "http://insecure.example" }, true)).toBeUndefined();
     expect(buildTelegramMiniAppReplyMarkup({}, true)).toBeUndefined();
     expect(buildTelegramMiniAppReplyMarkup({ TELEGRAM_MINI_APP_URL: "https://papertrader-web.vercel.app/telegram" }, true)).toEqual({ inline_keyboard: [[{ text: "Open portfolio & alerts", web_app: { url: "https://papertrader-web.vercel.app/telegram" } }]] });
+  });
+
+  it("builds a persistent Telegram menu button for the Mini App", () => {
+    expect(buildTelegramMiniAppMenuButton({ TELEGRAM_MINI_APP_URL: "https://papertrader-web.vercel.app/telegram" })).toEqual({ type: "web_app", text: "Dashboard", web_app: { url: "https://papertrader-web.vercel.app/telegram" } });
+    expect(buildTelegramMiniAppMenuButton({ TELEGRAM_MINI_APP_URL: "http://insecure.example" })).toBeUndefined();
   });
 
   it("gives /dashboard an explicit read-only launch instruction", async () => {
