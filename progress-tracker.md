@@ -12,7 +12,9 @@
 - The Worker now configures Telegram's chat menu with a `Dashboard` Web App button at assistant startup, while `/dashboard` continues to return the inline launch button.
 - The button uses the existing bounded HTTPS `TELEGRAM_MINI_APP_URL`; setup failure is isolated and cannot affect polling, trading, risk, or reconciliation.
 - Added focused coverage for the bounded persistent menu-button payload.
-- **Next smallest unit:** deploy the Worker and verify the Telegram chat menu exposes the Dashboard button.
+- Verification: Worker focused tests/typecheck and Web focused tests/typecheck passed; Vercel production page returns HTTP `200`.
+- Railway Worker deployment `c2c591e1-4ea8-49b5-ad45-1b35911a02a2` reached `SUCCESS`; Worker health is healthy, Paper Autopilot remains active, and the Telegram assistant is ready.
+- **Next smallest unit:** verify the Telegram chat menu button visually from the operator's Telegram client.
 
 ## Phase 6.625 — Mobile Telegram operations mirror (2026-09-23)
 
