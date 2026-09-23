@@ -5,7 +5,9 @@
 - Added an authenticated live operations panel to the website dashboard with runtime, reconciliation, research, risk-cycle, positions, and orders cards.
 - Added a compact persisted activity log sourced from the existing operator audit timeline; the page refreshes every 15 seconds and remains read-only.
 - No order, risk, credential, or broker boundary changed.
-- **Next smallest unit:** run Web typecheck/tests and deploy the dashboard bundle.
+- Verification: Web typecheck passed, dashboard state tests passed (12/12), and `git diff --check` passed.
+- Vercel production deployment `https://papertrader-gud37p5ai-altafrs-projects.vercel.app` completed successfully and returns HTTP `200`.
+- **Next smallest unit:** verify one authenticated dashboard refresh against a newly reconciled broker snapshot.
 
 ## Phase 6.623 — Real-time Telegram Mini App dashboard (2026-09-19)
 
