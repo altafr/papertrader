@@ -508,6 +508,21 @@ h2 {
   border-color: rgb(54 199 140 / 32%);
 }
 
+.live-operations-card { border-color: rgb(98 184 246 / 42%); }
+.live-operations-cards { display: grid; gap: 0.65rem; grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: 1rem; }
+.live-operations-cards > div { background: var(--card); border: 1px solid var(--border); border-radius: 0.6rem; display: grid; gap: 0.2rem; padding: 0.75rem; }
+.live-operations-cards strong { font-size: 1rem; text-transform: capitalize; }
+.live-operations-cards small, .live-log-row span, .live-log-row small { color: var(--muted); font-size: 0.74rem; }
+.live-activity-log { border-top: 1px solid var(--border); margin-top: 1.15rem; padding-top: 0.85rem; }
+.live-activity-log h3 { font-size: 0.95rem; margin: 0; }
+.live-log-row { align-items: baseline; border-bottom: 1px solid var(--border); display: grid; gap: 0.4rem; grid-template-columns: 9.5rem 12rem minmax(0, 1fr) 7rem; padding: 0.62rem 0; }
+.live-log-row time { color: var(--muted); font-size: 0.74rem; font-variant-numeric: tabular-nums; }
+
+@media (max-width: 900px) {
+  .live-operations-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .live-log-row { grid-template-columns: 1fr; }
+}
+
 .cycle-status-grid {
   border-top: 1px solid var(--border);
   display: grid;

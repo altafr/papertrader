@@ -319,6 +319,25 @@ function CycleStatusCard({ overview }: { readonly overview: OperatorOverview | u
   </article>;
 }
 
+function LiveOperationsCard({ model, overview, operationsHealth, workerHealth }: { readonly model: ReadModel; readonly overview: OperatorOverview | undefined; readonly operationsHealth: OperationsHealth | undefined; readonly workerHealth: PublicHealth | undefined }) {
+  const logs = (overview?.auditTimeline ?? []).slice(0, 10);
+  const lastResearch = workerHealth?.researchSchedule?.lastRunAt ?? workerHealth?.researchSchedule?.lastRiskCycleAt;
+  const nextResearch = workerHealth?.researchSchedule?.nextRunAt;
+  return <article className="card full-width live-operations-card" id="live-operations" aria-label="Live operations dashboard">
+    <div className="card-heading"><div><p className="label">Live operations</p><h2>What the system is doing now</h2></div><span className={`state-badge ${workerHealth?.status === "healthy" ? "fresh" : "degraded"}`}>{workerHealth?.status === "healthy" ? "Live" : "Review"}</span></div>
+    <div className="live-operations-cards">
+      <div><span className="label">Runtime</span><strong>{workerHealth?.status ?? "Unavailable"}</strong><small>{workerHealth?.operatingMode === "paper_autopilot" ? "Paper Autopilot" : workerHealth?.operatingMode ?? "Mode unavailable"}</small></div>
+      <div><span className="label">Reconciliation</span><strong>{operationsHealth?.reconciliation.status ?? "Unavailable"}</strong><small>{operationsHealth?.reconciliation.ageSeconds === undefined ? "Age unavailable" : `${operationsHealth.reconciliation.ageSeconds}s old`}</small></div>
+      <div><span className="label">Research</span><strong>{workerHealth?.researchSchedule?.status ?? "Unavailable"}</strong><small>{lastResearch ? `Last ${formatUtc(lastResearch)}` : "Last run unavailable"}{nextResearch ? ` · next ${formatUtc(nextResearch)}` : ""}</small></div>
+      <div><span className="label">Risk cycle</span><strong>{operationsHealth?.runtime.riskCycle.latestStatus ?? "Unavailable"}</strong><small>{operationsHealth?.runtime.riskCycle.latestAt ? formatUtc(operationsHealth.runtime.riskCycle.latestAt) : "No recent cycle"}</small></div>
+      <div><span className="label">Open positions</span><strong>{model.positions.length}</strong><small>{workerHealth?.positionManagement?.unmanagedCount ? `${workerHealth.positionManagement.unmanagedCount} need review` : "All have managed status"}</small></div>
+      <div><span className="label">Orders &amp; fills</span><strong>{model.orders.length}</strong><small>Latest reconciled broker records</small></div>
+    </div>
+    <div className="live-activity-log"><div className="card-heading"><div><p className="label">Activity log</p><h3>{logs.length ? "Latest persisted events" : "No persisted events"}</h3></div><span className="provenance">Read-only · auto refresh 15s</span></div>{logs.length ? logs.map((event, index) => <div className="live-log-row" key={`${value(event, "category")}-${value(event, "reference")}-${index}`}><time>{formatUtc(value(event, "capturedAt"))}</time><strong>{value(event, "title")}</strong><span>{value(event, "detail")}</span><small>{value(event, "category")}</small></div>) : <p className="empty-state">The audit timeline has no events in the current history window.</p>}</div>
+    <p className="provenance">Cards and logs reflect persisted server state. They do not submit orders or override deterministic risk controls.</p>
+  </article>;
+}
+
 function OperatorAuditCards({ historyQuery, overview }: { readonly historyQuery: string; readonly overview: OperatorOverview | undefined }) {
   const field = (row: Record<string, unknown>, key: string) => value(row, key);
   return <>
@@ -546,6 +565,7 @@ export default async function DashboardPage({ searchParams }: { readonly searchP
         <section className="grid" aria-label="Paper account dashboard">
           <OperationsHealthCard health={operationsHealth} />
           <AgentRunsCard runs={operatorOverview?.agents ?? agentRuns} />
+          <LiveOperationsCard model={result.model} overview={operatorOverview} operationsHealth={operationsHealth} workerHealth={workerHealth} />
           <CycleStatusCard overview={operatorOverview} />
           <article className="card primary-card" id="overview">
             <div className="card-heading"><div><p className="label">Account equity</p><h2>{value(result.model.snapshot, "currency")} {value(result.model.snapshot, "equity")}</h2></div><StatusBadge state={freshness} /></div>

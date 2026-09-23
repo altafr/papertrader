@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-const REFRESH_INTERVAL_MS = 30_000;
+const REFRESH_INTERVAL_MS = 15_000;
 
 export function DashboardRefresh() {
   const router = useRouter();
@@ -27,5 +27,5 @@ export function DashboardRefresh() {
     window.setTimeout(() => setRefreshing(false), 1_000);
   };
 
-  return <button className="refresh-control" type="button" onClick={refresh} disabled={refreshing} title="Refresh persisted paper data">{refreshing ? "Refreshing…" : "Refresh"}<small>Auto 30s</small></button>;
+  return <button className="refresh-control" type="button" onClick={refresh} disabled={refreshing} title="Refresh persisted paper data">{refreshing ? "Refreshing…" : "Refresh"}<small>Auto 15s</small></button>;
 }

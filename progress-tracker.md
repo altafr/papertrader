@@ -1,5 +1,12 @@
 # Progress Tracker
 
+## Phase 6.624 — Live website operations cards and activity log (2026-09-23)
+
+- Added an authenticated live operations panel to the website dashboard with runtime, reconciliation, research, risk-cycle, positions, and orders cards.
+- Added a compact persisted activity log sourced from the existing operator audit timeline; the page refreshes every 15 seconds and remains read-only.
+- No order, risk, credential, or broker boundary changed.
+- **Next smallest unit:** run Web typecheck/tests and deploy the dashboard bundle.
+
 ## Phase 6.623 — Real-time Telegram Mini App dashboard (2026-09-19)
 
 - Added a compact live dashboard above the Telegram tabs with connection state, reconciled position/order/alert counts, last reconciliation time, and a visible next-refresh countdown.
