@@ -1,5 +1,12 @@
 # Progress Tracker
 
+## Phase 6.625 — Mobile Telegram operations mirror (2026-09-23)
+
+- Mirrored the website's live operations summary into the Telegram Mini App with mobile-first activity cards and a compact system log.
+- The log is derived from reconciled orders, alerts, and agent runs already returned by the authenticated read-only Mini App endpoint; it retains the 15-second refresh cadence.
+- No broker, risk, order, credential, or server boundary changed.
+- **Next smallest unit:** run the Telegram-focused tests and deploy the refreshed web bundle.
+
 ## Phase 6.624 — Live website operations cards and activity log (2026-09-23)
 
 - Added an authenticated live operations panel to the website dashboard with runtime, reconciliation, research, risk-cycle, positions, and orders cards.

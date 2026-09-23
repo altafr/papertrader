@@ -109,6 +109,11 @@ export default function TelegramMiniAppPage() {
   const orders = data?.portfolio.orders ?? [];
   const unmanagedPositions = data?.unmanagedPositions ?? [];
   const freshness = data?.asOf ? getMiniAppFreshness(data.asOf) : "unknown";
+  const liveActivity = [
+    ...(data?.alerts ?? []).map((alert) => ({ at: alert.occurredAt, category: "Alert", detail: alert.message, title: alert.code })),
+    ...(data?.portfolio.orders ?? []).map((order) => ({ at: String(order.updatedAt ?? order.createdAt ?? data?.asOf ?? ""), category: "Order", detail: `${String(order.side ?? "—").toUpperCase()} · ${money(order.filledQuantity ?? order.quantity)} units`, title: `${String(order.symbol ?? "—")} · ${String(order.status ?? "—")}` })),
+    ...(data?.agents ?? []).flatMap((agent) => agent.runs.slice(0, 3).map((run) => ({ at: run.createdAt, category: "Agent", detail: run.task, title: `${agent.agentType} · ${run.status}` }))),
+  ].filter((event) => Number.isFinite(Date.parse(event.at))).sort((left, right) => Date.parse(right.at) - Date.parse(left.at)).slice(0, 8);
   return <>
     <Script src="https://telegram.org/js/telegram-web-app.js" strategy="beforeInteractive" />
     <main className="telegram-mini-app">
@@ -122,6 +127,10 @@ export default function TelegramMiniAppPage() {
           <div><span>Alerts</span><strong>{data?.alerts.length ?? "—"}</strong></div>
           <div><span>Last reconciled</span><strong>{data?.asOf ? new Date(data.asOf).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "—"}</strong></div>
         </div>
+      </section>
+      <section className="mini-live-activity" aria-label="Live activity log">
+        <div className="mini-live-section-heading"><div><p className="eyebrow">LIVE ACTIVITY</p><h2>System log</h2></div><span className="mini-countdown">Reconciled {data?.asOf ? new Date(data.asOf).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "—"}</span></div>
+        {liveActivity.length ? <div className="mini-live-log">{liveActivity.map((event, index) => <article key={`${event.category}-${event.at}-${index}`}><time>{new Date(event.at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</time><div><strong>{event.title}</strong><small>{event.detail}</small></div><span>{event.category}</span></article>)}</div> : <p className="mini-muted">No recent persisted activity.</p>}
       </section>
       <nav className="mini-tabs" aria-label="Mini App sections"><button className={tab === "portfolio" ? "active" : ""} onClick={() => setTab("portfolio")}>Portfolio</button><button className={tab === "trades" ? "active" : ""} onClick={() => setTab("trades")}>Trades</button><button className={tab === "alerts" ? "active" : ""} onClick={() => setTab("alerts")}>Alerts{data?.alerts.length ? ` (${data.alerts.length})` : ""}</button><button className={tab === "agents" ? "active" : ""} onClick={() => setTab("agents")}>Agents</button><button aria-pressed={tab === "overnight"} className={tab === "overnight" ? "active" : ""} onClick={() => setTab("overnight")}>Overnight</button></nav>
       {data && freshness !== "fresh" ? <p className="mini-error">Snapshot freshness: {freshness}. Verify the latest reconciliation before relying on values.</p> : null}
