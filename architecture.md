@@ -2,7 +2,7 @@
 
 ## Status
 
-Directional execution plan: the strategy layer supports two planned directions. Aligned bullish market/sector conditions feed long candidates; aligned bearish conditions feed short candidates. Both directions must use deterministic sizing, freshness, exposure, kill-switch, bracket, execution, and reconciliation gates. The short path is currently feature-flagged off because borrow/locate, margin, buy-to-cover, gap-risk, and short exposure controls still require implementation and validation.
+Directional execution plan: every bounded stock shortlist contains the strongest candidates from both directions. Long signals pass only with bullish market and sector alignment; short signals pass only with bearish alignment. Paper shorts are activated behind the existing explicit feature gate and per-scan broker shortability/borrow checks, and remain subject to buying-power, 5% single-short, 25% aggregate-short, freshness, loss, position-count, kill-switch, bracket, idempotency, and reconciliation gates.
 
 US stock preparation cadence: two durable weekday runs: 17:00 America/New_York after the close to prepare the next session, then 08:30 America/New_York to refresh the plan one hour before the open. Preparation is research-only until deterministic gates approve a candidate; zero trades is a valid outcome.
 
@@ -155,7 +155,9 @@ Persisted timestamps remain UTC/ISO values and scheduler execution remains in it
 
 ### Intraday market and sector confirmation
 
-Stock opportunity scans use a server-side Yahoo Finance five-minute chart for SPY and the mapped sector ETF. Regular-session bars are filtered to 09:30–16:00 America/New_York; the first two bars (the opening 5–10 minutes) provide the reference price, and each scan reads only the point-in-time sign of the latest regular-session close relative to that reference: positive, negative, or neutral. It is not a full-day trend forecast. This confirmation is refreshed on every 30-minute stock scan. Pre-market and after-close runs use the most recent available regular session. Missing, flat, malformed, or unavailable data is neutral and fails closed; it cannot bypass deterministic risk, freshness, market-mode, or kill-switch gates.
+Stock opportunity scans use a server-side Yahoo Finance five-minute chart for SPY and the mapped sector ETF. Regular-session bars are filtered to 09:30–16:00 America/New_York; the first two bars (the opening 5–10 minutes) provide the reference price, and each scan reads only the point-in-time sign of the latest regular-session close relative to that reference: positive, negative, or neutral. It is not a full-day trend forecast. This confirmation is refreshed on every 30-minute stock scan. Pre-market and after-close runs use the most recent available regular session. A long passes only when both signals are bullish; a short passes only when both are bearish. Missing, flat, malformed, direction-mismatched, or unavailable data fails closed; it cannot bypass deterministic risk, freshness, market-mode, borrow, or kill-switch gates.
+
+Stock research candidates are selected by absolute momentum strength across both sides. The bounded shortlist reserves space for long and short candidates when each side is present, and fills unused slots from the other side. Directional risk validation counts both long buys and short sales toward the rolling entry limit while excluding tagged position-closing orders.
 
 ### Portfolio sizing and bracket protection (Phase 6.589)
 
@@ -902,7 +904,7 @@ Primary references reviewed for this selection: [Clerk Next.js](https://clerk.co
 
 ### Phase 3.1 Versioned Strategy Plug-in Contract
 
-- `packages/domain` defines a versioned, typed strategy plug-in contract with owner, semantic version, asset class, required lookback, bounded parameter validation, deterministic evaluation inputs, and a planned extension for structured directional signal candidates (long or short); the current enabled implementation remains long-only.
+- `packages/domain` defines a versioned, typed strategy plug-in contract with owner, semantic version, asset class, required lookback, bounded parameter validation, and deterministic directional signal candidates (long or short); selected paper equity trades pass through side-matched market/sector confirmation and deterministic risk approval.
 - Strategy lifecycle advancement is sequential: `disabled → replay → shadow → paper → eligible_live`. New registry entries must be disabled and semantic-versioned; duplicate keys and invalid lookbacks fail closed.
 - Strategy evaluation returns proposals only. It cannot submit, cancel, replace, approve risk, change policy, or access credentials. Financial values remain decimal strings and input market data must be fresh Alpaca data.
 - This unit adds no concrete momentum strategy, signal generation in production, persistence, broker request, or order behavior.

@@ -28,7 +28,7 @@ The production system is intended to be self-running and server-resident: specia
 
 ## Non-Goals for Version 1
 
-- Options, futures, forex, margin, or leveraged crypto. Short selling is reserved as a future, explicitly disabled paper feature until borrow, locate, margin, buy-to-cover, and short-specific risk controls pass review.
+- Options, futures, forex, or leveraged crypto. Paper short selling is permitted only for equities with current broker-confirmed shortability and borrow availability, an explicit server feature gate, and the dedicated short position and aggregate-exposure limits.
 - High-frequency, market-making, latency-arbitrage, or co-located trading.
 - Managing other users' money, copy trading, social signals, or public investment advice.
 - Multiple brokerages or exchanges.
@@ -72,7 +72,7 @@ The system evaluates both directions:
 
 Bracket stops and profit targets are submitted with the entry and remain broker-active immediately; they may execute before the 30-minute supervisor check. The position manager checks every 30 minutes during trading and is responsible for reconciliation, health checks, and favorable-move stop ratcheting, not for delaying bracket exits.
 
-Short execution remains feature-flagged off until borrow/locate, margin, buy-to-cover, and short-specific gap-risk gates are validated.
+Short execution requires the explicit paper feature gate, per-candidate broker confirmation that the equity is shortable and borrowable, available buying power, and the short position and aggregate-exposure limits. Bearish candidates also require bearish market and sector confirmation. Every entry carries a protective stop above entry and a buy-to-cover target below entry.
 
 ### Daily US Stock Preparation
 
@@ -165,7 +165,7 @@ Each asset class receives separate parameters, tests, allocation caps, and perfo
 These are conservative engineering defaults for validation, not recommendations. They remain server-controlled and configurable only by an authenticated operator:
 
 - Initial paper-account equity baseline: `USD 100,000`, matching Alpaca's current default paper-account balance. Autopilot remains paused if the configured starting baseline has not been verified against the Alpaca paper account.
-- Long-only in the current release. A future bearish mode may propose short positions when both the broad market and sector are bearish, but it remains disabled until its safety gates are implemented and explicitly activated.
+- Long and short equity entries are evaluated on every stock scan. Longs require positive momentum plus bullish broad-market and sector confirmation; shorts require negative momentum plus bearish broad-market and sector confirmation. Shorts also require the explicit paper gate and broker-confirmed shortability/borrow for that scan.
 - Maximum planned loss at the stop per trade: `5%` of the position's invested notional, inclusive of estimated fees and slippage.
 - Percentage-only allocation: minimum new position `2%` of equity; no fixed-dollar floor. Target `75%` gross deployment within a `70–80%` operating band when sufficient qualified signals exist. Rank candidates using the existing strategy; round quantities down and skip held symbols or insufficient remaining budgets. Never force a trade to meet utilization.
 - Maximum adverse entry-to-stop distance: `5%` for long positions; the position must be exited at or before this threshold.

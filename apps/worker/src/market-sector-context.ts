@@ -63,15 +63,16 @@ export async function confirmMarketAndSector(candidate: ResearchWatchlistCandida
   return { confirmed: market !== "neutral" && market === sector, market, sector, sectorSymbol, confirmationBasis: "opening_window_5m" };
 }
 
-/** Fail-closed filter: web trend data is advisory evidence, never an order authority. */
+/** Fail-closed directional filter: positive alignment admits longs, negative alignment admits shorts. */
 export async function filterByMarketAndSector(candidates: readonly ResearchWatchlistCandidate[], fetcher: typeof fetch = fetch): Promise<readonly ResearchWatchlistCandidate[]> {
   const eligible: ResearchWatchlistCandidate[] = [];
   for (const candidate of candidates) {
     if (candidate.assetClass !== "us_equity") continue;
     try {
       const confirmation = await confirmMarketAndSector(candidate, fetcher);
-      console.log(JSON.stringify({ event: "market_sector_confirmation", basis: confirmation.confirmationBasis, sector: confirmation.sectorSymbol, symbol: candidate.symbol, marketTrend: confirmation.market, sectorTrend: confirmation.sector, confirmed: confirmation.confirmed }));
-      if (confirmation.confirmed) eligible.push(candidate);
+      const directionMatches = confirmation.confirmed && ((candidate.side === "short" && confirmation.market === "bearish") || (candidate.side !== "short" && confirmation.market === "bullish"));
+      console.log(JSON.stringify({ event: "market_sector_confirmation", basis: confirmation.confirmationBasis, sector: confirmation.sectorSymbol, symbol: candidate.symbol, side: candidate.side ?? "long", marketTrend: confirmation.market, sectorTrend: confirmation.sector, confirmed: confirmation.confirmed, directionMatches }));
+      if (directionMatches) eligible.push(candidate);
     } catch (error: unknown) {
       console.warn(JSON.stringify({ event: "market_sector_confirmation_unavailable", symbol: candidate.symbol, reason: error instanceof Error ? error.message.replace(/[^A-Za-z0-9_.:-]+/g, "_").slice(0, 80) : "unknown" }));
     }

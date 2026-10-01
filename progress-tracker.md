@@ -1,5 +1,15 @@
 # Progress Tracker
 
+## Phase 6.632 — Direction-matched long and short stock automation (2026-10-02)
+
+- Operator authorized permanent long/short selection and automated paper trading of trades that qualify.
+- Balanced stock research shortlist now ranks momentum magnitude so strong short signals do not disappear below positive-return candidates. The market/sector filter admits bullish candidates only on bullish alignment, and bearish candidates only on bearish alignment; neutral or mismatched direction remains excluded.
+- Activated short path uses existing server-side gate and approval reference, per-scan broker-confirmed borrowability, available buying power, bracketed protective stop and buy-to-cover target, deterministic risk controls, and audit/reconciliation. Short equity sales now count toward the same rolling 24-hour entry cap as buys; tagged closing orders are excluded.
+- Updated product/architecture docs. Paper-only; no risk thresholds, paper/live mode, or broker state were changed by this code update.
+- `pnpm typecheck`, `pnpm build`, `pnpm lint`, and `git diff --check` passed. Read-only broker reconciliation resolved the previously pending CRWD entry to 37 filled shares with its protective sell leg active; no entry submissions remain pending. The paper account now holds CRWD, so same-symbol shorting is prevented by the existing allocation rule.
+- **Next:** deploy the Worker and verify the running directional selector; then observe a scheduled cycle before claiming any new short order.
+
+
 ## Phase 6.631 — Percentage allocation and deterministic risk (2026-10-02)
 
 - Operator approved removal of the fixed-dollar entry floor, a 70–80% deployment band with an 80% cap, and restart preserving account balance and all trading history. Sizing targets the midpoint, 75%; existing 2% minimum, 10% long, 5% short, 25% aggregate-short, loss, freshness, and kill-switch limits remain enforced.

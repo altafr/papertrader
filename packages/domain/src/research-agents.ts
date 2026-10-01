@@ -4,6 +4,7 @@ import { computeMarketIndicatorSnapshot, type MarketIndicatorSnapshot } from "./
 import type { StrategyAssetClass, StrategyBar } from "./strategy.js";
 
 interface DecimalValue {
+  abs(): DecimalValue;
   div(value: DecimalValue | string): DecimalValue;
   minus(value: DecimalValue | string): DecimalValue;
   plus(value: DecimalValue | string): DecimalValue;
@@ -89,11 +90,20 @@ function buildWatchlist(input: ResearchAgentInput): ResearchWatchlistPayload {
       ...(marketSnapshot ? { marketSnapshot } : {}),
     });
   }
-  candidates.sort((a, b) => {
-    const difference = new Decimal(a.momentumReturn).minus(b.momentumReturn);
+  const strengthOrder = (a: ResearchWatchlistCandidate, b: ResearchWatchlistCandidate) => {
+    const difference = new Decimal(a.momentumReturn).abs().minus(new Decimal(b.momentumReturn).abs());
     return difference.toFixed() === "0" ? a.symbol.localeCompare(b.symbol) : difference.greaterThan("0") ? -1 : 1;
-  });
-  return { assetClass: input.assetClass, candidates: candidates.slice(0, input.maxCandidates), capturedAt: input.capturedAt, universeSize: grouped.size };
+  };
+  const longs = candidates.filter((candidate) => candidate.side === "long").sort(strengthOrder);
+  const shorts = candidates.filter((candidate) => candidate.side === "short").sort(strengthOrder);
+  const sideSlots = Math.floor(input.maxCandidates / 2);
+  const balanced = [...longs.slice(0, input.maxCandidates - sideSlots), ...shorts.slice(0, sideSlots)];
+  if (balanced.length < input.maxCandidates) {
+    const omitted = [...longs.slice(input.maxCandidates - sideSlots), ...shorts.slice(sideSlots)].sort(strengthOrder);
+    balanced.push(...omitted.slice(0, input.maxCandidates - balanced.length));
+  }
+  balanced.sort(strengthOrder);
+  return { assetClass: input.assetClass, candidates: balanced, capturedAt: input.capturedAt, universeSize: grouped.size };
 }
 
 function toArtifact(input: ResearchAgentInput): AgentArtifact {

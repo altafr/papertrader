@@ -75,7 +75,7 @@ try {
     killSwitchActive: isGlobalKillSwitchActive(),
     shortTradingEnabled: process.env.SHORT_TRADING_ENABLED === "true" && Boolean(process.env.SHORT_TRADING_APPROVAL_REFERENCE?.trim()),
     openPositions: model.positions.map((position) => ({ assetClass: position.assetClass === "crypto" ? "crypto" as const : "us_equity" as const, marketValue: position.marketValue })),
-    submittedEntriesLast24Hours: model.orders.filter((order) => order.side.toLowerCase() === "buy" && order.submittedAt && now.getTime() - order.submittedAt.getTime() <= 86_400_000).length,
+    submittedEntriesLast24Hours: model.orders.filter((order) => (order.side.toLowerCase() === "buy" || (order.side.toLowerCase() === "sell" && !order.clientOrderId?.includes("-exit-"))) && order.submittedAt && now.getTime() - order.submittedAt.getTime() <= 86_400_000).length,
   };
   const quantity = process.env.PAPER_E2E_QUANTITY?.trim() || "1";
   const { approval, intentId } = assessResearchCandidateRisk({ candidate, currentAt: now.toISOString(), equity: snapshot.equity, quantity, state });

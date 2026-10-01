@@ -104,7 +104,7 @@ export async function runPaperAutopilotRiskCycle(input: {
     pendingEntryCount: (await repository.listPendingEntrySubmissions()).length,
     shortTradingEnabled: (input.environment ?? process.env).SHORT_TRADING_ENABLED === "true",
     openPositions: model.positions.map((position) => ({ assetClass: position.assetClass === "crypto" ? "crypto" as const : "us_equity" as const, marketValue: position.marketValue, symbol: position.symbol })),
-    submittedEntriesLast24Hours: model.orders.filter((order) => order.side.toLowerCase() === "buy" && order.submittedAt && now.getTime() - order.submittedAt.getTime() <= 86_400_000).length,
+    submittedEntriesLast24Hours: model.orders.filter((order) => (order.side.toLowerCase() === "buy" || (order.side.toLowerCase() === "sell" && !order.clientOrderId?.includes("-exit-"))) && order.submittedAt && now.getTime() - order.submittedAt.getTime() <= 86_400_000).length,
     cryptoSyntheticBracketEnabled: (input.environment ?? process.env).CRYPTO_SYNTHETIC_BRACKET_ENABLED === "true" && (input.environment ?? process.env).POSITION_MANAGEMENT_SCHEDULER_ENABLED === "true",
     positionManagementHealthy: (input.environment ?? process.env).POSITION_MANAGEMENT_SCHEDULER_ENABLED === "true",
     buyingPower: snapshot.buyingPower,
