@@ -16,7 +16,8 @@ describe("paper signals and deterministic risk", () => {
     expect(PAPER_INITIAL_EQUITY_BASELINE).toBe("100000");
     expect(DEFAULT_PAPER_RISK_POLICY.initialEquityBaseline).toBe(PAPER_INITIAL_EQUITY_BASELINE);
     expect(DEFAULT_PAPER_RISK_POLICY.minPositionPercent).toBe("2");
-    expect(DEFAULT_PAPER_RISK_POLICY.minPositionNotionalUsd).toBe("10000");
+    expect(DEFAULT_PAPER_RISK_POLICY.targetGrossExposurePercent).toBe("75");
+    expect(DEFAULT_PAPER_RISK_POLICY.maxGrossExposurePercent).toBe("80");
     expect(DEFAULT_PAPER_RISK_POLICY.maxStockPositionPercent).toBe("10");
     expect(DEFAULT_PAPER_RISK_POLICY.maxCryptoPositionPercent).toBe("10");
   });
@@ -24,7 +25,7 @@ describe("paper signals and deterministic risk", () => {
   it("rejects a trade below the two-percent portfolio minimum", () => {
     const result = assessPaperRisk({ estimatedFees: "0", estimatedSlippage: "0", equity: "1000", quantity: "0.01", signal, state });
     expect(result.passes).toBe(false);
-    expect(result.reasons).toContain("Proposed position is below the minimum USD 10000 or 2% of portfolio investment, whichever is greater.");
+    expect(result.reasons).toContain("Proposed position is below the minimum 2% of portfolio investment.");
   });
 
   it("rejects direct crypto entries even when synthetic protection is healthy", () => {
@@ -70,5 +71,23 @@ describe("paper signals and deterministic risk", () => {
     const result = assessPaperRisk({ estimatedFees: "0", estimatedSlippage: "0", equity: "100000", quantity: "1", signal, state });
     expect(result.passes).toBe(false);
     expect(result.reasons).toContain("Planned stop exceeds the maximum 5% adverse-loss distance.");
+  });
+});
+
+describe("allocation policy boundaries", () => {
+  const assess = (quantity: string, positions: { assetClass: "us_equity"; marketValue: string; symbol?: string }[] = []) => assessPaperRisk({ estimatedFees: "0", estimatedSlippage: "0", equity: "100000", quantity, signal, state: { ...state, openPositions: positions } });
+  it("approves a percentage-sized position below the old fixed floor", () => {
+    expect(assessPaperRisk({ estimatedFees: "0", estimatedSlippage: "0", equity: "97742.17", quantity: "97", signal, state }).passes).toBe(true);
+  });
+  it("allows exactly 80% gross exposure and rejects above it", () => {
+    expect(assess("100", [{ assetClass: "us_equity", marketValue: "70000" }]).passes).toBe(true);
+    expect(assess("100", [{ assetClass: "us_equity", marketValue: "70000.01" }]).reasons).toContain("Proposed position exceeds the gross-exposure cap.");
+  });
+  it("counts absolute short exposure and existing symbol exposure", () => {
+    expect(assess("100", [{ assetClass: "us_equity", marketValue: "-71000" }]).reasons).toContain("Proposed position exceeds the gross-exposure cap.");
+    expect(assess("100", [{ assetClass: "us_equity", marketValue: "1", symbol: "AAA" }]).reasons).toContain("Proposed position exceeds the asset-class position cap.");
+  });
+  it("waits for pending entries before reusing capital", () => {
+    expect(assessPaperRisk({ estimatedFees: "0", estimatedSlippage: "0", equity: "100000", quantity: "100", signal, state: { ...state, pendingEntryCount: 1 } }).reasons).toContain("Pending entries require reconciliation before allocating more capital.");
   });
 });

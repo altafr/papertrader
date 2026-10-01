@@ -8,6 +8,7 @@ interface DecimalValue {
   div(value: DecimalValue | string): DecimalValue;
   greaterThan(value: DecimalValue | string): boolean;
   isNegative(): boolean;
+  isFinite(): boolean;
   lessThan(value: DecimalValue | string): boolean;
   minus(value: DecimalValue | string): DecimalValue;
   plus(value: DecimalValue | string): DecimalValue;
@@ -27,6 +28,7 @@ export interface ImmutablePaperSignal {
 export interface PaperRiskPosition {
   readonly assetClass: "crypto" | "us_equity";
   readonly marketValue: DecimalString;
+  readonly symbol?: string;
 }
 
 export interface PaperRiskState {
@@ -36,6 +38,7 @@ export interface PaperRiskState {
   readonly killSwitchActive: boolean;
   readonly openPositions: readonly PaperRiskPosition[];
   readonly submittedEntriesLast24Hours: number;
+  readonly pendingEntryCount?: number;
   /** Explicitly enabled only when restart-safe synthetic crypto protection is active. */
   readonly cryptoSyntheticBracketEnabled?: boolean;
   /** Supervisor liveness gate for synthetic crypto exits. */
@@ -54,8 +57,8 @@ export interface PaperRiskPolicy {
   readonly initialEquityBaseline: DecimalString;
   /** Minimum invested notional for every new trade as a percentage of equity. */
   readonly minPositionPercent: DecimalString;
-  /** Fixed minimum invested notional for every new trade, in USD. */
-  readonly minPositionNotionalUsd: DecimalString;
+  /** Desired deployment when sufficient qualified signals exist; never an entry mandate. */
+  readonly targetGrossExposurePercent: DecimalString;
   readonly maxCryptoPositionPercent: DecimalString;
   readonly maxGrossExposurePercent: DecimalString;
   readonly maxOpenPositions: number;
@@ -91,9 +94,9 @@ export function classifyPaperBaseline(equity: string | number | undefined, basel
 export const DEFAULT_PAPER_RISK_POLICY: PaperRiskPolicy = {
   initialEquityBaseline: PAPER_INITIAL_EQUITY_BASELINE,
   minPositionPercent: "2",
-  minPositionNotionalUsd: "10000",
+  targetGrossExposurePercent: "75",
   maxCryptoPositionPercent: "10",
-  maxGrossExposurePercent: "50",
+  maxGrossExposurePercent: "80",
   maxOpenPositions: 10,
   maxSubmittedEntriesLast24Hours: 20,
   maxStockPositionPercent: "10",
@@ -112,7 +115,7 @@ export interface PaperRiskAssessment {
 function decimal(value: string, name: string): DecimalValue {
   try {
     const parsed = new Decimal(value);
-    if (parsed.isNegative()) throw new Error(`${name} must not be negative.`);
+    if (!parsed.isFinite() || parsed.isNegative()) throw new Error(`${name} must not be negative.`);
     return parsed;
   } catch {
     throw new Error(`${name} must be a non-negative decimal string.`);
@@ -140,6 +143,7 @@ export function assessPaperRisk(input: {
   const equity = decimal(input.equity, "equity");
   const quantity = decimal(input.quantity, "quantity");
   if (equity.isNegative() || quantity.isNegative()) throw new Error("Risk values must be non-negative.");
+  if (input.state.openPositions.some((position) => !new Decimal(position.marketValue).isFinite())) throw new Error("Position market values must be finite.");
   const candidate = input.signal.candidate;
   const entry = decimal(candidate.proposedEntryPrice, "entry price");
   const stop = decimal(candidate.plannedStopPrice, "planned stop price");
@@ -164,19 +168,18 @@ export function assessPaperRisk(input: {
   if (!risk.passes) reasons.push("Estimated planned-stop loss exceeds 5% of invested notional.");
   const notional = entry.times(quantity);
   if (candidate.side === "short" && input.state.buyingPower !== undefined && notional.greaterThan(new Decimal(input.state.buyingPower))) reasons.push("Short order exceeds available buying power.");
-  const percentageMinimumNotional = equity.times(policy.minPositionPercent).div("100");
-  const fixedMinimumNotional = decimal(policy.minPositionNotionalUsd, "minimum position notional");
-  const minimumNotional = percentageMinimumNotional.greaterThan(fixedMinimumNotional) ? percentageMinimumNotional : fixedMinimumNotional;
-  if (notional.lessThan(minimumNotional)) {
-    reasons.push(`Proposed position is below the minimum USD ${policy.minPositionNotionalUsd} or ${policy.minPositionPercent}% of portfolio investment, whichever is greater.`);
-  }
+  const minimumNotional = equity.times(policy.minPositionPercent).div("100");
+  if (notional.lessThan(minimumNotional)) reasons.push(`Proposed position is below the minimum ${policy.minPositionPercent}% of portfolio investment.`);
+  if ((input.state.pendingEntryCount ?? 0) > 0) reasons.push("Pending entries require reconciliation before allocating more capital.");
+  const existingSymbolExposure = input.state.openPositions.filter((position) => position.symbol?.replaceAll("/", "").toUpperCase() === candidate.symbol.replaceAll("/", "").toUpperCase()).reduce((total, position) => total.plus(new Decimal(position.marketValue).abs()), new Decimal("0"));
   const maxPositionPercent = candidate.assetClass === "crypto" ? policy.maxCryptoPositionPercent : policy.maxStockPositionPercent;
   const directionalMaxPositionPercent = candidate.side === "short" ? policy.maxShortPositionPercent : maxPositionPercent;
-  if (notional.greaterThan(equity.times(directionalMaxPositionPercent).div("100"))) {
+  if (notional.plus(existingSymbolExposure).greaterThan(equity.times(directionalMaxPositionPercent).div("100"))) {
     reasons.push("Proposed position exceeds the asset-class position cap.");
   }
-  const grossExposure = input.state.openPositions.reduce((total, position) => total.plus(decimal(position.marketValue, "position market value").abs()), new Decimal("0")).plus(notional);
+  const grossExposure = input.state.openPositions.reduce((total, position) => total.plus(new Decimal(position.marketValue).abs()), new Decimal("0")).plus(notional);
   if (grossExposure.greaterThan(equity.times(policy.maxGrossExposurePercent).div("100"))) reasons.push("Proposed position exceeds the gross-exposure cap.");
-  if (candidate.side === "short" && notional.greaterThan(equity.times(policy.maxShortGrossExposurePercent).div("100"))) reasons.push("Proposed short exposure exceeds the short gross-exposure cap.");
+  const existingShortExposure = input.state.openPositions.filter((position) => new Decimal(position.marketValue).isNegative()).reduce((total, position) => total.plus(new Decimal(position.marketValue).abs()), new Decimal("0"));
+  if (candidate.side === "short" && notional.plus(existingShortExposure).greaterThan(equity.times(policy.maxShortGrossExposurePercent).div("100"))) reasons.push("Proposed short exposure exceeds the short gross-exposure cap.");
   return { estimatedLoss: risk.estimatedLoss, estimatedLossPercent: risk.estimatedLossPercent, passes: reasons.length === 0, reasons, risk };
 }

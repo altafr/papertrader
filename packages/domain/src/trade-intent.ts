@@ -26,7 +26,7 @@ export interface PaperTradeApproval {
   readonly assessment: PaperRiskAssessment;
   readonly expiresAt: string;
   readonly intentId: string;
-  readonly policyVersion: "paper-risk-v1";
+  readonly policyVersion: "paper-risk-v2-allocation";
   readonly status: "approved" | "rejected";
 }
 
@@ -94,7 +94,7 @@ export function approvePaperTradeIntent(input: {
   const reasons = [...assessment.reasons];
   if (currentTime >= Date.parse(input.intent.expiresAt)) reasons.push("Trade intent has expired.");
   const finalAssessment: PaperRiskAssessment = Object.freeze({ ...assessment, passes: reasons.length === 0, reasons: Object.freeze(reasons) });
-  return Object.freeze({ approvedAt: input.approvedAt, approvalId: `${input.intent.intentId}:${input.approvedAt}`, assessment: finalAssessment, expiresAt: input.intent.expiresAt, intentId: input.intent.intentId, policyVersion: "paper-risk-v1", status: finalAssessment.passes ? "approved" : "rejected" });
+  return Object.freeze({ approvedAt: input.approvedAt, approvalId: `${input.intent.intentId}:${input.approvedAt}`, assessment: finalAssessment, expiresAt: input.intent.expiresAt, intentId: input.intent.intentId, policyVersion: "paper-risk-v2-allocation", status: finalAssessment.passes ? "approved" : "rejected" });
 }
 
 export function createPaperTradeApprovalStore() {

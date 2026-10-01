@@ -6,6 +6,7 @@ import { createAccountStateRepository, createPaperOrderRepository, type Database
 
 import { assessResearchCandidateRisk, buildRiskCandidate, isPaperBaselineVerified } from "./paper-risk-dry-run.js";
 import { isCompleteExitPlan } from "@momentum/domain";
+import type { PaperAllocationState } from "./paper-quantity.js";
 import { getPaperTimeInForce } from "./paper-order-duration.js";
 
 /**
@@ -74,7 +75,7 @@ export async function runPaperAutopilotRiskCycle(input: {
   readonly candidates: readonly ResearchWatchlistCandidate[];
   readonly db: Database;
   readonly quantity?: string;
-  readonly quantityForCandidate?: (candidate: ResearchWatchlistCandidate, equity: string) => string;
+  readonly quantityForCandidate?: (candidate: ResearchWatchlistCandidate, equity: string, allocation: PaperAllocationState) => string;
   readonly now?: Date;
   readonly environment?: NodeJS.ProcessEnv;
   readonly approvalReference?: string;
@@ -100,7 +101,9 @@ export async function runPaperAutopilotRiskCycle(input: {
     accountBaselineVerified: baselineVerified,
     accountFresh,
     killSwitchActive: isGlobalKillSwitchActive(input.environment ?? process.env),
-    openPositions: model.positions.map((position) => ({ assetClass: position.assetClass === "crypto" ? "crypto" as const : "us_equity" as const, marketValue: position.marketValue })),
+    pendingEntryCount: (await repository.listPendingEntrySubmissions()).length,
+    shortTradingEnabled: (input.environment ?? process.env).SHORT_TRADING_ENABLED === "true",
+    openPositions: model.positions.map((position) => ({ assetClass: position.assetClass === "crypto" ? "crypto" as const : "us_equity" as const, marketValue: position.marketValue, symbol: position.symbol })),
     submittedEntriesLast24Hours: model.orders.filter((order) => order.side.toLowerCase() === "buy" && order.submittedAt && now.getTime() - order.submittedAt.getTime() <= 86_400_000).length,
     cryptoSyntheticBracketEnabled: (input.environment ?? process.env).CRYPTO_SYNTHETIC_BRACKET_ENABLED === "true" && (input.environment ?? process.env).POSITION_MANAGEMENT_SCHEDULER_ENABLED === "true",
     positionManagementHealthy: (input.environment ?? process.env).POSITION_MANAGEMENT_SCHEDULER_ENABLED === "true",
@@ -122,7 +125,11 @@ export async function runPaperAutopilotRiskCycle(input: {
     shortableSymbols = assets.filter((asset) => asset.assetClass === "us_equity" && asset.tradable && asset.shortable === true && asset.easyToBorrow !== false).map((asset) => asset.symbol);
   }
   for (const candidate of candidates) {
-    const quantity = input.quantityForCandidate?.(candidate, snapshot.equity) ?? defaultQuantity;
+    const quantity = input.quantityForCandidate?.(candidate, snapshot.equity, { positions: model.positions, cash: snapshot.cash }) ?? defaultQuantity;
+    if (quantity === "0") {
+      results.push({ approvalStatus: "rejected", entryPrice: candidate.marketSnapshot?.close ?? "0", executionStatus: "not_submitted", estimatedLossPercent: "0", intentId: `allocation:${candidate.symbol}:${candidate.dataAsOf}`, quantity, reasons: ["No allocation: target reached, symbol already held, position limit, or remaining budget below the percentage minimum."], symbol: candidate.symbol });
+      continue;
+    }
     const candidateAge = now.getTime() - Date.parse(candidate.dataAsOf);
     const state = { ...baseState, shortableSymbols, dataFresh: Number.isFinite(candidateAge) && candidateAge >= 0 && candidateAge <= 172_800_000 };
     const { approval, intentId } = assessResearchCandidateRisk({ candidate, currentAt: now.toISOString(), equity: snapshot.equity, quantity, state });

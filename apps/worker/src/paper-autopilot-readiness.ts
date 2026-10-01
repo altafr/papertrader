@@ -1,5 +1,5 @@
 import { getPaperOperatingMode, isGlobalKillSwitchActive } from "@momentum/config";
-import { MAX_SINGLE_TRADE_RISK_PERCENT_OF_NOTIONAL, MAX_SINGLE_TRADE_STOP_LOSS_PERCENT, PAPER_INITIAL_EQUITY_BASELINE } from "@momentum/domain";
+import { DEFAULT_PAPER_RISK_POLICY, MAX_SINGLE_TRADE_RISK_PERCENT_OF_NOTIONAL, MAX_SINGLE_TRADE_STOP_LOSS_PERCENT, PAPER_INITIAL_EQUITY_BASELINE } from "@momentum/domain";
 
 export type PaperAutopilotReadinessStatus = "blocked" | "disabled" | "ready";
 
@@ -23,6 +23,8 @@ export interface PaperAutopilotReadiness {
     readonly shortTradingApprovalReferencePresent: boolean;
   };
   readonly policy: {
+    readonly allocation?: typeof DEFAULT_PAPER_RISK_POLICY;
+    readonly version?: string;
     readonly initialEquityBaseline: string;
     readonly maxSingleTradeRiskPercentOfNotional: string;
     readonly maxSingleTradeStopLossPercent: string;
@@ -55,7 +57,7 @@ export function getPaperAutopilotReadiness(environment: NodeJS.ProcessEnv = proc
   } catch {
     operatingModePaperAutopilot = false;
   }
-  const paperRiskPolicyValid = PAPER_INITIAL_EQUITY_BASELINE === "100000" && MAX_SINGLE_TRADE_RISK_PERCENT_OF_NOTIONAL === "5" && MAX_SINGLE_TRADE_STOP_LOSS_PERCENT === "5";
+  const paperRiskPolicyValid = PAPER_INITIAL_EQUITY_BASELINE === "100000" && MAX_SINGLE_TRADE_RISK_PERCENT_OF_NOTIONAL === "5" && MAX_SINGLE_TRADE_STOP_LOSS_PERCENT === "5" && DEFAULT_PAPER_RISK_POLICY.minPositionPercent === "2" && DEFAULT_PAPER_RISK_POLICY.targetGrossExposurePercent === "75" && DEFAULT_PAPER_RISK_POLICY.maxGrossExposurePercent === "80" && DEFAULT_PAPER_RISK_POLICY.maxStockPositionPercent === "10";
   const blockedReasons = [
     ...(paperMode ? [] : ["paper_runtime_invalid"]),
     ...(paperCredentialsConfigured ? [] : ["paper_credentials_not_configured"]),
@@ -76,7 +78,7 @@ export function getPaperAutopilotReadiness(environment: NodeJS.ProcessEnv = proc
     blockedReasons: status === "disabled" ? [] : blockedReasons,
     checks: { brokerConnectionEnabled, dailyPreparationHandlerEnabled, databaseConfigured, durableSchedulerEnabled, globalKillSwitchActive, operatingModePaperAutopilot, paperCredentialsConfigured, paperMode, paperOrderSubmissionApprovalReferencePresent, paperOrderSubmissionEnabled, paperRiskPolicyValid, runtimeFreshnessGateRequired: true, schedulerActivationApprovalReferencePresent, shortTradingEnabled, shortTradingApprovalReferencePresent },
     executionStatus: paperOrderSubmissionEnabled ? (paperOrderSubmissionApprovalReferencePresent ? "enabled" : "blocked") : "dry_run",
-    policy: { initialEquityBaseline: PAPER_INITIAL_EQUITY_BASELINE, maxSingleTradeRiskPercentOfNotional: MAX_SINGLE_TRADE_RISK_PERCENT_OF_NOTIONAL, maxSingleTradeStopLossPercent: MAX_SINGLE_TRADE_STOP_LOSS_PERCENT },
+    policy: { allocation: DEFAULT_PAPER_RISK_POLICY, version: "paper-risk-v2-allocation", initialEquityBaseline: PAPER_INITIAL_EQUITY_BASELINE, maxSingleTradeRiskPercentOfNotional: MAX_SINGLE_TRADE_RISK_PERCENT_OF_NOTIONAL, maxSingleTradeStopLossPercent: MAX_SINGLE_TRADE_STOP_LOSS_PERCENT },
     status,
   };
 }

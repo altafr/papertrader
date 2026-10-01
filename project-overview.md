@@ -167,12 +167,12 @@ These are conservative engineering defaults for validation, not recommendations.
 - Initial paper-account equity baseline: `USD 100,000`, matching Alpaca's current default paper-account balance. Autopilot remains paused if the configured starting baseline has not been verified against the Alpaca paper account.
 - Long-only in the current release. A future bearish mode may propose short positions when both the broad market and sector are bearish, but it remains disabled until its safety gates are implemented and explicitly activated.
 - Maximum planned loss at the stop per trade: `5%` of the position's invested notional, inclusive of estimated fees and slippage.
-- Minimum invested notional for every new trade: `USD 10,000` or `2%` of current portfolio equity, whichever is greater; deterministic sizing rounds up to the supported asset precision and rejects undersized overrides. The 10K allocation rule applies across positions and is enforced server-side in paper risk.
+- Percentage-only allocation: minimum new position `2%` of equity; no fixed-dollar floor. Target `75%` gross deployment within a `70–80%` operating band when sufficient qualified signals exist. Rank candidates using the existing strategy; round quantities down and skip held symbols or insufficient remaining budgets. Never force a trade to meet utilization.
 - Maximum adverse entry-to-stop distance: `5%` for long positions; the position must be exited at or before this threshold.
-- Maximum single stock position: `10%` of equity, so the USD 10,000 baseline allocation can pass at the USD 100,000 paper baseline.
+- Maximum single stock position: `10%` of equity; existing holdings count toward the same-symbol cap. Short positions retain their separate `5%` single-position and `25%` aggregate caps.
 - Direct crypto entries are disabled. Existing crypto positions may be monitored and exited by the position supervisor, but no new crypto position can be approved or submitted.
 - Maximum total crypto exposure: `15%` of equity.
-- Maximum gross portfolio exposure: `50%` of equity.
+- Maximum gross portfolio exposure for new orders: `80%` of equity.
 - Maximum open positions: `10`.
 - Maximum submitted entries per rolling 24 hours: `20`.
 - Daily realized plus unrealized loss kill switch: `1.5%` from start-of-day equity.
@@ -183,6 +183,8 @@ These are conservative engineering defaults for validation, not recommendations.
 - Equity entries use Alpaca bracket orders containing both the protective stop and profit target. Alpaca's Trading API supports only simple orders for crypto, so crypto entries require the explicit restart-safe synthetic bracket flag and active position manager. Favorable open positions use a deterministic ratcheting stop at 5% below the current mark, never lowering the stored protection.
 
 The 5% invested-notional rule aligns position sizing and the maximum adverse stop distance. Gaps, liquidity failures, and execution slippage mean no system can guarantee the final realized loss.
+
+The risk manager applies deterministic entry validation only; it has no discretionary or emotional veto. Selected compliant trades proceed automatically. Liquidations follow versioned stops, targets, time stops, and explicit emergency rules; utilization targets alone never trigger liquidation. Market moves may take exposure above the entry cap without authorizing an unplanned forced sale.
 
 Changing a risk limit requires an audit entry. Loosening a limit in live modes requires re-authentication and explicit confirmation.
 

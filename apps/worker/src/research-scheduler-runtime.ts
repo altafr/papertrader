@@ -97,7 +97,7 @@ export function createResearchSchedulerFromEnvironment(environment: NodeJS.Proce
   if (!databaseUrl) throw new Error("RESEARCH_SCHEDULER_ENABLED=true requires DATABASE_URL.");
   const apiKey = environment.ALPACA_API_KEY ?? "";
   const secretKey = environment.ALPACA_SECRET_KEY ?? "";
-  const { db } = createDatabase(databaseUrl);
+  const { db, pool } = createDatabase(databaseUrl);
   const repository = createAgentRunRepository(db);
   const alertRepository = createTelegramAlertRepository(db);
   const orderSubmissionFlag = environment.PAPER_AUTOPILOT_ORDER_SUBMISSION_ENABLED;
@@ -134,7 +134,10 @@ export function createResearchSchedulerFromEnvironment(environment: NodeJS.Proce
           const researchedCandidates = dedupeResearchCandidates(results.flatMap((result) => result.candidates ?? []));
           const candidates = await filterByMarketAndSector(researchedCandidates);
         const notifier = createRuntimeAlertNotifier(environment, alertRepository);
+        const allocationLock = await pool.connect();
         try {
+          const lock = await allocationLock.query<{ acquired: boolean }>("SELECT pg_try_advisory_lock(726031, 1) AS acquired");
+          if (!lock.rows[0]?.acquired) return;
           const accountRepository = createAccountStateRepository(db);
           const snapshot = await reconcilePaperAccount(createPaperAccountReader({ apiKey, secretKey }), accountRepository);
           const model = await accountRepository.getLatestReadModel(snapshot.accountId);
@@ -148,7 +151,7 @@ export function createResearchSchedulerFromEnvironment(environment: NodeJS.Proce
             await executePaperAutopilotOrder({ autopilot: { enabled: true, mode: "paper_autopilot" }, order, notify: notifier.notify, persistence: orderRepository, submitter: createPaperOrderSubmitter({ apiKey, brokerConnectionEnabled: true, secretKey }) });
           } : undefined;
           const approvalReference = results.find((result) => result.status === "succeeded")?.runId;
-          const riskResults = await runPaperAutopilotRiskCycle({ ...(approvalReference ? { approvalReference } : {}), candidates, db, environment, quantityForCandidate: (candidate, equity) => getPaperAutopilotQuantityForCandidate(candidate, equity, environment), ...(executeApproved ? { executeApproved } : {}), notify: notifier.notify });
+          const riskResults = await runPaperAutopilotRiskCycle({ ...(approvalReference ? { approvalReference } : {}), candidates, db, environment, quantityForCandidate: (candidate, equity, allocation) => getPaperAutopilotQuantityForCandidate(candidate, equity, environment, undefined, allocation), ...(executeApproved ? { executeApproved } : {}), notify: notifier.notify });
           setResearchRiskCycleHealth({ approved: riskResults.filter((result) => result.approvalStatus === "approved").length, decisions: riskResults.length, status: "completed" });
           console.log(JSON.stringify(buildPaperRiskCycleLog({ decisions: riskResults, researchRunIds: results.map((result) => result.runId) })));
         } catch (error: unknown) {
@@ -156,6 +159,8 @@ export function createResearchSchedulerFromEnvironment(environment: NodeJS.Proce
           console.error(JSON.stringify(buildPaperRiskCycleFailureLog(error)));
           await notifier.notify(buildPaperRiskCycleFailureAlert({ agentType: "research_batch", runId: results.map((result) => result.runId).join(",").slice(0, 120) }));
           throw new Error("paper_risk_cycle_failed");
+        } finally {
+          try { await allocationLock.query("SELECT pg_advisory_unlock(726031, 1)"); } finally { allocationLock.release(); }
         }
       },
     } : {}),

@@ -10,7 +10,7 @@ const state = { accountBaselineVerified: true, accountFresh: true, dataFresh: tr
 describe("immutable paper trade intents", () => {
   it("re-evaluates current state and creates an approval record", () => {
     const approval = approvePaperTradeIntent({ approvedAt: "2026-01-10T00:03:00Z", currentAt: "2026-01-10T00:03:00Z", equity: "1000", intent, state });
-    expect(approval).toMatchObject({ intentId: "intent-1", policyVersion: "paper-risk-v1", status: "approved" });
+    expect(approval).toMatchObject({ intentId: "intent-1", policyVersion: "paper-risk-v2-allocation", status: "approved" });
     expect(Object.isFrozen(intent)).toBe(true);
   });
 

@@ -164,20 +164,6 @@ function decimalValue(row: Record<string, unknown>, key: string): DisplayDecimal
   try { return new DisplayDecimal(String(raw)); } catch { return undefined; }
 }
 
-function positionNotional(row: Record<string, unknown>): string | undefined {
-  const quantity = decimalValue(row, "quantity");
-  const entry = decimalValue(row, "averageEntryPrice");
-  return quantity && entry ? quantity.times(entry).toDecimalPlaces(2).toFixed(2) : undefined;
-}
-
-function positionReturnPercent(row: Record<string, unknown>): string | undefined {
-  const quantity = decimalValue(row, "quantity");
-  const entry = decimalValue(row, "averageEntryPrice");
-  const unrealized = decimalValue(row, "unrealizedPl");
-  const notional = quantity && entry ? quantity.times(entry) : undefined;
-  return notional && unrealized && !notional.isZero() ? unrealized.div(notional).times("100").toDecimalPlaces(2).toFixed(2) : undefined;
-}
-
 function positionCurrentPrice(row: Record<string, unknown>): string | undefined {
   const quantity = decimalValue(row, "quantity");
   const marketValue = decimalValue(row, "marketValue");
@@ -198,14 +184,6 @@ function sumDecimalColumn(rows: readonly Record<string, unknown>[], key: string)
     found = true;
   }
   return found ? total.toDecimalPlaces(2).toFixed(2) : undefined;
-}
-
-function positionAge(row: Record<string, unknown>): string {
-  const openedAt = value(row, "positionOpenedAt");
-  const timestamp = Date.parse(openedAt);
-  if (!Number.isFinite(timestamp)) return "Not reported";
-  const ageHours = Math.max(0, (Date.now() - timestamp) / 3_600_000);
-  return ageHours < 24 ? `${ageHours.toFixed(1)}h` : `${(ageHours / 24).toFixed(1)}d`;
 }
 
 function riskCycleAge(latestAt: string | undefined): string {

@@ -676,6 +676,11 @@ export function createPaperOrderRepository(db: Database) {
       return db.select().from(paperOrderSubmissions).orderBy(desc(paperOrderSubmissions.createdAt)).limit(limit);
     },
 
+    async listPendingEntrySubmissions() {
+      // Reconcile broker-bound entries before reusing capital; never count protective exit legs as entries.
+      return db.select({ intentId: paperOrderSubmissions.intentId }).from(paperOrderSubmissions).where(sql`${paperOrderSubmissions.clientOrderId} NOT LIKE '%-exit-%' AND ${paperOrderSubmissions.status} NOT IN ('filled', 'canceled', 'cancelled', 'expired', 'rejected', 'failed', 'risk_dry_run_approved', 'risk_dry_run_rejected', 'paper_order_risk_rejected') AND NOT EXISTS (SELECT 1 FROM orders o WHERE o.alpaca_order_id = ${paperOrderSubmissions.alpacaOrderId} AND o.status IN ('filled', 'canceled', 'cancelled', 'expired', 'rejected'))`);
+    },
+
     async listActiveExitSubmissions() {
       return db.select({ clientOrderId: paperOrderSubmissions.clientOrderId, intentId: paperOrderSubmissions.intentId, status: paperOrderSubmissions.status }).from(paperOrderSubmissions).where(sql`${paperOrderSubmissions.clientOrderId} LIKE '%-exit-%' AND ${paperOrderSubmissions.status} NOT IN ('filled', 'canceled', 'cancelled', 'expired', 'rejected', 'failed')`);
     },

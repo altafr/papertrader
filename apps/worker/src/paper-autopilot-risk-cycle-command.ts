@@ -27,7 +27,7 @@ try {
   }).slice(0, 10);
   if (candidates.length === 0) throw new Error("Persisted research artifact contains no valid candidates.");
   const notifier = createRuntimeAlertNotifier(process.env, createTelegramAlertRepository(db));
-  const results = await runPaperAutopilotRiskCycle({ approvalReference, candidates, db, environment: process.env, quantityForCandidate: (candidate, equity) => getPaperAutopilotQuantityForCandidate(candidate, equity, process.env), notify: notifier.notify });
+  const results = await runPaperAutopilotRiskCycle({ approvalReference, candidates, db, environment: process.env, quantityForCandidate: (candidate, equity, allocation) => getPaperAutopilotQuantityForCandidate(candidate, equity, process.env, undefined, allocation), notify: notifier.notify });
   console.log(JSON.stringify({ approvalReference, candidateCount: candidates.length, decisions: results.map((result) => ({ approvalStatus: result.approvalStatus, intentId: result.intentId, symbol: result.symbol })), researchRunId: run.runId, status: "paper_risk_cycle_completed" }));
 } catch {
   console.error("Paper Autopilot risk cycle failed closed.");

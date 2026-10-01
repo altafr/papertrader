@@ -19,10 +19,33 @@ describe("paper quantity resolution", () => {
   it("accepts large decimal quantities without binary-number overflow", () => {
     expect(getPaperAutopilotQuantity("crypto", {}, "999999999999999999999999.00000001")).toBe("999999999999999999999999.00000001");
   });
-  it("sizes an unconfigured trade at the USD 10,000 minimum notional", () => {
-    expect(getPaperAutopilotQuantityForCandidate({ assetClass: "us_equity", marketSnapshot: { close: "100" } }, "100000", {})).toBe("101");
+  it("rounds stock sizing down to the percentage cap", () => {
+    expect(getPaperAutopilotQuantityForCandidate({ assetClass: "us_equity", marketSnapshot: { close: "100" } }, "100000", {})).toBe("100");
   });
   it("sizes an unconfigured crypto trade using eight-decimal precision", () => {
-    expect(getPaperAutopilotQuantityForCandidate({ assetClass: "crypto", marketSnapshot: { close: "100000" } }, "100000", {})).toBe("0.10000001");
+    expect(getPaperAutopilotQuantityForCandidate({ assetClass: "crypto", marketSnapshot: { close: "100000" } }, "100000", {})).toBe("0.10000000");
+  });
+});
+
+const stock = { assetClass: "us_equity" as const, symbol: "AAA", marketSnapshot: { close: "100" } };
+describe("portfolio allocation", () => {
+  it("can deploy a below-baseline account without a fixed dollar floor", () => {
+    expect(getPaperAutopilotQuantityForCandidate(stock, "97742.17", {})).toBe("97");
+  });
+  it("fills toward 75% and stops without forcing trades at the target", () => {
+    expect(getPaperAutopilotQuantityForCandidate(stock, "100000", {}, undefined, { cash: "30000", positions: [{ symbol: "BBB", marketValue: "70000" }] })).toBe("50");
+    expect(getPaperAutopilotQuantityForCandidate(stock, "100000", {}, undefined, { cash: "25000", positions: [{ symbol: "BBB", marketValue: "75000" }] })).toBe("0");
+  });
+  it("does not pyramid existing symbols or spend an insufficient remainder", () => {
+    expect(getPaperAutopilotQuantityForCandidate(stock, "100000", {}, undefined, { cash: "90000", positions: [{ symbol: "AAA", marketValue: "10000" }] })).toBe("0");
+    expect(getPaperAutopilotQuantityForCandidate(stock, "100000", {}, undefined, { cash: "1000", positions: [] })).toBe("0");
+  });
+  it("keeps shorts within their separate 5% position and 25% aggregate caps", () => {
+    expect(getPaperAutopilotQuantityForCandidate({ ...stock, side: "short" }, "100000", {})).toBe("50");
+    expect(getPaperAutopilotQuantityForCandidate({ ...stock, side: "short" }, "100000", {}, undefined, { cash: "120000", positions: [{ symbol: "BBB", marketValue: "-24000" }] })).toBe("0");
+  });
+  it("fails closed for malformed sizing data", () => {
+    expect(() => getPaperAutopilotQuantityForCandidate(stock, "NaN", {})).toThrow();
+    expect(() => getPaperAutopilotQuantityForCandidate({ ...stock, marketSnapshot: { close: "Infinity" } }, "100000", {})).toThrow();
   });
 });

@@ -1,5 +1,14 @@
 # Progress Tracker
 
+## Phase 6.631 — Percentage allocation and deterministic risk (2026-10-02)
+
+- Operator approved removal of the fixed-dollar entry floor, a 70–80% deployment band with an 80% cap, and restart preserving account balance and all trading history. Sizing targets the midpoint, 75%; existing 2% minimum, 10% long, 5% short, 25% aggregate-short, loss, freshness, and kill-switch limits remain enforced.
+- Versioned approvals as `paper-risk-v2-allocation`. Default quantities round down, use remaining target/cash/directional budgets, and skip held symbols; no discretionary/emotional risk veto and no forced trades or liquidations to achieve utilization.
+- Aggregate exposure includes absolute short values and same-symbol holdings. Pending entries block capital reuse until broker reconciliation; a PostgreSQL advisory lock serializes scheduled reconciliation/approval/execution across overlapping workers.
+- Removal supersedes historical Phase 6.628; its record is retained as history. No balance reset or audit deletion is authorized.
+- Verification: `pnpm build`, `pnpm typecheck`, `pnpm lint`, `pnpm test` (106 files / 512 tests), and `git diff --check` passed. Removed three pre-existing unused dashboard helpers to restore the lint gate without changing rendered UI. Removed the hosted Worker fixed-floor configuration; API and recovery-worker have no such override. Hosted policy rollout pending.
+
+
 ## Phase 6.630 — Global display timezone toggle (2026-09-23)
 
 - Added a global display preference that defaults all dashboard, Telegram Mini App, overnight-report, agent, audit, alert, order, and reconciliation timestamps to Hong Kong time (`Asia/Hong_Kong`, HKT).
@@ -15,11 +24,11 @@
 - Documented the rule in the product overview and architecture.
 - **Next smallest unit:** run focused domain/Worker tests and deploy the crypto-entry block.
 
-## Phase 6.628 — USD 10,000 position sizing rule (2026-09-23)
+## Phase 6.628 — Historical fixed-dollar sizing rule (2026-09-23; superseded by 6.631)
 
-- Changed the default paper position rule from the prior USD 2,000 stock floor to a server-enforced minimum of USD 10,000 or 2% of current equity, whichever is greater.
+- Changed the default paper position rule from the prior USD 2,000 stock floor to a server-enforced fixed-dollar minimum plus a 2% equity floor (removed by Phase 6.631).
 - Updated dynamic paper quantity derivation and deterministic risk assessment so explicit undersized overrides are rejected under the same rule.
-- Raised the single-stock and single-crypto caps to 10% of equity so a USD 10,000 position can pass at the USD 100,000 paper baseline; gross exposure, stop-loss, freshness, baseline, kill-switch, paper-mode, and crypto supervisor gates remain unchanged.
+- Raised the single-stock and single-crypto caps to 10% of equity to support that historical fixed-dollar minimum at the USD 100,000 paper baseline; gross exposure, stop-loss, freshness, baseline, kill-switch, paper-mode, and crypto supervisor gates remain unchanged.
 - Added focused regression coverage for the new notional floor and documented the rule in the product overview and architecture.
 - **Next smallest unit:** run focused domain/worker tests and typechecks, then deploy the worker configuration with the new sizing rule.
 
