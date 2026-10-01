@@ -7,7 +7,8 @@
 - Activated short path uses existing server-side gate and approval reference, per-scan broker-confirmed borrowability, available buying power, bracketed protective stop and buy-to-cover target, deterministic risk controls, and audit/reconciliation. Short equity sales now count toward the same rolling 24-hour entry cap as buys; tagged closing orders are excluded.
 - Updated product/architecture docs. Paper-only; no risk thresholds, paper/live mode, or broker state were changed by this code update.
 - `pnpm typecheck`, `pnpm build`, `pnpm lint`, and `git diff --check` passed. Read-only broker reconciliation resolved the previously pending CRWD entry to 37 filled shares with its protective sell leg active; no entry submissions remain pending. The paper account now holds CRWD, so same-symbol shorting is prevented by the existing allocation rule.
-- **Next:** deploy the Worker and verify the running directional selector; then observe a scheduled cycle before claiming any new short order.
+- Worker deployment `7477b46f-a129-4553-b275-0e2e67c145ef` reached `SUCCESS` from commit `04d2baeac06e7dac343e9cd1a99352c52b998fa5`. Hosted code inspection confirms side-matched market/sector checks and balanced absolute-momentum selection are active; the paper short gate and its approval reference are present. Worker health is healthy, paper autopilot submission remains enabled, and the global kill switch is off. Latest reconciled equity is USD 97,769.55 with a 37-share CRWD long and its broker stop/target order active. The next stock scan is scheduled at `2026-10-01T17:30:00Z` (2026-10-02 01:30 HKT); no short entry has yet been observed after the deployment.
+- **Next:** inspect the scheduled scan’s directional evidence and paper risk result before reporting any short order submission or fill.
 
 
 ## Phase 6.631 — Percentage allocation and deterministic risk (2026-10-02)
