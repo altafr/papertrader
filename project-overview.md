@@ -2,6 +2,17 @@
 
 ## Product Summary
 
+## Final Active Trading Policy (2026-10-17)
+
+- **Mode:** Alpaca paper trading only. Paper Autopilot may submit approved orders without per-order operator confirmation; live trading remains disabled.
+- **Universe:** the versioned 36-symbol US-equity watchlist. Direct crypto entries are disabled; existing crypto positions are observation/close-only.
+- **Directions:** long and short stock candidates are both supported. Longs require positive stock momentum plus bullish market and sector confirmation. Shorts require negative stock momentum plus bearish market and sector confirmation, current broker-confirmed shortability/easy borrow, sufficient buying power, and the explicit short feature gate.
+- **Sizing:** minimum new position is 2% of current equity; no fixed-dollar floor. Long stock concentration is capped at 10% of equity; a short is capped at 5% and aggregate shorts at 25%. Gross exposure is capped at 80%, with a 75% target when qualified signals exist. No trade is forced to reach the target.
+- **Protection:** every stock entry is bracketed with a protective stop and profit target. Planned loss, including estimated fees and slippage, cannot exceed 5% of invested notional and adverse stop distance cannot exceed 5%. Long stops are below entry; short stops are above entry. Profitable positions receive deterministic trailing-stop ratchets.
+- **Operations:** research runs after close at 17:00 ET, pre-market at 08:30 ET, and every 30 minutes from 09:30–15:30 ET on trading days. Position supervision runs every 30 minutes. Broker-native brackets remain active between supervisor passes.
+- **Fail-closed gates:** stale data, incomplete exit-plan provenance, excessive exposure, insufficient borrow/buying power, duplicate/in-flight orders, kill switches, invalid market/sector direction, or unavailable broker data prevents submission.
+- **Audit/reporting:** every candidate, rejection, approval, order, fill, exit, P/L result, market snapshot, and agent run is persisted. Telegram reports important lifecycle events with deduplication; routine research and portfolio summaries are digested.
+
 Momentum Autopilot is a continuously running trading operations platform for US stocks and Alpaca-supported crypto assets. A coordinated group of specialized agents researches markets, prepares trading sessions, monitors live data, scores momentum opportunities, proposes and executes risk-approved trades, reconciles fills, and reports real-time and historical performance in a live dashboard.
 
 The production runtime operates on server infrastructure every calendar day, including when the operator's browser is closed. Daily preparation, health checks, reconciliation, and scheduled evaluations must be durable and observable; crypto monitoring may operate continuously because the market trades 24/7.

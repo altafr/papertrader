@@ -60,6 +60,9 @@
 - The execution service accepts only an unexpired approved intent and revalidates mode, kill switches, and material account state immediately before submission.
 - Paper Autopilot requires no per-order human confirmation, but it may never bypass deterministic approval or execution-time revalidation.
 - Reject any intent whose estimated loss at the planned stop, including estimated fees and slippage, exceeds `5%` of invested notional; reject any long stop more than `5%` below entry; verify the configured `USD 100,000` initial paper-account baseline before enabling autopilot.
+- For short equity intents, require a stop above entry, a target below entry, current broker-confirmed shortability/easy borrow, sufficient buying power, the explicit short feature gate, a maximum `5%` single-short allocation, and a maximum `25%` aggregate-short allocation. Short exits are buy-to-cover orders.
+- The active stock universe is the versioned 36-symbol allowlist; direct crypto entries are disabled even though existing crypto positions may be monitored and closed.
+- Bracket orders are broker-active immediately; the position supervisor runs every 30 minutes for reconciliation and trailing-stop updates and must not be treated as the bracket trigger clock.
 - Every broker mutation uses a unique idempotency/client order ID.
 - On an ambiguous broker timeout, query existing state before retrying.
 - Position-management retries must query the full submission ledger, treat an existing non-terminal deterministic exit intent as in-flight, and must not call the broker a second time for the same position lifecycle.

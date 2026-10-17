@@ -2,6 +2,12 @@
 
 ## Status
 
+## Final Active Runtime Contract (2026-10-17)
+
+The production Worker is paper-only and runs the versioned 36-symbol US-equity universe. It supports direction-matched long and short stock automation. Longs require bullish broad-market and sector confirmation; shorts require bearish confirmation, broker-confirmed shortability/easy borrow, available buying power, the short feature gate, a 5% single-short cap, and a 25% aggregate-short cap. The deterministic policy also enforces a 2% minimum position, 10% long stock cap, 80% gross cap, 75% target exposure, 5% invested-notional planned-loss limit, 5% adverse stop distance, freshness, idempotency, open-position, kill-switch, and complete-exit-plan gates.
+
+Stock research runs at 17:00 ET after close, 08:30 ET pre-market, and every 30 minutes from 09:30–15:30 ET. Position management runs every 30 minutes. Entries carry broker-native bracket stops and targets; short exits are buy-to-cover orders. Brackets can execute between supervisor passes. Direct crypto entries remain disabled, while existing crypto positions may be monitored and closed. All decisions and outcomes are persisted to PostgreSQL and exposed through the authenticated dashboard and Telegram Mini App.
+
 Directional execution plan: every bounded stock shortlist contains the strongest candidates from both directions. Long signals pass only with bullish market and sector alignment; short signals pass only with bearish alignment. Paper shorts are activated behind the existing explicit feature gate and per-scan broker shortability/borrow checks, and remain subject to buying-power, 5% single-short, 25% aggregate-short, freshness, loss, position-count, kill-switch, bracket, idempotency, and reconciliation gates.
 
 US stock preparation cadence: two durable weekday runs: 17:00 America/New_York after the close to prepare the next session, then 08:30 America/New_York to refresh the plan one hour before the open. Preparation is research-only until deterministic gates approve a candidate; zero trades is a valid outcome.

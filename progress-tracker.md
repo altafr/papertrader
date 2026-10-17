@@ -1,5 +1,18 @@
 # Progress Tracker
 
+## Finalization checkpoint (2026-10-17)
+
+- Final active rules are now summarized at the top of `project-overview.md` and `architecture.md`; historical superseded decisions remain retained below for audit chronology.
+- The implementation is paper-only, direction-matched long/short US-stock automation with deterministic risk, bracket protection, buy-to-cover exits, 30-minute supervision, Telegram reporting, PostgreSQL audit persistence, and fail-closed safety gates.
+- `docs/actual-codebase-architecture.svg` is included as the codebase architecture reference.
+
+## Architecture diagram — implemented codebase view (2026-10-10)
+
+- Added `docs/actual-codebase-architecture.svg`, derived from the current `apps/web`, `apps/api`, `apps/worker`, and shared package boundaries.
+- The diagram records the deployed trading scope accurately: US-equity paper trading runs through deterministic risk, idempotent Alpaca paper orders, and PostgreSQL reconciliation. Direct crypto entries are disabled; crypto support is shown only as observation/close-only maintenance.
+- No code, credentials, broker state, risk thresholds, operating mode, or deployment configuration changed.
+
+
 ## Phase 6.632 — Direction-matched long and short stock automation (2026-10-02)
 
 - Operator authorized permanent long/short selection and automated paper trading of trades that qualify.
