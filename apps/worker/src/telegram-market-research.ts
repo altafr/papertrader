@@ -1,6 +1,10 @@
 import { createPaperMarketDataReader, type PaperMarketBar, type PaperMarketDataReader, type PaperMarketSnapshot } from "@momentum/alpaca";
 import { Decimal } from "decimal.js";
 import sharp from "sharp";
+import { fileURLToPath } from "node:url";
+
+const chartFontPath = fileURLToPath(new URL("../assets/fonts/NotoSans.ttf", import.meta.url));
+let chartFontReady: Promise<unknown> | undefined;
 
 export interface MarketResearchReply { readonly text: string; readonly chart?: Uint8Array; }
 const aliases: Readonly<Record<string, string>> = { apple: "AAPL", nvidia: "NVDA", tesla: "TSLA", microsoft: "MSFT", amazon: "AMZN", google: "GOOGL", alphabet: "GOOGL", meta: "META", netflix: "NFLX", palantir: "PLTR", "s&p": "SPY", nasdaq: "QQQ", dow: "DIA" };
@@ -74,6 +78,11 @@ const escapeXml = (value: string) => value.replace(/[<>&"']/g, (char) => ({ "<":
 export async function renderResearchChart(symbol: string, bars: readonly PaperMarketBar[], levels: TechnicalLevels, feed: string): Promise<Uint8Array> {
   const data = bars.slice(-60);
   if (data.length < 5) throw new Error("Insufficient chart history");
+  // Register the bundled OFL font with libvips/Pango, including on fontless servers.
+  if (process.platform === "linux") {
+    chartFontReady ??= sharp({ text: { text: "Research 0123456789", font: "Noto Sans", fontfile: chartFontPath, rgba: true } }).png().toBuffer().catch((error: unknown) => { chartFontReady = undefined; throw error; });
+    await chartFontReady;
+  }
   const min = Decimal.min(...data.map((bar) => new Decimal(bar.low))).times("0.98");
   const max = Decimal.max(...data.map((bar) => new Decimal(bar.high))).times("1.02");
   const x = (i: number) => 65 + i * 650 / Math.max(1, data.length - 1);
@@ -90,7 +99,7 @@ export async function renderResearchChart(symbol: string, bars: readonly PaperMa
   for (const [values, color] of [[levels.supports, "#62b8f6"], [levels.resistances, "#e6ad42"]] as const) {
     values.slice(0, 2).forEach((value) => { const py = y(value); if (py >= 95 && py <= 375) elements.push(`<path d="M65 ${py}H725" stroke="${color}" stroke-dasharray="5 5"/>`); });
   }
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="850" height="630"><rect width="850" height="630" fill="#081018"/><g fill="#e8eef5" font-family="DejaVu Sans,sans-serif"><text x="35" y="38" font-size="25">${escapeXml(symbol)} — daily price history</text><text x="35" y="68" font-size="16">SMA20 gold · SMA50 violet · S/R dashed · Volume below</text>${elements.join("")}<text x="65" y="398" font-size="14">Max daily volume: ${maxVolume.toFixed(0)} shares</text><text x="65" y="490" font-size="16">${escapeXml(data[0]!.timestamp.slice(0, 10))}</text><text x="585" y="490" font-size="16">${escapeXml(data.at(-1)!.timestamp.slice(0, 10))}</text><text x="35" y="524" font-size="18" fill="#62b8f6">Support: ${levels.supports.slice(0, 2).join(" / ") || "not established"}</text><text x="35" y="550" font-size="18" fill="#e6ad42">Resistance: ${levels.resistances.slice(0, 2).join(" / ") || "not established"}</text><text x="35" y="582" font-size="16">Alpaca ${escapeXml(feed)} · completed split-adjusted daily bars · USD</text><text x="35" y="608" font-size="15">Support/resistance are calculated estimates; read-only research.</text></g></svg>`;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="850" height="630"><rect width="850" height="630" fill="#081018"/><g fill="#e8eef5" font-family="Noto Sans,sans-serif"><text x="35" y="38" font-size="25">${escapeXml(symbol)} — daily price history</text><text x="35" y="68" font-size="16">SMA20 gold · SMA50 violet · S/R dashed · Volume below</text>${elements.join("")}<text x="65" y="398" font-size="14">Max daily volume: ${maxVolume.toFixed(0)} shares</text><text x="65" y="490" font-size="16">${escapeXml(data[0]!.timestamp.slice(0, 10))}</text><text x="585" y="490" font-size="16">${escapeXml(data.at(-1)!.timestamp.slice(0, 10))}</text><text x="35" y="524" font-size="18" fill="#62b8f6">Support: ${levels.supports.slice(0, 2).join(" / ") || "not established"}</text><text x="35" y="550" font-size="18" fill="#e6ad42">Resistance: ${levels.resistances.slice(0, 2).join(" / ") || "not established"}</text><text x="35" y="582" font-size="16">Alpaca ${escapeXml(feed)} · completed split-adjusted daily bars · USD</text><text x="35" y="608" font-size="15">Support/resistance are calculated estimates; read-only research.</text></g></svg>`;
   return sharp(Buffer.from(svg)).png().toBuffer();
 }
 

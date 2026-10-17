@@ -6,6 +6,7 @@
 - Telegram supports `/quote`, `/chart`, `/levels`, `/market` and natural-language questions, with explicit source/feed/timestamps, historical labels and partial-data handling. Questions and tool evidence persist in the agent ledger; authorized chat delivery supports multipart PNG uploads with a text fallback.
 - Advisory research can inspect tickers outside the trading universe without changing execution eligibility. No risk threshold, strategy, order behavior or notification cadence is changed.
 - Verification: production builds, workspace typechecks, lint, 108 test files / 543 tests, secret-surface audit and diff checks passed. Tests cover indicator calculations, incomplete daily bars, aliases/tickers, quote-only fallback, unknown tickers, sector ranking, authorized multipart photo delivery and chart rendering. A read-only call against production Alpaca retrieved AAPL quote/history and rendered a genuine PNG, which was visually inspected; clustered level labels were moved to separate readable rows. Hosted deployment evidence pending.
+- The first hosted rendering check exposed missing Linux fonts despite a valid PNG. Bundled the open-source Noto Sans font and its OFL licence, registered explicitly with the renderer; hosted visual recheck pending.
 
 ## Exit booking and broker-protection repair (2026-10-17)
 
