@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { buildTelegramMiniAppMenuButton, buildTelegramMiniAppReplyMarkup, buildTelegramOpsAssistantReply, fetchFirecrawlSources, getTelegramResearchAgentType, getTelegramUserIdReply, isResearchQuestion } from "./telegram-ops-assistant.js";
+import { buildTelegramMiniAppMenuButton, buildTelegramMiniAppReplyMarkup, buildTelegramOpsAssistantReply, createTelegramOpsAssistant, fetchFirecrawlSources, getTelegramResearchAgentType, getTelegramUserIdReply, isResearchQuestion } from "./telegram-ops-assistant.js";
 
 const data = {
   getHealth: () => ({ status: "degraded", operatingMode: "paper_autopilot", marketStream: { status: "connected", freshness: "fresh" }, researchSchedule: { status: "scheduled", nextRunAt: "2026-08-31T01:15:00Z", lastRiskCycleStatus: "completed" }, positionManagement: { failureCode: "crypto_order_entitlement_blocked", status: "degraded", unmanagedCount: 2 }, durableScheduler: { status: "scheduled", nextRunAt: "2026-09-01T00:00:00Z" } }),
@@ -12,6 +12,20 @@ const data = {
 };
 
 describe("Telegram operations assistant", () => {
+  it("uploads charts only for authorized chat questions via multipart sendPhoto", async () => {
+    const delivered: string[] = [];
+    const asked: string[] = [];
+    const assistant = createTelegramOpsAssistant({ TELEGRAM_ASSISTANT_ENABLED: "true", TELEGRAM_ALERTS_ENABLED: "true", TELEGRAM_CHAT_ID: "123", TELEGRAM_BOT_TOKEN: "test:fake" }, { ...data, askResearch: async (question) => { asked.push(question); return { text: "AAPL price evidence", chart: new Uint8Array([137, 80, 78, 71]) }; } }, async (url, init) => {
+      const path = String(url);
+      if (path.includes("getUpdates")) return new Response(JSON.stringify({ ok: true, result: [{ update_id: 1, message: { chat: { id: 999 }, text: "/chart MSFT" } }, { update_id: 2, message: { chat: { id: 123 }, text: "/chart AAPL" } }] }));
+      delivered.push(path.endsWith("sendPhoto") ? "photo" : "text");
+      if (path.endsWith("sendPhoto")) { expect(init?.body).toBeInstanceOf(FormData); expect((init?.body as FormData).get("chat_id")).toBe("123"); assistant.stop(); }
+      return new Response(JSON.stringify({ ok: true, result: {} }));
+    });
+    await assistant.start();
+    expect(asked).toEqual(["/chart AAPL"]);
+    expect(delivered).toEqual(["text", "photo"]);
+  });
   it("answers portfolio questions from the reconciled read model", async () => {
     await expect(buildTelegramOpsAssistantReply("show my portfolio and P&L", data)).resolves.toContain("Equity: 99000");
     await expect(buildTelegramOpsAssistantReply("show my portfolio and P&L", data)).resolves.toContain("AAPL 4");

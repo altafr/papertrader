@@ -4,6 +4,16 @@
 
 ## Final Active Runtime Contract (2026-10-17)
 
+### On-demand Telegram Stock Research tools (2026-10-17)
+
+- Telegram routes market/quote/chart/level questions to the existing persisted `stock_research` agent. Portfolio, risk, order, infrastructure and exit-plan questions retain their local operations path; macro and crypto retain their existing advisory routes.
+- The tool module exposes only Alpaca snapshot/historical GETs and server-side PNG chart rendering, plus the existing bounded Firecrawl search for news/context. No trading submitter, risk override or universe mutation is available to this route.
+- Up to three stock tickers per request; missing tickers prompt a concrete example. `/market` uses SPY/QQQ/DIA index proxies. General sector questions compare eleven sector ETF snapshots. Supported aliases cover common company/index names; ambiguous names require a ticker.
+- `TELEGRAM_MARKET_DATA_FEED` defaults to explicitly labelled IEX single-exchange data; optional SIP/delayed SIP requires the appropriate subscription. Feed selection affects only the advisory reader, not trading. Each HTTP read has an eight-second timeout; history pagination is capped at three 100-bar pages per ticker.
+- Historical bars are split-adjusted, sorted, validated, deduplicated, and the current incomplete daily bar is excluded conservatively until 16:15 ET. Technicals use decimal arithmetic: SMA20, SMA50, Wilder RSI14, confirmed two-bar swing extrema and previous completed-session classic pivots. Support/resistance are estimates, never guaranteed triggers.
+- A compact server-rendered PNG carries daily candles, volume, averages and labelled level values. Telegram sends the textual evidence first, then uploads the PNG to the same authorized chat with `sendPhoto`; rendering/delivery failure preserves the text answer. No external chart-image service or credential-bearing URL is used.
+- Each request persists queued/running/succeeded/failed agent lifecycle, source snapshots, finalized bars, calculated levels, timestamps, feed and optional web references. Image bytes are generated in memory and not stored in financial tables. Missing data is explicitly unavailable; no quote or level is fabricated.
+
 ### Exit and broker-protection correction (2026-10-17)
 
 - Normalize signed broker holdings to positive order quantities; retain the original signed holdings in the read model. Long exits sell; short exits buy to cover.

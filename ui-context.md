@@ -184,4 +184,6 @@ Stale values remain visible when useful but are visibly marked and never present
 
 ## Telegram overnight reports
 
+On-demand Stock Research replies can attach a dark daily candlestick PNG with volume, SMA20/50 and clearly separated support/resistance labels. The accompanying plain text contains all essential values, source/feed, HKT quote timestamp, historical-data warning and estimated-level method. Chart rendering or photo delivery failure must preserve the numerical reply. `/help` lists `/quote`, `/chart`, `/levels` and `/market` alongside the existing dashboard and operations commands.
+
 The read-only Telegram Mini App includes an Overnight tab with a dated report selector, headline, agent/process activity and decisions, trades, account snapshot, operational concerns and evidence limitations. Show Hong Kong time explicitly. Saved reports are historical and immutable, separate from live portfolio freshness. A missing report is an empty state, and archive failures are explicit. Mobile uses stacked decision cards and horizontally scrollable navigation.

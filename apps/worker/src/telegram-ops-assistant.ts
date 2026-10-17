@@ -6,6 +6,8 @@ interface DecimalConstructor { new (value: string): DecimalValue; }
 const Decimal = (DecimalModule as unknown as { readonly default: DecimalConstructor }).default;
 import { getTelegramNotificationConfig } from "@momentum/notifications";
 import { buildPaperPerformanceReport, PAPER_EVIDENCE_SNAPSHOT_LIMIT } from "./paper-performance-report.js";
+import { randomUUID } from "node:crypto";
+import { buildMarketResearch, createTelegramMarketReader, isMarketToolQuestion, type MarketResearchReply } from "./telegram-market-research.js";
 
 type JsonRecord = Record<string, unknown>;
 type AssistantHealth = { readonly status?: string; readonly operatingMode?: string; readonly marketStream?: JsonRecord; readonly researchSchedule?: JsonRecord; readonly positionManagement?: JsonRecord; readonly durableScheduler?: JsonRecord; readonly telegramAlerts?: JsonRecord };
@@ -24,7 +26,7 @@ export interface TelegramOpsAssistantData {
   readonly getTechSolverCases?: () => Promise<readonly AssistantTechSolverCase[]>;
   readonly getEvidence?: () => Promise<AssistantEvidence>;
   /** Route a non-trading research question to the appropriate agent/web provider. */
-  readonly askResearch?: (question: string) => Promise<string>;
+  readonly askResearch?: (question: string) => Promise<string | MarketResearchReply>;
 }
 
 const scalar = (value: unknown, fallback = "unknown"): string => typeof value === "string" || typeof value === "number" || typeof value === "boolean" ? String(value) : fallback;
@@ -56,7 +58,7 @@ export async function fetchFirecrawlSources(question: string, apiKey: string, fe
 }
 export function isResearchQuestion(question: string): boolean {
   if (/\b(portfolio|position|p&l|p\/l|trade|order|risk|health|infra|scheduler|log|status|alert|telegram|exit plan|stop loss|take profit|unmanaged|position management|readiness|evidence|autonomous)\b/i.test(question)) return false;
-  return /\b(company|companies|earnings|revenue|fundamentals|news|headline|analyst|sector|industry|fed|federal reserve|interest rate|rates|inflation|cpi|gdp|jobs report|unemployment|yield curve|macro|why is .*moving|what happened to)\b/i.test(question)
+  return isMarketToolQuestion(question) || /\b(company|companies|earnings|revenue|fundamentals|news|headline|analyst|sector|industry|fed|federal reserve|interest rate|rates|inflation|cpi|gdp|jobs report|unemployment|yield curve|macro|why is .*moving|what happened to)\b/i.test(question)
     || /\b[A-Z]{1,5}\b/.test(question);
 }
 export function getTelegramResearchAgentType(question: string): "crypto_research" | "macro_advisory" | "stock_research" {
@@ -64,11 +66,11 @@ export function getTelegramResearchAgentType(question: string): "crypto_research
   return /\b(bitcoin|btc|crypto|ethereum|eth)\b/i.test(question) ? "crypto_research" : "stock_research";
 }
 
-export async function buildTelegramOpsAssistantReply(question: string, data: TelegramOpsAssistantData): Promise<string> {
+export async function buildTelegramOpsAssistantReply(question: string, data: TelegramOpsAssistantData, onChart?: (chart: Uint8Array) => void): Promise<string> {
   const normalized = question.trim().toLowerCase();
   if (!normalized) return "Ask about portfolio, positions, trades, risk decisions, scheduler, or infrastructure health.";
   if (normalized === "/help" || normalized === "help" || normalized.includes("what can you")) {
-    return "I can answer read-only questions about portfolio/P&L, open positions, recent trades and decisions, agent runs, scheduler health, market-data freshness, Telegram delivery, and company, crypto, or macro research via the research agents. Send /dashboard to open the portfolio and alerts Mini App, or /myid to get your numeric Telegram user ID for setup. I cannot place, cancel, or modify orders.";
+    return "I can answer read-only questions about portfolio/P&L, positions, trades, agent runs, infrastructure, company news and macro research. Stock Research tools: /quote AAPL, /chart NVDA, /levels TSLA, /market, or ask about a stock's price, support/resistance and trend. Charts use daily candles, volume and SMA20/50; quotes include source/time and may be historical when markets are closed. Research can cover US tickers outside the trading watchlist. Send /dashboard for the Mini App or /myid for setup. I cannot place, cancel, or modify orders.";
   }
   if (isMiniAppRequest(question)) return "Open the read-only Portfolio & Alerts Mini App using the button below.";
   if (/(?:readiness|evidence|autonomous)/i.test(normalized)) {
@@ -79,7 +81,10 @@ export async function buildTelegramOpsAssistantReply(question: string, data: Tel
   if (isResearchQuestion(question)) {
     if (!data.askResearch) return "The research route is not available in this deployment. Trading and risk controls are unaffected.";
     try {
-      return limit(await data.askResearch(question));
+      const reply = await data.askResearch(question);
+      if (typeof reply === "string") return limit(reply);
+      if (reply.chart) onChart?.(reply.chart);
+      return limit(reply.text);
     } catch {
       return "The research agent could not be reached. The question was not treated as a trading instruction, and trading/risk controls are unaffected.";
     }
@@ -158,7 +163,7 @@ export function buildTelegramMiniAppMenuButton(environment: NodeJS.ProcessEnv): 
 export function createTelegramOpsAssistant(environment: NodeJS.ProcessEnv, data: TelegramOpsAssistantData, fetcher: typeof fetch = fetch) {
   const enabledRaw = environment.TELEGRAM_ASSISTANT_ENABLED ?? "false";
   if (enabledRaw !== "true" && enabledRaw !== "false") throw new Error("TELEGRAM_ASSISTANT_ENABLED must be exactly true or false.");
-  if (enabledRaw !== "true") return { enabled: false as const, start: async () => undefined };
+  if (enabledRaw !== "true") return { enabled: false as const, start: async () => undefined, stop: () => undefined };
   const config = getTelegramNotificationConfig(environment);
   if (!config.enabled) throw new Error("TELEGRAM_ASSISTANT_ENABLED=true requires Telegram alerts configuration.");
   const pollSeconds = Number(environment.TELEGRAM_ASSISTANT_POLL_SECONDS ?? "20");
@@ -169,7 +174,17 @@ export function createTelegramOpsAssistant(environment: NodeJS.ProcessEnv, data:
   const api = `https://api.telegram.org/bot${config.botToken}`;
   const send = async (chatId: string, text: string, openMiniApp = false) => {
     const replyMarkup = buildTelegramMiniAppReplyMarkup(environment, openMiniApp);
-    await fetcher(`${api}/sendMessage`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ chat_id: chatId, disable_web_page_preview: true, text: limit(text), ...(replyMarkup ? { reply_markup: replyMarkup } : {}) }) });
+    const response = await fetcher(`${api}/sendMessage`, { method: "POST", signal: AbortSignal.timeout(10_000), headers: { "content-type": "application/json" }, body: JSON.stringify({ chat_id: chatId, disable_web_page_preview: true, text: limit(text), ...(replyMarkup ? { reply_markup: replyMarkup } : {}) }) });
+    if (!response.ok || (await response.json() as TelegramResponse).ok !== true) throw new Error("telegram_assistant_send_failed");
+  };
+  const sendChart = async (chatId: string, chart: Uint8Array) => {
+    if (chart.byteLength > 5_000_000) throw new Error("telegram_chart_too_large");
+    const form = new FormData();
+    form.set("chat_id", chatId);
+    form.set("photo", new Blob([new Uint8Array(chart)], { type: "image/png" }), "stock-chart.png");
+    form.set("caption", "Stock Research Agent · completed daily bars · calculated support/resistance. See the accompanying data timestamps.");
+    const response = await fetcher(`${api}/sendPhoto`, { method: "POST", signal: AbortSignal.timeout(15_000), body: form });
+    if (!response.ok || (await response.json() as TelegramResponse).ok !== true) throw new Error("telegram_assistant_chart_failed");
   };
   const configureMenuButton = async () => {
     const menuButton = buildTelegramMiniAppMenuButton(environment);
@@ -189,12 +204,15 @@ export function createTelegramOpsAssistant(environment: NodeJS.ProcessEnv, data:
       if ((typeof chatId !== "number" && typeof chatId !== "string") || typeof text !== "string" || String(chatId) !== authorizedChatId) continue;
       try {
         const userIdReply = /^(?:\/)?myid$/i.test(text.trim()) ? getTelegramUserIdReply(item.message?.from?.id) : undefined;
-        await send(String(chatId), userIdReply ?? await buildTelegramOpsAssistantReply(text, data), !userIdReply && isMiniAppRequest(text));
+        let chart: Uint8Array | undefined;
+        await send(String(chatId), userIdReply ?? await buildTelegramOpsAssistantReply(text, data, (image) => { chart = image; }), !userIdReply && isMiniAppRequest(text));
+        if (chart) { try { await sendChart(String(chatId), chart); } catch { await send(String(chatId), "The chart could not be delivered. The numerical analysis above remains available; try /chart again."); } }
       } catch { await send(String(chatId), "The read-only assistant could not complete that query. Trading and risk controls are unaffected."); }
     }
   };
   return {
     enabled: true as const,
+    stop() { running = false; },
     async start() {
       if (running) return;
       running = true;
@@ -213,12 +231,39 @@ export function createTelegramOpsAssistantData(environment: NodeJS.ProcessEnv, h
   const orders = createPaperOrderRepository(db);
   const runs = createAgentRunRepository(db);
   const techSolver = createTechSolverRepository(db);
-  const askResearch = async (question: string): Promise<string> => {
+  const askResearch = async (question: string): Promise<string | MarketResearchReply> => {
     const now = new Date();
-    const runId = `telegram-research-${now.getTime()}`;
+    const runId = `telegram-research-${randomUUID()}`;
     const agentType = getTelegramResearchAgentType(question);
     await runs.enqueue({ agentType, createdAt: now, inputRefs: [`telegram-question:${runId}`], modelProvider: "telegram_ops_assistant", promptVersion: "telegram-research-router@1", runId, status: "queued", task: `Answer this operator research question using current market evidence: ${question.slice(0, 500)}` });
     await runs.start(runId, new Date());
+    if (agentType === "stock_research" && isMarketToolQuestion(question)) {
+      try {
+        const { reader, feed } = createTelegramMarketReader(environment, fetcher);
+        const result = await buildMarketResearch(question, reader, { now, feed });
+        if (result.evidence.dataStatus === "unavailable" || result.evidence.dataStatus === "needs_symbol") {
+          await runs.fail(runId, new Date(), result.evidence.dataStatus === "needs_symbol" ? "market_symbol_required" : "market_data_unavailable");
+          return result.reply;
+        }
+        let text = result.reply.text;
+        let sources: readonly FirecrawlSource[] = [];
+        if (/\b(news|why|earnings|events?|company|happened|moving|market|sector)\b/i.test(question) && environment.FIRECRAWL_API_KEY?.trim()) {
+          const query = /^\/market\b/i.test(question) ? "US stock market latest news economic events sector performance" : question;
+          const lookup = await fetchFirecrawlSources(query, environment.FIRECRAWL_API_KEY, fetcher);
+          if (!("error" in lookup)) {
+            sources = lookup.sources;
+            text += "\n\nNews/context references (web summaries, not verified price data):";
+            for (const item of sources) { const line = `\n${item.title}: ${item.description}\n${item.url}`; if (text.length + line.length <= 3850) text += line; }
+          }
+          else text += "\nWeb context is currently unavailable; quoted prices/technicals above come from Alpaca.";
+        }
+        await runs.succeed(runId, new Date(), { artifactConfidence: "observed_market_data", artifactEvidenceRefs: ["alpaca:stock-snapshots", "alpaca:daily-bars", ...sources.map((source) => source.url)], artifactPayload: { question: question.slice(0, 500), ...result.evidence, sources, chartGenerated: Boolean(result.reply.chart) }, artifactRationale: "Read-only Alpaca quotes and calculated daily technical levels; web references are advisory and cannot create trade intents.", artifactSchemaVersion: "telegram-market-research@1", artifactType: "telegram_market_research" });
+        return { ...result.reply, text };
+      } catch {
+        await runs.fail(runId, new Date(), "market_research_unavailable");
+        return "Stock Research Agent: market data is unavailable for this request. No quote, support level or chart was invented. Try /quote AAPL or /chart NVDA; check data entitlement if this persists.";
+      }
+    }
     const firecrawlKey = environment.FIRECRAWL_API_KEY?.trim();
     if (!firecrawlKey) {
       await runs.fail(runId, new Date(), "web_search_not_configured");

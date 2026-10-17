@@ -369,6 +369,9 @@ export interface AlpacaMarketDataReaderOptions {
   readonly secretKey: string;
   readonly baseUrl?: string;
   readonly fetchImpl?: typeof fetch;
+  /** Explicit feed for advisory tools; omitted preserves existing trading behavior. */
+  readonly stockFeed?: "iex" | "sip" | "delayed_sip";
+  readonly stockAdjustment?: "split";
 }
 
 function normalizeBar(symbol: string, bar: z.infer<typeof marketBarPayloadSchema>): PaperMarketBar {
@@ -423,6 +426,8 @@ export function createPaperMarketDataReader(options: AlpacaMarketDataReaderOptio
       if (request.pageToken) query.set("page_token", request.pageToken);
       if (request.start) query.set("start", request.start);
       if (request.end) query.set("end", request.end);
+      if (request.assetClass === "us_equity" && options.stockFeed) query.set("feed", options.stockFeed);
+      if (request.assetClass === "us_equity" && options.stockAdjustment) query.set("adjustment", options.stockAdjustment);
       const parsed = await requestJson(`${path}?${query.toString()}`, barsPayloadSchema);
       const bars = Object.entries(parsed.bars).flatMap(([symbol, symbolBars]) =>
         symbolBars.map((bar) => normalizeBar(symbol, bar)),
@@ -438,7 +443,9 @@ export function createPaperMarketDataReader(options: AlpacaMarketDataReaderOptio
         request.assetClass === "us_equity"
           ? "/v2/stocks/snapshots"
           : "/v1beta3/crypto/us/snapshots";
-      const parsed = await requestJson(`${path}?${new URLSearchParams({ symbols }).toString()}`, snapshotPayloadSchema);
+      const query = new URLSearchParams({ symbols });
+      if (request.assetClass === "us_equity" && options.stockFeed) query.set("feed", options.stockFeed);
+      const parsed = await requestJson(`${path}?${query.toString()}`, snapshotPayloadSchema);
       const snapshots = "snapshots" in parsed ? parsed.snapshots : parsed;
       return Object.entries(snapshots).map(([symbol, snapshot]) => ({
         ...(snapshot.dailyBar ? { dailyBar: normalizeBar(symbol, snapshot.dailyBar) } : {}),
