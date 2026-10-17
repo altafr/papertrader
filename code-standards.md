@@ -63,6 +63,9 @@
 - For short equity intents, require a stop above entry, a target below entry, current broker-confirmed shortability/easy borrow, sufficient buying power, the explicit short feature gate, a maximum `5%` single-short allocation, and a maximum `25%` aggregate-short allocation. Short exits are buy-to-cover orders.
 - The active stock universe is the versioned 36-symbol allowlist; direct crypto entries are disabled even though existing crypto positions may be monitored and closed.
 - Bracket orders are broker-active immediately; the position supervisor runs every 30 minutes for reconciliation and trailing-stop updates and must not be treated as the bracket trigger clock.
+- Equity bracket duration is GTC so protective legs survive the session close. Verify broker protection, restore missing OCO groups from complete stored provenance, and ratchet the actual broker stop as well as the persisted value.
+- Normalize signed short holdings to positive buy-to-cover quantities. Confirm protective-order cancellation and re-read the broker position before a supervisor close; a bracket fill must not turn a closing order into new exposure.
+- Persist ratchets atomically in the favorable direction of the stored entry side. Refresh in-flight exits directly with the broker, and only retry confirmed terminal failures using an audited deterministic replacement ID.
 - Every broker mutation uses a unique idempotency/client order ID.
 - On an ambiguous broker timeout, query existing state before retrying.
 - Position-management retries must query the full submission ledger, treat an existing non-terminal deterministic exit intent as in-flight, and must not call the broker a second time for the same position lifecycle.

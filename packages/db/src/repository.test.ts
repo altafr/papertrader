@@ -93,6 +93,15 @@ describe("shadow observation repository", () => {
 });
 
 describe("paper order submission repository", () => {
+  it("promotes approved evidence to the broker client ID before submission", async () => {
+    let stored: PersistedPaperOrderSubmission = { approvalId: "approval-1", assetClass: "us_equity", clientOrderId: "intent-1:scheduled-risk", intentId: "intent-1", quantity: "48", side: "sell", status: "risk_dry_run_approved", symbol: "ASTS" };
+    const transaction = {
+      select: () => ({ from: () => ({ where: () => ({ limit: async () => [stored] }) }) }),
+      update: () => ({ set: (value: Partial<PersistedPaperOrderSubmission>) => ({ where: () => ({ returning: async () => { stored = { ...stored, ...value }; return [stored]; } }) }) }),
+    };
+    const database = { transaction: async <T>(callback: (value: never) => Promise<T>) => callback(transaction as never) } as unknown as Database;
+    await expect(createPaperOrderRepository(database).recordSubmission({ ...stored, clientOrderId: "intent-1-paper", status: "pending" })).resolves.toMatchObject({ status: "pending", clientOrderId: "intent-1-paper", side: "sell" });
+  });
   it("records an intent once and reconciles broker truth transactionally", async () => {
     let stored: PersistedPaperOrderSubmission | undefined;
     const transaction = {

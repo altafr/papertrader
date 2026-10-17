@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { createHash } from "node:crypto";
 
 import { PAPER_TRADING_API_BASE_URL } from "@momentum/config";
 
@@ -63,6 +64,7 @@ export interface PaperOrderSubmitter {
 }
 
 export interface PaperExitOrderRequest {
+  readonly sourceIntentId?: string;
   readonly assetClass: "crypto" | "us_equity";
   readonly clientOrderId: string;
   readonly decision: { readonly exitPrice: string; readonly reason?: "profit_target" | "stop_loss" | "time_stop"; readonly shouldExit: boolean; readonly symbol: string };
@@ -81,6 +83,7 @@ export interface PaperOrderSubmitterOptions {
   readonly brokerConnectionEnabled: boolean;
   readonly fetchImpl?: typeof fetch;
   readonly secretKey: string;
+  readonly beforeExitRetry?: (input: { readonly previousOrderId: string; readonly clientOrderId: string; readonly symbol: string }) => Promise<void>;
 }
 
 /** Classify provider failures without exposing response bodies or credentials. */
@@ -148,11 +151,22 @@ export function createPaperOrderSubmitter(options: PaperOrderSubmitterOptions): 
       if (existingResponse.ok) return normalizeOrder(orderSchema.parse(await existingResponse.json()), request);
       if (existingResponse.status !== 404) throw new Error("Paper order idempotency lookup failed.");
       const bracket = request.assetClass === "us_equity" && request.plannedStopPrice && request.plannedTargetPrice;
-      const body = { client_order_id: request.clientOrderId, limit_price: request.limitPrice, order_class: bracket ? "bracket" : "simple", ...(bracket ? { take_profit: { limit_price: request.plannedTargetPrice }, stop_loss: { stop_price: request.plannedStopPrice } } : {}), qty: request.quantity, side: request.side, symbol: normalizeAlpacaOrderSymbol(request.assetClass, request.symbol), time_in_force: request.assetClass === "crypto" ? "gtc" : request.timeInForce, type: request.type };
+      const body = { client_order_id: request.clientOrderId, limit_price: request.limitPrice, order_class: bracket ? "bracket" : "simple", ...(bracket ? { take_profit: { limit_price: request.plannedTargetPrice }, stop_loss: { stop_price: request.plannedStopPrice } } : {}), qty: request.quantity, side: request.side, symbol: normalizeAlpacaOrderSymbol(request.assetClass, request.symbol), time_in_force: bracket || request.assetClass === "crypto" ? "gtc" : request.timeInForce, type: request.type };
       const response = await requestJson("/v2/orders", { body: JSON.stringify(body), method: "POST" });
       if (!response.ok) { const hint = await getProviderFailureHint(response); throw new Error(formatProviderFailure("Paper order submission failed", response, classifyPaperOrderFailure(request.assetClass, response.status, false, hint), hint)); }
       return normalizeOrder(orderSchema.parse(await response.json()), request);
     },
+  };
+}
+
+/** Refresh older in-flight exits even when they have fallen outside the recent-order window. */
+export function createPaperOrderStatusReader(options: PaperOrderSubmitterOptions) {
+  return async (input: { readonly alpacaOrderId?: string | null; readonly clientOrderId: string }) => {
+    const path = input.alpacaOrderId ? `/v2/orders/${encodeURIComponent(input.alpacaOrderId)}` : `/v2/orders:by_client_order_id?client_order_id=${encodeURIComponent(input.clientOrderId)}`;
+    const response = await (options.fetchImpl ?? fetch)(`${PAPER_TRADING_API_BASE_URL}${path}`, { signal: AbortSignal.timeout(10_000), headers: { "APCA-API-KEY-ID": options.apiKey, "APCA-API-SECRET-KEY": options.secretKey } });
+    if (!response.ok) throw new Error(`paper_exit_reconciliation_http_${response.status}`);
+    const parsed = orderSchema.parse(await response.json());
+    return { alpacaOrderId: parsed.id, status: parsed.status, ...(parsed.filled_qty ? { filledQuantity: parsed.filled_qty } : {}), ...(parsed.submitted_at ? { submittedAt: new Date(parsed.submitted_at) } : {}), ...(parsed.updated_at ? { updatedAt: new Date(parsed.updated_at) } : {}) };
   };
 }
 
@@ -171,10 +185,19 @@ export function createPaperExitOrderSubmitter(options: PaperOrderSubmitterOption
       if (!options.brokerConnectionEnabled) throw new Error("Paper broker connection is disabled.");
       if (!request.decision.shouldExit || !request.decision.reason) throw new Error("A deterministic exit decision is required.");
       if (!/^[A-Za-z0-9._:-]{1,48}$/.test(request.clientOrderId)) throw new Error("Client order ID has an invalid format.");
-      const existingResponse = await requestJson(`/v2/orders:by_client_order_id?client_order_id=${encodeURIComponent(request.clientOrderId)}`, { method: "GET" });
-      if (existingResponse.ok) return normalizeOrder(orderSchema.parse(await existingResponse.json()), { approval: { approvalId: request.clientOrderId, intentId: request.clientOrderId, status: "approved" }, assetClass: request.assetClass, clientOrderId: request.clientOrderId, quantity: request.quantity, side: "buy", symbol: request.decision.symbol, timeInForce: request.timeInForce, type: request.type });
-      if (existingResponse.status !== 404) throw new Error("Paper exit idempotency lookup failed.");
-      const response = await requestJson("/v2/orders", { body: JSON.stringify({ client_order_id: request.clientOrderId, order_class: "simple", qty: request.quantity, side: request.closingSide ?? "sell", symbol: normalizeAlpacaOrderSymbol(request.assetClass, request.decision.symbol), time_in_force: request.assetClass === "crypto" ? "gtc" : request.timeInForce, type: request.type }), method: "POST" });
+      let clientOrderId = request.clientOrderId;
+      let missing = false;
+      for (let attempt = 0; attempt < 10; attempt++) {
+        const existingResponse = await requestJson(`/v2/orders:by_client_order_id?client_order_id=${encodeURIComponent(clientOrderId)}`, { method: "GET" });
+        if (existingResponse.status === 404) { missing = true; break; }
+        if (!existingResponse.ok) throw new Error("Paper exit idempotency lookup failed.");
+        const existing = orderSchema.parse(await existingResponse.json());
+        if (!["canceled", "cancelled", "expired", "rejected"].includes(existing.status)) return normalizeOrder(existing, { approval: { approvalId: clientOrderId, intentId: clientOrderId, status: "approved" }, assetClass: request.assetClass, clientOrderId, quantity: request.quantity, side: request.closingSide ?? "sell", symbol: request.decision.symbol, timeInForce: request.timeInForce, type: request.type });
+        clientOrderId = `retry-${createHash("sha256").update(`${request.clientOrderId}:${existing.id}`).digest("hex").slice(0, 18)}-exit-${request.decision.reason}`;
+        await options.beforeExitRetry?.({ previousOrderId: existing.id, clientOrderId, symbol: request.decision.symbol });
+      }
+      if (!missing) throw new Error("Paper exit retry reconciliation limit reached.");
+      const response = await requestJson("/v2/orders", { body: JSON.stringify({ client_order_id: clientOrderId, order_class: "simple", qty: request.quantity, side: request.closingSide ?? "sell", symbol: normalizeAlpacaOrderSymbol(request.assetClass, request.decision.symbol), time_in_force: request.assetClass === "crypto" ? "gtc" : request.timeInForce, type: request.type }), method: "POST" });
       if (!response.ok) { const hint = await getProviderFailureHint(response); throw new Error(formatProviderFailure("Paper exit submission failed", response, classifyPaperOrderFailure(request.assetClass, response.status, true, hint), hint)); }
       return normalizeOrder(orderSchema.parse(await response.json()), { approval: { approvalId: request.clientOrderId, intentId: request.clientOrderId, status: "approved" }, assetClass: request.assetClass, clientOrderId: request.clientOrderId, quantity: request.quantity, side: "buy", symbol: request.decision.symbol, timeInForce: request.timeInForce, type: request.type });
     },

@@ -4,6 +4,8 @@
 
 ## Final Active Trading Policy (2026-10-17)
 
+Exit reliability correction (2026-10-17): broker-signed short holdings are converted to positive buy-to-cover order quantities. Stock brackets use good-til-cancelled duration, and the supervisor restores missing broker stop/target groups from approved stored plans. Favorable stops ratchet upward for longs and downward for shorts in both PostgreSQL and Alpaca. Before a supervisor market exit, protective orders are canceled and confirmed, then remaining broker quantity is re-read to prevent a duplicate close after a bracket fill. Broker fills, rather than exit decisions or submission acknowledgements, establish booked profit/loss.
+
 - **Mode:** Alpaca paper trading only. Paper Autopilot may submit approved orders without per-order operator confirmation; live trading remains disabled.
 - **Universe:** the versioned 36-symbol US-equity watchlist. Direct crypto entries are disabled; existing crypto positions are observation/close-only.
 - **Directions:** long and short stock candidates are both supported. Longs require positive stock momentum plus bullish market and sector confirmation. Shorts require negative stock momentum plus bearish market and sector confirmation, current broker-confirmed shortability/easy borrow, sufficient buying power, and the explicit short feature gate.

@@ -1,5 +1,12 @@
 # Progress Tracker
 
+## Exit booking and broker-protection repair (2026-10-17)
+
+- Confirmed the actual current profit-exit failure: negative short quantities violated the positive-quantity submission constraint before reaching Alpaca. No stale active short exit rows were found; the prior stale-intent explanation was a hypothesis, not the observed cause.
+- Corrected positive buy-to-cover quantities, direction-aware durable ratchets, full source intent identity, broker-ID reconciliation, GTC equity brackets, and broker protection restoration/stop replacement. Added cancellation confirmation and remaining-position checks before supervisor exits, direct in-flight reconciliation, deterministic terminal-exit retries, durable mutation audit, and shared execution locking.
+- Regression scenarios cover short profit exits, long profit exits, terminal/ambiguous retries, protection recovery, long/short broker ratchets, partial fills, cancellation failures, and bracket-fill races.
+- Verification: full production build, workspace typechecks, lint, and 107 test files / 525 tests passed. Added a real PostgreSQL long/short ratchet verification command that rolls back its test records. Hosted deployment and broker protection read-back remain pending. No new entry, balance reset, risk-threshold change, or live-mode activation is part of this repair.
+
 ## Finalization checkpoint (2026-10-17)
 
 - Final active rules are now summarized at the top of `project-overview.md` and `architecture.md`; historical superseded decisions remain retained below for audit chronology.

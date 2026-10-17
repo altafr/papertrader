@@ -48,7 +48,7 @@ describe("paper order submitter", () => {
       return body ? response(201, order) : response(404, {});
     } });
     await submitter.submit({ ...request, entryPrice: "100.00", plannedStopPrice: "95.00", plannedTargetPrice: "104.00" });
-    expect(JSON.parse(body)).toMatchObject({ order_class: "bracket", take_profit: { limit_price: "104.00" }, stop_loss: { stop_price: "95.00" } });
+    expect(JSON.parse(body)).toMatchObject({ time_in_force: "gtc", order_class: "bracket", take_profit: { limit_price: "104.00" }, stop_loss: { stop_price: "95.00" } });
   });
 
   it("normalizes crypto market orders to Alpaca-supported gtc time in force", async () => {

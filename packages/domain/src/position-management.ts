@@ -19,7 +19,7 @@ export interface ManagedPaperPosition {
   readonly assetClass: "crypto" | "us_equity";
   readonly currentPrice: string;
   readonly entryPrice: string;
-  /** Last durably ratcheted stop; it may only move upward for a long position. */
+  /** Last durably ratcheted stop: upward for longs, downward for shorts. */
   readonly effectiveStopPrice?: string;
   readonly plannedStopPrice: string;
   readonly plannedTargetPrice?: string;
@@ -57,7 +57,7 @@ export function calculateDirectionalTrailingStopPrice(input: { readonly side?: "
   return (planned.lessThan(trailing.toFixed(8)) ? planned : trailing).toDecimalPlaces(8).toFixed(8);
 }
 
-/** Evaluate one long paper position using its immutable entry/exit plan. No broker access or mutation. */
+/** Evaluate a long or short paper position using its stored entry/exit plan. */
 export function evaluatePaperPositionExit(position: ManagedPaperPosition, now: string): PositionExitDecision {
   if (!position.symbol.trim() || !position.strategyKey.trim() || !position.strategyVersion.trim()) throw new Error("Position identity is required.");
   const current = new Decimal(position.currentPrice);

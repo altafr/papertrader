@@ -4,6 +4,17 @@
 
 ## Final Active Runtime Contract (2026-10-17)
 
+### Exit and broker-protection correction (2026-10-17)
+
+- Normalize signed broker holdings to positive order quantities; retain the original signed holdings in the read model. Long exits sell; short exits buy to cover.
+- Persist stop ratchets atomically using the stored entry side: increasing stops for buys, decreasing stops for sells. Tighten the actual broker stop leg with PATCH; do not merely update a displayed stop.
+- Submit equity brackets as GTC. On every supervisor pass, inspect broker open orders and restore missing OCO stop/target groups using complete broker-linked plan provenance, including outside the regular session. This repairs protection without using stale prices to invent a new discretionary exit.
+- Persist broker-protection requests before mutation and acknowledgements afterward in the agent audit ledger. Group creation uses deterministic client IDs; ambiguous lookups fail closed. Conflicting or incomplete groups degrade supervision.
+- Serialize position management with scheduled execution using the shared PostgreSQL advisory lock. Before a supervisor exit, confirm protective-order cancellations and re-read the remaining broker position to handle bracket/partial-fill races.
+- Refresh in-flight exit statuses directly from Alpaca even when absent from the bounded recent-order feed. Retry only broker-confirmed canceled/expired/rejected exits with deterministic audited replacement IDs. A genuine in-flight order remains protected from duplicate submission.
+- Preserve the full source lifecycle ID separately from the provider-safe client ID. Reconciliation matches broker ID as well as client ID, including legacy risk-evidence rows; new approved evidence is promoted to its actual outbound client ID before submission.
+- Immediate execution between supervisor runs is provided by broker-held brackets during supported market sessions. Closed-market acceptance is not a fill, and booked P/L is only confirmed from reconciled broker fills.
+
 The production Worker is paper-only and runs the versioned 36-symbol US-equity universe. It supports direction-matched long and short stock automation. Longs require bullish broad-market and sector confirmation; shorts require bearish confirmation, broker-confirmed shortability/easy borrow, available buying power, the short feature gate, a 5% single-short cap, and a 25% aggregate-short cap. The deterministic policy also enforces a 2% minimum position, 10% long stock cap, 80% gross cap, 75% target exposure, 5% invested-notional planned-loss limit, 5% adverse stop distance, freshness, idempotency, open-position, kill-switch, and complete-exit-plan gates.
 
 Stock research runs at 17:00 ET after close, 08:30 ET pre-market, and every 30 minutes from 09:30–15:30 ET. Position management runs every 30 minutes. Entries carry broker-native bracket stops and targets; short exits are buy-to-cover orders. Brackets can execute between supervisor passes. Direct crypto entries remain disabled, while existing crypto positions may be monitored and closed. All decisions and outcomes are persisted to PostgreSQL and exposed through the authenticated dashboard and Telegram Mini App.

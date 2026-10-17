@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, gte, inArray, isNotNull, isNull, lt, or, sql } from "drizzle-orm";
+import { and, asc, desc, eq, gt, gte, inArray, isNotNull, isNull, lt, or, sql } from "drizzle-orm";
 
 import type { Database } from "./client.js";
 import { accountSnapshots, activities, agentRuns, durableOneRunAudits, durableScheduleRuns, orders, paperBaselineConfirmations, paperOrderSubmissions, positions, shadowObservationOutcomes, shadowObservations, strategyLifecycleEvents, strategyPaperEvidence, techSolverCases, telegramAlertEvents } from "./schema.js";
@@ -325,7 +325,7 @@ export function createAccountStateRepository(db: Database) {
               status: order.status,
               ...(order.submittedAt !== undefined ? { submittedAt: order.submittedAt } : {}),
               ...(order.updatedAt !== undefined ? { updatedAt: order.updatedAt } : {}),
-            }).where(eq(paperOrderSubmissions.clientOrderId, order.clientOrderId));
+            }).where(or(eq(paperOrderSubmissions.clientOrderId, order.clientOrderId), eq(paperOrderSubmissions.alpacaOrderId, order.alpacaOrderId)));
           }
         }
         if (state.activities.length > 0) {
@@ -559,10 +559,12 @@ export function createPaperOrderRepository(db: Database) {
           const isRiskEvidence = submission.status === "risk_dry_run_approved" || submission.status === "risk_dry_run_rejected";
           const existingIsRiskEvidence = existingIntent.status === "risk_dry_run_approved" || existingIntent.status === "risk_dry_run_rejected";
           const existingTerminalFailureWithoutBroker = !existingIntent.alpacaOrderId && ["failed", "rejected", "canceled", "cancelled", "expired"].includes(existingIntent.status.toLowerCase());
-          if (isRiskEvidence && (existingIsRiskEvidence || existingTerminalFailureWithoutBroker)) {
+          const promotingApprovedEvidence = existingIntent.status === "risk_dry_run_approved" && submission.status === "pending" && !existingIntent.alpacaOrderId;
+          if ((isRiskEvidence && (existingIsRiskEvidence || existingTerminalFailureWithoutBroker)) || promotingApprovedEvidence) {
             const [refreshed] = await transaction.update(paperOrderSubmissions).set({
               approvalId: submission.approvalId,
               assetClass: submission.assetClass,
+              ...(promotingApprovedEvidence ? { clientOrderId: submission.clientOrderId } : {}),
               quantity: submission.quantity,
               ...(submission.side ? { side: submission.side } : {}),
               status: submission.status,
@@ -658,7 +660,9 @@ export function createPaperOrderRepository(db: Database) {
     },
 
     async ratchetTrailingStop(intentId: string, trailingStopPrice: string) {
-      const [row] = await db.update(paperOrderSubmissions).set({ trailingStopPrice, updatedAt: new Date() }).where(and(eq(paperOrderSubmissions.intentId, intentId), or(isNull(paperOrderSubmissions.trailingStopPrice), lt(paperOrderSubmissions.trailingStopPrice, trailingStopPrice)))).returning();
+      // Direction comes from the persisted entry, never from a caller's guess.
+      const improves = or(and(eq(paperOrderSubmissions.side, "buy"), lt(paperOrderSubmissions.trailingStopPrice, trailingStopPrice)), and(eq(paperOrderSubmissions.side, "sell"), gt(paperOrderSubmissions.trailingStopPrice, trailingStopPrice)));
+      const [row] = await db.update(paperOrderSubmissions).set({ trailingStopPrice, updatedAt: new Date() }).where(and(eq(paperOrderSubmissions.intentId, intentId), or(isNull(paperOrderSubmissions.trailingStopPrice), improves))).returning();
       return row;
     },
 
@@ -682,7 +686,7 @@ export function createPaperOrderRepository(db: Database) {
     },
 
     async listActiveExitSubmissions() {
-      return db.select({ clientOrderId: paperOrderSubmissions.clientOrderId, intentId: paperOrderSubmissions.intentId, status: paperOrderSubmissions.status }).from(paperOrderSubmissions).where(sql`${paperOrderSubmissions.clientOrderId} LIKE '%-exit-%' AND ${paperOrderSubmissions.status} NOT IN ('filled', 'canceled', 'cancelled', 'expired', 'rejected', 'failed')`);
+      return db.select({ alpacaOrderId: paperOrderSubmissions.alpacaOrderId, clientOrderId: paperOrderSubmissions.clientOrderId, intentId: paperOrderSubmissions.intentId, status: paperOrderSubmissions.status }).from(paperOrderSubmissions).where(sql`${paperOrderSubmissions.clientOrderId} LIKE '%-exit-%' AND ${paperOrderSubmissions.status} NOT IN ('filled', 'canceled', 'cancelled', 'expired', 'rejected', 'failed')`);
     },
 
     async listExitPlans() {

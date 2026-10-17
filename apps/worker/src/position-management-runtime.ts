@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import * as DecimalModule from "decimal.js";
 
-import { createPaperAccountReader, createPaperMarketDataReader, createPaperExitOrderSubmitter, type PaperMarketSnapshot } from "@momentum/alpaca";
+import { createPaperAccountReader, createPaperMarketDataReader, createPaperExitOrderSubmitter, createPaperOrderStatusReader, createPaperPositionProtection, type PaperMarketSnapshot } from "@momentum/alpaca";
 import { isGlobalKillSwitchActive } from "@momentum/config";
 import { isCompleteExitPlan } from "@momentum/domain";
 import { createAccountStateRepository, createDatabase, createPaperOrderRepository, createTelegramAlertRepository } from "@momentum/db";
@@ -198,7 +198,11 @@ export async function runPositionManagementCycle(environment: NodeJS.ProcessEnv 
   const readiness = getPositionManagementReadiness(environment);
   if (readiness.status !== "ready") throw new Error(`Position-management scheduler is not ready: ${readiness.status}.`);
   const { db, pool } = createDatabase(environment.DATABASE_URL);
+  const allocationLock = await pool.connect();
+  let locked = false;
   try {
+    locked = (await allocationLock.query<{ acquired: boolean }>("SELECT pg_try_advisory_lock(726031, 1) AS acquired")).rows[0]?.acquired ?? false;
+    if (!locked) return { managed: 0, submitted: 0 };
     const apiKey = environment.ALPACA_API_KEY!;
     const secretKey = environment.ALPACA_SECRET_KEY!;
     const accountRepository = createAccountStateRepository(db);
@@ -207,16 +211,36 @@ export async function runPositionManagementCycle(environment: NodeJS.ProcessEnv 
     const model = await accountRepository.getLatestReadModel();
     const notifier = createRuntimeAlertNotifier(environment, createTelegramAlertRepository(db));
     const orderRepository = createPaperOrderRepository(db);
+    const protection = createPaperPositionProtection({ apiKey, secretKey, brokerConnectionEnabled: true, audit: async (mutation, phase) => {
+      if (getPositionManagementReadiness(environment).status !== "ready") throw new Error("Position-management execution gate changed.");
+      const at = new Date();
+      await pool.query({ text: "INSERT INTO agent_runs (run_id,agent_type,task,status,prompt_version,input_refs,created_at,started_at,finished_at,artifact_type,artifact_schema_version,artifact_rationale,artifact_payload) VALUES ($1,'position_management_telemetry',$2,'succeeded','broker-protection-v1','[]'::jsonb,$3,$3,$3,'broker_protection','1','Deterministic paper position protection',$4::jsonb)", values: [`broker-protection:${randomUUID()}`, `${phase}: ${mutation.action} ${mutation.symbol}`, at, JSON.stringify({ ...mutation, phase })] });
+    } });
     for (const transition of getPaperOrderStatusTransitions(beforeModel?.orders ?? [], model?.orders ?? [])) {
       const terminal = isTerminalPaperOrderStatus(transition.status);
       await notifier.notify({ code: "paper_order_status_changed", dedupeKey: `paper_order_status_changed:${transition.alpacaOrderId}:${transition.status}`, message: `Paper order status changed: ${transition.symbol} ${transition.from} → ${transition.status}.`, severity: terminal && transition.status.toLowerCase() !== "filled" ? "warning" : "info" });
     }
     const rows = await orderRepository.listExitPlans();
+    const readOrderStatus = createPaperOrderStatusReader({ apiKey, secretKey, brokerConnectionEnabled: true });
+    for (const submission of await orderRepository.listActiveExitSubmissions()) {
+      const brokerStatus = await readOrderStatus(submission);
+      await orderRepository.reconcile({ ...brokerStatus, intentId: submission.intentId });
+    }
     const activeExitIntentIds = getActiveExitIntentIds(await orderRepository.listActiveExitSubmissions());
     const plans = selectLatestCompleteExitPlans(rows.filter((row) => isCompleteExitPlan(row)));
     const positions = model?.positions ?? [];
     const managedPositions = positions.filter((position) => plans.has(`${position.assetClass}:${canonicalSymbol(position.symbol)}`));
     const unmanagedPositions = positions.filter((position) => !plans.has(`${position.assetClass}:${canonicalSymbol(position.symbol)}`));
+    const protectionFailures: { assetClass: "us_equity"; symbol: string; error: string }[] = [];
+    // Repair expired brackets even outside the session, using only approved stored levels.
+    for (const position of managedPositions.filter((item) => item.assetClass === "us_equity")) {
+      const plan = plans.get(`${position.assetClass}:${canonicalSymbol(position.symbol)}`)!;
+      if (!plan.plannedTargetPrice) continue;
+      try {
+        const status = await protection.ensure({ symbol: position.symbol, side: plan.side === "sell" ? "short" : "long", intentId: plan.intentId, stopPrice: plan.trailingStopPrice ?? plan.plannedStopPrice!, targetPrice: plan.plannedTargetPrice });
+        console.log(JSON.stringify({ event: "position_broker_protection", symbol: position.symbol, status }));
+      } catch (error) { protectionFailures.push({ assetClass: "us_equity", symbol: position.symbol, error: error instanceof Error ? error.message : "paper_protection_failed" }); }
+    }
     setPositionManagementUnmanagedCount(unmanagedPositions.length);
     if (unmanagedPositions.length > 0) {
       const symbols = unmanagedPositions.map((position) => position.symbol);
@@ -257,11 +281,14 @@ export async function runPositionManagementCycle(environment: NodeJS.ProcessEnv 
         await notifier.notify({ code: "stale_position_market_data", cooldownKey: `stale_position_market_data:${position.assetClass}:${position.symbol}`, cooldownMs: POSITION_DETECTED_COOLDOWN_MS, dedupeKey: `stale_position_market_data:${position.assetClass}:${position.symbol}`, message: `Position management paused for ${position.symbol}: latest market mark is stale. No automatic exit was submitted.`, severity: "critical" });
       }
     }
-    const brokerExitSubmitter = createPaperExitOrderSubmitter({ apiKey, brokerConnectionEnabled: true, secretKey });
+    const brokerExitSubmitter = createPaperExitOrderSubmitter({ apiKey, brokerConnectionEnabled: true, secretKey, beforeExitRetry: async (retry) => {
+      const at = new Date();
+      await pool.query({ text: "INSERT INTO agent_runs (run_id,agent_type,task,status,prompt_version,input_refs,created_at,started_at,finished_at,artifact_type,artifact_schema_version,artifact_rationale,artifact_payload) VALUES ($1,'position_management_telemetry','Retry broker-confirmed terminal exit','succeeded','exit-retry-v1','[]'::jsonb,$2,$2,$2,'exit_retry','1','Reconciled terminal broker order before retry',$3::jsonb)", values: [`exit-retry:${randomUUID()}`, at, JSON.stringify(retry)] });
+    } });
     const exitSubmitter = {
       submitExit: async (request: Parameters<typeof brokerExitSubmitter.submitExit>[0]) => {
-        const intentId = getPositionExitIntentId(request.clientOrderId);
-        const sourceIntentId = intentId.replace(/:exit$/, "");
+        const sourceIntentId = request.sourceIntentId ?? getPositionExitIntentId(request.clientOrderId).replace(/:exit$/, "");
+        const intentId = `${sourceIntentId}:exit`;
         const source = managed.find((position) => position.intentId === sourceIntentId);
         await orderRepository.recordSubmission({ approvalId: `${intentId}:approval`, assetClass: request.assetClass, clientOrderId: request.clientOrderId, intentId, quantity: request.quantity, side: request.closingSide ?? "sell", status: "pending", symbol: request.decision.symbol, ...(source?.strategyKey ? { strategyKey: source.strategyKey } : {}), ...(source?.strategyVersion ? { strategyVersion: source.strategyVersion } : {}) });
         try {
@@ -274,21 +301,26 @@ export async function runPositionManagementCycle(environment: NodeJS.ProcessEnv 
         }
       },
     };
-    const result = await runPaperPositionManagementOnce({ activeExitIntentIds, now: new Date().toISOString(), positions: managed, submitter: exitSubmitter });
+    const result = await runPaperPositionManagementOnce({ activeExitIntentIds, now: new Date().toISOString(), positions: managed, prepareExit: async (position, quantity) => position.assetClass === "us_equity" ? protection.prepareExit(position.symbol, position.side ?? "long", quantity) : quantity, submitter: exitSubmitter });
     for (const decision of result.decisions) {
       const source = managed.find((position) => position.symbol === decision.symbol);
       if (source) await orderRepository.ratchetTrailingStop(source.intentId, decision.effectiveStopPrice);
+      if (source?.assetClass === "us_equity" && source.plannedTargetPrice && !decision.shouldExit) {
+        try { await protection.ensure({ symbol: source.symbol, side: source.side, intentId: source.intentId, stopPrice: decision.effectiveStopPrice, targetPrice: source.plannedTargetPrice }); }
+        catch (error) { protectionFailures.push({ assetClass: "us_equity", symbol: source.symbol, error: error instanceof Error ? error.message : "paper_protection_failed" }); }
+      }
       console.log(JSON.stringify(buildPositionExitDecisionLog({ ...decision, currentPrice: decision.exitPrice, ...(source ? { entryPrice: source.entryPrice, plannedStopPrice: source.plannedStopPrice, ...(source.plannedTargetPrice ? { plannedTargetPrice: source.plannedTargetPrice } : {}), strategyKey: source.strategyKey, strategyVersion: source.strategyVersion, ...(source.timeStopAt ? { timeStopAt: source.timeStopAt } : {}) } : {}), submitted: result.submissions.some((submission) => submission.symbol === decision.symbol) })));
       if (!decision.shouldExit || !decision.reason) continue;
       const intentId = source?.intentId ?? decision.symbol;
       await notifier.notify({ code: "position_exit_decision", dedupeKey: getPositionExitDecisionDedupeKey(intentId, decision.reason), message: source ? buildPositionExitDecisionMessage({ currentPrice: decision.exitPrice, entryPrice: source.entryPrice, plannedStopPrice: source.plannedStopPrice, effectiveStopPrice: decision.effectiveStopPrice, ...(source.plannedTargetPrice ? { plannedTargetPrice: source.plannedTargetPrice } : {}), ...(source.timeStopAt ? { timeStopAt: source.timeStopAt } : {}), reason: decision.reason, strategyKey: source.strategyKey, strategyVersion: source.strategyVersion, symbol: decision.symbol }) : `${decision.symbol} exit decision: ${decision.reason} at mark ${decision.exitPrice}. This was triggered by the stored deterministic exit plan.`, severity: decision.reason === "stop_loss" ? "critical" : "info" });
     }
     if (result.submitted > 0) {
-      const submittedDecisions = result.decisions.filter((decision) => decision.shouldExit);
+      const submittedDecisions = result.decisions.filter((decision) => result.submissions.some((submission) => submission.symbol === decision.symbol));
       const submittedSymbols = submittedDecisions.map((decision) => decision.symbol).sort().join(",");
       await notifier.notify({ code: "paper_exit_submitted", dedupeKey: `paper_exit_submitted:${submittedSymbols}`, message: buildPaperExitSubmittedMessage(submittedDecisions), severity: "warning" });
     }
-    for (const failure of result.failures) {
+    for (const failure of [...result.failures, ...protectionFailures]) {
+      console.error(JSON.stringify({ event: "position_exit_or_protection_failed", symbol: failure.symbol, error: failure.error.slice(0, 240) }));
       await notifier.notify({ code: "paper_exit_submission_failed", cooldownKey: `paper_exit_submission_failed:${failure.assetClass}:${failure.symbol}`, cooldownMs: POSITION_DETECTED_COOLDOWN_MS, dedupeKey: `paper_exit_submission_failed:${failure.assetClass}:${failure.symbol}`, message: `Paper exit for ${failure.symbol} was rejected; the position remains open and will be retried after broker reconciliation.`, severity: "critical" });
     }
     console.log(JSON.stringify(buildPositionManagementLog({ managed: managed.length, positions: positions.length, submitted: result.submitted, symbols: managed.map((position) => position.symbol) })));
@@ -301,9 +333,12 @@ export async function runPositionManagementCycle(environment: NodeJS.ProcessEnv 
       }) };
       await pool.query({ text: "INSERT INTO agent_runs (run_id,agent_type,task,status,prompt_version,input_refs,created_at,started_at,finished_at,artifact_type,artifact_schema_version,artifact_rationale,artifact_payload) VALUES ($1,'position_management_telemetry','Record deterministic supervision decisions','succeeded','position-telemetry-v1','[]'::jsonb,$2,$2,$2,'position_management_pass','1','Observed deterministic decisions; not order authority',$3::jsonb)", values: [`position-telemetry:${randomUUID()}`, at, JSON.stringify(payload)] });
     } catch { console.warn(JSON.stringify({ event: "position_telemetry_unavailable" })); }
-    if (result.failures.length > 0) throw buildPositionManagementFailureError(result.failures);
+    if (result.submitted > 0) await reconcilePaperAccount(createPaperAccountReader({ apiKey, secretKey }), accountRepository);
+    if (result.failures.length > 0 || protectionFailures.length > 0) throw buildPositionManagementFailureError([...result.failures, ...protectionFailures]);
     return { managed: managed.length, submitted: result.submitted };
   } finally {
+    if (locked) await allocationLock.query("SELECT pg_advisory_unlock(726031, 1)");
+    allocationLock.release();
     await pool.end();
   }
 }

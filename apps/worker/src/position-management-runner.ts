@@ -1,5 +1,6 @@
 import { createPaperExitOrderSubmitter, type PaperExitOrderSubmitter, type PaperOrderSubmission } from "@momentum/alpaca";
 import { evaluatePaperPositionExit, type ManagedPaperPosition, type PositionExitDecision } from "@momentum/domain";
+import { Decimal } from "decimal.js";
 
 export interface ManagedPositionInput extends ManagedPaperPosition {
   readonly intentId: string;
@@ -31,6 +32,7 @@ export async function runPaperPositionManagementOnce(input: {
   readonly positions: readonly ManagedPositionInput[];
   /** Exit intents already accepted by the broker and still in flight. */
   readonly activeExitIntentIds?: ReadonlySet<string>;
+  readonly prepareExit?: (position: ManagedPositionInput, quantity: string) => Promise<string | undefined>;
   readonly submitter: Pick<PaperExitOrderSubmitter, "submitExit">;
 }): Promise<PositionManagementResult> {
   const decisions: PositionExitDecision[] = [];
@@ -44,7 +46,11 @@ export async function runPaperPositionManagementOnce(input: {
     const exitIntentId = `${position.intentId}:exit`;
     if (input.activeExitIntentIds?.has(exitIntentId)) continue;
     try {
-      submissions.push(await input.submitter.submitExit({ assetClass: position.assetClass, clientOrderId: buildPositionExitClientOrderId(position.intentId, decision.reason ?? "unknown"), closingSide: position.side === "short" ? "buy" : "sell", decision, quantity: position.quantity, timeInForce: position.assetClass === "crypto" ? "gtc" : "day", type: "market" }));
+      const quantity = new Decimal(position.quantity).abs();
+      if (!quantity.isFinite() || quantity.isZero()) throw new Error("Exit quantity must be finite and nonzero.");
+      const remainingQuantity = input.prepareExit ? await input.prepareExit(position, quantity.toFixed()) : quantity.toFixed();
+      if (!remainingQuantity) continue;
+      submissions.push(await input.submitter.submitExit({ sourceIntentId: position.intentId, assetClass: position.assetClass, clientOrderId: buildPositionExitClientOrderId(position.intentId, decision.reason ?? "unknown"), closingSide: position.side === "short" ? "buy" : "sell", decision, quantity: remainingQuantity, timeInForce: "gtc", type: "market" }));
       submitted += 1;
     } catch (error) {
       failures.push({ assetClass: position.assetClass, error: error instanceof Error ? error.message.slice(0, 240) : "position_exit_submission_failed", symbol: position.symbol });
